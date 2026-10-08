@@ -92,3 +92,11 @@ async def status(force: bool = False) -> dict[str, Any]:
 
 def status_sync(force: bool = False) -> dict[str, Any]:
     return asyncio.run(status(force))
+
+
+def provider_state() -> tuple[str, str]:
+    """('ok' | 'bad' | '', detail) for the header pill, from the cache only (never blocks)."""
+    for r in _CACHE["rows"]:
+        if r["name"].lower().startswith("livekit"):
+            return ("ok" if r["ok"] else "bad"), r.get("detail", "")
+    return "", "status not checked yet"

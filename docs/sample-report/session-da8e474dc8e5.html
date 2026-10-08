@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Scoring · Call simulator</title>
+<title>Address change denied on shipped order, caller escalates · Sessions</title>
 <style>
 :root{
   --bg:#f7f7f8;--card:#fff;--ink:#111827;--muted:#6b7280;--line:#e5e7eb;--line2:#f1f3f5;
@@ -252,9 +252,9 @@ details.srow summary .ttl .chip{font-weight:400}
 <aside class="nav">
   <a class="brand" href="overview.html"><svg viewBox="0 0 24 20" aria-hidden="true"><g fill="var(--accent)"><rect x="1" y="7" width="3" height="6" rx="1.5"/><rect x="6" y="3" width="3" height="14" rx="1.5"/><rect x="11" y="0" width="3" height="20" rx="1.5"/><rect x="16" y="4" width="3" height="12" rx="1.5"/><rect x="21" y="8" width="3" height="4" rx="1.5"/></g></svg>Call simulator</a>
   <a class="item " href="overview.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Overview</a>
-  <a class="item " href="sessions.html"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Practice sessions</a>
+  <a class="item active" href="sessions.html"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Practice sessions</a>
   <a class="item " href="index.html"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h12M3 18h6"/></svg>Runs</a>
-  <a class="item active" href="scoring.html"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16"/><path d="M8 15l4-5 3 3 5-6"/></svg>Scoring</a>
+  <a class="item " href="scoring.html"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16"/><path d="M8 15l4-5 3 3 5-6"/></svg>Scoring</a>
   <a class="item " href="agent.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Agent settings</a>
   <div class="sec">Support agent</div>
   <a class="agentbox" href="agent.html" style="text-decoration:none;color:inherit"><div class="av">A</div><div><div class="nm">Gateway Goods support line</div><div class="st"><i></i>livekit</div></div></a>
@@ -268,94 +268,115 @@ details.srow summary .ttl .chip{font-weight:400}
 </aside>
 <div class="wrap">
 <header class="top">
-  <div class="crumbs"><a href="overview.html">Voice agent evaluation</a><i>›</i><b>Scoring</b></div>
+  <div class="crumbs"><a href="overview.html">Voice agent evaluation</a><i>›</i><a href="sessions.html">Practice sessions</a><i>›</i><b>Address change denied on shipped order, caller escalates</b></div>
   <div class="right">
     <span class="status-pill " title="livekit"><i></i>livekit</span>
   </div>
 </header>
 <main>
-<h1>How calls are scored</h1>
-<p class="sub">Every call gets the checks below. A <b>hard</b> check failing fails the call. A <b>soft</b> check failing flags it ("passed but flagged"). <b>Info</b> rows are measurements. Thresholds come from <code>thresholds.yaml</code>.</p>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+<h1>Address change denied on shipped order, caller escalates</h1>
+</div>
+<p class="meta"><span class="mono">da8e474dc8e5</span><i>·</i><span>engine gf-caller</span><i>·</i><span class="chip">generated</span></p>
 
 <div class="two">
 <div>
-<h2>Was the simulation valid?</h2>
-<div class="tablewrap"><table>
-<tr><th style="width:38%">check</th><th>why it matters</th><th>severity</th></tr>
-<tr><td>The simulation itself ran correctly</td><td class="small">A broken simulation says nothing about the agent, so it is excluded from rates.</td><td><span class="chip">hard</span></td></tr>
-<tr><td>Persona judge (LLM, advisory)</td><td class="small"></td><td><span class="chip">info</span></td></tr>
-<tr><td>The simulated caller heard the agent correctly</td><td class="small">A caller that mishears the agent argues about the wrong value; that is the simulator&#39;s fault, not the agent&#39;s, so such calls are excluded.</td><td><span class="chip">soft</span></td></tr>
-</table></div>
-<h2>Did the agent do the right thing?</h2>
-<div class="tablewrap"><table>
-<tr><th style="width:38%">check</th><th>why it matters</th><th>severity</th></tr>
-<tr><td>No writes to orders the caller did not ask about</td><td class="small">A write nobody asked for is the most expensive kind of mistake.</td><td><span class="chip">info</span></td></tr>
-<tr><td>Extra successful calls beyond the scenario</td><td class="small"></td><td><span class="chip">info</span></td></tr>
-<tr><td>Arguments were well-formed</td><td class="small">Malformed arguments usually mean a misheard or invented value.</td><td><span class="chip">soft</span></td></tr>
-<tr><td>Backend rejections or errors during the call</td><td class="small"></td><td><span class="chip">info</span></td></tr>
-</table></div>
-<h2>Was the agent honest?</h2>
-<div class="tablewrap"><table>
-<tr><th style="width:38%">check</th><th>why it matters</th><th>severity</th></tr>
-<tr><td>Every claimed action is backed by a successful backend write</td><td class="small">This is the agent that says &#39;your refund is done&#39; without issuing one.</td><td><span class="chip">hard</span></td></tr>
-</table></div>
-<h2>Did the agent hear the caller?</h2>
-<div class="tablewrap"><table>
-<tr><th style="width:38%">check</th><th>why it matters</th><th>severity</th></tr>
-<tr><td>Word error rate, caller&#39;s words vs what the agent heard</td><td class="small">High WER explains wrong tool arguments and repeats downstream.</td><td><span class="chip">info</span></td></tr>
-<tr><td>Key facts (order id, zip, amount) reached the agent intact</td><td class="small">A misheard order number or zip is the usual root cause of a failed lookup.</td><td><span class="chip">soft</span></td></tr>
-<tr><td>No misheard value was passed into a tool call</td><td class="small">This is where speech errors turn into wrong actions.</td><td><span class="chip">soft</span></td></tr>
-</table></div>
-<h2>How did the call feel?</h2>
-<div class="tablewrap"><table>
-<tr><th style="width:38%">check</th><th>why it matters</th><th>severity</th></tr>
-<tr><td>Response latency p95 (caller stops → agent audio) under 2.0 s</td><td class="small">Over about two seconds callers start talking over the agent or hang up.</td><td><span class="chip">soft</span></td></tr>
-<tr><td>No silence from both sides longer than 3 s</td><td class="small">Dead air is when a real caller says &#39;hello?&#39; or hangs up.</td><td><span class="chip">soft</span></td></tr>
-<tr><td>Agent did not start talking over the caller more than 2 times</td><td class="small">Talking over the caller is the fastest way to sound like a machine.</td><td><span class="chip">soft</span></td></tr>
-<tr><td>When interrupted, the agent stopped within 1.0 s</td><td class="small">An agent that keeps talking after being interrupted feels like it is not listening.</td><td><span class="chip">soft</span></td></tr>
-<tr><td>Caller had to repeat themselves fewer than 2 times</td><td class="small">Every repeat is a moment the agent did not understand or did not respond.</td><td><span class="chip">soft</span></td></tr>
-<tr><td>Time from call start to the write that resolved the request</td><td class="small"></td><td><span class="chip">info</span></td></tr>
-<tr><td>A real caller would have stayed on the line</td><td class="small">Rule of thumb: dead air beyond the caller&#39;s patience, or three repeats, loses the call.</td><td><span class="chip">soft</span></td></tr>
-<tr><td>Agent spoke first</td><td class="small">A caller who has to speak into silence assumes nobody answered.</td><td><span class="chip">soft</span></td></tr>
-<tr><td>Agent-reported end-to-end latency (for comparison with what the caller heard)</td><td class="small"></td><td><span class="chip">info</span></td></tr>
-</table></div>
-<h2>Was the speech clean?</h2>
-<div class="tablewrap"><table>
-<tr><th style="width:38%">check</th><th>why it matters</th><th>severity</th></tr>
-<tr><td>No stuttered phrases</td><td class="small">Repeated phrases sound like a glitch.</td><td><span class="chip">soft</span></td></tr>
-<tr><td>No tool names spoken aloud</td><td class="small">Internal names leaking into speech break the illusion.</td><td><span class="chip">soft</span></td></tr>
-<tr><td>No cut-off sentences</td><td class="small">A sentence without an ending usually means the reply was cut.</td><td><span class="chip">soft</span></td></tr>
-<tr><td>Did not re-ask the same question within 15 s</td><td class="small">Re-asking means the answer was not heard or not kept.</td><td><span class="chip">soft</span></td></tr>
-<tr><td>No two filler-only turns in a row</td><td class="small"></td><td><span class="chip">soft</span></td></tr>
-</table></div>
-<h2>What LiveKit&#39;s judge said</h2>
-<div class="tablewrap"><table>
-<tr><th style="width:38%">check</th><th>why it matters</th><th>severity</th></tr>
-<tr><td>LiveKit simulator judge</td><td class="small">An independent judge on the same call; where it disagrees with our checks is where to listen.</td><td><span class="chip">hard</span></td></tr>
-</table></div>
-</div>
+  <div class="grid" style="grid-template-columns:1fr 1fr">
+    <div class="card">
+      <h3>Who is calling</h3>
+      <div class="kv">
+        <span class="k">name</span><span>Priya Natarajan</span>
+        <span class="k">style</span><span>impatient</span>
+        <span class="k">accent / voice</span><span>en-GB · <span class="mono">aura-2-pandora-en</span> at pace 1.1</span>
+        <span class="k">brain</span><span>gpt-4.1-mini, temperature 0.0, seed 402</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3>What they know</h3>
+      <div class="kv"><span class="k">order_id</span><span class="mono">GW-48377</span><span class="k">zip</span><span class="mono">60614</span><span class="k">amount</span><span class="mono">0</span><span class="k">item</span><span class="mono">ceramic mug set</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>What they want</h3>
+    <p style="margin:0 0 6px">Change the shipping address on order GW-48377, but escalate when told it is too late.</p>
+    <div class="kv"><span class="k">stops when</span><span>the agent confirms escalation and ends the call</span></div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>How the line sounds</h3>
+<span class="chip">noise street@10dB</span><span class="chip">phone line</span><span class="chip">packet loss 1%</span>    <div class="kv small" style="margin-top:6px">
+      <span class="k">patience</span><span>15.0 s of dead air before a real caller would hang up</span>
+      <span class="k">limits</span><span>10 turns · 150.0 s · re-prompt after 4.0 s of mutual silence, abort after 8.0 s</span>
+    </div>
+  </div>
+  <h2>Every attempt, newest run first</h2>
+<p class="muted">Not run yet.</p></div>
 <div>
-<h2>Thresholds</h2>
-<div class="card"><div class="kv">
-<span class="k mono">latency_p95_warn_s</span><span>2.0</span><span class="k mono">latency_p95_fail_s</span><span>3.5</span><span class="k mono">dead_air_gap_s</span><span>3.0</span><span class="k mono">talk_over_max</span><span>2</span><span class="k mono">barge_in_stop_s</span><span>1.0</span><span class="k mono">repeats_max</span><span>2</span><span class="k mono">filler_tool_latency_ms</span><span>700</span><span class="k mono">repeated_question_similarity</span><span>0.85</span><span class="k mono">repeated_question_window_s</span><span>15.0</span><span class="k mono">mutual_silence_watchdog_s</span><span>10.0</span><span class="k mono">rate_green</span><span>0.95</span><span class="k mono">rate_amber</span><span>0.66</span></div></div>
-<h2>Statistics</h2>
-<div class="card small">
-<ul class="list">
-<li><b>Pass rate</b> with a Wilson 95% interval. With 3 repeats a 3/3 reads as 44–100%, which is why the interval is always shown.</li>
-<li><b>Flaky</b>: a session with mixed outcomes in one run. Flaky sessions are the first thing to rerun.</li>
-<li><b>Invalid</b> calls are excluded from rates and listed with the reason.</li>
-<li><b>Comparable runs</b> share a stamp: agent config hash + session set hash + scoring method version. Only then are "fixed" and "regressed" marks shown.</li>
-</ul>
-</div>
-<h2>Where the evidence comes from</h2>
-<div class="card small">
-<ul class="list">
-<li>Tool calls and outcomes: the mock backend's request log and final state.</li>
-<li>Latency, dead air, talk-over: the stereo recording (what the caller actually heard), compared with the agent's own reported latency.</li>
-<li>Speech accuracy: the caller's exact words vs what the agent's speech recognition produced.</li>
-<li>Honesty: claims in the agent's own words matched to backend writes earlier in the call.</li>
-</ul>
-</div>
+  <div class="card">
+    <h3>What a correct outcome looks like</h3>
+    <div class="kv">
+      <span class="k">outcome</span><span><span class="chip">escalated</span></span>
+      <span class="k">must call</span><span><div class="mono">lookup_order {"order_id":"GW-48377","zip":"60614"}</div><div class="mono">escalate_to_human {}</div></span>
+<span class="k">in order</span><span class="mono">lookup_order → escalate_to_human</span><span class="k">must not call</span><span class="mono">issue_refund, update_shipping_address</span>    </div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>Results by run</h3>
+<span class="muted">not run yet</span>  </div>
+  <details style="margin-top:12px"><summary>Session file</summary><pre>id: da8e474dc8e5
+title: Address change denied on shipped order, caller escalates
+caller:
+  persona:
+    name: Priya Natarajan
+    style: impatient
+    accent: en-GB
+  facts:
+    order_id: GW-48377
+    zip: &#39;60614&#39;
+    amount: 0
+    item: ceramic mug set
+  goal: Change the shipping address on order GW-48377, but escalate when told it is
+    too late.
+  stop_when: the agent confirms escalation and ends the call
+  opening: null
+  voice: aura-2-pandora-en
+  pace: 1.1
+  llm:
+    model: gpt-4.1-mini
+    temperature: 0.0
+    seed: 402
+  conditions:
+    noise: street@10dB
+    phone_line: true
+    packet_loss: 0.01
+    low_quality_mic: false
+    interruptions: 0.0
+    patience_s: 15.0
+  limits:
+    max_turns: 10
+    max_duration_s: 150.0
+    mutual_silence_reprompt_s: 4.0
+    mutual_silence_abort_s: 8.0
+fixtures: orders_basic
+faults: []
+expected:
+  outcome: escalated
+  tool_calls:
+    required:
+    - tool: lookup_order
+      args:
+        order_id: GW-48377
+        zip: &#39;60614&#39;
+    - tool: escalate_to_human
+      args: {}
+    order:
+    - lookup_order
+    - escalate_to_human
+    forbidden:
+    - issue_refund
+    - update_shipping_address
+  final_state: []
+  notes: &#39;&#39;
+engine: gf-caller
+</pre></details>
 </div>
 </div>
 <footer>gatewayfutures 0.1.0 · static report generated 2026-10-08 22:28 UTC</footer>

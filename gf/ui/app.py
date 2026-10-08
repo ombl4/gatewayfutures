@@ -4,9 +4,11 @@ a JSON API and optional token auth (GF_UI_TOKEN) for hosted deployments."""
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import os
 import tempfile
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
 
@@ -23,7 +25,22 @@ from gf.sessions.schema import Session
 from gf.ui import jobs, status
 
 log = logging.getLogger("gf.ui")
-app = FastAPI(title="Call simulator", version=__version__, docs_url="/api/docs", redoc_url=None)
+
+
+@asynccontextmanager
+async def _lifespan(_app: FastAPI):
+    """Fill the status cache in the background so the header pill is right on the first page."""
+    asyncio.get_running_loop().create_task(status.status())
+    yield
+
+
+app = FastAPI(
+    title="Call simulator",
+    version=__version__,
+    docs_url="/api/docs",
+    redoc_url=None,
+    lifespan=_lifespan,
+)
 app.add_middleware(GZipMiddleware, minimum_size=2048)
 LINKS = Links("live")
 COOKIE = "gf_token"
@@ -34,7 +51,41 @@ def token() -> str:
 
 
 def page(template: str, status_code: int = 200, **ctx: Any) -> HTMLResponse:
+    state, detail = status.provider_state()
+    ctx.setdefault("provider_state", state)
+    ctx.setdefault("provider_detail", detail)
     return HTMLResponse(render(template, LINKS, **ctx), status_code=status_code)
+
+
+def _inspector_ctx(run_id: str, call: str = "") -> dict[str, Any]:
+    """The run report plus the call the embedded inspector shows (T6.12/T6.14)."""
+    st = jobs.job_status(run_id)
+    r = model.run_report(run_id, in_progress=st["state"] == "running")
+    ctx: dict[str, Any] = {"r": r, "c": None, "start_ms": None, "job": st}
+    sel = model.select_call(r, call or None)
+    if sel:
+        sid, n = sel
+        folder = model.call_folder(run_id, sid, n)
+        if (folder / "meta.json").exists():
+            href = LINKS.audio(run_id, sid, n) if (folder / "audio.wav").exists() else None
+            ctx["c"] = model.call_report(run_id, sid, n, audio_href=href)
+            ctx["start_ms"] = next(
+                (
+                    i["t_ms"]
+                    for i in r["issues"]["items"]
+                    if (i["session_id"], i["attempt"]) == (sid, n)
+                ),
+                None,
+            )
+    return ctx
+
+
+def _issue_link(base: str):
+    def link(i: dict[str, Any]) -> str:
+        t = i["t_ms"] if i.get("t_ms") is not None else 0
+        return f"{base}?call={i['session_id']}/{i['attempt']}#t={t}"
+
+    return link
 
 
 # ---------------------------------------------------------------- auth + errors
@@ -89,13 +140,20 @@ async def _any_error(request: Request, exc: Exception):
 
 
 @app.get("/", response_class=HTMLResponse)
-async def overview():
+async def overview(call: str = ""):
+    o = model.overview()
+    ctx: dict[str, Any] = {"r": None, "c": None, "start_ms": None}
+    if o["latest"]:
+        ctx = _inspector_ctx(o["latest"]["run_id"], call)
+        ctx.pop("job", None)
     return page(
         "overview.html",
-        o=model.overview(),
+        o=o,
         st=await status.status(),
         job=jobs.current(),
         sessions=model.sessions_page()["sessions"],
+        issue_link=_issue_link("/"),
+        **ctx,
     )
 
 
@@ -254,14 +312,15 @@ def run_rescore(run_id: str):
 
 
 @app.get("/runs/{run_id}", response_class=HTMLResponse)
-def run(run_id: str):
+def run(run_id: str, call: str = ""):
     _require_run(run_id)
-    st = jobs.job_status(run_id)
+    ctx = _inspector_ctx(run_id, call)
+    st = ctx["job"]
     return page(
         "run.html",
-        r=model.run_report(run_id, in_progress=st["state"] == "running"),
-        job=st,
         log_tail=jobs.tail_log(run_id) if st["state"] != "done" else "",
+        issue_link=_issue_link(f"/runs/{run_id}"),
+        **ctx,
     )
 
 

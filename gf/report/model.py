@@ -20,6 +20,7 @@ from gf.agent.config import agent_config
 from gf.config import ROOT, settings, thresholds
 from gf.record.model import CallRecord
 from gf.runner.batch import list_runs
+from gf.scoring.checks import evidence_ms
 from gf.sessions.schema import Session, load_all
 
 GROUPS = [
@@ -164,6 +165,204 @@ def overview() -> dict[str, Any]:
     }
 
 
+def shell_info() -> dict[str, Any]:
+    """What every page's left navigation shows about the agent under test."""
+    cfg = agent_config()
+    return {
+        "name": cfg.name,
+        "persona": cfg.persona_name,
+        "provider": cfg.provider,
+        "stt": cfg.models.stt.model,
+        "llm": cfg.models.llm.model,
+        "tts": cfg.models.tts.model,
+        "tools": list(cfg.tools),
+        "hash": cfg.config_hash,
+    }
+
+
+def run_metrics(summ: dict[str, Any]) -> dict[str, float | None]:
+    """The four headline numbers of a run, from its summary only."""
+    o = summ.get("overall") or {}
+    valid = [a for a in summ.get("attempts", []) if a.get("valid")]
+    tool_known = [a for a in valid if "tool_ok" in a]
+    wers = [a["wer"] for a in valid if a.get("wer") is not None]
+    return {
+        "rate": o.get("rate") if o.get("n") else None,
+        "tool_rate": (sum(1 for a in tool_known if a["tool_ok"]) / len(tool_known))
+        if tool_known
+        else None,
+        "wer": (sum(wers) / len(wers)) if wers else None,
+        "p95_ms": (summ.get("latency_p95_ms") or {}).get("median"),
+    }
+
+
+def kpi_cards(
+    run_id: str, summ: dict[str, Any], prev: dict[str, Any] | None
+) -> list[dict[str, Any]]:
+    """KPI cards with a sparkline over the last real runs up to this one and the change
+    against the previous comparable run (same stamp), when there is one."""
+    history: list[tuple[str, dict[str, Any]]] = []
+    for p in list_runs():
+        man = _json(p / "manifest.json", {})
+        if man.get("kind", "run") != "run":
+            continue
+        ps = summ if p.name == run_id else _json(p / "summary.json")
+        if ps:
+            history.append((ps.get("started_at") or man.get("started_at") or "", ps))
+    history.sort(key=lambda x: x[0])
+    upto = [h for h in history if h[0] <= (summ.get("started_at") or "\uffff")][-8:]
+    series = [run_metrics(ps) for _, ps in upto]
+    cur = run_metrics(summ)
+    pm = run_metrics(prev) if prev else None
+    o = summ.get("overall") or {}
+    th = thresholds()
+
+    def card(key, label, fmt, sub, *, higher_is_better=True, cls="grey", note=""):
+        vals = [m[key] for m in series]
+        d = None
+        if pm and pm.get(key) is not None and cur.get(key) is not None:
+            d = cur[key] - pm[key]
+        return {
+            "id": key,
+            "label": label,
+            "value": fmt(cur.get(key)),
+            "sub": sub,
+            "series": [v if v is not None else None for v in vals],
+            "delta": d,
+            "delta_text": _delta_text(key, d) if d is not None else None,
+            "delta_class": (
+                "same" if d == 0 else ("fixed" if (d > 0) == higher_is_better else "regressed")
+            )
+            if d is not None
+            else "none",
+            "comparable": prev is not None,
+            "cls": cls,
+            "note": note,
+        }
+
+    n_valid = o.get("n") or 0
+    return [
+        card(
+            "rate",
+            "Task success",
+            lambda v: _pct(v),
+            f"{o.get('passed', 0)} / {n_valid} valid calls · 95% interval {_pct(o.get('ci_low'))}–{_pct(o.get('ci_high'))}"
+            if n_valid
+            else "no valid calls yet",
+            cls=rate_class(cur["rate"]),
+            note="A call passes when the backend shows the right actions and the agent told the truth.",
+        ),
+        card(
+            "tool_rate",
+            "Tool correctness",
+            lambda v: _pct(v),
+            "valid calls with the right tools, arguments, order and nothing extra"
+            if cur["tool_rate"] is not None
+            else "rescore this run to measure",
+            cls=rate_class(cur["tool_rate"]),
+            note="Judged on the order system's log, never on what the agent said.",
+        ),
+        card(
+            "wer",
+            "Speech word error rate",
+            lambda v: _pct(v),
+            "lower is better · mean over valid calls",
+            higher_is_better=False,
+            cls="green"
+            if cur["wer"] is not None and cur["wer"] <= 0.1
+            else (
+                "amber"
+                if cur["wer"] is not None and cur["wer"] <= 0.25
+                else ("red" if cur["wer"] is not None else "grey")
+            ),
+            note="What the caller said vs what the agent's speech recognition produced.",
+        ),
+        card(
+            "p95_ms",
+            "p95 reply latency",
+            lambda v: fmt_ms(v),
+            f"median session · flag above {th.latency_p95_warn_s:g} s",
+            higher_is_better=False,
+            cls=_lat_class(cur["p95_ms"]),
+            note="Measured from the recording: caller stops speaking → agent audio starts.",
+        ),
+    ]
+
+
+def _pct(v: float | None) -> str:
+    return "–" if v is None else f"{v * 100:.0f}%"
+
+
+def _delta_text(key: str, d: float) -> str:
+    if key == "p95_ms":
+        return f"{'+' if d > 0 else ''}{d / 1000:.1f} s"
+    return f"{'+' if d > 0 else ''}{d * 100:.0f} pts"
+
+
+SEVERITY_ORDER = {"critical": 0, "high": 1, "medium": 2, "simulation": 3}
+
+
+def issues_for(r: dict[str, Any], limit: int = 6) -> dict[str, Any]:
+    """Prioritised 'issues to investigate' for a run: hard failures first (honesty and wrong
+    writes are critical), then flagged calls, then invalid simulations."""
+    out = []
+    for a in r["failing"]:
+        ids = a.get("hard_fails") or []
+        crit = any(i.startswith("claims.") or i == "tools.wrong_write" for i in ids)
+        out.append(
+            _issue(r, a, "critical" if crit else "high", a.get("failure_reason") or "failed")
+        )
+    for a in r["flagged"]:
+        flags = [SOFT_LABELS.get(f, f) for f in a.get("soft_flags", [])]
+        out.append(_issue(r, a, "medium", ", ".join(flags) or "flagged"))
+    for a in r["invalid"]:
+        out.append(_issue(r, a, "simulation", a.get("failure_reason") or "invalid simulation"))
+    out.sort(key=lambda i: (SEVERITY_ORDER[i["severity"]], i["session_id"], i["attempt"]))
+    return {"items": out[:limit], "total": len(out)}
+
+
+def _issue(r, a, severity, text) -> dict[str, Any]:
+    text = text.removeprefix("invalid: ")
+    head = text.split(";")[0].strip()
+    return {
+        "severity": severity,
+        "title": _clip(head if "_" in head.split(" ")[0] else head[:1].upper() + head[1:], 96),
+        "detail": text if text != head else "",
+        "run_id": r["run_id"],
+        "session_id": a["session_id"],
+        "session_title": a.get("title", a["session_id"]),
+        "attempt": a["attempt"],
+        "t_ms": a.get("issue_t_ms"),
+        "has_audio": a.get("has_audio", True),
+        "duration_ms": a.get("duration_ms"),
+    }
+
+
+def _clip(text: str, n: int) -> str:
+    if len(text) <= n:
+        return text
+    cut = text[:n].rsplit(" ", 1)[0]
+    return cut + "…"
+
+
+def select_call(r: dict[str, Any], call: str | None = None) -> tuple[str, int] | None:
+    """Which call the embedded inspector shows: an explicit 'session/attempt', else the top
+    issue, else the reference pass, else the first call."""
+    atts = r["summary"].get("attempts", [])
+    if call and "/" in call:
+        sid, n = call.rsplit("/", 1)
+        if any(a["session_id"] == sid and str(a["attempt"]) == n for a in atts):
+            return sid, int(n)
+    issues = issues_for(r, limit=1)["items"]
+    if issues:
+        return issues[0]["session_id"], issues[0]["attempt"]
+    if r.get("reference"):
+        return r["reference"]["session_id"], r["reference"]["attempt"]
+    if atts:
+        return atts[0]["session_id"], atts[0]["attempt"]
+    return None
+
+
 def variants_page() -> list[dict[str, Any]]:
     from gf.agent.variants import VARIANTS
 
@@ -271,13 +470,19 @@ def _session_history() -> dict[str, list[dict[str, Any]]]:
         summ = _json(p / "summary.json")
         if not summ:
             continue
+        man = _json(p / "manifest.json", {})
         for row in summ["sessions"]:
             hist.setdefault(row["session_id"], []).append(
                 {
                     "run_id": p.name,
+                    "started_at": man.get("started_at"),
+                    "kind": man.get("kind", "run"),
                     "passed": row["passed"],
                     "n": row["n"],
                     "invalid": row["invalid"],
+                    "attempts": [
+                        a for a in summ.get("attempts", []) if a["session_id"] == row["session_id"]
+                    ],
                 }
             )
     return hist
@@ -397,6 +602,18 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
                 "rate_class": rate_class(row["rate"] if row["n"] else None),
                 "soft_counts": dict(soft),
                 "p95_class": _lat_class(row.get("latency_p95_ms_max")),
+                "n_fail": sum(1 for a in att if a["valid"] and not a["passed"]),
+                "n_invalid": sum(1 for a in att if not a["valid"]),
+                "attempts_detail": [
+                    a | {"flags": [SOFT_LABELS.get(f, f) for f in a.get("soft_flags", [])]}
+                    for a in att
+                ],
+                "expected_outcome": row.get("expected_outcome")
+                or (sess.expected.outcome if sess else ""),
+                "expected_tools": [t.tool for t in sess.expected.tool_calls.required]
+                if sess
+                else [],
+                "facts": sess.caller.facts if sess else {},
             }
         )
 
@@ -423,7 +640,7 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
     ) or next((a for a in summ["attempts"] if a["valid"] and a["passed"]), None)
     o = summ["overall"]
     lat = summ.get("latency_p95_ms") or {}
-    return {
+    out = {
         "run_id": run_id,
         "manifest": man,
         "summary": summ,
@@ -459,6 +676,10 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
         if man.get("kind") == "detector_check"
         else None,
     }
+    out["kpis"] = kpi_cards(run_id, summ, prev) if man.get("kind", "run") == "run" else []
+    out["issues"] = issues_for(out)
+    out["valid_count"] = sum(1 for a in summ.get("attempts", []) if a.get("valid"))
+    return out
 
 
 def _detector_verdict(
@@ -640,7 +861,7 @@ def call_report_from_folder(
             {
                 "id": gid,
                 "title": title,
-                "checks": [c | {"jump_ms": _jump_ms(c)} for c in cs],
+                "checks": [c | {"jump_ms": evidence_ms(c)} for c in cs],
                 "state": "fail" if fails else ("warn" if soft else "pass"),
                 "n_fail": len(fails),
                 "n_warn": len(soft),
@@ -706,21 +927,34 @@ def call_report_from_folder(
         "files": sorted(p.name for p in Path(folder).iterdir()),
         "folder": str(folder),
         "thresholds": thresholds().model_dump(),
+        "neighbours": _neighbours(run_id, record.session_id, record.attempt),
+        "started_at": meta.get("started_at"),
+        "n_fail": sum(g["n_fail"] for g in groups),
+        "n_warn": sum(g["n_warn"] for g in groups),
+        "n_tools_bad": sum(1 for t in record.tool_calls if not t.ok),
     }
 
 
-def _jump_ms(check: dict[str, Any]) -> int | None:
-    ev = check.get("evidence") or {}
-    t = ev.get("t_ms")
-    if t is None and ev.get("claims"):
-        bad = [c for c in ev["claims"] if not c.get("backed")]
-        t = (bad or ev["claims"])[0].get("t_ms")
-    if t is None and ev.get("gaps"):
-        t = ev["gaps"][0].get("start_ms")
-    if t is None and ev.get("events"):
-        e0 = ev["events"][0]
-        t = e0.get("agent_start_ms") or e0.get("caller_start_ms")
-    return int(t) if t is not None else None
+def _neighbours(run_id: str | None, session_id: str, attempt: int) -> dict[str, Any]:
+    """Previous and next attempt of the same session in this run (T6.10)."""
+    if not run_id:
+        return {"prev": None, "next": None, "n": None, "of": None}
+    run_dir = settings().runs_dir / run_id
+    ns = (
+        sorted(
+            int(p.name) for p in (run_dir / session_id).iterdir() if p.is_dir() and p.name.isdigit()
+        )
+        if (run_dir / session_id).exists()
+        else []
+    )
+    ns = [n for n in ns if (run_dir / session_id / str(n) / "meta.json").exists()]
+    i = ns.index(attempt) if attempt in ns else -1
+    return {
+        "prev": ns[i - 1] if i > 0 else None,
+        "next": ns[i + 1] if 0 <= i < len(ns) - 1 else None,
+        "n": i + 1 if i >= 0 else None,
+        "of": len(ns),
+    }
 
 
 def _agent_latency(record: CallRecord) -> float | None:
@@ -771,6 +1005,7 @@ def _merge_turns(record: CallRecord, timeline: dict[str, Any]) -> list[dict[str,
                 "interruption": ct.interruption,
                 "heard": heard_text,
                 "heard_differs": _differs(ct.text, heard_text) if heard_text else None,
+                "heard_marks": _heard_marks(ct.text, heard_text) if heard_text else [],
             }
         )
     for at in record.agent_turns:
@@ -862,6 +1097,24 @@ def _response_short(resp: dict[str, Any], ok: bool) -> str:
     if keys:
         return ", ".join(f"{k}={resp[k]}" for k in keys)[:160]
     return json.dumps(resp)[:160]
+
+
+def _heard_marks(said: str, heard: str) -> list[dict[str, Any]]:
+    """The heard text as its original words, each marked when it differs from what was said
+    (substituted or inserted), so the transcript can highlight exactly what was misheard."""
+    import re
+    from difflib import SequenceMatcher
+
+    def key(w: str) -> str:
+        return re.sub(r"[^a-z0-9]", "", w.lower())
+
+    a_words, b_words = said.split(), heard.split()
+    a, b = [key(w) for w in a_words], [key(w) for w in b_words]
+    bad = set()
+    for tag, _i1, _i2, j1, j2 in SequenceMatcher(a=a, b=b).get_opcodes():
+        if tag in ("replace", "insert"):
+            bad.update(range(j1, j2))
+    return [{"w": w, "bad": j in bad} for j, w in enumerate(b_words)]
 
 
 def _differs(said: str, heard: str) -> bool:

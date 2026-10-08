@@ -1,10 +1,12 @@
 {% extends "base.html" %}
 {% set page='sessions' %}
-{% block title %}Sessions · Call simulator{% endblock %}
+{% block title %}Practice sessions · Call simulator{% endblock %}
+{% block crumbs %}<b>Practice sessions</b>{% endblock %}
 {% block content %}
-<div class="hero" style="justify-content:space-between"><h1 style="margin:0">Practice sessions</h1>{% if mode == 'live' %}<a class="btn primary" href="/sessions/new">New session</a>{% endif %}</div>
+<h1>Practice sessions</h1>
+<p class="meta"><span>{{ p.sessions|length }} sessions</span><i>·</i><span>each is an immutable YAML file: who is calling, what they know, what they want, how the line sounds, what a correct outcome looks like</span></p>
 {% if mode == 'live' %}
-<details class="card" style="margin:0 0 12px">
+<details class="card" style="margin:0 0 12px;padding:10px 16px">
   <summary>Generate sessions from the agent description</summary>
   <form method="post" action="/sessions/generate" class="small" style="display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-top:8px">
     <label>How many<br><input class="input" type="number" name="count" value="6" min="1" max="20" style="width:90px"></label>
@@ -17,19 +19,29 @@
 <div class="banner"><b>{{ generated.written|length }} generated</b>{% if generated.rejected %} <span class="small">· {{ generated.rejected|length }} rejected: {% for r in generated.rejected %}{{ r.title }} ({{ r.reason[:80] }}){% if not loop.last %}; {% endif %}{% endfor %}</span>{% endif %}</div>
 {% endif %}
 {% endif %}
-<p class="sub">{{ p.sessions|length }} sessions. Each is an immutable YAML file: who is calling, what they know, what they want, how the line sounds, and what a correct outcome looks like. The id is a hash of the content.</p>
-<div class="tablewrap"><table>
-<tr><th>session</th><th>caller</th><th>line</th><th>goal</th><th>expected</th><th>history</th></tr>
-{% for s in p.sessions %}
-<tr>
-  <td><a href="{{ links.session(s.id) }}">{{ s.title }}</a><div class="mono muted">{{ s.id }}{% if s.generated %} <span class="chip">generated</span>{% endif %}{% if s.faults %} · fault: {{ s.faults|map(attribute='type')|join(', ') }}{% endif %}</div></td>
-  <td>{{ s.persona.name }}<div class="small muted">{{ s.persona.accent }} · {{ s.persona.style }}</div></td>
-  <td>{% for c in s.chips %}<span class="chip">{{ c }}</span>{% endfor %}</td>
-  <td class="small">{{ s.goal }}</td>
-  <td><span class="chip">{{ s.expected.outcome }}</span><div class="small muted">{% for r in s.expected.tool_calls.required %}{{ r.tool }}{% if not loop.last %} → {% endif %}{% endfor %}</div></td>
-  <td>{% for h in s.history %}<a href="{{ links.run(h.run_id) }}" class="pill {{ 'green' if h.n and h.passed==h.n else ('red' if h.n and h.passed==0 else ('amber' if h.n else 'grey')) }}" title="{{ h.run_id }}">{{ h.passed }}/{{ h.n }}</a> {% endfor %}</td>
-</tr>
-{% endfor %}
-</table></div>
-<p class="small muted" style="margin-top:12px">To add a session: copy a file in <code>sessions/</code>, edit it, run <code>gf sessions</code> to validate. Editing an existing file changes its id, so results stay tied to the exact definition they were produced with.</p>
+<div class="acc" id="sessions">
+  <div class="hd"><h3>All sessions <span class="muted" style="font-weight:500">({{ p.sessions|length }})</span></h3><span class="small muted">history: pass count per run, oldest → newest</span></div>
+  {% for s in p.sessions %}
+  {% set last = s.history|last if s.history else None %}
+  <details class="srow" data-session="{{ s.id }}">
+    <summary>
+      <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+      <span class="ttl">{{ s.title }}{% if s.generated %} <span class="chip">generated</span>{% endif %}{% if s.faults %} <span class="chip">fault: {{ s.faults|map(attribute='type')|join(', ') }}</span>{% endif %}</span>
+      <span class="bar" title="{{ 'last run: ' ~ last.passed ~ '/' ~ last.n if last else 'not run yet' }}">{% if last and last.n %}<i class="p" style="width:{{ 100 * last.passed / last.n }}%"></i><i class="f" style="width:{{ 100 * (last.n - last.passed) / last.n }}%"></i>{% endif %}</span>
+      <span class="cnt">{% if last and last.n %}<b class="{{ 'p' if last.passed == last.n else 'f' }}">{{ last.passed }}/{{ last.n }}</b> last{% else %}<span class="muted">not run</span>{% endif %}</span>
+      <span class="cnt">{% for h in s.history if h.kind == 'run' %}<a href="{{ links.run(h.run_id) }}" class="pill {{ 'green' if h.n and h.passed==h.n else ('red' if h.n and h.passed==0 else ('amber' if h.n else 'grey')) }}" title="{{ h.run_id }}">{{ h.passed }}/{{ h.n }}</a> {% endfor %}</span>
+    </summary>
+    <div class="sbody">
+      <div class="cols4" style="margin:8px 0 10px">
+        <div><div class="h">Persona</div><b>{{ s.persona.name }}</b><div class="muted">{{ s.persona.style }} · {{ s.persona.accent }}</div></div>
+        <div><div class="h">Goal</div>{{ s.goal }}</div>
+        <div><div class="h">Conditions</div>{% for c in s.chips %}<span class="chip">{{ c }}</span>{% endfor %}</div>
+        <div><div class="h">Expected</div><span class="chip">{{ s.expected.outcome }}</span><div class="muted mono" style="margin-top:3px">{% for r in s.expected.tool_calls.required %}{{ r.tool }}{% if not loop.last %} → {% endif %}{% endfor %}</div></div>
+      </div>
+      <div class="small"><a href="{{ links.session(s.id) }}">Open session →</a>{% if mode == 'live' %} · <a href="/sessions/new?copy={{ s.id }}">Create a variant</a>{% endif %} · <span class="mono muted">{{ s.id }}</span></div>
+    </div>
+  </details>
+  {% endfor %}
+</div>
+<p class="small muted" style="margin-top:12px">To add a session: use "New session" above, or copy a file in <code>sessions/</code>, edit it and run <code>gf sessions</code> to validate. Editing an existing file changes its id, so results stay tied to the exact definition they were produced with.</p>
 {% endblock %}

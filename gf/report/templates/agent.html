@@ -1,20 +1,21 @@
 {% extends "base.html" %}
 {% set page='agent' %}
 {% block title %}Agent · Call simulator{% endblock %}
+{% block crumbs %}<b>Agent settings</b>{% endblock %}
 {% block content %}
 <h1>{{ a.cfg.name }}</h1>
 <p class="sub">The agent under test. Read-only here; it is configured in <code>gf/agent/config.yaml</code>. Config hash <span class="mono">{{ a.hash }}</span> is stamped on every call record.</p>
 
-<div class="tiles">
-  <div class="tile"><div class="k">Provider</div><div class="v" style="font-size:18px">{{ a.cfg.provider }}</div><div class="d">worker <code>gf-support-agent</code>, explicit dispatch</div></div>
-  <div class="tile"><div class="k">Hears with (STT)</div><div class="v" style="font-size:18px">{{ a.cfg.models.stt.model }}</div><div class="d">{{ a.cfg.models.stt.vendor }} · boosted words: {{ a.cfg.models.stt.keyterms|join(', ') }}</div></div>
-  <div class="tile"><div class="k">Thinks with (LLM)</div><div class="v" style="font-size:18px">{{ a.cfg.models.llm.model }}</div><div class="d">{{ a.cfg.models.llm.vendor }} · temperature {{ a.cfg.models.llm.temperature }}</div></div>
-  <div class="tile"><div class="k">Speaks with (TTS)</div><div class="v" style="font-size:18px">{{ a.cfg.models.tts.model }}</div><div class="d">{{ a.cfg.models.tts.vendor }} · voice of "{{ a.cfg.persona_name }}"</div></div>
+<div class="kpis" id="models">
+  <div class="kpi grey"><div class="ic">⎈</div><div class="k">Provider</div><div class="v" style="font-size:18px">{{ a.cfg.provider }}</div><div class="d">worker <code>gf-support-agent</code>, explicit dispatch</div></div>
+  <div class="kpi grey"><div class="ic">◉</div><div class="k">Hears with (STT)</div><div class="v" style="font-size:18px">{{ a.cfg.models.stt.model }}</div><div class="d">{{ a.cfg.models.stt.vendor }} · boosted words: {{ a.cfg.models.stt.keyterms|join(', ') }}</div></div>
+  <div class="kpi grey"><div class="ic">✦</div><div class="k">Thinks with (LLM)</div><div class="v" style="font-size:18px">{{ a.cfg.models.llm.model }}</div><div class="d">{{ a.cfg.models.llm.vendor }} · temperature {{ a.cfg.models.llm.temperature }}</div></div>
+  <div class="kpi grey" id="voice"><div class="ic">♪</div><div class="k">Speaks with (TTS)</div><div class="v" style="font-size:18px">{{ a.cfg.models.tts.model }}</div><div class="d">{{ a.cfg.models.tts.vendor }} · voice of "{{ a.cfg.persona_name }}"</div></div>
 </div>
 
 <div class="two">
 <div>
-<h2>Tools the agent can call</h2>
+<h2 id="tools">Tools the agent can call</h2>
 <div class="tablewrap"><table>
 <tr><th>tool</th><th>arguments</th><th>what it does</th></tr>
 {% for name in a.cfg.tools %}
@@ -23,7 +24,7 @@
 </table></div>
 <p class="small muted">Every call goes to the <a href="{{ links.backend() }}">mock order system</a> with the call id, so what the agent did is read from the backend log, never from the transcript.</p>
 
-<h2>Instructions (system prompt)</h2>
+<h2 id="prompt">Instructions (system prompt)</h2>
 <div class="card"><pre style="white-space:pre-wrap;border:0;background:none;padding:0;font-size:13px;font-family:inherit">{{ a.cfg.instructions }}</pre></div>
 </div>
 <div>

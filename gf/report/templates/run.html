@@ -1,29 +1,26 @@
 {% extends "base.html" %}
+{% import "_run_body.html" as rb with context %}
 {% set page='run' %}
 {% block title %}Run {{ r.run_id }} · Call simulator{% endblock %}
-{% block navright %}{% if r.stamp %}stamp <span class="mono">{{ r.stamp }}</span>{% endif %}{% endblock %}
+{% block crumbs %}<a href="{{ links.runs() }}">Runs</a><i>›</i><b>{{ r.run_id }}</b>{% endblock %}
 {% block content %}
-{% macro replay(a) %}
-{% if a.has_audio is not defined or a.has_audio %}<button class="play" data-src="{{ links.audio(r.run_id, a.session_id, a.attempt) }}" data-label="{{ a.title or a.session_id }} #{{ a.attempt }}" title="replay the original recording"><span class="ic">▶</span><span class="t">{{ a.duration_ms|clock if a.duration_ms else '' }}</span></button>{% endif %}
-{% endmacro %}
-{% macro strip(row) %}
-<span class="strip">{% for a in row.strip %}{% if a.mark == 'pending' %}<span class="dot pending" title="attempt {{ a.attempt }}: not run yet"></span>{% else %}<a class="dot {{ a.mark }}" href="{{ links.call(r.run_id, row.session_id, a.attempt) }}" title="attempt {{ a.attempt }}: {{ a.mark }}{% if a.reason %} — {{ a.reason }}{% endif %}"></a>{% endif %}{% endfor %}</span>
-{% endmacro %}
-<div class="hero" style="justify-content:space-between">
-<h1 style="margin:0">Run {{ r.run_id }}</h1>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+<h1>Run {{ r.run_id }}{% if r.kind != 'run' %} <span class="pill indigo">detector check · {{ r.variant }}</span>{% endif %}</h1>
 {% if mode == 'live' and job %}
-<span>
-  {% if job.state == 'done' and r.kind == 'run' %}<form method="post" action="/checks/run" style="display:inline">{% for row in r.sessions %}<input type="hidden" name="session" value="{{ row.session_id }}">{% endfor %}<input type="hidden" name="variant" value="dishonest"><button class="btn" type="submit" title="re-run these sessions with a deliberately dishonest agent and check that the honesty check fires">Prove the honesty check</button></form> {% endif %}
+<span style="display:flex;gap:6px">
+  {% if job.state == 'done' and r.kind == 'run' %}<form method="post" action="/checks/run" style="display:inline">{% for row in r.sessions %}<input type="hidden" name="session" value="{{ row.session_id }}">{% endfor %}<input type="hidden" name="variant" value="dishonest"><button class="btn" type="submit" id="btn-prove" title="re-run these sessions with a deliberately dishonest agent and check that the honesty check fires">Prove the honesty check</button></form>{% endif %}
   {% if job.state == 'running' %}<form method="post" action="/runs/{{ r.run_id }}/stop" style="display:inline"><button class="btn danger" type="submit">Stop run</button></form>
-  {% else %}<form method="post" action="/runs/{{ r.run_id }}/rescore" style="display:inline"><button class="btn" type="submit" title="re-run scoring, e.g. after scoring code changed">Rescore</button></form>{% endif %}
+  {% else %}<form method="post" action="/runs/{{ r.run_id }}/rescore" style="display:inline"><button class="btn" type="submit" id="btn-rescore" title="re-run scoring, e.g. after scoring code changed">Rescore</button></form>{% endif %}
 </span>
 {% endif %}
 </div>
+<p class="meta"><span>{{ r.started_at|dt }}</span><i>·</i><span>{{ r.sessions|length }} sessions × {{ r.repeat }}</span><i>·</i><span>{{ r.summary.calls }} calls ({{ r.valid_count }} valid, {{ r.invalid_count }} invalid){% if r.duration_s %} in {{ (r.duration_s/60)|round(1) }} min{% endif %}</span><i>·</i><span>concurrency {{ r.concurrency }}</span><i>·</i><span>engine {{ r.engine }}</span>{% if r.previous %}<i>·</i><span>compared with <a href="{{ links.run(r.previous.run_id) }}">{{ r.previous.run_id }}</a></span>{% else %}<i>·</i><span>no earlier run with the same stamp to compare against</span>{% endif %}{% if r.stamp %}<i>·</i><span class="mono" title="agent config hash + session set hash + scoring method">stamp {{ r.stamp }}</span>{% endif %}</p>
+
 {% if r.detector %}
-<div class="banner" style="border-color:{{ '#9fd3ab' if r.detector.caught else ('#f5c6c9' if r.detector.missed else '#f0d58c') }};background:{{ 'var(--green-bg)' if r.detector.caught else ('var(--red-bg)' if r.detector.missed else 'var(--amber-bg)') }}">
+<div class="banner" style="border-color:{{ '#86efac' if r.detector.caught else ('#fecaca' if r.detector.missed else '#fde68a') }};background:{{ 'var(--green-bg)' if r.detector.caught else ('var(--red-bg)' if r.detector.missed else 'var(--amber-bg)') }}">
   <b>Detector check · variant "{{ r.detector.variant }}"</b>
   <span>{% if r.detector.caught %}<span class="pill green">caught it</span> every conclusive call failed on <code>{{ r.detector.expected_check }}</code>{% elif r.in_progress %}<span class="pill grey">running</span>{% elif r.detector.missed %}<span class="pill red">MISSED</span> only {{ r.detector.n_fired }} of {{ r.detector.n }} calls failed on <code>{{ r.detector.expected_check }}</code>{% else %}<span class="pill amber">inconclusive</span> the agent never reached the point of claiming an action; rerun the check{% endif %}</span>
-  <span class="small muted">The agent was deliberately made to misbehave; "FAIL" below is the expected, correct outcome.</span>
+  <span class="small muted">The agent was deliberately made to misbehave; "failed" below is the expected, correct outcome. Never compared with real runs.</span>
 </div>
 <div class="card" style="margin-bottom:12px">
 {% for a in r.detector.per_attempt %}<div class="small"><span class="pill {{ 'green' if a.fired else ('amber' if a.inconclusive else 'red') }}">{{ 'caught' if a.fired else ('inconclusive' if a.inconclusive else 'missed') }}</span> <a href="{{ links.call(r.run_id, a.session_id, a.attempt) }}">{{ a.title }}</a> #{{ a.attempt }}{% if a.reason %} — {{ a.reason }}{% endif %}</div>{% endfor %}
@@ -38,71 +35,17 @@
 </div>
 {% if log_tail %}<details><summary>Run log</summary><pre>{{ log_tail }}</pre></details>{% endif %}
 {% endif %}
-<p class="sub">{{ r.started_at|dt }} · {{ r.sessions|length }} sessions × {{ r.repeat }} repeats · {{ r.summary.calls }} calls{% if r.duration_s %} in {{ (r.duration_s/60)|round(1) }} min{% endif %} · concurrency {{ r.concurrency }} · engine {{ r.engine }}
-{% if r.previous %} · compared with <a href="{{ links.run(r.previous.run_id) }}">{{ r.previous.run_id }}</a>{% else %} · no earlier run with the same stamp to compare against{% endif %}</p>
 
-<div class="tiles">
-  <div class="tile {{ r.overall.rate_class }}"><div class="k">Calls passed</div><div class="v">{{ r.overall.passed }} / {{ r.overall.n }}</div><div class="d">{{ r.overall.rate|pct }}, 95% interval {{ r.overall.ci_low|pct }}–{{ r.overall.ci_high|pct }}</div></div>
-  <div class="tile {{ 'red' if r.failing else 'green' }}"><div class="k">Failing calls</div><div class="v">{{ r.failing|length }}</div><div class="d">{{ r.flaky|length }} flaky session{{ '' if r.flaky|length==1 else 's' }}</div></div>
-  <div class="tile {{ 'amber' if r.invalid_count else 'green' }}"><div class="k">Invalid calls</div><div class="v">{{ r.invalid_count }}</div><div class="d">simulation problems, not counted</div></div>
-  <div class="tile {{ r.p95_class }}"><div class="k">Reply latency p95</div><div class="v">{{ r.p95_median_ms|ms }}</div><div class="d">median session; worst {{ r.p95_max_ms|ms }}; flag above {{ r.summary.get('thresholds',{}).get('latency_p95_warn_s', 2.0) }} s</div></div>
-  <div class="tile {{ 'amber' if r.flagged else 'green' }}"><div class="k">Passed but flagged</div><div class="v">{{ r.flagged|length }}</div><div class="d">right outcome, rough edges</div></div>
+{% if r.kpis %}{{ rb.kpis(r) }}{% endif %}
+<div class="work">
+  {{ rb.sessions(r) }}
+  {{ rb.issues(r, issue_link) }}
 </div>
-
-{% if r.manifest.environment %}
-<details><summary>Reproducibility: what this run was produced with</summary>
-<div class="kv small" style="margin-top:8px">
-  <span class="k">stamp</span><span class="mono">{{ r.stamp }} <span class="muted">= agent config hash + session set hash + scoring method (incl. thresholds)</span></span>
-  <span class="k">agent config</span><span class="mono">{{ r.manifest.agent_config_hash }}</span>
-  <span class="k">session set</span><span class="mono">{{ r.manifest.sessions_hash }} ({{ r.sessions|length }} sessions, each id = hash of its file)</span>
-  <span class="k">caller</span><span>engine {{ r.engine }}; per session: LLM model, temperature 0, seed, voice, pace, seeded noise and packet loss (see each session)</span>
-  {% for k, v in r.manifest.environment.items() %}<span class="k">{{ k }}</span><span class="mono">{{ v }}</span>{% endfor %}
-</div>
-<p class="small muted" style="margin:8px 0 0">The agent's own LLM (temperature {{ r.manifest.agent_llm_temperature if r.manifest.agent_llm_temperature else 'as configured' }}) and the live speech services are the only sources of variation, by design: the agent is the thing under test. Repeats and confidence intervals account for that.</p>
-</details>
-{% endif %}
+{% if c %}{% include "_inspector.html" %}{% endif %}
 
 {% if r.top_failures %}
-<div class="card" style="margin-bottom:8px"><b>Why calls failed:</b>
+<div class="card" style="margin-bottom:12px"><b>Why calls failed:</b>
 <ul class="list" style="margin:4px 0 0">{% for reason, n in r.top_failures %}<li>{{ reason }} <span class="muted">× {{ n }}</span></li>{% endfor %}</ul></div>
-{% endif %}
-
-{% if r.engine == 'livekit-simulate' and r.manifest.livekit_summary %}
-<div class="card" style="margin-bottom:8px;border-color:#c7d7f7"><b>LiveKit simulator summary</b> <span class="small muted">(run {{ r.manifest.livekit_run.id }}, {{ r.manifest.livekit_run.passed_count }} passed / {{ r.manifest.livekit_run.failed_count }} failed by LiveKit's judge)</span>
-<div class="small" style="margin-top:6px"><b>Going well:</b> {{ r.manifest.livekit_summary.going_well|striptags }}</div>
-<div class="small" style="margin-top:4px"><b>To improve:</b> {{ r.manifest.livekit_summary.to_improve|striptags }}</div>
-{% for i in r.manifest.livekit_summary["issues"] or [] %}<div class="small" style="margin-top:4px">· {{ i.label }}: {{ i.description|striptags }} <span class="muted">{{ i.suggestion }}</span></div>{% endfor %}
-<p class="small muted" style="margin:6px 0 0">Our checks below are computed on the same calls from the agent's events and the order system's log; recording-based checks are not measured for this engine.</p>
-</div>
-{% endif %}
-
-<h2>Sessions</h2>
-<div class="tablewrap"><table>
-<tr><th>attempts</th><th>session</th><th>caller</th><th>line</th><th>expected</th><th>pass rate</th><th>p95 latency</th><th>what went wrong</th>{% if r.previous %}<th>vs previous</th>{% endif %}</tr>
-{% for row in r.sessions %}
-<tr>
-  <td>{{ strip(row) }}</td>
-  <td><a href="{{ links.session(row.session_id) }}">{{ row.title }}</a></td>
-  <td class="small">{{ row.persona.name }}<br><span class="muted">{{ row.persona.accent }}</span></td>
-  <td>{% for c in row.chips %}<span class="chip">{{ c }}</span>{% endfor %}</td>
-  <td><span class="chip">{{ row.expected_outcome }}</span></td>
-  <td>{% if row.n %}<span class="pill {{ row.rate_class }}">{{ row.passed }}/{{ row.n }}</span> <span class="small muted">{{ row.ci_low|pct }}–{{ row.ci_high|pct }}</span>{% if row.flaky %} <span class="pill amber">flaky</span>{% endif %}{% else %}<span class="muted">no valid calls</span>{% endif %}</td>
-  <td><span class="pill {{ row.p95_class }}">{{ row.latency_p95_ms_max|ms }}</span></td>
-  <td class="small">{% if row.main_failure %}{{ row.main_failure }}{% elif row.soft_counts %}<span class="muted">{% for k, n in row.soft_counts.items() %}{{ r.soft_labels.get(k, k) }}{% if n > 1 %} ×{{ n }}{% endif %}{% if not loop.last %}, {% endif %}{% endfor %}</span>{% endif %}</td>
-  {% if r.previous %}<td><span class="vs {{ row.vs }}">{{ {'regressed':'⚠ regressed','fixed':'✓ fixed','same':'= same','new':'new'}[row.vs] }}</span></td>{% endif %}
-</tr>
-{% endfor %}
-</table></div>
-<p class="small muted">Squares are attempts in order: <span class="dot pass"></span> passed, <span class="dot fail"></span> failed, <span class="dot invalid"></span> invalid. Click one to open the call.</p>
-
-{% if r.failing %}
-<h2>Failing now</h2>
-<div class="tablewrap"><table>
-<tr><th>call</th><th></th><th>reason</th><th>ended by</th><th>tools called</th></tr>
-{% for a in r.failing %}
-<tr><td><a href="{{ links.call(r.run_id, a.session_id, a.attempt) }}">{{ a.title }}</a> <span class="muted">#{{ a.attempt }}</span></td><td>{{ replay(a) }}</td><td>{{ a.failure_reason }}</td><td class="small">{{ a.ended_by }}</td><td class="mono small">{% for t, st in a.tool_calls %}{{ t }} <span class="{{ 'muted' if st==200 else 'pill red' }}">{{ st }}</span>{% if not loop.last %}, {% endif %}{% endfor %}</td></tr>
-{% endfor %}
-</table></div>
 {% endif %}
 
 {% if r.regressed or r.fixed %}
@@ -113,37 +56,24 @@
 </div>
 {% endif %}
 
-{% if r.invalid %}
-<h2>Invalid calls</h2>
-<div class="tablewrap"><table>
-<tr><th>call</th><th></th><th>why the simulation did not count</th></tr>
-{% for a in r.invalid %}<tr><td><a href="{{ links.call(r.run_id, a.session_id, a.attempt) }}">{{ a.title }}</a> <span class="muted">#{{ a.attempt }}</span></td><td>{{ replay(a) }}</td><td>{{ a.failure_reason }}</td></tr>{% endfor %}
-</table></div>
+{% if r.engine == 'livekit-simulate' and r.manifest.livekit_summary %}
+<div class="card" style="margin-bottom:12px;border-color:#c7d2fe"><b>LiveKit simulator summary</b> <span class="small muted">(run {{ r.manifest.livekit_run.id }}, {{ r.manifest.livekit_run.passed_count }} passed / {{ r.manifest.livekit_run.failed_count }} failed by LiveKit's judge)</span>
+<div class="small" style="margin-top:6px"><b>Going well:</b> {{ r.manifest.livekit_summary.going_well|striptags }}</div>
+<div class="small" style="margin-top:4px"><b>To improve:</b> {{ r.manifest.livekit_summary.to_improve|striptags }}</div>
+{% for i in r.manifest.livekit_summary["issues"] or [] %}<div class="small" style="margin-top:4px">· {{ i.label }}: {{ i.description|striptags }} <span class="muted">{{ i.suggestion }}</span></div>{% endfor %}
+<p class="small muted" style="margin:6px 0 0">Our checks are computed on the same calls from the agent's events and the order system's log; recording-based checks are not measured for this engine.</p>
+</div>
 {% endif %}
 
-{% if r.flagged %}
-<h2>Passed but flagged</h2>
-<div class="tablewrap"><table>
-<tr><th>call</th><th></th><th>flags</th><th>p95 latency</th><th>dead air</th><th>WER</th></tr>
-{% for a in r.flagged %}
-<tr><td><a href="{{ links.call(r.run_id, a.session_id, a.attempt) }}">{{ a.title }}</a> <span class="muted">#{{ a.attempt }}</span></td><td>{{ replay(a) }}</td><td class="small">{% for f in a.soft_flags %}<span class="chip">{{ r.soft_labels.get(f, f) }}</span>{% endfor %}</td><td>{{ a.latency_p95_ms|ms }}</td><td>{{ a.dead_air_total_ms|ms }}</td><td>{{ '%.0f%%'|format(a.wer*100) if a.wer is not none else '–' }}</td></tr>
-{% endfor %}
-</table></div>
-{% endif %}
-
-{% if r.reference %}
-<h2>A clean pass, for reference</h2>
-<p class="small"><a href="{{ links.call(r.run_id, r.reference.session_id, r.reference.attempt) }}">{{ (r.sessions|selectattr('session_id','equalto',r.reference.session_id)|list)[0].title }}</a> #{{ r.reference.attempt }} · {{ r.reference.duration_ms|ms }} · p95 {{ r.reference.latency_p95_ms|ms }} {{ replay(r.reference) }}</p>
-{% endif %}
-
-<h2>Every call</h2>
+<h2 id="every-call">Every call</h2>
 <div class="tablewrap"><table>
 <tr><th>session</th><th>#</th><th>replay</th><th>verdict</th>{% if r.engine == 'livekit-simulate' %}<th>LiveKit verdict</th>{% endif %}<th>reason / flags</th><th>duration</th><th>p95</th><th>WER</th><th>dead air</th><th>ended by</th><th>tools</th></tr>
 {% for a in r.summary.attempts %}
+{% set title = (r.sessions|selectattr('session_id','equalto',a.session_id)|list|first or {}).get('title', a.session_id) %}
 <tr>
-  <td><a href="{{ links.call(r.run_id, a.session_id, a.attempt) }}">{{ (r.sessions|selectattr('session_id','equalto',a.session_id)|list)[0].title }}</a></td>
+  <td><a href="{{ links.call(r.run_id, a.session_id, a.attempt) }}">{{ title }}</a></td>
   <td>{{ a.attempt }}</td>
-  <td>{{ replay(a) }}</td>
+  <td>{{ rb.replay(r.run_id, a, title) }}</td>
   <td><span class="pill {{ 'invalid' if not a.valid else ('pass' if a.passed else 'fail') }}">{{ 'invalid' if not a.valid else ('pass' if a.passed else 'fail') }}</span></td>
   {% if r.engine == 'livekit-simulate' %}<td>{% if a.livekit %}<span class="pill {{ 'green' if a.livekit.passed else 'red' }}">{{ 'passed' if a.livekit.passed else 'failed' }}</span> <span class="small muted">WER {{ '%.0f%%'|format(a.livekit.wer * 100) if a.livekit.wer is not none else '–' }}</span>{% endif %}</td>{% endif %}
   <td class="small">{{ a.failure_reason }}{% if a.valid and a.passed %}{% for f in a.soft_flags %}<span class="chip">{{ r.soft_labels.get(f, f) }}</span>{% endfor %}{% endif %}</td>
@@ -152,5 +82,19 @@
 </tr>
 {% endfor %}
 </table></div>
+<p class="small muted">Squares in the session rows are attempts in order: <span class="dot pass"></span> passed, <span class="dot fail"></span> failed, <span class="dot invalid"></span> invalid, <span class="dot pending"></span> not run yet. Click one to open the call.</p>
+
+{% if r.manifest.environment %}
+<details><summary>Reproducibility: what this run was produced with</summary>
+<div class="kv small" style="margin-top:8px">
+  <span class="k">stamp</span><span class="mono">{{ r.stamp }} <span class="muted">= agent config hash + session set hash + scoring method (incl. thresholds)</span></span>
+  <span class="k">agent config</span><span class="mono">{{ r.manifest.agent_config_hash }}</span>
+  <span class="k">session set</span><span class="mono">{{ r.manifest.sessions_hash }} ({{ r.sessions|length }} sessions, each id = hash of its file)</span>
+  <span class="k">caller</span><span>engine {{ r.engine }}; per session: LLM model, temperature 0, seed, voice, pace, seeded noise and packet loss (see each session)</span>
+  {% for k, v in r.manifest.environment.items() %}<span class="k">{{ k }}</span><span class="mono">{{ v }}</span>{% endfor %}
+</div>
+<p class="small muted" style="margin:8px 0 0">The agent's own LLM and the live speech services are the only sources of variation, by design: the agent is the thing under test. Repeats and confidence intervals account for that.</p>
+</details>
+{% endif %}
 {% endblock %}
 {% block scripts %}{% if mode == 'live' and job and job.state == 'running' %}<script>setTimeout(function(){ location.reload(); }, 15000);</script>{% endif %}{% endblock %}

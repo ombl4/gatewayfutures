@@ -1,10 +1,14 @@
-.PHONY: install test test-live smoke lint doctor up down ui report sample-report
+.PHONY: install test test-ui test-live smoke lint doctor up down ui report sample-report
 
 install:        ## Create the venv and install everything
 	uv sync
 
 test:           ## Unit tests: no keys, no network
 	uv run pytest -q
+
+test-ui:        ## Dashboard browser test (Playwright + Chromium): every button, tab, player and link
+	uv run playwright install chromium
+	uv run pytest -q -m ui tests/ui
 
 test-live:      ## Tests that need real API keys
 	uv run pytest -q -m live

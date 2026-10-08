@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% set page='sessions' %}
 {% block title %}New session · Call simulator{% endblock %}
+{% block crumbs %}<a href="{{ links.sessions() }}">Practice sessions</a><i>›</i><b>New session</b>{% endblock %}
 {% block content %}
-<p class="small"><a href="{{ links.sessions() }}">← all sessions</a></p>
 <h1>New practice session</h1>
 <p class="sub">Sessions are immutable: this form creates a new file in <code>sessions/</code>. The id is a hash of the content, so results always point at exactly this definition. Validation runs the same checks as <code>gf sessions</code>: known tools, existing fixture, well-formed values.</p>
 <form method="post" action="/sessions/new" class="two" style="grid-template-columns:minmax(0,1fr) 320px">

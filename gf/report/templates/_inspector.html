@@ -1,0 +1,258 @@
+{# Call inspector (spec T6.14). Context: c = call report, embedded = bool, start_ms = optional seek. #}
+{% set nb = c.neighbours or {} %}
+<section class="insp" id="inspector" data-call="{{ c.session_id }}/{{ c.attempt }}">
+  <div class="hd">
+    <h2>Call inspector</h2>
+    <div class="meta"><span><b>{{ c.title }}</b></span><i>·</i><span>attempt {{ c.attempt }}{% if nb.of %} of {{ nb.of }}{% endif %}</span><i>·</i><span class="pill {{ c.verdict }}">{{ {'pass':'Passed','fail':'Failed','invalid':'Invalid simulation'}[c.verdict] }}</span>{% if c.started_at %}<i>·</i><span>{{ c.started_at|dt }}</span>{% endif %}<i>·</i><span>{{ c.duration_ms|clock }}</span><i>·</i><span>ended by {{ c.ended_by }}</span>{% if c.engine != 'gf-caller' %}<i>·</i><span>engine {{ c.engine }}</span>{% endif %}</div>
+    <div class="nav">
+      {% if nb.prev %}<a class="btn sm" href="{{ links.call(c.run_id, c.session_id, nb.prev) }}" id="insp-prev" title="previous attempt">‹</a>{% else %}<span class="btn sm" style="opacity:.4">‹</span>{% endif %}
+      <span class="small muted">attempt {{ nb.n or c.attempt }}{% if nb.of %} / {{ nb.of }}{% endif %}</span>
+      {% if nb.next %}<a class="btn sm" href="{{ links.call(c.run_id, c.session_id, nb.next) }}" id="insp-next" title="next attempt">›</a>{% else %}<span class="btn sm" style="opacity:.4">›</span>{% endif %}
+      {% if embedded %}<a class="btn sm" href="{{ links.call(c.run_id, c.session_id, c.attempt) }}" id="insp-open">Open full call →</a>{% else %}<a class="btn sm" href="{{ links.run(c.run_id) }}">← Run {{ c.run_id }}</a>{% endif %}
+    </div>
+  </div>
+
+  <div class="abar">
+    <button class="pb" id="insp-play" type="button" title="play / pause" {% if not c.audio_href %}disabled{% endif %}><svg viewBox="0 0 24 24" class="i-play"><path d="M7 4l13 8-13 8z"/></svg><svg viewBox="0 0 24 24" class="i-pause" hidden><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg></button>
+    <span class="tm"><span id="insp-cur">0:00</span> / {{ c.duration_ms|clock }}</span>
+    <canvas class="lanes" id="insp-lanes" height="64"></canvas>
+    {% if c.audio_href %}<audio id="insp-audio" preload="metadata" src="{{ c.audio_href }}"></audio>{% endif %}
+  </div>
+  <div class="legend"><span><i style="background:var(--caller)"></i>caller</span><span><i style="background:var(--agent)"></i>agent</span><span><i style="background:var(--tool)"></i>tool call</span><span><i style="background:var(--red)"></i>issue</span><span><i style="background:#f59e0b"></i>interruption</span><span><i style="background:#fde68a"></i>dead air</span>{% if not c.audio_href %}<span class="muted">no recording for this call</span>{% else %}<span class="muted">click the lanes to seek</span>{% endif %}</div>
+
+  <div class="tabs" data-tabs="inspector">
+    <button type="button" data-tab="transcript" class="on">Transcript</button>
+    <button type="button" data-tab="tools">Tool calls<b>{{ c.tool_calls|length }}</b></button>
+    <button type="button" data-tab="timeline">Timeline</button>
+    <button type="button" data-tab="checks">Checks{% if c.n_fail %}<b style="background:var(--red-bg);color:var(--red)">{{ c.n_fail }} failed</b>{% endif %}{% if c.n_warn %}<b style="background:var(--amber-bg);color:var(--amber)">{{ c.n_warn }} flagged</b>{% endif %}</button>
+    {% if not embedded %}<button type="button" data-tab="details">Details</button>{% endif %}
+    <label class="sw on" data-toggle="heard-off" data-target="#inspector" id="insp-heard"><span class="tg"></span>Show what the agent heard</label>
+  </div>
+
+  <div class="panes">
+    <div>
+      <div class="pane" data-pane="transcript" id="transcript">
+      {% for it in c.turns %}
+        {% if it.kind == 'caller' %}
+        <div class="turn caller" data-t="{{ it.t_ms }}" data-end="{{ it.end_ms }}">
+          <div class="t">{{ it.t_ms|clock }}</div><div class="av">C</div>
+          <div><div class="who">{{ c.caller.persona.name if c.caller.persona else 'Caller' }}{% if it.interruption %}<span class="chip" style="color:#b45309;border-color:#fde68a">interrupts</span>{% endif %}</div>
+            <div>{{ it.text }}</div>
+            {% if it.heard %}<div class="heard" title="what the agent's speech recognition produced">agent heard: “{% for m in it.heard_marks %}{% if m.bad %}<mark>{{ m.w }}</mark>{% else %}{{ m.w }}{% endif %}{% if not loop.last %} {% endif %}{% endfor %}”</div>{% endif %}
+          </div>
+        </div>
+        {% elif it.kind == 'agent' %}
+        <div class="turn agent" data-t="{{ it.t_ms }}" data-end="{{ it.end_ms or '' }}">
+          <div class="t">{{ it.t_ms|clock }}</div><div class="av">A</div>
+          <div><div class="who">Agent{% if it.latency_ms is not none %}<span class="pill {{ it.latency_class }} lat" title="caller stopped → agent audio started">{{ it.latency_ms|ms }}</span>{% endif %}{% if it.interrupted %}<span class="chip">interrupted</span>{% endif %}</div>
+            <div>{{ it.text }}</div>
+          </div>
+        </div>
+        {% elif it.kind == 'tool' %}
+        <div class="toolev {{ '' if it.ok else 'bad' }}" data-tool="{{ it.id }}" data-t="{{ it.t_ms }}">
+          <span class="muted mono" style="font-size:11px">{{ it.t_ms|clock }}</span><span class="name">{{ it.tool }}()</span><span class="args">{% for k, v in it.args.items() %}{{ k }}: {{ v|tojson_compact }}{% if not loop.last %}, {% endif %}{% endfor %}</span>
+          <span class="pill {{ 'green' if it.ok else 'red' }}">{{ it.status }}</span><span class="muted small">{{ it.duration_ms }} ms{% if it.fault %} · injected fault: {{ it.fault }}{% endif %}</span><span class="small">→ {{ it.response_short }}</span>
+        </div>
+        {% elif it.kind == 'dead_air' %}
+        <div class="deadair" data-t="{{ it.t_ms }}">{{ it.t_ms|clock }} · {{ it.gap_ms|ms }} of silence from both sides</div>
+        {% endif %}
+      {% endfor %}
+      </div>
+
+      <div class="pane" data-pane="tools" hidden>
+        {% if c.tool_calls %}
+        <div class="tablewrap"><table>
+        <tr><th>time</th><th>tool</th><th>arguments</th><th>status</th><th>took</th><th>response</th></tr>
+        {% for it in c.turns if it.kind == 'tool' %}
+        <tr class="toolrow" data-tool="{{ it.id }}" data-t="{{ it.t_ms }}" style="cursor:pointer"><td class="mono">{{ it.t_ms|clock }}</td><td class="mono"><b>{{ it.tool }}</b></td><td class="mono small">{{ it.args|tojson_compact }}</td><td><span class="pill {{ 'green' if it.ok else 'red' }}">{{ it.status }}</span>{% if it.fault %} <span class="chip">fault: {{ it.fault }}</span>{% endif %}</td><td>{{ it.duration_ms }} ms</td><td class="small">{{ it.response_short }}{% if it.arg_problems %}<div style="color:var(--red)">argument problems: {{ it.arg_problems|join('; ') }}</div>{% endif %}</td></tr>
+        {% endfor %}
+        </table></div>
+        <p class="small muted">Read from the order system's request log, never from the transcript.</p>
+        {% else %}<p class="small muted">The agent made no tool calls in this call.</p>{% endif %}
+      </div>
+
+      <div class="pane" data-pane="timeline" hidden>
+        <canvas id="insp-tl" class="tl" height="150"></canvas>
+        <div class="tablewrap" style="margin-top:10px"><table>
+        <tr><th>time</th><th>event</th><th>detail</th></tr>
+        {% for e in c.timeline.events %}
+        <tr class="tlrow" data-t="{{ e.t_ms }}" style="cursor:pointer"><td class="mono">{{ e.t_ms|clock }}</td><td>{{ e.kind|replace('_',' ') }}</td><td class="small">{% if e.kind == 'tool_call' %}<span class="mono">{{ e.tool }}</span> {{ 'ok' if e.ok else 'failed' }} · {{ (e.end_ms - e.t_ms) }} ms{% elif e.text %}{{ e.text[:140] }}{% elif e.end_ms %}{{ (e.end_ms - e.t_ms)|ms }}{% endif %}</td></tr>
+        {% endfor %}
+        </table></div>
+      </div>
+
+      <div class="pane" data-pane="checks" hidden>
+        {% for g in c.groups %}
+        <h3 style="margin:10px 0 4px">{{ g.title }} <span class="pill {{ {'fail':'red','warn':'amber','pass':'green'}[g.state] }}">{{ {'fail': g.n_fail ~ ' failed', 'warn': g.n_warn ~ ' flagged', 'pass': 'ok'}[g.state] }}</span></h3>
+        {% for ch in g.checks %}
+        {% set st = 'pass' if ch.passed else ('fail' if ch.severity=='hard' else ('warn' if ch.severity=='soft' else 'info')) %}
+        <div class="check {{ st }} open">
+          <span class="ic">{{ {'pass':'✓','fail':'✗','warn':'!','info':'·'}[st] }}</span>
+          <div><div>{{ ch.label }}{% if ch.value is not none %} <span class="muted mono">{{ ch.value }}</span>{% endif %}</div><div class="what">{{ ch.what_happened }}</div><div class="why">{{ ch.why_it_matters }}</div></div>
+          {% if ch.jump_ms is not none %}<a class="jump" href="#" data-seek="{{ ch.jump_ms }}">{{ ch.jump_ms|clock }} ↗</a>{% else %}<span></span>{% endif %}
+        </div>
+        {% endfor %}
+        {% endfor %}
+      </div>
+
+      {% if not embedded %}
+      <div class="pane" data-pane="details" hidden>
+        <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
+          <div class="card"><h3>Caller</h3>
+            <div class="kv small">
+              <span class="k">persona</span><span>{{ c.caller.persona.name if c.caller.persona else '' }} ({{ c.caller.persona.accent if c.caller.persona else '' }})</span>
+              <span class="k">goal</span><span>{{ c.caller.goal }}</span>
+              <span class="k">facts</span><span class="mono">{{ c.caller.facts|tojson_compact }}</span>
+              <span class="k">voice</span><span>{{ c.caller.voice }} at pace {{ c.caller.pace }}</span>
+              <span class="k">brain</span><span>{{ c.caller.llm.model if c.caller.llm else '' }} t={{ c.caller.llm.temperature if c.caller.llm else '' }} seed {{ c.caller.llm.seed if c.caller.llm else '' }}</span>
+              <span class="k">line</span><span>{% for ch in c.session.chips %}<span class="chip">{{ ch }}</span>{% endfor %}</span>
+              {% if c.conditions_measured %}<span class="k">measured</span><span class="mono">{{ c.conditions_measured|tojson_compact }}</span>{% endif %}
+              {% if c.unsupported %}<span class="k">not applied</span><span>{{ c.unsupported|join(', ') }} (unsupported by this engine)</span>{% endif %}
+              <span class="k">caller's view</span><span>{{ 'goal met' if c.goal_met else ('gave up' if c.gave_up else 'unresolved') }}{% if c.caller_summary %} · {{ c.caller_summary }}{% endif %}</span>
+              <span class="k">ended</span><span>{{ c.ended_by }}: {{ c.end_reason }}</span>
+            </div>
+          </div>
+          <div class="card"><h3>Agent <span class="mono muted">config {{ c.agent_config_hash }}</span></h3>
+            <div class="kv small">
+              {% for k, m in c.agent_models.items() %}<span class="k">{{ k }}</span><span>{{ m.vendor }} {{ m.model }}</span>{% endfor %}
+              <span class="k">room</span><span class="mono">{{ c.room }}</span>
+              <span class="k">heard correctly</span><span>{% if c.wer is not none %}{{ '%.0f%%'|format((1-c.wer)*100) }} of words{% else %}not measured{% endif %}</span>
+              <span class="k">dead air</span><span>{{ c.dead_air_total_ms|ms }} · {{ c.talk_over }} talk-over{{ '' if c.talk_over==1 else 's' }} · {{ c.barge_in|length }} interruption{{ '' if c.barge_in|length==1 else 's' }}</span>
+            </div>
+            {% if c.agent_metrics %}
+            <div class="tablewrap" style="margin-top:8px"><table class="small">
+            <tr><th>turn</th><th>end-of-turn</th><th>transcription</th><th>LLM first token</th><th>TTS first byte</th><th>end to end</th></tr>
+            {% for m in c.agent_metrics %}<tr><td>{{ m.n }}</td><td>{{ m.eou_s|secs(2) }}</td><td>{{ m.transcription_s|secs(2) }}</td><td>{{ m.llm_ttft_s|secs(2) }}</td><td>{{ m.tts_ttfb_s|secs(2) }}</td><td>{{ m.e2e_s|secs(2) }}</td></tr>{% endfor %}
+            </table></div>
+            <p class="small muted">Agent-reported timings; the latency badges in the transcript are what the caller actually heard.</p>
+            {% endif %}
+          </div>
+          {% if c.livekit %}
+          <div class="card"><h3>LiveKit simulator verdict <span class="pill {{ 'green' if c.livekit.passed else 'red' }}">{{ 'passed' if c.livekit.passed else c.livekit.status|replace('STATUS_','')|lower }}</span></h3>
+            {% if c.livekit.judge_reasoning %}<p class="small" style="margin:4px 0 8px">{{ c.livekit.judge_reasoning }}</p>{% endif %}
+            {% set m = c.livekit.metrics or {} %}
+            <div class="kv small">
+              <span class="k">LiveKit WER</span><span>{{ '%.0f%%'|format((m.stt or {}).get('wer', 0) * 100) }} · entities {{ '%.0f%%'|format((m.stt or {}).get('entity_recognition', 0) * 100) }}</span>
+              <span class="k">heard latency p50 / p95</span><span>{{ (m.conversation or {}).get('heard_e2e_latency_p50_ms')|ms }} / {{ (m.conversation or {}).get('heard_e2e_latency_p95_ms')|ms }}</span>
+              <span class="k">scenario</span><span>{{ c.livekit.instructions }}</span>
+            </div>
+          </div>
+          {% endif %}
+          <div class="card"><h3>Order system: final state</h3><pre>{{ c.backend_state|pretty }}</pre></div>
+          <div class="card"><h3>Files</h3><div class="small mono">{{ c.folder }}<br>{{ c.files|join(' · ') }}</div></div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <aside class="side">
+      {% set rc = 'fail' if c.verdict == 'fail' else ('invalid' if c.verdict == 'invalid' else ('warn' if c.soft_flags else 'pass')) %}
+      <div class="root {{ rc }}" id="insp-root"><b>{{ {'fail':'Root cause','invalid':'Why this call does not count','warn':'Passed, with flags','pass':'Outcome'}[rc] }}</b>
+        {% if c.failure_reason %}{{ c.failure_reason|replace('invalid: ', '') }}{% elif c.soft_flags %}{{ c.soft_flags|join(', ') }}{% else %}The order system shows the expected actions and the agent's words matched them.{% endif %}
+      </div>
+      <h3 style="margin-bottom:6px">Tool event</h3>
+      <div id="insp-tools">
+      {% set bad_first = (c.turns|selectattr('kind','equalto','tool')|rejectattr('ok')|list|first) %}
+      {% set first_tool = (c.turns|selectattr('kind','equalto','tool')|list|first) %}
+      {% for it in c.turns if it.kind == 'tool' %}
+      <div class="tev" data-tev="{{ it.id }}" {% if it.id != ((bad_first or first_tool) or {}).get('id') %}hidden{% endif %}>
+        <div class="h"><span class="name">{{ it.tool }}()</span><span class="pill {{ 'green' if it.ok else 'red' }}">{{ 'ok' if it.ok else 'failed' }} {{ it.status }}</span><span class="ms">{{ it.t_ms|clock }} · {{ it.duration_ms }} ms</span></div>
+        <div class="tt" data-tabs="tev-{{ it.id }}"><button type="button" data-tab="args" class="on">Arguments</button><button type="button" data-tab="resp">Response</button><button type="button" data-tab="raw">Raw</button></div>
+        <div id="tev-{{ it.id }}">
+          <pre data-pane="args">{{ it.args|pretty }}</pre>
+          <pre data-pane="resp" hidden>{{ it.response|pretty }}</pre>
+          <pre data-pane="raw" hidden>{{ {'tool': it.tool, 'args': it.args, 'status': it.status, 'duration_ms': it.duration_ms, 'fault': it.fault, 'arg_problems': it.arg_problems, 'response': it.response}|pretty }}</pre>
+        </div>
+        {% if it.arg_problems %}<div class="empty" style="color:var(--red)">argument problems: {{ it.arg_problems|join('; ') }}</div>{% endif %}
+      </div>
+      {% else %}
+      <div class="tev"><div class="empty">No tool calls in this call.</div></div>
+      {% endfor %}
+      </div>
+      <h3 style="margin-bottom:4px">Checks</h3>
+      <div id="insp-checks">
+      {% for g in c.groups %}
+        <div class="group {{ 'collapsed' if g.state == 'pass' else '' }}">
+          <h4 onclick="this.parentNode.classList.toggle('collapsed')"><span>{{ g.title }}</span><span class="pill {{ {'fail':'red','warn':'amber','pass':'green'}[g.state] }}">{{ {'fail': g.n_fail ~ ' failed', 'warn': g.n_warn ~ ' flagged', 'pass': 'ok'}[g.state] }}</span></h4>
+          <div class="checks">
+          {% for ch in g.checks %}
+            {% set st = 'pass' if ch.passed else ('fail' if ch.severity=='hard' else ('warn' if ch.severity=='soft' else 'info')) %}
+            <div class="check {{ st }}" onclick="this.classList.toggle('open')">
+              <span class="ic">{{ {'pass':'✓','fail':'✗','warn':'!','info':'·'}[st] }}</span>
+              <div><div>{{ ch.label }}</div><div class="what">{{ ch.what_happened }}</div><div class="why">{{ ch.why_it_matters }}</div></div>
+              {% if ch.jump_ms is not none %}<a class="jump" href="#" data-seek="{{ ch.jump_ms }}">{{ ch.jump_ms|clock }} ↗</a>{% else %}<span></span>{% endif %}
+            </div>
+          {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+      </div>
+    </aside>
+  </div>
+</section>
+<script>
+(function(){
+  const root = document.getElementById('inspector');
+  const env = {{ (c.envelopes or {})|tojson_compact }};
+  const tl = {{ c.timeline|tojson_compact }};
+  const issues = {{ (c.groups|map(attribute='checks')|sum(start=[])|rejectattr('passed')|selectattr('jump_ms')|map(attribute='jump_ms')|list)|tojson_compact }};
+  const interrupts = {{ (c.turns|selectattr('kind','equalto','caller')|selectattr('interruption')|map(attribute='t_ms')|list)|tojson_compact }};
+  const dur = (env && env.duration_ms) || {{ c.duration_ms or 1 }};
+  const audio = document.getElementById('insp-audio'), cv = document.getElementById('insp-lanes'), big = document.getElementById('insp-tl');
+  const playBtn = document.getElementById('insp-play'), cur = document.getElementById('insp-cur');
+  const C = {caller:'#2563eb', agent:'#7c3aed', tool:'#0f766e', bad:'#b91c1c', dead:'#fde68a', inter:'#f59e0b', grid:'#eef0f3', text:'#6b7280', play:'#111827'};
+  const PAD = 6;
+  function fmt(ms){ const s = Math.floor((ms||0)/1000); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+  function xOf(c, ms){ return PAD + (ms/dur) * (c.width - 2*PAD); }
+  function msOf(c, px){ return Math.max(0, Math.min(dur, (px-PAD)/(c.width-2*PAD)*dur)); }
+  function drawLanes(c, compact){
+    const W = c.clientWidth || 600; if (c.width !== W) c.width = W; const H = c.height;
+    const ctx = c.getContext('2d'); ctx.clearRect(0,0,W,H);
+    const laneH = compact ? 20 : 46, gap = compact ? 2 : 6, top = compact ? 4 : 14;
+    const lanes = [{name:'caller', y:top, color:C.caller}, {name:'agent', y:top+laneH+gap, color:C.agent}];
+    ctx.fillStyle = C.dead; (tl.ux && tl.ux.dead_air || []).forEach(d => ctx.fillRect(xOf(c,d.start_ms), top, Math.max(2, xOf(c,d.end_ms)-xOf(c,d.start_ms)), laneH*2+gap));
+    if (!compact){ ctx.font = '11px ' + getComputedStyle(document.body).fontFamily; ctx.textBaseline='middle'; ctx.fillStyle=C.text; ctx.textAlign='center';
+      for (let t=0; t<=dur; t+=10000){ const px=xOf(c,t); ctx.strokeStyle=C.grid; ctx.beginPath(); ctx.moveTo(px,top); ctx.lineTo(px,H-16); ctx.stroke(); ctx.fillText((t/1000|0)+'s', px, H-8); } }
+    lanes.forEach(l => {
+      const e = env && env[l.name] || []; const step = env && env.step_ms || 50; ctx.fillStyle = l.color;
+      for (let i=0;i<e.length;i++){ const v=e[i]/100; if (v<0.04) continue; const px=xOf(c,i*step), w=Math.max(1, xOf(c,step)-xOf(c,0)); const hh=Math.max(1, v*laneH); ctx.fillRect(px, l.y + (laneH-hh)/2, w, hh); }
+      if (!compact){ ctx.fillStyle = C.text; ctx.textAlign='left'; ctx.fillText(l.name, 4, l.y + laneH/2); }
+    });
+    const dotY = compact ? H-7 : H-24;
+    (tl.events||[]).filter(e => e.kind==='tool_call').forEach(e => { ctx.fillStyle = e.ok ? C.tool : C.bad; ctx.beginPath(); ctx.arc(xOf(c,e.t_ms), dotY, 3.5, 0, 7); ctx.fill(); });
+    issues.forEach(t => { ctx.fillStyle = C.bad; ctx.beginPath(); ctx.arc(xOf(c,t), dotY, 3, 0, 7); ctx.fill(); });
+    interrupts.forEach(t => { ctx.fillStyle = C.inter; ctx.beginPath(); ctx.arc(xOf(c,t), dotY, 3, 0, 7); ctx.fill(); });
+    if (audio && !isNaN(audio.currentTime)) { const px=xOf(c,audio.currentTime*1000); ctx.strokeStyle=C.play; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(px,0); ctx.lineTo(px,H); ctx.stroke(); ctx.lineWidth=1; }
+  }
+  function draw(){ drawLanes(cv, true); if (big && !big.closest('[data-pane]').hidden) drawLanes(big, false); }
+  function seek(ms, play){ if (!audio) return; audio.currentTime = Math.max(0, ms/1000); if (play !== false) audio.play().catch(()=>{}); }
+  function selectTool(id){
+    root.querySelectorAll('.tev').forEach(t => { t.hidden = t.dataset.tev !== id; });
+    root.querySelectorAll('.toolev').forEach(t => t.classList.toggle('sel', t.dataset.tool === id));
+  }
+  function nearestTool(ms){ let best=null; (tl.events||[]).filter(e => e.kind==='tool_call').forEach(e => { if (best===null || Math.abs(e.t_ms-ms) < Math.abs(best.t_ms-ms)) best=e; }); return best && Math.abs(best.t_ms-ms) < dur*0.03 ? best : null; }
+  [cv, big].forEach(c => { if (!c) return; c.addEventListener('click', e => { const ms = msOf(c, e.offsetX); const t = nearestTool(ms); if (t) selectTool(t.id); seek(ms); }); });
+  root.addEventListener('click', e => {
+    if (e.target.closest('a:not(.jump)') || e.target.closest('button') || e.target.closest('.tev') || e.target.closest('.sw')) return;
+    const j = e.target.closest('a.jump'); if (j) { e.preventDefault(); const ms=+j.dataset.seek; seek(ms); scrollToTime(ms); return; }
+    const t = e.target.closest('.toolev, .toolrow'); if (t) { selectTool(t.dataset.tool); seek(+t.dataset.t); return; }
+    const el = e.target.closest('.turn, .deadair, .tlrow'); if (el && el.dataset.t) seek(+el.dataset.t);
+  });
+  function scrollToTime(ms){ const turns=[...root.querySelectorAll('#transcript .turn, #transcript .toolev')]; let best=null; turns.forEach(t => { const tt=+t.dataset.t; if (tt<=ms+300 && (!best || tt>+best.dataset.t)) best=t; }); if (best) best.scrollIntoView({behavior:'smooth', block:'center'}); }
+  function highlight(){ if (!audio) return; const ms=audio.currentTime*1000; root.querySelectorAll('#transcript .turn').forEach(t => { const s=+t.dataset.t, e=+t.dataset.end || s+4000; t.classList.toggle('current', ms>=s && ms<e); }); cur.textContent = fmt(ms); }
+  if (audio){
+    playBtn.addEventListener('click', () => { if (audio.paused) audio.play().catch(()=>{}); else audio.pause(); });
+    const setIcon = () => { playBtn.querySelector('.i-play').hidden = !audio.paused; playBtn.querySelector('.i-pause').hidden = audio.paused; };
+    audio.addEventListener('play', setIcon); audio.addEventListener('pause', setIcon);
+    audio.addEventListener('timeupdate', () => { draw(); highlight(); }); audio.addEventListener('seeked', () => { draw(); highlight(); });
+  }
+  root.addEventListener('click', e => { if (e.target.closest('[data-tab="timeline"]')) setTimeout(draw, 0); });
+  window.addEventListener('resize', draw);
+  draw();
+  const start = {{ start_ms if (start_ms is defined and start_ms is not none) else 'null' }};
+  const hashT = (location.hash.match(/t=(\d+)/) || [])[1];
+  const t0 = hashT !== undefined ? +hashT : start;
+  if (t0 !== null && t0 !== undefined && audio) { seek(t0, false); scrollToTime(t0); draw(); highlight(); if (hashT !== undefined) root.scrollIntoView({block:'start'}); }
+  window.gfInspector = { seek, selectTool, draw };
+})();
+</script>

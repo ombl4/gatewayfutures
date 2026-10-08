@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% set page='error' %}
 {% block title %}{{ code }} · Call simulator{% endblock %}
+{% block crumbs %}<b>Error {{ code }}</b>{% endblock %}
 {% block content %}
 <h1>{{ code }}</h1>
 <p class="sub">{{ detail }}</p>

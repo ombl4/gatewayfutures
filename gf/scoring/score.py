@@ -12,7 +12,7 @@ from gf.config import ROOT, settings, thresholds, thresholds_hash
 from gf.record.model import CallRecord
 from gf.record.timeline import build_timeline
 from gf.scoring import METHOD_VERSION
-from gf.scoring.checks import Check, hard_fails
+from gf.scoring.checks import Check, first_evidence_ms, hard_fails
 from gf.scoring.claims import check_claims
 from gf.scoring.hearing import check_hearing
 from gf.scoring.persona import judge_persona
@@ -89,6 +89,8 @@ def score_attempt(folder: str | Path, session: Session) -> dict[str, Any]:
         "livekit": _livekit_brief(record.meta.get("livekit")),
         "dead_air_total_ms": ux.get("dead_air_total_ms"),
         "tool_calls": [(c.tool, c.status) for c in record.tool_calls],
+        "tool_ok": all(c.passed for c in checks if c.group == "tools" and c.severity == "hard"),
+        "issue_t_ms": first_evidence_ms(checks),
         "checks": [c.model_dump() for c in checks],
         "method_version": method_version(),
     }

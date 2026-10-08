@@ -1,14 +1,15 @@
 {% extends "base.html" %}
 {% set page='caller' %}
 {% block title %}Simulated caller · Call simulator{% endblock %}
+{% block crumbs %}<a href="{{ links.agent() }}">Agent settings</a><i>›</i><b>Simulated caller</b>{% endblock %}
 {% block content %}
 <h1>Simulated caller</h1>
 <p class="sub">A second voice agent that plays the customer. It joins the same LiveKit room as the support agent and talks over real audio, so the agent hears exactly what a phone caller would sound like.</p>
 
-<div class="flow three">
-  <div class="node dim"><h3>Brain</h3><div class="facts">OpenAI model from the session, temperature 0 with a fixed seed. Prompted with the persona, the facts it may use and the goal. May only end the call through its <code>end_call</code> tool, with a summary and whether the goal was met.</div></div>
-  <div class="node dim"><h3>Voice</h3><div class="facts">Deepgram Aura-2 voice chosen per session (accent), pace, then the line conditions below applied to the outgoing audio. Hears the agent through Deepgram Nova-3.</div></div>
-  <div class="node dim"><h3>Recorder</h3><div class="facts">A hidden participant records a stereo file: left = caller as sent, right = agent as heard. All timing in reports is measured from this audio, not from events.</div></div>
+<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin:0 0 16px">
+  <div class="card"><h3>Brain</h3><div class="small muted">OpenAI model from the session, temperature 0 with a fixed seed. Prompted with the persona, the facts it may use and the goal. May only end the call through its <code>end_call</code> tool, with a summary and whether the goal was met.</div></div>
+  <div class="card"><h3>Voice</h3><div class="small muted">Deepgram Aura-2 voice chosen per session (accent), pace, then the line conditions below applied to the outgoing audio. Hears the agent through Deepgram Nova-3.</div></div>
+  <div class="card"><h3>Recorder</h3><div class="small muted">A hidden participant records a stereo file: left = caller as sent, right = agent as heard. All timing in reports is measured from this audio, not from events.</div></div>
 </div>
 
 <div class="two">

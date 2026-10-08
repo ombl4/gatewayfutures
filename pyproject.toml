@@ -29,8 +29,10 @@ gf = "gf.cli:app"
 
 [dependency-groups]
 dev = [
+    "playwright>=1.47",
     "pytest>=8.3",
     "pytest-asyncio>=0.24",
+    "pytest-playwright>=0.5",
     "ruff>=0.6",
 ]
 
@@ -47,8 +49,9 @@ asyncio_mode = "auto"
 markers = [
     "live: needs real API keys (OpenAI, Deepgram, LiveKit); run with `make test-live`",
     "e2e: full simulated call; run with `make smoke`",
+    "ui: drives the dashboard in headless Chromium (Playwright); run with `make test-ui`",
 ]
-addopts = "-m 'not live and not e2e'"
+addopts = "-m 'not live and not e2e and not ui'"
 
 [tool.ruff]
 line-length = 100

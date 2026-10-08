@@ -1,11 +1,14 @@
 {% extends "base.html" %}
 {% set page='sessions' %}
 {% block title %}{{ p.session.title }} · Sessions{% endblock %}
+{% block crumbs %}<a href="{{ links.sessions() }}">Practice sessions</a><i>›</i><b>{{ p.session.title }}</b>{% endblock %}
 {% block content %}
 {% set s = p.session %}
-<p class="small"><a href="{{ links.sessions() }}">← all sessions</a></p>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
 <h1>{{ s.title }}</h1>
-<p class="sub mono">{{ s.id }} · engine {{ s.engine }}{% if mode == 'live' %} · <a href="/sessions/new?copy={{ s.id }}">create a variant of this session</a>{% endif %}</p>
+{% if mode == 'live' %}<a class="btn" href="/sessions/new?copy={{ s.id }}">Create a variant of this session</a>{% endif %}
+</div>
+<p class="meta"><span class="mono">{{ s.id }}</span><i>·</i><span>engine {{ s.engine }}</span>{% if s.generated %}<i>·</i><span class="chip">generated</span>{% endif %}</p>
 
 <div class="two">
 <div>
@@ -43,12 +46,30 @@
     {% for f in s.faults %}<div class="small">on call #{{ f.nth }} to <span class="mono">{{ f.tool }}</span>: <b>{{ f.type }}</b>{% if f.latency_ms %} ({{ f.latency_ms }} ms){% endif %}</div>{% endfor %}
   </div>
   {% endif %}
+  <h2>Every attempt, newest run first</h2>
+  {% set rows = [] %}
+  {% for h in p.history|reverse %}{% for a in h.attempts %}{% set _ = rows.append((h, a)) %}{% endfor %}{% endfor %}
+  {% if rows %}
+  <div class="tablewrap"><table id="attempts">
+  <tr><th>run</th><th>#</th><th>replay</th><th>verdict</th><th>reason / flags</th><th>p95</th><th>duration</th></tr>
+  {% for h, a in rows %}
+  <tr>
+    <td><a href="{{ links.run(h.run_id) }}">{{ h.run_id }}</a>{% if h.kind != 'run' %} <span class="chip">detector check</span>{% endif %}</td>
+    <td><a href="{{ links.call(h.run_id, a.session_id, a.attempt) }}">{{ a.attempt }}</a></td>
+    <td>{% if a.has_audio is not defined or a.has_audio %}<button class="play" data-src="{{ links.audio(h.run_id, a.session_id, a.attempt) }}" data-label="{{ s.title }} #{{ a.attempt }} ({{ h.run_id }})"><span class="ic">▶</span><span class="t">{{ a.duration_ms|clock if a.duration_ms else '' }}</span></button>{% endif %}</td>
+    <td><span class="pill {{ 'invalid' if not a.valid else ('pass' if a.passed else 'fail') }}">{{ 'invalid' if not a.valid else ('pass' if a.passed else 'fail') }}</span></td>
+    <td class="small">{{ a.failure_reason }}{% if a.valid and a.passed %}{% for f in a.soft_flags %}<span class="chip">{{ f }}</span>{% endfor %}{% endif %}</td>
+    <td>{{ a.latency_p95_ms|ms }}</td><td>{{ a.duration_ms|ms }}</td>
+  </tr>
+  {% endfor %}
+  </table></div>
+  {% else %}<p class="muted">Not run yet.</p>{% endif %}
 </div>
 <div>
   <div class="card">
     <h3>What a correct outcome looks like</h3>
     <div class="kv">
-      <span class="k">outcome</span><span class="chip">{{ s.expected.outcome }}</span>
+      <span class="k">outcome</span><span><span class="chip">{{ s.expected.outcome }}</span></span>
       <span class="k">must call</span><span>{% for r in s.expected.tool_calls.required %}<div class="mono">{{ r.tool }} {{ r.args|tojson_compact }}</div>{% endfor %}</span>
       {% if s.expected.tool_calls.order %}<span class="k">in order</span><span class="mono">{{ s.expected.tool_calls.order|join(' → ') }}</span>{% endif %}
       {% if s.expected.tool_calls.forbidden %}<span class="k">must not call</span><span class="mono">{{ s.expected.tool_calls.forbidden|join(', ') }}</span>{% endif %}
@@ -59,7 +80,7 @@
   <div class="card" style="margin-top:12px">
     <h3>Results by run</h3>
     {% if p.history %}
-    <div class="kv">{% for h in p.history %}<a class="k" href="{{ links.run(h.run_id) }}">{{ h.run_id }}</a><span><span class="pill {{ 'green' if h.n and h.passed==h.n else ('red' if h.n and h.passed==0 else ('amber' if h.n else 'grey')) }}">{{ h.passed }}/{{ h.n }}</span>{% if h.invalid %} <span class="muted small">{{ h.invalid }} invalid</span>{% endif %}</span>{% endfor %}</div>
+    <div class="kv">{% for h in p.history|reverse %}<a class="k" href="{{ links.run(h.run_id) }}">{{ h.run_id }}</a><span><span class="pill {{ 'green' if h.n and h.passed==h.n else ('red' if h.n and h.passed==0 else ('amber' if h.n else 'grey')) }}">{{ h.passed }}/{{ h.n }}</span>{% if h.invalid %} <span class="muted small">{{ h.invalid }} invalid</span>{% endif %}{% if h.kind != 'run' %} <span class="chip">detector check</span>{% endif %}</span>{% endfor %}</div>
     {% else %}<span class="muted">not run yet</span>{% endif %}
   </div>
   {% if p.yaml %}

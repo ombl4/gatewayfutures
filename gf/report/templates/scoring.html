@@ -1,15 +1,16 @@
 {% extends "base.html" %}
 {% set page='scoring' %}
 {% block title %}Scoring · Call simulator{% endblock %}
+{% block crumbs %}<b>Scoring</b>{% endblock %}
 {% block content %}
 <h1>How calls are scored</h1>
 {% if mode == 'live' %}
-<div class="card" style="border-color:#c7d7f7;margin:0 0 16px">
+<div class="card" style="border-color:#c7d2fe;margin:0 0 16px">
   <h3>Prove a check fires</h3>
   <p class="small" style="margin:0 0 8px">If you doubt a check, make the agent misbehave on purpose and watch the check catch it. The run is stamped with the variant and never mixes with real results.</p>
   <form method="post" action="/checks/run" style="display:flex;gap:10px;align-items:end;flex-wrap:wrap">
-    <label class="small">Variant<br><select name="variant" class="input" style="width:auto">{% for v in s.variants %}<option value="{{ v.name }}">{{ v.title }}</option>{% endfor %}</select></label>
-    <label class="small" style="min-width:320px;flex:1">Session<br><select name="session_id" class="input">{% for x in sessions %}<option value="{{ x.id }}" {% if x.id == '7c994c348001' %}selected{% endif %}>{{ x.title }}</option>{% endfor %}</select></label>
+    <label class="small" style="flex:1;min-width:200px">Variant<br><select name="variant" class="input">{% for v in s.variants %}<option value="{{ v.name }}">{{ v.title }}</option>{% endfor %}</select></label>
+    <label class="small" style="min-width:200px;flex:2">Session<br><select name="session_id" class="input">{% for x in sessions %}<option value="{{ x.id }}" {% if x.id == '7c994c348001' %}selected{% endif %}>{{ x.title }}</option>{% endfor %}</select></label>
     <button class="btn primary" type="submit" {% if job %}disabled title="a run is in progress"{% endif %} style="margin-bottom:6px">Run check</button>
   </form>
   {% for v in s.variants %}<p class="small muted" style="margin:8px 0 0"><b>{{ v.name }}</b>: {{ v.purpose }} Expected to fail: <code>{{ v.expected_check }}</code>.</p>{% endfor %}

@@ -112,7 +112,7 @@ def test_run_page_content(env):
     assert "Every call" in r
     call = env["client"].get("/runs/t1/7c994c348001/1").text
     assert "lookup_order" in call and "issue_refund" in call
-    assert "Checks" in call and "What was said and done" in call
+    assert "Checks" in call and 'data-tab="transcript"' in call
     assert "Not ready" in env["client"].get("/").text
 
 

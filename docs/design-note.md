@@ -16,7 +16,7 @@ What was chosen and why, what the first real runs showed, what the next week wou
 
 **Small numbers are shown honestly.** Three repeats give wide Wilson intervals (3/3 reads as 44–100%). The report always shows the interval, flags flaky sessions as the first thing to rerun, and marks regressions "unconfirmed, rerun to confirm".
 
-**One rendering path.** The live UI and the static report are the same Jinja templates over the same dicts; the static folder is what gets published. No JavaScript build, no CDN: the call page draws its lanes on a canvas from precomputed loudness envelopes and uses the native audio element.
+**One rendering path.** The live UI and the static report are the same Jinja templates over the same dicts; the static folder is what gets published. No JavaScript build, no CDN: the call page draws its lanes on a canvas from precomputed loudness envelopes and uses the native audio element. The pages follow one debugging progression on a single workbench screen: KPI cards → practice sessions (expand in place) → issues to investigate → the call inspector, where clicking a transcript turn, a tool event, a check or the lanes seeks the recording to that moment. A Playwright test drives every control, so a redesign cannot silently break replay or drill-down.
 
 **Concurrency with isolation.** Calls run in parallel (default 4) with one LiveKit room per call, a per-call copy of the backend state keyed by call id, and one record folder per attempt. The full 11-session set, twice, took 8.3 minutes.
 

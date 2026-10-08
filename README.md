@@ -23,7 +23,7 @@ sessions/*.yaml ──► simulated caller ──(LiveKit room, real audio)─�
 | Simulated caller | `gf/caller/` | A second voice agent that plays the customer from a session file: persona, facts, goal, voice/accent, pace, noise at a measured SNR, phone-line filter, packet loss, patience. A hidden participant records both sides to a stereo WAV. |
 | Runner | `gf/runner/` | One LiveKit room per call, concurrent calls with per-call isolation, a record folder per attempt, a manifest per run. |
 | Scoring | `gf/scoring/` | Tool/outcome checks, claimed-without-acting, WER and entity checks, latency/dead-air/talk-over/barge-in from the audio, transcript quality gates, validity rules, Wilson intervals and flaky detection. |
-| Reports and UI | `gf/report/`, `gf/ui/` | The same Jinja templates render the live UI (`gf ui`) and the static report (`gf report`). |
+| Reports and UI | `gf/report/`, `gf/ui/` | The same Jinja templates render the live UI (`gf ui`) and the static report (`gf report`): one workbench page (KPI cards with trends, practice-session accordion, prioritised issues, call inspector with synchronised audio, transcript, tool events and checks), a left navigation with the agent's configuration, and run control. No CDN, no JavaScript build. |
 
 ## Setup
 
@@ -132,6 +132,7 @@ The static report has no server at all: `.github/workflows/pages.yml` publishes 
 
 ```bash
 make test        # unit tests, no keys or network (backend, schema, audio conditions, timeline, scoring, report, UI)
+make test-ui     # dashboard in headless Chromium (Playwright): every button, tab, player, replay and link
 make test-live   # tests that call the real LLM (agent behaviours in text mode)
 make lint
 ```

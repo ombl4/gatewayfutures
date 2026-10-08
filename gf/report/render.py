@@ -104,4 +104,7 @@ def render(template: str, links: Links, **ctx: Any) -> str:
     global _ENV
     if _ENV is None:
         _ENV = environment()
+    ctx.setdefault("shell", model.shell_info())
+    ctx.setdefault("provider_state", "")
+    ctx.setdefault("provider_detail", "")
     return _ENV.get_template(template).render(links=links, mode=links.mode, **ctx)

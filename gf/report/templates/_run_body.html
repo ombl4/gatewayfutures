@@ -1,0 +1,91 @@
+{# Shared pieces of the overview and the run page (spec T6.12 / T6.13). Context: r = run report. #}
+{% macro replay(run_id, a, title=None) %}
+{% if a.has_audio is not defined or a.has_audio %}<button class="play" data-src="{{ links.audio(run_id, a.session_id, a.attempt) }}" data-label="{{ title or a.title or a.session_id }} #{{ a.attempt }}" title="replay the original recording"><span class="ic">▶</span><span class="t">{{ a.duration_ms|clock if a.duration_ms else '' }}</span></button>{% endif %}
+{% endmacro %}
+
+{% macro strip(run_id, row) %}
+<span class="strip">{% for a in row.strip %}{% if a.mark == 'pending' %}<span class="dot pending" title="attempt {{ a.attempt }}: not run yet"></span>{% else %}<a class="dot {{ a.mark }}" href="{{ links.call(run_id, row.session_id, a.attempt) }}" title="attempt {{ a.attempt }}: {{ a.mark }}{% if a.reason %} — {{ a.reason }}{% endif %}"></a>{% endif %}{% endfor %}</span>
+{% endmacro %}
+
+{% macro spark(series, cls) %}
+{% set pts = series|reject('none')|list %}
+{% if pts|length >= 2 %}
+{% set lo = pts|min %}{% set hi = pts|max %}{% set span = (hi - lo) if hi != lo else 1 %}
+<svg viewBox="0 0 72 28" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="{{ {'green':'#15803d','amber':'#b45309','red':'#b91c1c','grey':'#9ca3af'}[cls] }}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" points="{% for v in series %}{% if v is not none %}{{ (loop.index0 * 68 / (series|length - 1) + 2)|round(1) }},{{ (26 - (v - lo) / span * 22)|round(1) }} {% endif %}{% endfor %}"/></svg>
+{% endif %}
+{% endmacro %}
+
+{% macro kpis(r) %}
+{% set icons = {
+  'rate': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>',
+  'tool_rate': '<svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.1-2.1z"/></svg>',
+  'wer': '<svg viewBox="0 0 24 24"><path d="M3 12h2l2-6 3 12 3-9 2 5 2-2h4"/></svg>',
+  'p95_ms': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'
+} %}
+<div class="kpis" id="kpis">
+{% for k in r.kpis %}
+  <div class="kpi {{ k.cls }}" data-kpi="{{ k.id }}" title="{{ k.note }}">
+    <div class="ic">{{ icons[k.id]|safe }}</div>
+    <div class="k">{{ k.label }}</div>
+    <div class="v">{{ k.value }}</div>
+    <div class="d">{{ k.sub }}</div>
+    <div class="trend">{{ spark(k.series, k.cls) }}{% if k.delta_text %}<span class="vs {{ k.delta_class }}">{{ k.delta_text }} vs previous</span>{% elif not k.comparable %}<span class="vs none">no comparable run</span>{% else %}<span class="vs same">no change</span>{% endif %}</div>
+  </div>
+{% endfor %}
+</div>
+{% endmacro %}
+
+{% macro sessions(r, title='Practice sessions', open_first_failing=True) %}
+<div class="acc" id="sessions">
+  <div class="hd"><h3>{{ title }} <span class="muted" style="font-weight:500">({{ r.sessions|length }})</span></h3><span class="small muted">{{ r.repeat }} attempt{{ '' if r.repeat == 1 else 's' }} each · click a row to expand</span></div>
+  {% set ns = namespace(opened=False) %}
+  {% for row in r.sessions %}
+  {% set total = (row.attempts_detail|length) or 1 %}
+  {% set should_open = open_first_failing and not ns.opened and (row.n_fail or row.n_invalid) %}
+  {% if should_open %}{% set ns.opened = True %}{% endif %}
+  <details class="srow" data-session="{{ row.session_id }}" {% if should_open %}open{% endif %}>
+    <summary>
+      <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+      <span class="ttl">{{ row.title }}{% if row.flaky %} <span class="pill amber">flaky</span>{% endif %}{% if r.previous and row.vs in ('regressed','fixed') %} <span class="vs {{ row.vs }}">{{ {'regressed':'⚠ regressed','fixed':'✓ fixed'}[row.vs] }}</span>{% endif %}</span>
+      <span class="bar" title="{{ row.passed }} pass · {{ row.n_fail }} fail · {{ row.n_invalid }} invalid"><i class="p" style="width:{{ 100 * row.passed / total }}%"></i><i class="f" style="width:{{ 100 * row.n_fail / total }}%"></i><i class="x" style="width:{{ 100 * row.n_invalid / total }}%"></i></span>
+      <span class="cnt">{% if row.n %}<b class="{{ 'p' if row.passed == row.n else 'f' }}">{{ row.passed }}/{{ row.n }}</b> pass{% else %}<span class="muted">no valid</span>{% endif %}</span>
+      <span class="cnt">{{ strip(r.run_id, row) }}</span>
+    </summary>
+    <div class="sbody">
+      <div class="cols4" style="margin:8px 0 10px">
+        <div><div class="h">Persona</div><b>{{ row.persona.name }}</b><div class="muted">{{ row.persona.style }} · {{ row.persona.accent }}</div></div>
+        <div><div class="h">Goal</div>{{ row.goal }}</div>
+        <div><div class="h">Conditions</div>{% for c in row.chips %}<span class="chip">{{ c }}</span>{% endfor %}</div>
+        <div><div class="h">Expected</div><span class="chip">{{ row.expected_outcome }}</span><div class="muted mono" style="margin-top:3px">{{ row.expected_tools|join(' → ') }}</div></div>
+      </div>
+      {% for a in row.attempts_detail %}
+      <div class="att">
+        <span class="pill {{ 'invalid' if not a.valid else ('pass' if a.passed else 'fail') }}">{{ 'invalid' if not a.valid else ('pass' if a.passed else 'fail') }}</span>
+        <span>{{ replay(r.run_id, a, row.title) }}</span>
+        <span class="rs" title="{{ a.failure_reason or a.flags|join(', ') }}">#{{ a.attempt }} · {{ a.duration_ms|clock }} · p95 {{ a.latency_p95_ms|ms }}{% if a.failure_reason %} · {{ a.failure_reason }}{% elif a.flags %} · flagged: {{ a.flags|join(', ') }}{% else %} · clean{% endif %}</span>
+        <a href="{{ links.call(r.run_id, row.session_id, a.attempt) }}">Open call →</a>
+      </div>
+      {% endfor %}
+      <div class="small" style="margin-top:8px"><a href="{{ links.session(row.session_id) }}">Session definition and history →</a>{% if row.p95_class in ('amber','red') %} <span class="muted">· worst p95 reply {{ row.latency_p95_ms_max|ms }}</span>{% endif %}</div>
+    </div>
+  </details>
+  {% endfor %}
+  {% if not r.sessions %}<div class="small muted" style="padding:12px 14px">No sessions in this run yet.</div>{% endif %}
+</div>
+{% endmacro %}
+
+{% macro issues(r, call_link) %}
+<div id="issues">
+  <div style="display:flex;justify-content:space-between;align-items:baseline;margin:0 0 8px"><h3 style="margin:0">Issues to investigate <span class="muted" style="font-weight:500">({{ r.issues.total }})</span></h3>{% if r.issues.total > r.issues['items']|length %}<a class="small" href="{{ links.run(r.run_id) }}#every-call">View all</a>{% endif %}</div>
+  <div class="issues">
+  {% for i in r.issues['items'] %}
+    <a class="issue {{ i.severity }}" href="{{ call_link(i) }}" data-issue="{{ i.session_id }}/{{ i.attempt }}" data-t="{{ i.t_ms if i.t_ms is not none else '' }}">
+      <div class="t"><span>{{ i.title }}</span><span class="sev {{ i.severity }}">{{ {'critical':'critical','high':'high','medium':'flagged','simulation':'invalid sim'}[i.severity] }}</span></div>
+      <div class="m"><span>{{ i.session_title }}</span><i>·</i><span>#{{ i.attempt }}</span>{% if i.t_ms is not none %}<i>·</i><span class="mono">{{ i.t_ms|clock }}</span>{% endif %}</div>
+    </a>
+  {% else %}
+    <div class="card small muted">Nothing to investigate: every valid call passed cleanly.</div>
+  {% endfor %}
+  </div>
+</div>
+{% endmacro %}
