@@ -37,6 +37,10 @@
 {% endif %}
 
 {% if r.kpis %}{{ rb.kpis(r) }}{% endif %}
+{% set tb = r.time_breakdown|selectattr('p50')|list %}
+{% if tb %}
+<p class="meta" id="time-breakdown" style="margin:-6px 0 14px"><span class="muted">Where the time goes (median over valid calls):</span>{% for b in tb %}<span title="{{ b.label }}"><b>{{ b.label|lower }}</b> {{ b.p50 }} ms</span>{% if not loop.last %}<i>·</i>{% endif %}{% endfor %}</p>
+{% endif %}
 <div class="work">
   {{ rb.sessions(r) }}
   {{ rb.issues(r, issue_link) }}

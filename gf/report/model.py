@@ -18,6 +18,7 @@ import soundfile as sf
 
 from gf.agent.config import agent_config
 from gf.config import ROOT, settings, thresholds
+from gf.record.latency import STAGES, turn_latency
 from gf.record.model import CallRecord
 from gf.runner.batch import list_runs
 from gf.scoring.checks import evidence_ms
@@ -287,6 +288,30 @@ def kpi_cards(
             note="Measured from the recording: caller stops speaking → agent audio starts.",
         ),
     ]
+
+
+def time_breakdown(summ: dict[str, Any]) -> list[dict[str, Any]]:
+    """Where the time goes in a run: median over valid calls of each call's median per stage."""
+    valid = [a for a in summ.get("attempts", []) if a.get("valid") and a.get("latency_breakdown")]
+    out = []
+    keys = [(k, label) for k, label, _d in STAGES] + [
+        ("e2e_ms", "Reported end-to-end"),
+        ("heard_ms", "Heard"),
+        ("unaccounted_ms", "Unaccounted"),
+    ]
+    for k, label in keys:
+        vals = sorted(
+            a["latency_breakdown"][k] for a in valid if a["latency_breakdown"].get(k) is not None
+        )
+        out.append(
+            {
+                "key": k,
+                "label": label,
+                "p50": vals[len(vals) // 2] if vals else None,
+                "n": len(vals),
+            }
+        )
+    return out
 
 
 def _pct(v: float | None) -> str:
@@ -677,6 +702,7 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
         else None,
     }
     out["kpis"] = kpi_cards(run_id, summ, prev) if man.get("kind", "run") == "run" else []
+    out["time_breakdown"] = time_breakdown(summ)
     out["issues"] = issues_for(out)
     out["valid_count"] = sum(1 for a in summ.get("attempts", []) if a.get("valid"))
     return out
@@ -927,6 +953,7 @@ def call_report_from_folder(
         "files": sorted(p.name for p in Path(folder).iterdir()),
         "folder": str(folder),
         "thresholds": thresholds().model_dump(),
+        "latency_turns": turn_latency(record, timeline),
         "neighbours": _neighbours(run_id, record.session_id, record.attempt),
         "started_at": meta.get("started_at"),
         "n_fail": sum(g["n_fail"] for g in groups),

@@ -154,3 +154,37 @@ def test_heard_marks_highlight_only_the_misheard_words():
     bad = [m["w"] for m in marks if m["bad"]]
     assert bad == ["48218"]
     assert all(not m["bad"] for m in model._heard_marks("yes please", "Yes, please."))
+
+
+def test_turn_latency_pairs_metrics_to_turns():
+    import json
+
+    from gf.record.latency import turn_latency
+    from gf.record.model import CallRecord
+
+    folder = ROOT / "fixtures" / "records" / "refund-basic"
+    rec = CallRecord.load(folder)
+    out = turn_latency(rec, json.loads((folder / "timeline.json").read_text()))
+    turns = out["turns"]
+    assert len(turns) == len(rec.agent_turns)
+    assert turns[0]["greeting"] and turns[0]["heard_ms"] is None
+    replies = [t for t in turns if not t["greeting"]]
+    assert all(t["eou_ms"] and t["llm_ttft_ms"] and t["tts_ttfb_ms"] for t in replies)
+    heard = [t for t in replies if t["heard_ms"] is not None]
+    assert heard and all(t["unaccounted_ms"] >= 0 for t in heard)
+    assert out["summary"]["heard_ms"]["n"] == len(heard)
+    assert out["summary"]["llm_ttft_ms"]["p50"] > 0
+    assert len(out["glossary"]) == len(out["stages"]) + 3
+
+
+def test_time_breakdown_is_median_of_call_medians():
+    s = {
+        "attempts": [
+            {"valid": True, "latency_breakdown": {"eou_ms": 500, "heard_ms": 2000}},
+            {"valid": True, "latency_breakdown": {"eou_ms": 700, "heard_ms": 1000}},
+            {"valid": False, "latency_breakdown": {"eou_ms": 9000, "heard_ms": 9000}},
+        ]
+    }
+    rows = {r["key"]: r for r in model.time_breakdown(s)}
+    assert rows["eou_ms"]["p50"] == 700 and rows["eou_ms"]["n"] == 2
+    assert rows["heard_ms"]["p50"] == 2000 and rows["stt_ms"]["p50"] is None

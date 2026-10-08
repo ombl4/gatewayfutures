@@ -265,7 +265,7 @@ details.srow summary .ttl .chip{font-weight:400}
   <a class="row" href="agent.html#models"><span>Model</span><span>gpt-4.1-mini</span></a>
   <a class="row" href="backend.html"><span>Order system</span><span>mock</span></a>
   <a class="row" href="caller.html"><span>Simulated caller</span><span>gf-caller</span></a>
-  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-08 22:47 UTC</div>
+  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-08 22:55 UTC</div>
 </aside>
 <div class="wrap">
 <header class="top">
@@ -296,6 +296,7 @@ details.srow summary .ttl .chip{font-weight:400}
     <button type="button" data-tab="transcript" class="on">Transcript</button>
     <button type="button" data-tab="tools">Tool calls<b>3</b></button>
     <button type="button" data-tab="timeline">Timeline</button>
+    <button type="button" data-tab="latency">Latency<b>p95 2.6 s</b></button>
     <button type="button" data-tab="checks">Checks<b style="background:var(--amber-bg);color:var(--amber)">1 flagged</b></button>
 <button type="button" data-tab="details">Details</button>    <label class="sw on" data-toggle="heard-off" data-target="#inspector" id="insp-heard"><span class="tg"></span>Show what the agent heard</label>
   </div>
@@ -447,6 +448,76 @@ details.srow summary .ttl .chip{font-weight:400}
         <tr class="tlrow" data-t="77585" style="cursor:pointer"><td class="mono">1:17</td><td>caller said</td><td class="small">Goodbye.</td></tr>
         <tr class="tlrow" data-t="78481" style="cursor:pointer"><td class="mono">1:18</td><td>agent heard</td><td class="small">Goodbye.</td></tr>
         </table></div>
+      </div>
+
+      <div class="pane" data-pane="latency" hidden id="latency">
+        <p class="small muted" style="margin:6px 0 10px">Per agent turn: what the caller waited (<b>heard</b>, from the recording) and where the agent's own clock says the time went. Hover a segment for the stage.</p>
+        <div class="legend" style="padding:0 0 8px"><span><i style="background:#94a3b8;border-radius:2px"></i>End-of-turn detection</span><span><i style="background:#60a5fa;border-radius:2px"></i>Transcription</span><span><i style="background:#a78bfa;border-radius:2px"></i>LLM first token</span><span><i style="background:#34d399;border-radius:2px"></i>TTS first byte</span><span><i style="background:#fbbf24;border-radius:2px"></i>Playback</span><span><i style="background:#e5e7eb;border-radius:2px;border:1px solid #d1d5db"></i>Unaccounted</span><span><i style="background:transparent;border-left:2px solid var(--ink);border-radius:0;width:0"></i>heard</span></div>
+        <div class="tablewrap"><table class="small" id="latency-table">
+        <tr><th>turn</th><th style="width:38%">breakdown</th><th>heard</th><th title="Caller stopped speaking → the turn detector decided the caller was done. Before this, the agent cannot start thinking.">end of turn</th><th title="End of turn → the final transcript arrived from speech recognition.">transcript</th><th title="Transcript sent to the language model → first token of the reply (time to first token, TTFT).">LLM TTFT</th><th title="First sentence sent to text-to-speech → first audio byte back (time to first byte, TTFB).">TTS TTFB</th><th title="First audio byte → it is actually played into the room.">playback</th><th>reported e2e</th><th>tokens</th></tr>
+        <tr class="latrow" data-t="1446" style="cursor:pointer">
+          <td class="mono">0:01 <span class="muted">#1</span> <span class="chip">greeting</span></td>
+          <td>
+            <div style="position:relative;height:14px;background:#f8fafc;border-radius:3px;overflow:hidden">
+              <div style="display:flex;height:100%"><i title="TTS first byte: 85 ms" style="display:block;height:100%;width:3.22%;background:#34d399"></i><i title="Playback: 18 ms" style="display:block;height:100%;width:0.68%;background:#fbbf24"></i></div>
+            </div>
+          </td>
+          <td><span class="muted">–</span></td>
+<td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">85 ms</td><td class="num">18 ms</td>          <td class="num">–</td>
+          <td class="num muted">–</td>
+        </tr>
+        <tr class="latrow" data-t="19175" style="cursor:pointer">
+          <td class="mono">0:19 <span class="muted">#2</span></td>
+          <td>
+            <div style="position:relative;height:14px;background:#f8fafc;border-radius:3px;overflow:hidden">
+              <div style="display:flex;height:100%"><i title="End-of-turn detection: 577 ms" style="display:block;height:100%;width:21.86%;background:#94a3b8"></i><i title="Transcription: 183 ms" style="display:block;height:100%;width:6.93%;background:#60a5fa"></i><i title="LLM first token: 450 ms" style="display:block;height:100%;width:17.05%;background:#a78bfa"></i><i title="TTS first byte: 145 ms" style="display:block;height:100%;width:5.49%;background:#34d399"></i><i title="Playback: 18 ms" style="display:block;height:100%;width:0.68%;background:#fbbf24"></i><i title="Unaccounted: 387 ms" style="display:block;height:100%;width:14.66%;background:#e5e7eb"></i></div>
+<b title="heard: 1760 ms" style="position:absolute;top:0;bottom:0;left:66.67%;width:2px;background:var(--ink)"></b>            </div>
+          </td>
+          <td><span class="pill green">1.8 s</span></td>
+<td class="num">577 ms</td><td class="num">183 ms</td><td class="num">450 ms</td><td class="num">145 ms</td><td class="num">18 ms</td>          <td class="num">1212 ms</td>
+          <td class="num muted">828 → 21</td>
+        </tr>
+        <tr class="latrow" data-t="29756" style="cursor:pointer">
+          <td class="mono">0:29 <span class="muted">#3</span></td>
+          <td>
+            <div style="position:relative;height:14px;background:#f8fafc;border-radius:3px;overflow:hidden">
+              <div style="display:flex;height:100%"><i title="End-of-turn detection: 577 ms" style="display:block;height:100%;width:21.86%;background:#94a3b8"></i><i title="Transcription: 216 ms" style="display:block;height:100%;width:8.18%;background:#60a5fa"></i><i title="LLM first token: 499 ms" style="display:block;height:100%;width:18.9%;background:#a78bfa"></i><i title="TTS first byte: 213 ms" style="display:block;height:100%;width:8.07%;background:#34d399"></i><i title="Playback: 19 ms" style="display:block;height:100%;width:0.72%;background:#fbbf24"></i><i title="Unaccounted: 716 ms" style="display:block;height:100%;width:27.12%;background:#e5e7eb"></i></div>
+<b title="heard: 2240 ms" style="position:absolute;top:0;bottom:0;left:84.85%;width:2px;background:var(--ink)"></b>            </div>
+          </td>
+          <td><span class="pill amber">2.2 s</span></td>
+<td class="num">577 ms</td><td class="num">216 ms</td><td class="num">499 ms</td><td class="num">213 ms</td><td class="num">19 ms</td>          <td class="num">1746 ms</td>
+          <td class="num muted">934 → 37</td>
+        </tr>
+        <tr class="latrow" data-t="46738" style="cursor:pointer">
+          <td class="mono">0:46 <span class="muted">#4</span></td>
+          <td>
+            <div style="position:relative;height:14px;background:#f8fafc;border-radius:3px;overflow:hidden">
+              <div style="display:flex;height:100%"><i title="End-of-turn detection: 577 ms" style="display:block;height:100%;width:21.86%;background:#94a3b8"></i><i title="Transcription: 229 ms" style="display:block;height:100%;width:8.67%;background:#60a5fa"></i><i title="LLM first token: 528 ms" style="display:block;height:100%;width:20.0%;background:#a78bfa"></i><i title="TTS first byte: 518 ms" style="display:block;height:100%;width:19.62%;background:#34d399"></i><i title="Playback: 18 ms" style="display:block;height:100%;width:0.68%;background:#fbbf24"></i><i title="Unaccounted: 770 ms" style="display:block;height:100%;width:29.17%;background:#e5e7eb"></i></div>
+<b title="heard: 2640 ms" style="position:absolute;top:0;bottom:0;left:100.0%;width:2px;background:var(--ink)"></b>            </div>
+          </td>
+          <td><span class="pill amber">2.6 s</span></td>
+<td class="num">577 ms</td><td class="num">229 ms</td><td class="num">528 ms</td><td class="num">518 ms</td><td class="num">18 ms</td>          <td class="num">2077 ms</td>
+          <td class="num muted">1119 → 37</td>
+        </tr>
+        <tr class="latrow" data-t="65462" style="cursor:pointer">
+          <td class="mono">1:05 <span class="muted">#5</span></td>
+          <td>
+            <div style="position:relative;height:14px;background:#f8fafc;border-radius:3px;overflow:hidden">
+              <div style="display:flex;height:100%"><i title="End-of-turn detection: 577 ms" style="display:block;height:100%;width:21.86%;background:#94a3b8"></i><i title="Transcription: 124 ms" style="display:block;height:100%;width:4.7%;background:#60a5fa"></i><i title="LLM first token: 483 ms" style="display:block;height:100%;width:18.3%;background:#a78bfa"></i><i title="TTS first byte: 203 ms" style="display:block;height:100%;width:7.69%;background:#34d399"></i><i title="Playback: 18 ms" style="display:block;height:100%;width:0.68%;background:#fbbf24"></i><i title="Unaccounted: 795 ms" style="display:block;height:100%;width:30.11%;background:#e5e7eb"></i></div>
+<b title="heard: 2200 ms" style="position:absolute;top:0;bottom:0;left:83.33%;width:2px;background:var(--ink)"></b>            </div>
+          </td>
+          <td><span class="pill amber">2.2 s</span></td>
+<td class="num">577 ms</td><td class="num">124 ms</td><td class="num">483 ms</td><td class="num">203 ms</td><td class="num">18 ms</td>          <td class="num">1601 ms</td>
+          <td class="num muted">1254 → 27</td>
+        </tr>
+        <tr style="font-weight:600"><td>p50 / p95</td><td class="small muted" style="font-weight:400">over 4 replies with a measured wait</td>
+          <td>2.2 s / 2.6 s</td>
+<td class="num">577 / 577</td><td class="num">216 / 229</td><td class="num">499 / 528</td><td class="num">203 / 518</td><td class="num">18 / 19</td>          <td class="num">1746 / 2077</td><td></td></tr>
+        </table></div>
+        <details style="margin-top:10px"><summary>What each latency means</summary>
+          <div class="kv small" style="margin-top:8px"><span class="k">End-of-turn detection</span><span>Caller stopped speaking → the turn detector decided the caller was done. Before this, the agent cannot start thinking.</span><span class="k">Transcription</span><span>End of turn → the final transcript arrived from speech recognition.</span><span class="k">LLM first token</span><span>Transcript sent to the language model → first token of the reply (time to first token, TTFT).</span><span class="k">TTS first byte</span><span>First sentence sent to text-to-speech → first audio byte back (time to first byte, TTFB).</span><span class="k">Playback</span><span>First audio byte → it is actually played into the room.</span><span class="k">Reported end-to-end</span><span>The agent&#39;s own sum for the turn (end of turn → audio playing), from its clock.</span><span class="k">Heard</span><span>Measured from the recording: caller&#39;s last word → agent&#39;s first sound. What a real caller waits.</span><span class="k">Unaccounted</span><span>Heard minus the reported stages: network, audio buffering and VAD look-back that the agent cannot see.</span></div>
+          <p class="small muted" style="margin:8px 0 0">The stages come from the agent's own metrics (LiveKit Agents: EOU, STT, LLM and TTS events), so they are what the pipeline saw. "Heard" is measured on the stereo recording and is the number to optimise; the stages say which part of the agent to look at. The greeting has no wait because nobody spoke before it.</p>
+        </details>
       </div>
 
       <div class="pane" data-pane="checks" hidden>
@@ -1095,7 +1166,7 @@ malformed tool arguments      </div>
     if (e.target.closest('a:not(.jump)') || e.target.closest('button') || e.target.closest('.tev') || e.target.closest('.sw')) return;
     const j = e.target.closest('a.jump'); if (j) { e.preventDefault(); const ms=+j.dataset.seek; seek(ms); scrollToTime(ms); return; }
     const t = e.target.closest('.toolev, .toolrow'); if (t) { selectTool(t.dataset.tool); seek(+t.dataset.t); return; }
-    const el = e.target.closest('.turn, .deadair, .tlrow'); if (el && el.dataset.t) seek(+el.dataset.t);
+    const el = e.target.closest('.turn, .deadair, .tlrow, .latrow'); if (el && el.dataset.t) seek(+el.dataset.t);
   });
   function scrollToTime(ms){ const turns=[...root.querySelectorAll('#transcript .turn, #transcript .toolev')]; let best=null; turns.forEach(t => { const tt=+t.dataset.t; if (tt<=ms+300 && (!best || tt>+best.dataset.t)) best=t; }); if (best) best.scrollIntoView({behavior:'smooth', block:'center'}); }
   function highlight(){ if (!audio) return; const ms=audio.currentTime*1000; root.querySelectorAll('#transcript .turn').forEach(t => { const s=+t.dataset.t, e=+t.dataset.end || s+4000; t.classList.toggle('current', ms>=s && ms<e); }); cur.textContent = fmt(ms); }
@@ -1114,7 +1185,7 @@ malformed tool arguments      </div>
   if (t0 !== null && t0 !== undefined && audio) { seek(t0, false); scrollToTime(t0); draw(); highlight(); if (hashT !== undefined) root.scrollIntoView({block:'start'}); }
   window.gfInspector = { seek, selectTool, draw };
 })();
-</script><footer>gatewayfutures 0.1.0 · static report generated 2026-10-08 22:47 UTC</footer>
+</script><footer>gatewayfutures 0.1.0 · static report generated 2026-10-08 22:55 UTC</footer>
 </main>
 </div>
 <div id="player"><span class="lbl"></span><audio controls preload="none"></audio><button class="btn sm" onclick="gfPlayer.close()">✕</button></div>

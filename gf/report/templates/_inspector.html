@@ -25,6 +25,7 @@
     <button type="button" data-tab="transcript" class="on">Transcript</button>
     <button type="button" data-tab="tools">Tool calls<b>{{ c.tool_calls|length }}</b></button>
     <button type="button" data-tab="timeline">Timeline</button>
+    <button type="button" data-tab="latency">Latency{% if c.latency_turns.summary.heard_ms.p95 %}<b>p95 {{ c.latency_turns.summary.heard_ms.p95|ms }}</b>{% endif %}</button>
     <button type="button" data-tab="checks">Checks{% if c.n_fail %}<b style="background:var(--red-bg);color:var(--red)">{{ c.n_fail }} failed</b>{% endif %}{% if c.n_warn %}<b style="background:var(--amber-bg);color:var(--amber)">{{ c.n_warn }} flagged</b>{% endif %}</button>
     {% if not embedded %}<button type="button" data-tab="details">Details</button>{% endif %}
     <label class="sw on" data-toggle="heard-off" data-target="#inspector" id="insp-heard"><span class="tg"></span>Show what the agent heard</label>
@@ -80,6 +81,41 @@
         <tr class="tlrow" data-t="{{ e.t_ms }}" style="cursor:pointer"><td class="mono">{{ e.t_ms|clock }}</td><td>{{ e.kind|replace('_',' ') }}</td><td class="small">{% if e.kind == 'tool_call' %}<span class="mono">{{ e.tool }}</span> {{ 'ok' if e.ok else 'failed' }} · {{ (e.end_ms - e.t_ms) }} ms{% elif e.text %}{{ e.text[:140] }}{% elif e.end_ms %}{{ (e.end_ms - e.t_ms)|ms }}{% endif %}</td></tr>
         {% endfor %}
         </table></div>
+      </div>
+
+      <div class="pane" data-pane="latency" hidden id="latency">
+        {% set L = c.latency_turns %}
+        {% set colors = {'eou_ms':'#94a3b8','stt_ms':'#60a5fa','llm_ttft_ms':'#a78bfa','tts_ttfb_ms':'#34d399','playback_ms':'#fbbf24','unaccounted_ms':'#e5e7eb'} %}
+        {% set vals = L.turns|map(attribute='heard_ms')|reject('none')|list + L.turns|map(attribute='reported_sum_ms')|reject('none')|list %}
+        {% set scale = (vals|max) if vals else 1 %}
+        <p class="small muted" style="margin:6px 0 10px">Per agent turn: what the caller waited (<b>heard</b>, from the recording) and where the agent's own clock says the time went. Hover a segment for the stage.</p>
+        <div class="legend" style="padding:0 0 8px">{% for k, label, d in L.stages %}<span><i style="background:{{ colors[k] }};border-radius:2px"></i>{{ label }}</span>{% endfor %}<span><i style="background:{{ colors['unaccounted_ms'] }};border-radius:2px;border:1px solid #d1d5db"></i>Unaccounted</span><span><i style="background:transparent;border-left:2px solid var(--ink);border-radius:0;width:0"></i>heard</span></div>
+        <div class="tablewrap"><table class="small" id="latency-table">
+        <tr><th>turn</th><th style="width:38%">breakdown</th><th>heard</th>{% for k, label, d in L.stages %}<th title="{{ d }}">{{ label|replace('End-of-turn detection','end of turn')|replace('Transcription','transcript')|replace('LLM first token','LLM TTFT')|replace('TTS first byte','TTS TTFB')|replace('Playback','playback') }}</th>{% endfor %}<th>reported e2e</th><th>tokens</th></tr>
+        {% for t in L.turns %}
+        <tr class="latrow" data-t="{{ t.t_ms }}" style="cursor:pointer">
+          <td class="mono">{{ t.t_ms|clock }} <span class="muted">#{{ t.n }}</span>{% if t.greeting %} <span class="chip">greeting</span>{% endif %}{% if t.interrupted %} <span class="chip">interrupted</span>{% endif %}</td>
+          <td>
+            <div style="position:relative;height:14px;background:#f8fafc;border-radius:3px;overflow:hidden">
+              <div style="display:flex;height:100%">{% for k, label, d in L.stages %}{% if t[k] %}<i title="{{ label }}: {{ t[k] }} ms" style="display:block;height:100%;width:{{ (100 * t[k] / scale)|round(2) }}%;background:{{ colors[k] }}"></i>{% endif %}{% endfor %}{% if t.unaccounted_ms and t.unaccounted_ms > 0 %}<i title="Unaccounted: {{ t.unaccounted_ms }} ms" style="display:block;height:100%;width:{{ (100 * t.unaccounted_ms / scale)|round(2) }}%;background:{{ colors['unaccounted_ms'] }}"></i>{% endif %}</div>
+              {% if t.heard_ms %}<b title="heard: {{ t.heard_ms }} ms" style="position:absolute;top:0;bottom:0;left:{{ (100 * t.heard_ms / scale)|round(2) }}%;width:2px;background:var(--ink)"></b>{% endif %}
+            </div>
+          </td>
+          <td>{% if t.heard_ms is not none %}<span class="pill {{ 'green' if t.heard_ms <= c.thresholds.latency_p95_warn_s * 1000 else ('amber' if t.heard_ms <= c.thresholds.latency_p95_fail_s * 1000 else 'red') }}">{{ t.heard_ms|ms }}</span>{% else %}<span class="muted">–</span>{% endif %}</td>
+          {% for k, label, d in L.stages %}<td class="num">{{ t[k] ~ ' ms' if t[k] is not none else '–' }}</td>{% endfor %}
+          <td class="num">{{ t.e2e_ms ~ ' ms' if t.e2e_ms is not none else '–' }}</td>
+          <td class="num muted">{% if t.llm_tokens_in %}{{ t.llm_tokens_in }} → {{ t.llm_tokens_out }}{% else %}–{% endif %}</td>
+        </tr>
+        {% endfor %}
+        <tr style="font-weight:600"><td>p50 / p95</td><td class="small muted" style="font-weight:400">over {{ L.summary.heard_ms.n }} replies with a measured wait</td>
+          <td>{{ L.summary.heard_ms.p50|ms }} / {{ L.summary.heard_ms.p95|ms }}</td>
+          {% for k, label, d in L.stages %}<td class="num">{{ L.summary[k].p50 ~ ' / ' ~ L.summary[k].p95 if L.summary[k].p50 is not none else '–' }}</td>{% endfor %}
+          <td class="num">{{ L.summary.e2e_ms.p50 ~ ' / ' ~ L.summary.e2e_ms.p95 if L.summary.e2e_ms.p50 is not none else '–' }}</td><td></td></tr>
+        </table></div>
+        <details style="margin-top:10px"><summary>What each latency means</summary>
+          <div class="kv small" style="margin-top:8px">{% for label, d in L.glossary %}<span class="k">{{ label }}</span><span>{{ d }}</span>{% endfor %}</div>
+          <p class="small muted" style="margin:8px 0 0">The stages come from the agent's own metrics (LiveKit Agents: EOU, STT, LLM and TTS events), so they are what the pipeline saw. "Heard" is measured on the stereo recording and is the number to optimise; the stages say which part of the agent to look at. The greeting has no wait because nobody spoke before it.</p>
+        </details>
       </div>
 
       <div class="pane" data-pane="checks" hidden>
@@ -237,7 +273,7 @@
     if (e.target.closest('a:not(.jump)') || e.target.closest('button') || e.target.closest('.tev') || e.target.closest('.sw')) return;
     const j = e.target.closest('a.jump'); if (j) { e.preventDefault(); const ms=+j.dataset.seek; seek(ms); scrollToTime(ms); return; }
     const t = e.target.closest('.toolev, .toolrow'); if (t) { selectTool(t.dataset.tool); seek(+t.dataset.t); return; }
-    const el = e.target.closest('.turn, .deadair, .tlrow'); if (el && el.dataset.t) seek(+el.dataset.t);
+    const el = e.target.closest('.turn, .deadair, .tlrow, .latrow'); if (el && el.dataset.t) seek(+el.dataset.t);
   });
   function scrollToTime(ms){ const turns=[...root.querySelectorAll('#transcript .turn, #transcript .toolev')]; let best=null; turns.forEach(t => { const tt=+t.dataset.t; if (tt<=ms+300 && (!best || tt>+best.dataset.t)) best=t; }); if (best) best.scrollIntoView({behavior:'smooth', block:'center'}); }
   function highlight(){ if (!audio) return; const ms=audio.currentTime*1000; root.querySelectorAll('#transcript .turn').forEach(t => { const s=+t.dataset.t, e=+t.dataset.end || s+4000; t.classList.toggle('current', ms>=s && ms<e); }); cur.textContent = fmt(ms); }

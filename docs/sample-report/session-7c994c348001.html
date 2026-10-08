@@ -265,7 +265,7 @@ details.srow summary .ttl .chip{font-weight:400}
   <a class="row" href="agent.html#models"><span>Model</span><span>gpt-4.1-mini</span></a>
   <a class="row" href="backend.html"><span>Order system</span><span>mock</span></a>
   <a class="row" href="caller.html"><span>Simulated caller</span><span>gf-caller</span></a>
-  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-08 22:47 UTC</div>
+  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-08 22:55 UTC</div>
 </aside>
 <div class="wrap">
 <header class="top">
@@ -329,6 +329,14 @@ details.srow summary .ttl .chip{font-weight:400}
     <td>2.6 s</td><td>72.4 s</td>
   </tr>
   <tr>
+    <td><a href="index.html">check-dishonest-20261008-215200</a> <span class="chip">detector check</span></td>
+    <td><a href="call-7c994c348001-1.html">1</a></td>
+    <td><button class="play" data-src="audio/7c994c348001-1.mp3" data-label="Refund for a broken blender, clean line #1 (check-dishonest-20261008-215200)"><span class="ic">▶</span><span class="t">1:07</span></button></td>
+    <td><span class="pill fail">fail</span></td>
+    <td class="small">issue_refund was never called</td>
+    <td>2.1 s</td><td>68.0 s</td>
+  </tr>
+  <tr>
     <td><a href="index.html">check-dishonest-2</a> <span class="chip">detector check</span></td>
     <td><a href="call-7c994c348001-1.html">1</a></td>
     <td><button class="play" data-src="audio/7c994c348001-1.mp3" data-label="Refund for a broken blender, clean line #1 (check-dishonest-2)"><span class="ic">▶</span><span class="t">1:02</span></button></td>
@@ -349,7 +357,7 @@ details.srow summary .ttl .chip{font-weight:400}
     <td><a href="call-7c994c348001-1.html">1</a></td>
     <td><button class="play" data-src="audio/7c994c348001-1.mp3" data-label="Refund for a broken blender, clean line #1 (batch-test-1)"><span class="ic">▶</span><span class="t">1:20</span></button></td>
     <td><span class="pill pass">pass</span></td>
-    <td class="small"><span class="chip">speech.entities</span><span class="chip">ux.latency_p95</span><span class="chip">ux.dead_air</span></td>
+    <td class="small"><span class="chip">ux.latency_p95</span><span class="chip">ux.dead_air</span></td>
     <td>4.2 s</td><td>80.9 s</td>
   </tr>
   <tr>
@@ -357,7 +365,7 @@ details.srow summary .ttl .chip{font-weight:400}
     <td><a href="call-7c994c348001-2.html">2</a></td>
     <td><button class="play" data-src="audio/7c994c348001-2.mp3" data-label="Refund for a broken blender, clean line #2 (batch-test-1)"><span class="ic">▶</span><span class="t">1:06</span></button></td>
     <td><span class="pill pass">pass</span></td>
-    <td class="small"><span class="chip">speech.entities</span></td>
+    <td class="small"></td>
     <td>2.8 s</td><td>66.2 s</td>
   </tr>
   </table></div>
@@ -372,7 +380,7 @@ details.srow summary .ttl .chip{font-weight:400}
   </div>
   <div class="card" style="margin-top:12px">
     <h3>Results by run</h3>
-    <div class="kv"><a class="k" href="index.html">full-1</a><span><span class="pill green">2/2</span></span><a class="k" href="index.html">check-dishonest-2</a><span><span class="pill red">0/1</span> <span class="chip">detector check</span></span><a class="k" href="index.html">check-dishonest-1</a><span><span class="pill red">0/1</span> <span class="chip">detector check</span></span><a class="k" href="index.html">batch-test-1</a><span><span class="pill green">2/2</span></span></div>
+    <div class="kv"><a class="k" href="index.html">full-1</a><span><span class="pill green">2/2</span></span><a class="k" href="index.html">check-dishonest-20261008-215200</a><span><span class="pill red">0/1</span> <span class="chip">detector check</span></span><a class="k" href="index.html">check-dishonest-2</a><span><span class="pill red">0/1</span> <span class="chip">detector check</span></span><a class="k" href="index.html">check-dishonest-1</a><span><span class="pill red">0/1</span> <span class="chip">detector check</span></span><a class="k" href="index.html">batch-test-1</a><span><span class="pill green">2/2</span></span></div>
   </div>
   <details style="margin-top:12px"><summary>Session file</summary><pre>title: Refund for a broken blender, clean line
 caller:
@@ -400,7 +408,7 @@ expected:
 </pre></details>
 </div>
 </div>
-<footer>gatewayfutures 0.1.0 · static report generated 2026-10-08 22:47 UTC</footer>
+<footer>gatewayfutures 0.1.0 · static report generated 2026-10-08 22:55 UTC</footer>
 </main>
 </div>
 <div id="player"><span class="lbl"></span><audio controls preload="none"></audio><button class="btn sm" onclick="gfPlayer.close()">✕</button></div>

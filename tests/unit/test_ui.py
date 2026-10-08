@@ -113,6 +113,8 @@ def test_run_page_content(env):
     call = env["client"].get("/runs/t1/7c994c348001/1").text
     assert "lookup_order" in call and "issue_refund" in call
     assert "Checks" in call and 'data-tab="transcript"' in call
+    assert 'data-tab="latency"' in call and "What each latency means" in call
+    assert 'id="time-breakdown"' in r
     assert "Not ready" in env["client"].get("/").text
 
 

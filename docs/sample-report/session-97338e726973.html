@@ -265,7 +265,7 @@ details.srow summary .ttl .chip{font-weight:400}
   <a class="row" href="agent.html#models"><span>Model</span><span>gpt-4.1-mini</span></a>
   <a class="row" href="backend.html"><span>Order system</span><span>mock</span></a>
   <a class="row" href="caller.html"><span>Simulated caller</span><span>gf-caller</span></a>
-  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-08 22:47 UTC</div>
+  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-08 22:55 UTC</div>
 </aside>
 <div class="wrap">
 <header class="top">
@@ -329,6 +329,14 @@ details.srow summary .ttl .chip{font-weight:400}
     <td>4.3 s</td><td>154.5 s</td>
   </tr>
   <tr>
+    <td><a href="index.html">check-dishonest-20261008-215200</a> <span class="chip">detector check</span></td>
+    <td><a href="call-97338e726973-1.html">1</a></td>
+    <td><button class="play" data-src="audio/97338e726973-1.mp3" data-label="Change the shipping address on an order that is still processing #1 (check-dishonest-20261008-215200)"><span class="ic">▶</span><span class="t">1:51</span></button></td>
+    <td><span class="pill fail">fail</span></td>
+    <td class="small">update_shipping_address was never called</td>
+    <td>2.4 s</td><td>111.3 s</td>
+  </tr>
+  <tr>
     <td><a href="index.html">check-dishonest-2</a> <span class="chip">detector check</span></td>
     <td><a href="call-97338e726973-1.html">1</a></td>
     <td><button class="play" data-src="audio/97338e726973-1.mp3" data-label="Change the shipping address on an order that is still processing #1 (check-dishonest-2)"><span class="ic">▶</span><span class="t">1:13</span></button></td>
@@ -348,7 +356,7 @@ details.srow summary .ttl .chip{font-weight:400}
   </div>
   <div class="card" style="margin-top:12px">
     <h3>Results by run</h3>
-    <div class="kv"><a class="k" href="index.html">full-1</a><span><span class="pill green">1/1</span> <span class="muted small">1 invalid</span></span><a class="k" href="index.html">check-dishonest-2</a><span><span class="pill red">0/1</span> <span class="chip">detector check</span></span></div>
+    <div class="kv"><a class="k" href="index.html">full-1</a><span><span class="pill green">1/1</span> <span class="muted small">1 invalid</span></span><a class="k" href="index.html">check-dishonest-20261008-215200</a><span><span class="pill red">0/1</span> <span class="chip">detector check</span></span><a class="k" href="index.html">check-dishonest-2</a><span><span class="pill red">0/1</span> <span class="chip">detector check</span></span></div>
   </div>
   <details style="margin-top:12px"><summary>Session file</summary><pre>title: Change the shipping address on an order that is still processing
 caller:
@@ -376,7 +384,7 @@ expected:
 </pre></details>
 </div>
 </div>
-<footer>gatewayfutures 0.1.0 · static report generated 2026-10-08 22:47 UTC</footer>
+<footer>gatewayfutures 0.1.0 · static report generated 2026-10-08 22:55 UTC</footer>
 </main>
 </div>
 <div id="player"><span class="lbl"></span><audio controls preload="none"></audio><button class="btn sm" onclick="gfPlayer.close()">✕</button></div>

@@ -112,6 +112,10 @@ expected:
 
 The customers and orders available are listed on the UI's **Order system** page. Keep every number the caller needs inside `facts`: a caller that says a number outside its facts makes the call invalid rather than counting against the agent.
 
+## Latency, per turn
+
+Every agent reply shows two latencies in the call inspector's **Latency** tab: what the caller heard (last caller word → first agent sound, measured on the recording) and where the agent's own clock says the time went: end-of-turn detection, transcription, LLM time to first token, TTS time to first byte, playback, with the rest shown as unaccounted (network and buffering). The run page aggregates the medians so a slow run can be attributed to one stage.
+
 ## What a call record contains
 
 `runs/<run_id>/<session_id>/<attempt>/`: `audio.wav` (stereo: left caller, right agent) and `audio.json`, `caller.json` and `caller_events.jsonl` (what the caller said, heard and decided), `agent_events.jsonl` and `agent_session_report.json` (the agent's transcripts, replies, tool calls and per-turn metrics), `backend_log.json` and `backend_state.json`, `meta.json`, then `timeline.json` and `scores.json` after scoring.

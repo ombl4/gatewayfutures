@@ -224,11 +224,18 @@ def test_inspector_controls(site, page):
     insp = page.locator("#inspector")
     assert insp.locator(".root").count() == 1
     # tabs
-    for tab in ("tools", "timeline", "checks", "details", "transcript"):
+    for tab in ("tools", "timeline", "latency", "checks", "details", "transcript"):
         page.click(f'#inspector [data-tab="{tab}"]')
         assert page.locator(f'#inspector [data-pane="{tab}"]').is_visible()
         others = page.locator("#inspector .pane:not([hidden])")
         assert others.count() == 1
+    # latency tab: one row per agent turn, clicking a row seeks
+    page.click('#inspector [data-tab="latency"]')
+    rows = page.locator("#latency-table tr.latrow")
+    assert rows.count() == page.locator("#transcript .turn.agent").count()
+    rows.nth(1).click()
+    assert page.evaluate("document.getElementById('insp-audio').currentTime") > 0
+    page.click('#inspector [data-tab="transcript"]')
     # heard switch
     heard = insp.locator("#transcript .heard").first
     assert heard.is_visible()
