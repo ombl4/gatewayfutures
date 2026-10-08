@@ -102,45 +102,51 @@ TEENS = {
 
 
 def _numeric_runs(text: str) -> list[str]:
-    """Digit runs from spoken or written numbers, understanding tens ("eighty nine" -> 89) so
-    an amount read as words compares with "$89.99"."""
+    """Digit runs from spoken or written numbers. Digits spoken one at a time ("four eight two")
+    concatenate; number words with tens/teens/hundreds ("one hundred twenty", "eighty nine")
+    are evaluated, so a spoken amount compares with "$89.99"."""
     from gf.scoring.speech import WORD2DIGIT
 
-    runs, cur = [], []
     toks = re.findall(r"[a-z]+|\d+|[.$]", text.lower())
-    i = 0
-    while i < len(toks):
-        tok = toks[i]
-        d = None
-        if tok.isdigit():
-            d = tok
-        elif tok in TEENS:
-            d = TEENS[tok]
-        elif tok in TENS:
-            nxt = toks[i + 1] if i + 1 < len(toks) else ""
-            if nxt in WORD2DIGIT and nxt not in ("zero", "oh", "o"):
-                d = f"{TENS[tok]}{WORD2DIGIT[nxt]}"
-                i += 1
-            else:
-                d = f"{TENS[tok]}0"
-        elif tok in WORD2DIGIT:
-            d = WORD2DIGIT[tok]
-        elif tok == "hundred" and cur:
-            d = "00"
-        if d is None:
-            if tok in (".", "$", "point"):
-                i += 1
-                continue  # "89.99" stays one run
-            if cur:
-                runs.append("".join(cur))
-                cur = []
-            i += 1
-            continue
-        cur.append(d)
-        i += 1
-    if cur:
-        runs.append("".join(cur))
+    runs: list[str] = []
+    group: list[str] = []
+
+    def flush() -> None:
+        if not group:
+            return
+        if any(t in TENS or t in TEENS or t == "hundred" for t in group):
+            runs.append(str(_words_to_int(group)))
+        else:
+            runs.append("".join(t if t.isdigit() else WORD2DIGIT[t] for t in group))
+        group.clear()
+
+    for tok in toks:
+        if tok.isdigit() or tok in WORD2DIGIT or tok in TENS or tok in TEENS or tok == "hundred":
+            group.append(tok)
+        elif tok in (".", "$", "point") or (tok == "and" and group and group[-1] == "hundred"):
+            continue  # "89.99" and "one hundred and twenty" stay one group
+        else:
+            flush()
+    flush()
     return runs
+
+
+def _words_to_int(group: list[str]) -> int:
+    from gf.scoring.speech import WORD2DIGIT
+
+    total, cur = 0, 0
+    for t in group:
+        if t.isdigit():
+            cur = cur * (10 ** len(t)) + int(t) if cur else int(t)
+        elif t in TEENS:
+            cur += int(TEENS[t])
+        elif t in TENS:
+            cur += TENS[t] * 10
+        elif t == "hundred":
+            cur = (cur or 1) * 100
+        elif t in WORD2DIGIT:
+            cur += int(WORD2DIGIT[t])
+    return total + cur
 
 
 def check_hearing(record: CallRecord) -> tuple[list[Check], list[str]]:
