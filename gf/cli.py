@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 import typer
 
 from gf import __version__
@@ -60,6 +62,49 @@ def probe(
     from gf.caller.probe import main
 
     raise typer.Exit(code=main(room, say or PROBE_LINES, Path(out)))
+
+
+@app.command()
+def call(
+    session: str = "sessions/refund-basic.yaml",
+    out: str = "",
+    attempt: int = 1,
+) -> None:
+    """One simulated call with the gf-caller engine. Needs the agent worker and backend up.
+
+    --session: session YAML. --out: record folder (default runs/_single/<session id>/<n>).
+    """
+    import asyncio
+    import logging
+    from pathlib import Path
+
+    from gf.runner.call import run_call
+    from gf.sessions.schema import Session
+
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
+    for noisy in ("opentelemetry", "livekit", "httpx", "aiohttp"):
+        logging.getLogger(noisy).setLevel(logging.WARNING)
+    sess = Session.load(session)
+    call_id = f"{sess.id}-{attempt}-{__import__('uuid').uuid4().hex[:6]}"
+    folder = Path(out) if out else Path("runs/_single") / sess.id / str(attempt)
+    meta = asyncio.run(run_call(sess, call_id, folder, attempt=attempt))
+    typer.echo(
+        json.dumps(
+            {
+                k: meta[k]
+                for k in (
+                    "call_id",
+                    "ended_by",
+                    "end_reason",
+                    "goal_met",
+                    "tool_calls",
+                    "agent_record_complete",
+                )
+            },
+            indent=2,
+        )
+    )
+    typer.echo(f"record: {folder}")
 
 
 @app.command()
