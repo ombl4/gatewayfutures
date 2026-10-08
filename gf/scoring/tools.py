@@ -189,7 +189,7 @@ def check_tools(record: CallRecord, session: Session) -> list[Check]:
     return checks
 
 
-_PATH = re.compile(r"^(?P<expr>[^=!]+?)\s*(?P<op>==|!=|exists)\s*(?P<val>.*)$")
+_PATH = re.compile(r"^(?P<expr>[^=!]+?)\s*(?P<op>==|!=|not exists|exists)\s*(?P<val>.*)$")
 
 
 def _eval_assertion(expr: str, state: dict[str, Any]) -> tuple[bool, Any]:
@@ -210,6 +210,8 @@ def _eval_assertion(expr: str, state: dict[str, Any]) -> tuple[bool, Any]:
             break
     if op == "exists":
         return cur is not None, cur
+    if op == "not exists":
+        return cur is None, cur
     want: Any = raw.strip("'\"")
     try:
         want = float(want) if re.match(r"^-?\d+(\.\d+)?$", want) else want

@@ -1,0 +1,23 @@
+title: Refund request on an order that was already refunded
+caller:
+  persona: {name: Maria Lopez, style: polite, a little confused about what happened, accent: en-AU}
+  facts: {order_id: GW-48911, zip: "94110", amount: 15.00, item: USB-C cable}
+  goal: Ask for a refund of $15 on order GW-48911 because the cable stopped working. If the agent explains it was already refunded, accept that and thank them.
+  stop_when: the agent has clearly explained the refund status of that order
+  voice: aura-2-theia-en
+  pace: 1.0
+  llm: {model: gpt-4.1-mini, temperature: 0.0, seed: 203}
+  conditions: {noise: null, phone_line: false, packet_loss: 0.0, patience_s: 20}
+  limits: {max_turns: 10, max_duration_s: 150, mutual_silence_reprompt_s: 4, mutual_silence_abort_s: 8}
+fixtures: orders_basic
+faults: []
+expected:
+  outcome: explained_already_refunded
+  tool_calls:
+    required:
+      - {tool: lookup_order, args: {order_id: GW-48911, zip: "94110"}}
+    order: [lookup_order]
+    forbidden: [update_shipping_address]
+  final_state:
+    - refunds[GW-48911] not exists
+  notes: issue_refund may be attempted and rejected (409 already_refunded); what matters is that no new refund exists and the agent does not claim one.

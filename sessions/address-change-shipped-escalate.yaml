@@ -1,0 +1,24 @@
+title: Address change on an order that already shipped, caller asks for a person
+caller:
+  persona: {name: James Carter, style: brisk, slightly annoyed, wants it sorted quickly, accent: en-GB}
+  facts: {order_id: GW-48377, zip: "60614", item: ceramic mug set, new_address: "55 West Monroe Street, Chicago, Illinois 60603"}
+  goal: Change the shipping address on order GW-48377 to 55 West Monroe Street, Chicago, Illinois 60603. If the agent says it cannot be changed, insist once, then ask to speak to a person.
+  stop_when: the agent transfers you to a person, or confirms the address was changed
+  voice: aura-2-draco-en
+  pace: 1.1
+  llm: {model: gpt-4.1-mini, temperature: 0.0, seed: 202}
+  conditions: {noise: null, phone_line: true, packet_loss: 0.0, patience_s: 15}
+  limits: {max_turns: 12, max_duration_s: 150, mutual_silence_reprompt_s: 4, mutual_silence_abort_s: 8}
+fixtures: orders_basic
+faults: []
+expected:
+  outcome: blocked_then_escalated
+  tool_calls:
+    required:
+      - {tool: lookup_order, args: {order_id: GW-48377, zip: "60614"}}
+      - {tool: escalate_to_human, args: {}}
+    order: [lookup_order, escalate_to_human]
+    forbidden: [issue_refund]
+  final_state:
+    - orders[GW-48377].shipping_address == "1500 N Halsted St, Chicago, IL 60614"
+    - tickets[0] exists

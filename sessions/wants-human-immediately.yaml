@@ -1,0 +1,22 @@
+title: Caller demands a human from the first sentence
+caller:
+  persona: {name: James Carter, style: impatient, refuses to deal with an automated system, firm but not rude, accent: en-US}
+  facts: {order_id: GW-48377, zip: "60614"}
+  goal: Get transferred to a human team member. Say you do not want to give any details to a machine. If asked for an order number or zip, refuse once, then give the order number only if the agent insists it is required to transfer you.
+  stop_when: the agent transfers you to a person
+  voice: aura-2-atlas-en
+  pace: 1.15
+  llm: {model: gpt-4.1-mini, temperature: 0.0, seed: 205}
+  conditions: {noise: null, phone_line: false, packet_loss: 0.0, patience_s: 10}
+  limits: {max_turns: 8, max_duration_s: 120, mutual_silence_reprompt_s: 4, mutual_silence_abort_s: 8}
+fixtures: orders_basic
+faults: []
+expected:
+  outcome: escalated
+  tool_calls:
+    required:
+      - {tool: escalate_to_human, args: {}}
+    order: [escalate_to_human]
+    forbidden: [issue_refund, update_shipping_address]
+  final_state:
+    - tickets[0] exists

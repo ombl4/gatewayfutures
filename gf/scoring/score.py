@@ -14,6 +14,7 @@ from gf.record.timeline import build_timeline
 from gf.scoring import METHOD_VERSION
 from gf.scoring.checks import Check, hard_fails
 from gf.scoring.claims import check_claims
+from gf.scoring.persona import judge_persona
 from gf.scoring.speech import check_speech
 from gf.scoring.stats import pass_summary
 from gf.scoring.tools import check_tools
@@ -36,6 +37,7 @@ def score_attempt(folder: str | Path, session: Session) -> dict[str, Any]:
 
     checks: list[Check] = []
     checks += check_validity(record, session)
+    checks.append(judge_persona(record, session))
     checks += check_tools(record, session)
     checks += check_claims(record)
     checks += check_speech(record, session)

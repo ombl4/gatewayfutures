@@ -39,8 +39,15 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 - [x] T4.2 Runner — `gf run --all --repeat N --concurrency K`: one room per call, per-call backend seeding, record folder per attempt, `manifest.json` with config/session hashes. Verified: 6 calls in 175 s at concurrency 3, per-call backend logs isolated, all agent records complete. Provider interface deferred (single engine today)
 - [x] T4.3 Timeline builder — `gf/record/timeline.py`: energy VAD per channel on the stereo WAV, response latency, dead air, talk-over, barge-in stop, tool calls and transcripts merged; synthetic-audio tests exact to ±50 ms
 - [x] T4.4 Call record schema — `gf/record/model.py` `CallRecord.load(folder)`; four real records committed under `fixtures/records/` (audio stripped)
-- [ ] T4.5 Session generation
+- [ ] T4.5 Session generation (LLM) — 11 hand-written sessions exist instead (3 fixture customers, 5 accents, refund/address/escalation/policy-block goals, noise/phone-line/packet-loss/poor-mic conditions); `gf sessions` validates them
 - [~] Gate 4 — runner + record + timeline verified on real calls; generation pending
+- Persona: deterministic in-character check (facts-only numbers, no meta-talk) counts toward validity; an advisory LLM persona judge exists (`GF_PERSONA_JUDGE=1`), never gating
+
+## Next up (in order)
+1. Part 6: `gf/report/model.py` (L1–L4 data), Jinja templates, `gf report <run_id>` static folder, `gf ui` FastAPI app (same templates)
+2. Score run `full-1` (11 sessions × 2) and commit it as `docs/sample-report`
+3. T7.3 README (setup, adding a session), `docs/design-note.md` (choices, next week, second provider incl. `lk agent simulate` import)
+4. If time: import `lk agent simulate export` as a second engine column; T4.5 generation
 
 ## Part 5 — Scoring
 - [x] T5.1 Tool and outcome checks — required args, order, forbidden, final-state assertions, wrong writes, arg problems (`gf/scoring/tools.py`)

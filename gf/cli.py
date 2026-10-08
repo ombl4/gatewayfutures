@@ -177,6 +177,27 @@ def score(run_id: str) -> None:
 
 
 @app.command()
+def sessions(validate: bool = typer.Option(True, "--validate")) -> None:
+    """List sessions/ with ids; fails on any file that does not validate."""
+    from pathlib import Path
+
+    from gf.sessions.schema import Session
+
+    bad = 0
+    for p in sorted(Path("sessions").glob("*.yaml")):
+        try:
+            s = Session.load(p)
+            typer.echo(
+                f"{s.id}  {p.name:<36} {s.caller.persona.name:<18} "
+                f"{s.caller.voice:<22} {s.title[:50]}"
+            )
+        except Exception as e:  # noqa: BLE001
+            bad += 1
+            typer.echo(f"INVALID     {p.name}: {e}")
+    raise typer.Exit(code=1 if bad else 0)
+
+
+@app.command()
 def config() -> None:
     """Print the agent configuration and its hash."""
     from gf.agent.config import agent_config
