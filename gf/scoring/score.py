@@ -14,6 +14,7 @@ from gf.record.timeline import build_timeline
 from gf.scoring import METHOD_VERSION
 from gf.scoring.checks import Check, hard_fails
 from gf.scoring.claims import check_claims
+from gf.scoring.hearing import check_hearing
 from gf.scoring.persona import judge_persona
 from gf.scoring.speech import check_speech
 from gf.scoring.stats import pass_summary
@@ -48,9 +49,22 @@ def score_attempt(folder: str | Path, session: Session) -> dict[str, Any]:
     checks += check_speech(record, session)
     checks += check_ux(record, session, timeline, th)
     checks += check_livekit_judge(record, session)
+    hearing_checks, hearing_reasons = check_hearing(record)
+    checks += hearing_checks
+    if hearing_reasons:
+        validity = next((c for c in checks if c.id == "validity.simulation"), None)
+        if validity is not None:
+            extra = "; ".join(hearing_reasons)
+            validity.passed = False
+            validity.what_happened = (
+                extra if validity.what_happened == "valid" else f"{validity.what_happened}; {extra}"
+            )
     checks += check_quality(record, th)
 
-    valid = all(c.passed for c in checks if c.group == "validity")
+    validity_fails = [
+        c for c in checks if c.group == "validity" and c.severity == "hard" and not c.passed
+    ]
+    valid = not validity_fails
     fails = [c for c in hard_fails(checks) if c.group != "validity"]
     soft = [c for c in checks if not c.passed and c.severity == "soft"]
     ux = timeline.get("ux") or {}
@@ -62,13 +76,9 @@ def score_attempt(folder: str | Path, session: Session) -> dict[str, Any]:
         "passed": valid and not fails,
         "hard_fails": [c.id for c in fails],
         "soft_flags": [c.id for c in soft],
-        "failure_reason": fails[0].what_happened
-        if fails
-        else (
-            "invalid: " + next(c.what_happened for c in checks if c.group == "validity")
-            if not valid
-            else ""
-        ),
+        "failure_reason": "invalid: " + "; ".join(c.what_happened for c in validity_fails)
+        if not valid
+        else (fails[0].what_happened if fails else ""),
         "ended_by": record.ended_by,
         "goal_met": record.caller_result.get("goal_met"),
         "duration_ms": ux.get("duration_ms"),

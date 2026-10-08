@@ -116,7 +116,13 @@ def caller():
 
 @app.get("/scoring", response_class=HTMLResponse)
 def scoring():
-    return page("scoring.html", s=model.scoring_page())
+    return page(
+        "scoring.html",
+        s=model.scoring_page(),
+        sessions=model.sessions_page()["sessions"],
+        checks=model.overview()["checks"],
+        job=jobs.current(),
+    )
 
 
 @app.get("/sessions", response_class=HTMLResponse)
@@ -209,6 +215,23 @@ async def run_start(request: Request):
             int(form.get("concurrency", 4)),
             str(form.get("run_id", "")).strip(),
         )
+    except (RuntimeError, ValueError) as e:
+        raise HTTPException(400, str(e)) from None
+    return RedirectResponse(f"/runs/{run_id}", status_code=303)
+
+
+@app.post("/checks/run")
+async def check_run(request: Request):
+    """Detector self-test: run the chosen session(s) with a deliberately wrong agent variant."""
+    from datetime import UTC, datetime
+
+    form = await request.form()
+    ids = [str(v) for v in form.getlist("session")] or [str(form.get("session_id", ""))]
+    ids = [i for i in ids if i]
+    variant = str(form.get("variant", "dishonest"))
+    run_id = f"check-{variant}-{datetime.now(UTC).strftime('%Y%m%d-%H%M%S')}"
+    try:
+        run_id = jobs.start(ids, 1, min(4, max(1, len(ids))), run_id, variant=variant)
     except (RuntimeError, ValueError) as e:
         raise HTTPException(400, str(e)) from None
     return RedirectResponse(f"/runs/{run_id}", status_code=303)

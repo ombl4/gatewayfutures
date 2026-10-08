@@ -82,7 +82,13 @@ def current() -> dict[str, Any] | None:
     return None
 
 
-def start(session_ids: list[str], repeat: int, concurrency: int, run_id: str = "") -> str:
+def start(
+    session_ids: list[str],
+    repeat: int,
+    concurrency: int,
+    run_id: str = "",
+    variant: str | None = None,
+) -> str:
     if current():
         raise RuntimeError("a run is already in progress")
     by_id = {s.id: s for s in load_all(settings().sessions_dir)}
@@ -106,6 +112,7 @@ def start(session_ids: list[str], repeat: int, concurrency: int, run_id: str = "
         str(concurrency),
         "--run-id",
         run_id,
+        *(["--variant", variant] if variant else []),
     ]
     env = os.environ | {"PYTHONWARNINGS": "ignore", "PYTHONUNBUFFERED": "1"}
     log = open(run_dir / "run.log", "ab")  # noqa: SIM115 - handed to the child
@@ -121,6 +128,7 @@ def start(session_ids: list[str], repeat: int, concurrency: int, run_id: str = "
                 "sessions": session_ids,
                 "repeat": repeat,
                 "concurrency": concurrency,
+                "variant": variant,
                 "cmd": cmd,
             },
             indent=2,

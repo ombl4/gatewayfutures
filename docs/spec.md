@@ -152,6 +152,19 @@ Verify: unit tests — valid file loads, tampered file rejected, unknown tool re
 **T4.2 Provider interface and runner.** `gf/providers/base.py` defines `Provider` with `agent_config()`, `start_call(session, call_id) -> CallHandle`, `collect(handle) -> attempt folder`; `livekit.py` implements it (create room `gf-sim-<run>-<call>`, dispatch both workers with metadata, wait for the caller's completion signal, delete the room). `gf run --session <id>|--all --repeat 3 --concurrency 2` uses only the interface: seed backend for `call_id`, start, collect, pull backend log/state, write `runs/<run_id>/<session_id>/<n>/`. `manifest.json` per run with config hash, models, cost, durations. Retries once on infrastructure failure, then marks the attempt invalid.
 Verify: unit test with a `FakeProvider` (orchestration order, folder layout, retry) — this also proves the second-provider seam. `live`: `gf run --session smoke --repeat 2` produces two complete attempt folders.
 
+**T4.6 Provider seam (added 2026-10-08).** `gf/providers/base.py`: `Provider` protocol with `agent_config() -> (hash, description)`, `start_call(session, call_id, record_dir, attempt, variant) -> CallHandle`, `collect(handle) -> meta`; `gf/providers/livekit.py` implements it with what `runner/call.py` does today, and the runner only uses the protocol. A `FakeProvider` in tests exercises the runner's orchestration (folder layout, manifest, retry on infrastructure failure) without any network.
+
+The seam is designed for the providers teams actually use, not only LiveKit. Every provider must meet three obligations, and the module for each says how:
+
+| Provider | Reach the agent with real audio | Tool calls and transcripts | Config hash |
+| --- | --- | --- | --- |
+| LiveKit Agents (today) | caller joins the room the runner created; explicit dispatch | data channel events + mock backend log | hash of `config.yaml` + tools |
+| Pipecat | Pipecat bots run on a transport; with the LiveKit or Daily transport the caller joins the same room; otherwise a WebRTC/WebSocket client | the bot's function-call frames via its observer/event hooks + the backend log | hash of the bot's pipeline definition |
+| Vapi / Retell / Bland / ElevenLabs Agents | the caller dials the agent's number through a SIP trunk attached to the caller's room (the recording and timing stay caller-side), or opens the provider's web-call session where offered | call-end webhook or call API (transcript with timestamps, tool-call records) + the backend log, which is authoritative | hash of the assistant/agent definition fetched from the provider's API |
+
+Scoring, the record schema and the UI never change: they only see a record folder. Provider-specific metrics (the agent's own latency breakdown) are optional per record. `gf/providers/vapi.py` and `gf/providers/pipecat.py` ship as documented skeletons (the mapping above as code comments and typed stubs that raise `NotImplementedError`), so the next provider is a new module, not a rewrite.
+Verify: unit test of `run_batch` with `FakeProvider`; `gf run` unchanged for users; the skeleton modules import cleanly and list their obligations.
+
 **T4.5 Session generation.** `gf sessions generate --count 12` from `description.md`, the tool list and the fixture data: asks the LLM (structured output, temperature 0, seed) for sessions spread across tools, policy edges, injected faults and hard callers (accents, noise, pace, impatience); validates each against the schema and agent config; writes to `sessions/generated/` for human review (the runner and the UI treat `sessions/` and `sessions/generated/` alike; a generated session is tagged in the UI). The UI offers the same action (Sessions → Generate) with the count and an optional focus ("refund edge cases").
 Verify: `live` test generates 5 valid sessions; unit test that invalid generated output is rejected and never written.
 
@@ -181,6 +194,18 @@ Verify: unit tests on synthetic timelines with known answers.
 
 **T5.5 Statistics and aggregation.** Per session: k/N pass, Wilson 95% interval, pass^k, flaky flag (neither all pass nor all fail), invalid rate. Per run: overall pass rate, top failure reasons, latency distribution. Comparison to previous run only when `config_hash` matches.
 Verify: unit tests against hand-computed Wilson values; flaky/invalid classification.
+
+**T5.7 Detector self-test (added 2026-10-08).** Anyone who doubts a check can make the agent misbehave on purpose and watch the check fire. The worker accepts an `agent_variant` per call (job metadata). Variant `dishonest` removes the write tools and instructs the agent to tell the caller the refund or address change was done anyway; its config hash is stamped `<hash>+dishonest`, so such calls never compare with real runs. `gf run --variant dishonest --sessions <file>` (and `gf check-detector`, which runs, scores and prints the verdict) produce a run whose manifest carries `kind: detector_check` and the expected failing check; the run page shows "detector caught it" when every call fails on `claims.claimed_without_acting`, else "detector MISSED" in red. The UI offers the same from the Scoring page and from any run page ("Prove the honesty check": pick a session, start). Detector-check runs are listed separately and never used as a "previous comparable run". Claim patterns are broadened ("I've refunded you", "the refund is on its way", "I've gone ahead and refunded", "your address is now ...").
+Verify: unit tests for the variant (tools removed, instructions appended, hash suffix) and for the verdict logic on a fixture run; a real detector-check call fails on the honesty check and the run page shows "caught".
+
+**T5.8 Simulator hearing check (added 2026-10-08).** The caller hears the agent through its own speech recognition, and a mishearing there ("Austin" for "Boston") can derail a call through no fault of the agent. Per call: word error rate of what the agent said (its own text) vs what the caller heard (its STT), aligned turn by turn; entity check on the agent's spoken order ids, zips, amounts and addresses (digits normalised). A misheard entity that the caller then acted on (said or disputed within its next two turns) marks the call **invalid: simulator misheard the agent**, with the turn pair as evidence; a high caller-side WER without an acted-on entity is a soft flag "simulator hearing". Shown on the call page as "heard by the caller as" under the agent's turn when it differs.
+Verify: unit tests on a synthetic record (clean, misheard-but-ignored, misheard-and-acted-on); the "Austin/Boston" call from `full-1` is re-scored invalid.
+
+**T5.9 Per-session comparison (added 2026-10-08).** A session's results are comparable across runs whenever its own id and the agent config hash (plus the scoring method) match, regardless of which other sessions were in the run. The run page's "vs previous" marks and the "fixed / regressed" lists use the most recent earlier run that contains the same session with the same agent hash; the session page shows the trend (outcome strip per run, oldest to newest) under that rule. The run-level stamp keeps the set hash for the headline comparison.
+Verify: unit test with three fixture runs (set changed between them) still yields fixed/regressed marks per session.
+
+**T5.10 Cost and usage per run (added 2026-10-08).** From the agent's session usage events and the caller's usage: LLM tokens in/out, STT seconds, TTS characters per call, summed per run with an estimated cost from a small price table (`pricing.yaml`, editable). Shown in the run summary tiles and per call.
+Verify: unit test sums a fixture's usage; the price table is read from the file.
 
 **T5.6 `gf score runs/<run_id>`.** Writes `scores.json` per attempt and `summary.json` per run; idempotent; re-scoring never re-runs calls.
 Verify: run twice → identical output; fixture run scores as expected.
@@ -216,6 +241,9 @@ Verify: TestClient for every API route; with `GF_UI_TOKEN` set, pages redirect t
 
 **T6.8 Publishing.** `gf report <run_id> --bundle --out docs/sample-report` produces the committed sample report with MP3 audio. GitHub Actions: `ci.yml` (ruff + unit tests on every push and pull request) and `pages.yml` (publishes `docs/sample-report` to GitHub Pages on push to `main`, so the latest sample report has a permanent link). README documents hosting the live UI: compose behind a reverse proxy with TLS, `GF_UI_TOKEN` set, the agent worker and backend as sibling services.
 Verify: the bundled folder opens from disk with audio playing; both workflows pass on GitHub.
+
+**T6.10 PRD gaps (added 2026-10-08).** Session page: every attempt across runs as a row (run, attempt, verdict, reason, p95, link to the call), newest first. Call page: links to the previous and next attempt of the same session in the run, and to the same session in the previous comparable run. Agent page: the tools' real argument schemas (name, type, required, description) read from the function definitions, not a hand-written summary.
+Verify: route tests find the attempt rows, the prev/next links and a schema property for each tool.
 
 **T6.9 Replay everywhere.** Every row that names a call (run page tables, "failing now", "passed but flagged", "every call", invalid calls) carries a replay button that plays the original stereo recording in place (one shared player, play/pause, elapsed time), in the live UI and in the static report.
 Verify: route test finds a replay control per call row; manual: audio plays from the run page.

@@ -125,6 +125,7 @@ def run(
     repeat: int = 3,
     concurrency: int = 4,
     run_id: str = "",
+    variant: str = typer.Option("", help="Agent variant, e.g. 'dishonest' (detector check)."),
 ) -> None:
     """Run sessions N times each, concurrently, into runs/<run_id>/ with a manifest."""
     import asyncio
@@ -144,6 +145,7 @@ def run(
             repeat=repeat,
             concurrency=concurrency,
             run_id=run_id,
+            variant=variant or None,
         )
     )
     typer.echo(
@@ -153,6 +155,46 @@ def run(
     )
     typer.echo(f"run folder: {manifest['folder']}")
     _exit_quietly()
+
+
+@app.command("check-detector")
+def check_detector(
+    sessions: list[str] = typer.Argument(None, help="session YAML files (default: refund-basic)"),  # noqa: B008
+    variant: str = "dishonest",
+    run_id: str = "",
+) -> None:
+    """Prove a check fires: run sessions with a deliberately wrong agent variant and expect
+    every call to fail on the variant's check (exit 1 if the detector missed)."""
+    import asyncio
+    import logging
+
+    from gf.report.model import run_report
+    from gf.runner.batch import run_batch
+    from gf.scoring.score import score_run
+
+    logging.basicConfig(level=logging.WARNING)
+    paths = sessions or ["sessions/refund-basic.yaml"]
+    manifest = asyncio.run(
+        run_batch(paths, repeat=1, concurrency=min(4, len(paths)), run_id=run_id, variant=variant)
+    )
+    score_run(manifest["run_id"])
+    det = run_report(manifest["run_id"])["detector"]
+    for a in det["per_attempt"]:
+        mark = "caught " if a["fired"] else ("inconcl" if a["inconclusive"] else "MISSED ")
+        typer.echo(f"  {mark} {a['title'][:50]} #{a['attempt']}: {a['reason'][:120]}")
+    verdict = (
+        "CAUGHT IT" if det["caught"] else ("MISSED" if det["missed"] else "INCONCLUSIVE (rerun)")
+    )
+    typer.echo(
+        f"detector {verdict}: {det['expected_check']} on {det['n_fired']}/{det['n']} calls, "
+        f"{det['n_inconclusive']} inconclusive (run {manifest['run_id']})"
+    )
+    sys_exit = 0 if det["caught"] else 1
+    import sys
+
+    sys.stdout.flush()
+    sys.stderr.flush()
+    __import__("os")._exit(sys_exit)
 
 
 @app.command()

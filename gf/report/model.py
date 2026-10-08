@@ -133,7 +133,6 @@ def overview() -> dict[str, Any]:
     cfg = agent_config()
     sessions = load_all(settings().sessions_dir)
     runs = [run_row(p.name) for p in list_runs()]
-    latest = runs[0] if runs else None
     accents = sorted({s.caller.persona.accent for s in sessions if s.caller.persona.accent})
     return {
         "agent": {
@@ -159,9 +158,25 @@ def overview() -> dict[str, Any]:
             ),
         },
         "backend": {"tools": TOOL_DOCS, "fixtures": "orders_basic"},
-        "runs": runs,
-        "latest": latest,
+        "runs": [r for r in runs if r["kind"] == "run"],
+        "checks": [r for r in runs if r["kind"] != "run"],
+        "latest": next((r for r in runs if r["kind"] == "run"), None),
     }
+
+
+def variants_page() -> list[dict[str, Any]]:
+    from gf.agent.variants import VARIANTS
+
+    return [
+        {
+            "name": v.name,
+            "title": v.title,
+            "purpose": v.purpose,
+            "expected_check": v.expected_failing_check,
+            "removes": list(v.remove_tools),
+        }
+        for v in VARIANTS.values()
+    ]
 
 
 def scoring_page() -> dict[str, Any]:
@@ -196,7 +211,7 @@ def scoring_page() -> dict[str, Any]:
         cs = [c for c in seen.values() if c["group"] == gid]
         if cs:
             groups.append({"id": gid, "title": title, "checks": cs})
-    return {"groups": groups, "thresholds": thresholds().model_dump()}
+    return {"groups": groups, "thresholds": thresholds().model_dump(), "variants": variants_page()}
 
 
 def agent_page() -> dict[str, Any]:
@@ -295,6 +310,8 @@ def run_row(run_id: str) -> dict[str, Any]:
         "rate_class": rate_class(o.get("rate")) if summ else "grey",
         "p95_ms": ((summ or {}).get("latency_p95_ms") or {}).get("median"),
         "flaky": len((summ or {}).get("flaky_sessions") or []),
+        "kind": man.get("kind", "run"),
+        "variant": man.get("agent_variant"),
     }
 
 
@@ -320,17 +337,21 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
 
     # previous comparable run (same stamp) for the "vs previous" marks
     prev = None
-    for p in list_runs():
-        if p.name == run_id:
-            continue
-        ps = _json(p / "summary.json")
-        if (
-            ps
-            and ps.get("stamp") == summ.get("stamp")
-            and ps.get("started_at", "") < summ.get("started_at", "")
-        ):
-            prev = ps
-            break
+    if man.get("kind", "run") == "run":
+        for p in list_runs():
+            if p.name == run_id:
+                continue
+            pm = _json(p / "manifest.json", {})
+            if pm.get("kind", "run") != "run":
+                continue  # detector checks are never a baseline
+            ps = _json(p / "summary.json")
+            if (
+                ps
+                and ps.get("stamp") == summ.get("stamp")
+                and ps.get("started_at", "") < summ.get("started_at", "")
+            ):
+                prev = ps
+                break
     prev_rows = {r["session_id"]: r for r in (prev or {}).get("sessions", [])}
 
     rows = []
@@ -432,6 +453,69 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
         "soft_labels": SOFT_LABELS,
         "in_progress": in_progress,
         "planned_calls": len(man.get("sessions", [])) * int(man.get("repeat") or 0),
+        "kind": man.get("kind", "run"),
+        "variant": man.get("agent_variant"),
+        "detector": _detector_verdict(man, summ, rows)
+        if man.get("kind") == "detector_check"
+        else None,
+    }
+
+
+def _detector_verdict(
+    man: dict[str, Any], summ: dict[str, Any], rows: list[dict[str, Any]]
+) -> dict[str, Any]:
+    """Did every valid call fail on the check the variant is meant to trigger?"""
+    expected = man.get("expected_failing_check") or ""
+    titles = {r["session_id"]: r["title"] for r in rows}
+    per = []
+    for a in summ.get("attempts", []):
+        fired = expected in (a.get("hard_fails") or [])
+        reason = ""
+        inconclusive = False
+        folder = next(
+            (
+                c["record_dir"]
+                for c in man.get("calls", [])
+                if c["session_id"] == a["session_id"] and c["attempt"] == a["attempt"]
+            ),
+            None,
+        )
+        if folder:
+            sc = _json(Path(folder) / "scores.json", {})
+            ch = next((c for c in sc.get("checks", []) if c["id"] == expected), None)
+            reason = (ch or {}).get("what_happened", "") or a.get("failure_reason", "")
+            if not fired and ch and expected == "claims.claimed_without_acting":
+                # no claim at all: the call never reached the point of confirming an action
+                inconclusive = not (ch.get("evidence") or {}).get("claims")
+                if inconclusive:
+                    reason = (
+                        "inconclusive: the agent never claimed an action (the call did not reach "
+                        "confirmation: "
+                        + (a.get("failure_reason") or a.get("ended_by") or "")
+                        + "); rerun"
+                    )
+        per.append(
+            {
+                "session_id": a["session_id"],
+                "attempt": a["attempt"],
+                "title": titles.get(a["session_id"], a["session_id"]),
+                "valid": a.get("valid", True),
+                "fired": fired,
+                "inconclusive": inconclusive,
+                "reason": reason,
+            }
+        )
+    valid = [p for p in per if p["valid"]]
+    conclusive = [p for p in valid if not p["inconclusive"]]
+    return {
+        "variant": man.get("agent_variant"),
+        "expected_check": expected,
+        "n": len(valid),
+        "n_fired": sum(1 for p in valid if p["fired"]),
+        "n_inconclusive": sum(1 for p in valid if p["inconclusive"]),
+        "caught": bool(conclusive) and all(p["fired"] for p in conclusive),
+        "missed": any(not p["fired"] for p in conclusive),
+        "per_attempt": per,
     }
 
 

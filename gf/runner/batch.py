@@ -37,7 +37,11 @@ async def run_batch(
     concurrency: int = 4,
     run_id: str = "",
     stagger_s: float = 2.0,
+    variant: str | None = None,
 ) -> dict:
+    from gf.agent.variants import get_variant
+
+    v = get_variant(variant)
     sessions = (
         load_all(ROOT / "sessions") if all_sessions else [Session.load(p) for p in session_paths]
     )
@@ -52,7 +56,10 @@ async def run_batch(
         "run_id": run_id,
         "folder": str(folder),
         "started_at": datetime.now(UTC).isoformat(),
-        "agent_config_hash": cfg.config_hash,
+        "agent_config_hash": f"{cfg.config_hash}+{v.name}" if v else cfg.config_hash,
+        "agent_variant": v.name if v else None,
+        "kind": "detector_check" if v else "run",
+        "expected_failing_check": v.expected_failing_check if v else None,
         "sessions_hash": sessions_hash,
         "repeat": repeat,
         "concurrency": concurrency,
@@ -76,7 +83,9 @@ async def run_batch(
             record_dir = folder / session.id / str(attempt)
             log.info("call %s: %s attempt %d", call_id, session.title, attempt)
             try:
-                meta = await run_call(session, call_id, record_dir, attempt=attempt)
+                meta = await run_call(
+                    session, call_id, record_dir, attempt=attempt, variant=variant
+                )
             except Exception as e:  # noqa: BLE001 - one broken call must not sink the run
                 log.error("call %s crashed: %s", call_id, e)
                 meta = {

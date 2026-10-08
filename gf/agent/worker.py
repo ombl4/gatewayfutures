@@ -28,14 +28,18 @@ from livekit.plugins import deepgram, noise_cancellation, openai, silero
 from gf.agent.config import AgentConfig, agent_config
 from gf.agent.events import EventRecorder
 from gf.agent.tools import ALL_TOOLS, BackendClient, CallContext, hang_up
+from gf.agent.variants import apply_variant
 from gf.config import settings
 
 log = logging.getLogger("gf.agent")
 
 
 class SupportAgent(Agent):
-    def __init__(self, cfg: AgentConfig):
-        super().__init__(instructions=cfg.instructions, tools=ALL_TOOLS)
+    def __init__(self, cfg: AgentConfig, *, instructions: str | None = None, tools=None):
+        super().__init__(
+            instructions=instructions or cfg.instructions,
+            tools=list(tools) if tools is not None else ALL_TOOLS,
+        )
         self.cfg = cfg
 
     async def on_enter(self) -> None:
@@ -88,11 +92,15 @@ async def entrypoint(ctx: JobContext) -> None:
 
     await ctx.connect()
 
+    variant = meta.get("agent_variant") or None
+    instructions, tools, config_hash = apply_variant(cfg, variant, ALL_TOOLS)
     call_ctx = CallContext(call_id=call_id, config=cfg, backend=BackendClient(call_id))
     session = build_session(cfg, call_ctx)
     recorder = EventRecorder(record_dir / "agent_events.jsonl", room=ctx.room, call_id=call_id)
     recorder.attach(session)
-    recorder.emit("job_start", room=ctx.room.name, config_hash=cfg.config_hash, meta=meta)
+    recorder.emit(
+        "job_start", room=ctx.room.name, config_hash=config_hash, variant=variant, meta=meta
+    )
 
     @session.on("user_state_changed")
     def _on_user_state(ev):
@@ -124,7 +132,7 @@ async def entrypoint(ctx: JobContext) -> None:
     ctx.add_shutdown_callback(_on_shutdown)
 
     await session.start(
-        agent=SupportAgent(cfg),
+        agent=SupportAgent(cfg, instructions=instructions, tools=tools),
         room=ctx.room,
         record=True,
         room_options=RoomOptions(

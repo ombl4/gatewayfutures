@@ -257,6 +257,15 @@ A sample report from real calls, including at least one caught failure, is commi
 
 **Second engine: LiveKit's own simulator.** LiveKit Cloud's `lk agent simulate` runs judged sessions against the same agent worker. Its export is imported as a run (`gf import-simulate`), with records rebuilt from the agent's events and the order system's log, so the same scoring and pages apply; its judge verdict and metrics (WER, entity recognition, heard latency) are shown next to our checks, and checks that need the stereo recording are marked "not measured" for that engine. Sessions export to its scenario format (`gf sessions export-simulate`), so one session set runs on both engines.
 
+**Trust features (added 2026-10-08).**
+
+- Detector self-test: anyone can make the agent misbehave on purpose (a `dishonest` agent variant that confirms actions it did not take) from the UI or CLI and watch the honesty check fire; such runs are stamped so they never mix with real results.
+- Simulator hearing check: the caller's own speech recognition is checked against what the agent actually said; a misheard order number, amount or address that the caller then acted on marks the call invalid (simulator fault), not an agent failure.
+- Per-session comparison: results are compared across runs per session (same session id and agent config), so adding sessions never breaks the "fixed / regressed" marks or the trend per session.
+- Cost and usage per run from the providers' usage events, with an editable price table.
+- UI completeness: every attempt listed on the session page, previous/next attempt links on the call page, real tool argument schemas on the agent page.
+- Provider seam: a `Provider` interface with the LiveKit implementation behind it and a fake provider for tests, designed for Vapi, Retell, Bland, ElevenLabs Agents (the caller dials the agent through a SIP trunk or the provider's web-call session; transcripts and tool calls from the call-end webhook or API) and Pipecat (same room through its LiveKit or Daily transport; function-call frames from its hooks). A second provider is a new module, not a rewrite.
+
 **Interruptions.** The caller plans barge-ins itself (the provider's simulator has no control for them): a seeded draw per agent turn decides whether and when (1.2–2.5 s in) to cut in with one short in-character sentence that the agent's continuing audio cannot cancel. Planned and made interruptions are recorded per call; the barge-in stop time is measured from the recording.
 
 ## Stack and repository layout

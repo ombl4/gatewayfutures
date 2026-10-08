@@ -1,4 +1,4 @@
-id: 890320c02637
+id: da8e474dc8e5
 title: Address change denied on shipped order, caller escalates
 caller:
   persona:
@@ -8,7 +8,7 @@ caller:
   facts:
     order_id: GW-48377
     zip: '60614'
-    amount: 42.5
+    amount: 0
     item: ceramic mug set
   goal: Change the shipping address on order GW-48377, but escalate when told it is
     too late.
@@ -19,11 +19,11 @@ caller:
   llm:
     model: gpt-4.1-mini
     temperature: 0.0
-    seed: 522
+    seed: 402
   conditions:
     noise: street@10dB
     phone_line: true
-    packet_loss: 0.02
+    packet_loss: 0.01
     low_quality_mic: false
     interruptions: 0.0
     patience_s: 15.0
@@ -43,10 +43,7 @@ expected:
         order_id: GW-48377
         zip: '60614'
     - tool: escalate_to_human
-      args:
-        reason: Address change requested on shipped order
-        summary: Caller requested address change on order GW-48377 which is already
-          shipped
+      args: {}
     order:
     - lookup_order
     - escalate_to_human

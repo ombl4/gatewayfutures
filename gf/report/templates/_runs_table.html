@@ -1,3 +1,6 @@
+{% if o.checks %}
+<p class="small muted">Detector checks (deliberately wrong agent, never compared with real runs): {% for c in o.checks %}<a href="{{ links.run(c.run_id) }}">{{ c.run_id }}</a>{% if not loop.last %} · {% endif %}{% endfor %}</p>
+{% endif %}
 {% if o.runs %}
 <div class="tablewrap"><table>
   <tr><th>run</th><th>started</th><th>sessions × repeat</th><th>calls</th><th>passed</th><th>95% interval</th><th>invalid</th><th>flaky</th><th>p95 latency</th><th>stamp</th></tr>

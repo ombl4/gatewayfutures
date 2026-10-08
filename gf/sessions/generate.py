@@ -74,8 +74,10 @@ Rules for a good set:
   patience_s 10–25.
 - Injected faults where useful: faults: [{{"tool": "issue_refund", "type": "error_500", "nth": 1}}]
   (types: latency_ms with latency_ms: 3000, error_500, timeout, reject).
-- expected.tool_calls.required lists the exact calls a correct agent makes, with exact args from
-  the fixture; forbidden lists tools it must not call; final_state uses assertions like
+- expected.tool_calls.required lists the exact calls a correct agent makes, with ONLY the
+  deterministic args order_id, zip and amount taken from the fixture (never reason, summary or
+  new_address: those are free text the agent words itself; assert addresses through final_state);
+  forbidden lists tools it must not call; final_state uses assertions like
   "refunds[GW-48213].amount == 89.99", "orders[GW-48502].shipping_address != \\"...\\"",
   "refunds[GW-48377] not exists". outcome is a short snake_case label.
 - The goal must be achievable from the caller's facts, and stop_when must be observable.
@@ -130,6 +132,8 @@ def write_proposals(
             if not isinstance(prop, dict):
                 raise ValueError("not an object")
             prop.pop("id", None)
+            _sanitise(prop)
+            _check_against_fixture(prop)
             if title in seen:
                 raise ValueError("duplicate title")
             slug = _slug(title)
@@ -154,3 +158,68 @@ def write_proposals(
 def _slug(title: str) -> str:
     slug = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
     return slug[:60] or "session"
+
+
+DETERMINISTIC_ARGS = {"order_id", "zip", "amount"}
+
+
+def _sanitise(prop: dict[str, Any]) -> None:
+    """Required calls may only pin arguments the agent cannot word differently; free-text
+    arguments (reason, summary, new_address) are dropped, never asserted."""
+    tc = (prop.get("expected") or {}).get("tool_calls") or {}
+    for call in tc.get("required") or []:
+        if isinstance(call, dict) and isinstance(call.get("args"), dict):
+            call["args"] = {k: v for k, v in call["args"].items() if k in DETERMINISTIC_ARGS}
+
+
+def _check_against_fixture(prop: dict[str, Any]) -> None:
+    """Reject proposals the backend could never satisfy: unknown orders, a zip that does not
+    match the order, a required refund on an undelivered or already refunded order, a required
+    address change on a shipped order, or an address change without an address to give."""
+    fx_path = ROOT / "fixtures" / f"{prop.get('fixtures', 'orders_basic')}.yaml"
+    if not fx_path.exists():
+        return  # the schema reports the missing fixture
+    fx = yaml.safe_load(fx_path.read_text()) or {}
+    orders = {o["order_id"].upper(): o for o in fx.get("orders", [])}
+    customers = {c["id"]: c for c in fx.get("customers", [])}
+    refunded = {r["order_id"].upper() for r in fx.get("refunds", [])}
+    facts = (prop.get("caller") or {}).get("facts") or {}
+    oid = str(facts.get("order_id", "")).upper()
+    if oid and oid not in orders:
+        raise ValueError(f"facts.order_id {oid} is not in the fixture")
+    if oid and facts.get("zip") is not None:
+        cust = customers.get(orders[oid]["customer_id"], {})
+        if str(facts["zip"]).zfill(5) != str(cust.get("zip", "")).zfill(5):
+            raise ValueError(
+                f"facts.zip {facts['zip']} does not match order {oid} (zip {cust.get('zip')})"
+            )
+    required = ((prop.get("expected") or {}).get("tool_calls") or {}).get("required") or []
+    for call in required:
+        if not isinstance(call, dict):
+            continue
+        args = call.get("args") or {}
+        coid = str(args.get("order_id", oid)).upper()
+        order = orders.get(coid)
+        if call.get("tool") == "issue_refund" and order:
+            if order.get("status") != "delivered":
+                raise ValueError(
+                    f"required issue_refund on {coid}, which is {order.get('status')}, not delivered"
+                )
+            if coid in refunded:
+                raise ValueError(f"required issue_refund on {coid}, which is already refunded")
+            if (
+                args.get("amount") is not None
+                and float(args["amount"]) > float(order.get("total", 0)) + 1e-6
+            ):
+                raise ValueError(
+                    f"required refund {args['amount']} exceeds the order total {order.get('total')}"
+                )
+        if call.get("tool") == "update_shipping_address":
+            if order and order.get("status") != "processing":
+                raise ValueError(
+                    f"required update_shipping_address on {coid}, which is {order.get('status')}, not processing"
+                )
+            if not facts.get("new_address"):
+                raise ValueError(
+                    "required update_shipping_address but facts.new_address is missing"
+                )

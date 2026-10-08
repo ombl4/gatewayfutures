@@ -43,9 +43,17 @@ GREETING_WAIT_S = 15.0  # agent cold start + greeting; silence rules arm after t
 AGENT_RECORD_TIMEOUT_S = 20.0
 
 
-async def run_call(session: Session, call_id: str, record_dir: Path, *, attempt: int = 1) -> dict:
+async def run_call(
+    session: Session,
+    call_id: str,
+    record_dir: Path,
+    *,
+    attempt: int = 1,
+    variant: str | None = None,
+) -> dict:
     s = settings()
     cfg = agent_config()
+    config_hash = f"{cfg.config_hash}+{variant}" if variant else cfg.config_hash
     record_dir.mkdir(parents=True, exist_ok=True)
     room_name = f"gf-sim-{call_id}"
     meta: dict = {
@@ -55,7 +63,8 @@ async def run_call(session: Session, call_id: str, record_dir: Path, *, attempt:
         "attempt": attempt,
         "engine": "gf-caller",
         "room": room_name,
-        "agent_config_hash": cfg.config_hash,
+        "agent_config_hash": config_hash,
+        "agent_variant": variant,
         "agent_models": cfg.models.model_dump(),
         "caller": session.caller.model_dump(),
         "caller_params_unsupported": [],
@@ -96,7 +105,9 @@ async def run_call(session: Session, call_id: str, record_dir: Path, *, attempt:
             api.CreateAgentDispatchRequest(
                 agent_name=s.agent_name,
                 room=room_name,
-                metadata=json.dumps({"call_id": call_id, "record_dir": str(record_dir)}),
+                metadata=json.dumps(
+                    {"call_id": call_id, "record_dir": str(record_dir), "agent_variant": variant}
+                ),
             )
         )
         token = (

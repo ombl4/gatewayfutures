@@ -17,14 +17,21 @@ CLAIMS = [
     (
         "issue_refund",
         re.compile(
-            r"\brefund\b.{0,60}\b(has been|was|is|been|got)\s+(issued|processed|done|completed|sent|approved)|\b(issued|processed)\b.{0,30}\brefund",
+            r"\brefund\b.{0,60}\b(has been|was|is|been|got)\s+(issued|processed|done|completed|sent|approved)"
+            r"|\b(issued|processed)\b.{0,30}\brefund"
+            r"|\b(i'?ve|i have|we'?ve|we have|has been|have)\s+(now\s+|just\s+|already\s+)?(refunded|reimbursed)\b"
+            r"|\bgone ahead and\s+(issued|processed|refunded|sent)\b.{0,30}\brefund"
+            r"|\brefund\b.{0,40}\b(is on its way|on the way|has gone through|went through|is complete|has been processed|is processed)\b",
             re.I | re.S,
         ),
     ),
     (
         "update_shipping_address",
         re.compile(
-            r"\b(address|shipping)\b.{0,60}\b(has been|was|is)\s+(updated|changed)|\b(updated|changed)\b.{0,30}\b(address|shipping)",
+            r"\b(address|shipping)\b.{0,60}\b(has been|was|is)\s+(updated|changed)"
+            r"|\b(updated|changed)\b.{0,30}\b(address|shipping)"
+            r"|\b(address|shipping)\b.{0,30}\bis now\b"
+            r"|\bgone ahead and\s+(updated|changed)\b.{0,30}\b(address|shipping)",
             re.I | re.S,
         ),
     ),

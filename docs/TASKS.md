@@ -44,14 +44,17 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 - [x] T4.2 Runner — `gf run --all --repeat N --concurrency K`: one room per call, per-call backend seeding, record folder per attempt, `manifest.json` with config/session hashes. Verified: 6 calls in 175 s at concurrency 3, per-call backend logs isolated, all agent records complete. Provider interface deferred (single engine today)
 - [x] T4.3 Timeline builder — `gf/record/timeline.py`: energy VAD per channel on the stereo WAV, response latency, dead air, talk-over, barge-in stop, tool calls and transcripts merged; synthetic-audio tests exact to ±50 ms
 - [x] T4.4 Call record schema — `gf/record/model.py` `CallRecord.load(folder)`; four real records committed under `fixtures/records/` (audio stripped)
+- [ ] T4.6 Provider seam — `providers/base.py` protocol, LiveKit implementation, `FakeProvider` runner test, documented skeletons for Vapi/Retell-style telephony providers and Pipecat
 - [x] T4.5 Session generation — `gf sessions generate --count N --focus ...` and Sessions → Generate in the UI; proposals validated through the schema, written to `sessions/generated/`; unit test for rejection paths; 12 hand-written sessions
 - [~] Gate 4 — runner + record + timeline verified on real calls; generation pending
 - Persona: deterministic in-character check (facts-only numbers, no meta-talk) counts toward validity; an advisory LLM persona judge exists (`GF_PERSONA_JUDGE=1`), never gating
 
 ## Next up (in order)
-1. Gate 6 human review of the UI and the sample report (CI green on GitHub; Pages enabled)
-2. Re-run the full matrix with the new sessions (interrupting caller + generated) and refresh `docs/sample-report`
-3. Add an `e2e` smoke test so `make smoke` runs one call end to end against the services
+1. T5.9 per-session comparison → T6.10 UI gaps → T4.6 provider seam (LiveKit + Fake + Vapi/Pipecat skeletons) → T5.10 cost
+2. Re-run the full matrix (`full-3`: 12 hand-written + regenerated sessions) and refresh `docs/sample-report`; prove `make up` in Docker end to end
+3. Gate 6 human review of the UI and the sample report (CI green on GitHub; Pages enabled)
+- T4.5 follow-up (2026-10-08): generated sessions are checked against the fixture (order exists, zip matches, refunds only on delivered and not-yet-refunded orders within the total, address changes only on processing orders and only with a `new_address` fact) and free-text arguments are never pinned; the first generated batch failed 0/8 in `full-2` for exactly these reasons, so that run was discarded and the sessions regenerated (3 written, 3 rejected with reasons)
+- `make smoke` now runs `tests/e2e/test_smoke.py`: one real call, record files, timeline and a valid score
 3. If time: interruptions parameter; import `lk agent simulate export` as a second engine column; T4.5 generation
 - Reproducibility (2026-10-08): the scoring stamp now includes a hash of `thresholds.yaml`; every manifest records package versions, Python and the git commit (`environment`), shown on the run page
 
@@ -62,7 +65,11 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 - [x] T5.4 UX metrics — latency p95, dead air, talk-over, barge-in stop, repeats (incl. "are you still there?"), time to resolution, would-hang-up, greeting first; quality gates (stutter, tool-name leak, truncated, repeated question, filler-only); validity (`ux.py`)
 - [x] T5.5 Statistics — Wilson 95%, pass^k / pass@k, flaky, interval overlap (`stats.py`), unit-tested against known values
 - [x] T5.6 `gf score <run_id>` — scores.json per call, summary.json per run with the comparability stamp; batch-test-1 scored 6/6 (CI 61–100%)
-- [~] Gate 5 — all scoring tests pass on real records; the "claimed without acting" catch is proven on a synthetic liar record, still to be caught on a real call (a fault session where the agent lies has not occurred yet)
+- [x] T5.8 Simulator hearing check — `gf/scoring/hearing.py`: agent turn ↔ caller transcript pairing, digit entities (tens-aware) and word substitutions, invalid when the caller acted on the wrong value; the `full-1` Austin/Boston call is now invalid for that reason (boston→austin, beacon→eakin); 5 unit tests
+- [ ] T5.9 Per-session comparison across runs (same session id + agent hash), trend on the session page
+- [ ] T5.10 Cost and usage per run (`pricing.yaml`)
+- [x] T5.7 Detector self-test — `dishonest` agent variant (write tools removed, hash `+dishonest`), `gf run --variant` / `gf check-detector`, "Prove the honesty check" on the Scoring and run pages, verdict caught / missed / inconclusive. Proven on real calls (`check-dishonest-2`): 2/2 caught ("refund of $89.99 has been issued" with no issue_refund; "address … has been updated" with no update). Claim patterns broadened and unit-tested
+- [x] Gate 5 — scoring tests pass on real records; "claimed without acting" proven on real calls by T5.7
 
 ## Part 6 — Reports and UI
 - [x] T6.1 Layered report model — `gf/report/model.py`: run (L1/L2), call (L3/L4), overview, agent, order system, caller, scoring catalogue; plain-language labels come from the checks
@@ -73,6 +80,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 - [x] T6.6 New session form — validated YAML editor, template or copy of an existing session, duplicate names refused; tested
 - [x] T6.7 Service hardening — compose `ui` service (health check, restart), gzip, HTML/JSON error pages, `/health`, `/version`, JSON API + `/api/docs`, `GF_UI_TOKEN` login; 9 route tests; image builds
 - [x] T6.8 Publishing — `gf report --bundle`, `.github/workflows/ci.yml` and `pages.yml`, hosting section in README (workflows still to be seen green on GitHub)
+- [ ] T6.10 PRD gaps — attempts table on the session page, prev/next attempt links on the call page, real tool schemas on the agent page
 - [x] T6.9 Replay button on every call row (run tables, shared bottom player), live and static
 - [~] Gate 6 — pages verified in headless Chrome; human review pending
 - Scoring fixes found while building the report (2026-10-08): digit groups in the in-character check are read per numeric phrase (was merging "$89.99 … GW-48213" into a fake 5-digit number → 4 false invalids); "already refunded" is prior state, not a claim (2 false fails); the "key fact misheard" flag only checks numeric facts the caller spoke as digits (was firing on every call). `full-1` after the fixes: 20/22, 0 invalid, 2 real failures

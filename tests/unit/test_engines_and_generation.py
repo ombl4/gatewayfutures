@@ -91,22 +91,54 @@ def test_generated_proposals_are_validated_before_writing(dirs, tmp_path):
     from gf.sessions.generate import write_proposals
 
     base = yaml.safe_load((ROOT / "sessions" / "refund-basic.yaml").read_text())
-    good = dict(base, title="Generated: refund with a chatty caller")
+    good = json.loads(json.dumps(base))
+    good["title"] = "Generated: refund with a chatty caller"
+    good["expected"]["tool_calls"]["required"][1]["args"]["reason"] = (
+        "free text the agent words itself"
+    )
     bad_tool = json.loads(json.dumps(base))
     bad_tool["title"] = "Generated: bad tool"
     bad_tool["expected"]["tool_calls"]["required"][1]["tool"] = "delete_everything"
     bad_fixture = dict(base, title="Generated: bad fixture", fixtures="nope")
     dup = dict(base, title="Refund for a broken blender, clean line")
+    refund_shipped = json.loads(json.dumps(base))  # GW-48377 is shipped, not delivered
+    refund_shipped["title"] = "Generated: refund on a shipped order"
+    refund_shipped["caller"]["facts"] = {"order_id": "GW-48377", "zip": "60614", "amount": 42.5}
+    refund_shipped["expected"]["tool_calls"]["required"][1]["args"] = {
+        "order_id": "GW-48377",
+        "amount": 42.5,
+    }
+    wrong_zip = json.loads(json.dumps(base))
+    wrong_zip["title"] = "Generated: wrong zip in facts"
+    wrong_zip["caller"]["facts"]["zip"] = "02139"
+    no_address = json.loads(json.dumps(base))
+    no_address["title"] = "Generated: address change without an address"
+    no_address["caller"]["facts"] = {"order_id": "GW-48502", "zip": "02139"}
+    no_address["expected"]["tool_calls"]["required"] = [
+        {"tool": "update_shipping_address", "args": {"order_id": "GW-48502"}}
+    ]
     out = tmp_path / "generated"
     rep = write_proposals(
-        [good, bad_tool, bad_fixture, dup, "not an object"], out, known_titles=[dup["title"]]
+        [good, bad_tool, bad_fixture, dup, "not an object", refund_shipped, wrong_zip, no_address],
+        out,
+        known_titles=[dup["title"]],
     )
     assert [w["title"] for w in rep["written"]] == [good["title"]]
-    assert len(rep["rejected"]) == 4
+    assert len(rep["rejected"]) == 7
     reasons = " ".join(r["reason"] for r in rep["rejected"])
-    assert "unknown tools" in reasons and "fixture" in reasons and "duplicate" in reasons
+    for needle in (
+        "unknown tools",
+        "fixture",
+        "duplicate",
+        "not delivered",
+        "does not match order",
+        "new_address is missing",
+    ):
+        assert needle in reasons, needle
     files = list(out.glob("*.yaml"))
     assert len(files) == 1 and not list(out.glob(".*.tmp.yaml"))
     from gf.sessions.schema import Session
 
-    assert Session.load(files[0]).title == good["title"]
+    written = Session.load(files[0])
+    assert written.title == good["title"]
+    assert "reason" not in written.expected.tool_calls.required[1].args  # free text never pinned
