@@ -57,6 +57,7 @@ async def run_batch(
         "repeat": repeat,
         "concurrency": concurrency,
         "engine": "gf-caller",
+        "environment": environment_info(),
         "sessions": [{"id": s.id, "title": s.title, "path": s.source_path} for s in sessions],
         "calls": [],
     }
@@ -118,3 +119,57 @@ def load_manifest(run_id: str) -> dict:
 def list_runs() -> list[Path]:
     runs = settings().runs_dir
     return sorted((p for p in runs.iterdir() if (p / "manifest.json").exists()), reverse=True)
+
+
+def environment_info() -> dict:
+    """Versions that affect a run, stamped into the manifest so a run is reproducible from
+    its files: package versions, Python, the git commit of this checkout."""
+    import platform
+    import subprocess
+    from importlib.metadata import PackageNotFoundError, version
+
+    from gf import __version__
+
+    def ver(name: str) -> str | None:
+        try:
+            return version(name)
+        except PackageNotFoundError:
+            return None
+
+    try:
+        commit = (
+            subprocess.run(
+                ["git", "rev-parse", "--short", "HEAD"],
+                capture_output=True,
+                text=True,
+                cwd=ROOT,
+                timeout=5,
+            ).stdout.strip()
+            or None
+        )
+        dirty = bool(
+            subprocess.run(
+                ["git", "status", "--porcelain", "--untracked-files=no"],
+                capture_output=True,
+                text=True,
+                cwd=ROOT,
+                timeout=5,
+            ).stdout.strip()
+        )
+    except (OSError, subprocess.SubprocessError):
+        commit, dirty = None, None
+    return {
+        "gf": __version__,
+        "git_commit": commit,
+        "git_dirty": dirty,
+        "python": platform.python_version(),
+        "platform": platform.platform(),
+        "livekit-agents": ver("livekit-agents"),
+        "livekit-plugins-deepgram": ver("livekit-plugins-deepgram"),
+        "livekit-plugins-openai": ver("livekit-plugins-openai"),
+        "livekit-plugins-silero": ver("livekit-plugins-silero"),
+        "livekit-plugins-turn-detector": ver("livekit-plugins-turn-detector"),
+        "livekit-plugins-noise-cancellation": ver("livekit-plugins-noise-cancellation"),
+        "openai": ver("openai"),
+        "jiwer": ver("jiwer"),
+    }

@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% set page='overview' %}
+{% block title %}Overview · Call simulator{% endblock %}
+{% block content %}
+<h1>How a simulated call flows</h1>
+<p class="sub">Click any box to see how it is configured and what it records. Every call runs through all of them.</p>
+
+<div class="flow">
+  <a class="node" href="{{ links.sessions() }}">
+    <h3>1. Practice sessions</h3>
+    <div class="facts">{{ o.sessions.count }} sessions · accents {{ o.sessions.accents|join(', ') }}<br>goals: {{ o.sessions.goals|join(', ') }}</div>
+    <div class="out">persona, facts, goal, line conditions, expected outcome</div>
+  </a>
+  <a class="node" href="{{ links.caller() }}">
+    <h3>2. Simulated caller</h3>
+    <div class="facts">engine {{ o.caller.engine }} · {{ o.caller.llm|join(', ') }} at temperature 0<br>{{ o.caller.conditions|join(' · ') }}</div>
+    <div class="out">speaks over real audio into the room; records what it said and heard</div>
+  </a>
+  <a class="node" href="{{ links.agent() }}">
+    <h3>3. Support agent</h3>
+    <div class="facts">{{ o.agent.persona }} on {{ o.agent.provider }} · {{ o.agent.stt }} → {{ o.agent.llm }} → {{ o.agent.tts }}</div>
+    <div class="out">transcripts as heard, replies, tool calls, per-turn latency</div>
+  </a>
+  <a class="node" href="{{ links.backend() }}">
+    <h3>4. Order system (mock)</h3>
+    <div class="facts">{{ o.agent.tools|length }} tools: {{ o.agent.tools|join(', ') }}<br>fixture {{ o.backend.fixtures }}, isolated per call</div>
+    <div class="out">request log with timing and the final state: the ground truth for what happened</div>
+  </a>
+  <a class="node" href="{{ links.scoring() }}">
+    <h3>5. Scoring</h3>
+    <div class="facts">outcome and tool checks, honesty, speech accuracy, call feel, speech quality</div>
+    <div class="out">per call: checks with evidence · per run: pass rates with confidence intervals</div>
+  </a>
+</div>
+
+{% if mode == 'live' %}
+{% if job %}
+<div class="banner"><b>Run in progress:</b> <a href="{{ links.run(job.run_id) }}">{{ job.run_id }}</a> <span class="progress"><i style="width:{{ (100 * job.done / job.total) if job.total else 0 }}%"></i></span> <span class="small">{{ job.done }} / {{ job.total }} calls</span></div>
+{% endif %}
+<h2>Can a run start?</h2>
+<div class="card">
+  <div class="status">
+  {% for r in st.rows %}
+    <div class="row {{ 'ok' if r.ok else ('soft' if r.soft else 'bad') }}"><span class="ic">{{ '✓' if r.ok else ('!' if r.soft else '✗') }}</span><span>{{ r.name }}<div class="d">{{ r.detail }}</div></span></div>
+  {% endfor %}
+  </div>
+  <p class="small muted" style="margin:8px 0 0">{{ 'Ready.' if st.ready else 'Not ready: fix the red rows first.' }} Checked within the last minute · <a href="/api/status?refresh=1">refresh</a></p>
+</div>
+
+<h2>Start a run</h2>
+<form method="post" action="/runs/start" class="card">
+  <div class="two" style="grid-template-columns:minmax(0,1fr) 260px">
+    <div>
+      <label class="small"><input type="checkbox" name="all" value="1" checked onchange="document.querySelectorAll('.sessionpick input').forEach(i=>i.disabled=this.checked)"> <b>All {{ sessions|length }} sessions</b></label>
+      <div class="sessionpick" style="margin-top:6px">
+      {% for s in sessions %}<label><input type="checkbox" name="session" value="{{ s.id }}" disabled> {{ s.title }}</label>{% endfor %}
+      </div>
+    </div>
+    <div>
+      <label class="small muted">Repeats per session</label><input class="input" type="number" name="repeat" value="3" min="1" max="10">
+      <label class="small muted">Concurrency</label><input class="input" type="number" name="concurrency" value="4" min="1" max="8">
+      <label class="small muted">Run id (optional)</label><input class="input" type="text" name="run_id" placeholder="auto">
+      <button class="btn primary" type="submit" {% if job or not st.ready %}disabled title="{{ 'a run is in progress' if job else 'fix the red rows first' }}"{% endif %}>Start run</button>
+      <p class="small muted" style="margin:8px 0 0">Needs the order system and the agent worker running (<code>make up</code> or <code>gf agent dev</code>). A full 11 × 3 matrix takes about 12 minutes at concurrency 4.</p>
+    </div>
+  </div>
+</form>
+{% endif %}
+
+{% if o.latest %}
+<h2>Latest run</h2>
+<div class="card">
+  <div class="hero">
+    <div><div class="muted small">run</div><a class="big" href="{{ links.run(o.latest.run_id) }}">{{ o.latest.run_id }}</a></div>
+    {% if o.latest.scored %}
+    <div><div class="muted small">passed</div><div class="big"><span class="pill {{ o.latest.rate_class }}" style="font-size:18px">{{ o.latest.passed }}/{{ o.latest.n }}</span></div></div>
+    <div><div class="muted small">95% interval</div><div class="big">{{ o.latest.ci_low|pct }}–{{ o.latest.ci_high|pct }}</div></div>
+    <div><div class="muted small">invalid</div><div class="big">{{ o.latest.invalid }}</div></div>
+    <div><div class="muted small">flaky sessions</div><div class="big">{{ o.latest.flaky }}</div></div>
+    <div><div class="muted small">reply latency p95 (median session)</div><div class="big">{{ o.latest.p95_ms|ms }}</div></div>
+    {% else %}
+    <div class="muted">not scored yet (<code>gf score {{ o.latest.run_id }}</code>)</div>
+    {% endif %}
+    <div style="margin-left:auto"><a href="{{ links.run(o.latest.run_id) }}">Open report →</a></div>
+  </div>
+</div>
+{% endif %}
+
+<h2>All runs</h2>
+{% include "_runs_table.html" %}
+{% endblock %}

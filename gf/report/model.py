@@ -1,0 +1,809 @@
+"""Report model: plain dicts built from run folders, consumed by the Jinja templates.
+
+Layers (docs/spec.md T6.1): L1 run summary, L2 per-session table, L3 per-call checks with
+evidence, L4 timeline. Everything is derived from files on disk (manifest.json,
+summary.json, scores.json, timeline.json, the call record) so the live UI and the static
+report always show the same thing.
+"""
+
+from __future__ import annotations
+
+import json
+from collections import Counter
+from pathlib import Path
+from typing import Any
+
+import numpy as np
+import soundfile as sf
+
+from gf.agent.config import agent_config
+from gf.config import ROOT, settings, thresholds
+from gf.record.model import CallRecord
+from gf.runner.batch import list_runs
+from gf.sessions.schema import Session, load_all
+
+GROUPS = [
+    ("validity", "Was the simulation valid?"),
+    ("tools", "Did the agent do the right thing?"),
+    ("claims", "Was the agent honest?"),
+    ("speech", "Did the agent hear the caller?"),
+    ("ux", "How did the call feel?"),
+    ("quality", "Was the speech clean?"),
+]
+
+TOOL_DOCS = {
+    "lookup_order": {
+        "args": "order_id, zip",
+        "does": "Finds an order; the zip must match the order (this is the identity check).",
+    },
+    "issue_refund": {
+        "args": "order_id, amount",
+        "does": "Refunds a delivered order, once, up to the order total.",
+    },
+    "update_shipping_address": {
+        "args": "order_id, new_address",
+        "does": "Changes the address while the order is still processing.",
+    },
+    "escalate_to_human": {
+        "args": "reason",
+        "does": "Opens a ticket for a person and ends the call.",
+    },
+}
+
+
+# ---------------------------------------------------------------- small helpers
+
+
+def _json(path: Path, default: Any = None) -> Any:
+    if not path.exists():
+        return default
+    return json.loads(path.read_text())
+
+
+def rate_class(rate: float | None) -> str:
+    """green / amber / red per thresholds.yaml, grey when unknown."""
+    if rate is None:
+        return "grey"
+    th = thresholds()
+    if rate >= th.rate_green:
+        return "green"
+    if rate >= th.rate_amber:
+        return "amber"
+    return "red"
+
+
+def fmt_ms(ms: int | float | None) -> str:
+    if ms is None:
+        return "–"
+    return f"{ms / 1000:.1f} s"
+
+
+def fmt_clock(ms: int | float | None) -> str:
+    if ms is None:
+        return "–"
+    s = int(ms // 1000)
+    return f"{s // 60}:{s % 60:02d}"
+
+
+def conditions_chips(cond: dict[str, Any]) -> list[str]:
+    chips = []
+    if cond.get("noise"):
+        chips.append(f"noise {cond['noise']}")
+    if cond.get("phone_line"):
+        chips.append("phone line")
+    if cond.get("packet_loss"):
+        chips.append(f"packet loss {cond['packet_loss']:.0%}")
+    if cond.get("low_quality_mic"):
+        chips.append("poor mic")
+    if cond.get("interruptions"):
+        chips.append(f"interrupts {cond['interruptions']:.0%}")
+    return chips or ["clean line"]
+
+
+def session_card(s: Session) -> dict[str, Any]:
+    c = s.caller
+    return {
+        "id": s.id,
+        "title": s.title,
+        "persona": c.persona.model_dump(),
+        "facts": c.facts,
+        "goal": c.goal,
+        "stop_when": c.stop_when,
+        "opening": c.opening,
+        "voice": c.voice,
+        "pace": c.pace,
+        "llm": c.llm.model_dump(),
+        "conditions": c.conditions.model_dump(),
+        "chips": conditions_chips(c.conditions.model_dump()),
+        "limits": c.limits.model_dump(),
+        "fixtures": s.fixtures,
+        "faults": list(s.faults),
+        "expected": s.expected.model_dump(),
+        "engine": s.engine,
+        "path": s.source_path,
+    }
+
+
+# ---------------------------------------------------------------- overview (flow)
+
+
+def overview() -> dict[str, Any]:
+    cfg = agent_config()
+    sessions = load_all(settings().sessions_dir)
+    runs = [run_row(p.name) for p in list_runs()]
+    latest = runs[0] if runs else None
+    accents = sorted({s.caller.persona.accent for s in sessions if s.caller.persona.accent})
+    return {
+        "agent": {
+            "name": cfg.name,
+            "persona": cfg.persona_name,
+            "provider": cfg.provider,
+            "stt": f"{cfg.models.stt.vendor} {cfg.models.stt.model}",
+            "llm": f"{cfg.models.llm.vendor} {cfg.models.llm.model}",
+            "tts": f"{cfg.models.tts.vendor} {cfg.models.tts.model}",
+            "tools": cfg.tools,
+            "hash": cfg.config_hash,
+        },
+        "sessions": {
+            "count": len(sessions),
+            "accents": accents,
+            "goals": sorted({s.expected.outcome for s in sessions}),
+        },
+        "caller": {
+            "engine": "gf-caller",
+            "llm": sorted({s.caller.llm.model for s in sessions}),
+            "conditions": sorted(
+                {c for s in sessions for c in conditions_chips(s.caller.conditions.model_dump())}
+            ),
+        },
+        "backend": {"tools": TOOL_DOCS, "fixtures": "orders_basic"},
+        "runs": runs,
+        "latest": latest,
+    }
+
+
+def scoring_page() -> dict[str, Any]:
+    """Catalogue of every check, taken from a scored record (labels and 'why' live in code)."""
+    src = None
+    for p in list_runs():
+        for sc in sorted(p.glob("*/*/scores.json")):
+            src = _json(sc)
+            if src and src.get("checks"):
+                break
+        if src and src.get("checks"):
+            break
+    if not (src and src.get("checks")):
+        src = _json(ROOT / "fixtures" / "records" / "refund-basic" / "scores.json", {})
+    seen: dict[str, dict[str, Any]] = {}
+    for c in src.get("checks", []):
+        key = (
+            c["id"].rsplit(".", 1)[0]
+            if c["id"].startswith(("tools.required", "tools.forbidden", "state."))
+            else c["id"]
+        )
+        label = c["label"]
+        if c["id"].startswith("tools.required"):
+            label = "Required tool calls with the expected arguments"
+        elif c["id"].startswith("tools.forbidden"):
+            label = "Forbidden tools were not called"
+        elif c["id"].startswith("state."):
+            label = "Final state assertions from the session"
+        seen.setdefault(key, c | {"label": label})
+    groups = []
+    for gid, title in GROUPS:
+        cs = [c for c in seen.values() if c["group"] == gid]
+        if cs:
+            groups.append({"id": gid, "title": title, "checks": cs})
+    return {"groups": groups, "thresholds": thresholds().model_dump()}
+
+
+def agent_page() -> dict[str, Any]:
+    cfg = agent_config()
+    return {"cfg": cfg.model_dump(), "tools": TOOL_DOCS, "hash": cfg.config_hash}
+
+
+def backend_page() -> dict[str, Any]:
+    import yaml
+
+    fx_path = ROOT / "fixtures" / "orders_basic.yaml"
+    fx = yaml.safe_load(fx_path.read_text()) if fx_path.exists() else {}
+    rules = [
+        ("lookup_order", "The zip must match the order, otherwise 'order not found' (404)."),
+        (
+            "issue_refund",
+            "Only delivered orders; amount up to the order total; once per order (409 otherwise).",
+        ),
+        ("update_shipping_address", "Only while the order is processing (409 after it ships)."),
+        ("escalate_to_human", "Creates a ticket and marks the call ended."),
+        (
+            "all tools",
+            "Strict argument formats (GW-#####, amounts to 2 dp); problems are logged as arg_problems (422).",
+        ),
+        (
+            "faults",
+            "A session can inject latency, a 500, a timeout or a rejection on the nth call to a tool.",
+        ),
+    ]
+    return {"fixtures": fx, "tools": TOOL_DOCS, "rules": rules}
+
+
+def sessions_page() -> dict[str, Any]:
+    sessions = load_all(settings().sessions_dir)
+    history = _session_history()
+    return {
+        "sessions": [session_card(s) | {"history": history.get(s.id, [])} for s in sessions],
+    }
+
+
+def session_page(session_id: str) -> dict[str, Any]:
+    s = next(x for x in load_all(settings().sessions_dir) if x.id == session_id)
+    yaml_text = (
+        Path(s.source_path).read_text() if s.source_path and Path(s.source_path).exists() else ""
+    )
+    return {
+        "session": session_card(s),
+        "history": _session_history().get(s.id, []),
+        "yaml": yaml_text,
+    }
+
+
+def _session_history() -> dict[str, list[dict[str, Any]]]:
+    """Per session: outcome strip over the last runs (oldest → newest)."""
+    hist: dict[str, list[dict[str, Any]]] = {}
+    for p in reversed(list_runs()[:10]):
+        summ = _json(p / "summary.json")
+        if not summ:
+            continue
+        for row in summ["sessions"]:
+            hist.setdefault(row["session_id"], []).append(
+                {
+                    "run_id": p.name,
+                    "passed": row["passed"],
+                    "n": row["n"],
+                    "invalid": row["invalid"],
+                }
+            )
+    return hist
+
+
+# ---------------------------------------------------------------- runs
+
+
+def run_row(run_id: str) -> dict[str, Any]:
+    run_dir = settings().runs_dir / run_id
+    man = _json(run_dir / "manifest.json", {})
+    summ = _json(run_dir / "summary.json")
+    o = (summ or {}).get("overall", {})
+    return {
+        "run_id": run_id,
+        "started_at": man.get("started_at"),
+        "duration_s": man.get("duration_s"),
+        "calls": len(man.get("calls", [])),
+        "sessions": len(man.get("sessions", [])),
+        "repeat": man.get("repeat"),
+        "engine": man.get("engine"),
+        "stamp": (summ or {}).get("stamp"),
+        "scored": summ is not None,
+        "n": o.get("n"),
+        "passed": o.get("passed"),
+        "rate": o.get("rate"),
+        "ci_low": o.get("ci_low"),
+        "ci_high": o.get("ci_high"),
+        "invalid": (summ or {}).get("invalid"),
+        "rate_class": rate_class(o.get("rate")) if summ else "grey",
+        "p95_ms": ((summ or {}).get("latency_p95_ms") or {}).get("median"),
+        "flaky": len((summ or {}).get("flaky_sessions") or []),
+    }
+
+
+def _stale(summary: Path, manifest: Path) -> bool:
+    try:
+        return summary.stat().st_mtime < manifest.stat().st_mtime
+    except OSError:
+        return True
+
+
+def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
+    """L1 + L2. Scores the run itself when summary.json is missing or older than the
+    manifest (a run still in progress, or re-run from the CLI)."""
+    run_dir = settings().runs_dir / run_id
+    man = _json(run_dir / "manifest.json", {})
+    summ = _json(run_dir / "summary.json")
+    if summ is None or _stale(run_dir / "summary.json", run_dir / "manifest.json"):
+        from gf.scoring.score import score_run
+
+        summ = score_run(run_id) if man.get("calls") else _empty_summary(man)
+    attempts = {(a["session_id"], a["attempt"]): a for a in summ["attempts"]}
+    sessions = {s.id: s for s in load_all(settings().sessions_dir)}
+
+    # previous comparable run (same stamp) for the "vs previous" marks
+    prev = None
+    for p in list_runs():
+        if p.name == run_id:
+            continue
+        ps = _json(p / "summary.json")
+        if (
+            ps
+            and ps.get("stamp") == summ.get("stamp")
+            and ps.get("started_at", "") < summ.get("started_at", "")
+        ):
+            prev = ps
+            break
+    prev_rows = {r["session_id"]: r for r in (prev or {}).get("sessions", [])}
+
+    rows = []
+    for row in summ["sessions"]:
+        sid = row["session_id"]
+        sess = sessions.get(sid)
+        att = sorted((a for (s, _n), a in attempts.items() if s == sid), key=lambda a: a["attempt"])
+        strip = [
+            {
+                "attempt": a["attempt"],
+                "mark": "invalid" if not a["valid"] else ("pass" if a["passed"] else "fail"),
+                "reason": a.get("failure_reason", ""),
+                "soft": a.get("soft_flags", []),
+            }
+            for a in att
+        ]
+        done_attempts = {a["attempt"] for a in att}
+        for n in range(1, int(man.get("repeat") or 0) + 1):
+            if n not in done_attempts:
+                strip.append({"attempt": n, "mark": "pending", "reason": "", "soft": []})
+        strip.sort(key=lambda x: x["attempt"])
+        vs = "new"
+        if sid in prev_rows:
+            pr = prev_rows[sid]
+            if pr["n"] and row["n"]:
+                if pr["passed"] == pr["n"] and row["passed"] < row["n"]:
+                    vs = "regressed"
+                elif pr["passed"] < pr["n"] and row["passed"] == row["n"]:
+                    vs = "fixed"
+                else:
+                    vs = "same"
+        soft = Counter()
+        for a in att:
+            soft.update(a.get("soft_flags", []))
+        rows.append(
+            row
+            | {
+                "chips": conditions_chips(row.get("conditions", {})),
+                "persona": sess.caller.persona.model_dump() if sess else {},
+                "goal": sess.caller.goal if sess else "",
+                "strip": strip,
+                "vs": vs,
+                "rate_class": rate_class(row["rate"] if row["n"] else None),
+                "soft_counts": dict(soft),
+                "p95_class": _lat_class(row.get("latency_p95_ms_max")),
+            }
+        )
+
+    def _attempt_rows(pred):
+        out = []
+        for a in summ["attempts"]:
+            if pred(a):
+                out.append(
+                    a
+                    | {
+                        "title": next(
+                            (r["title"] for r in rows if r["session_id"] == a["session_id"]), ""
+                        )
+                    }
+                )
+        return out
+
+    failing = _attempt_rows(lambda a: a["valid"] and not a["passed"])
+    invalid = _attempt_rows(lambda a: not a["valid"])
+    flagged = _attempt_rows(lambda a: a["valid"] and a["passed"] and a.get("soft_flags"))
+    reference = next(
+        (a for a in summ["attempts"] if a["valid"] and a["passed"] and not a.get("soft_flags")),
+        None,
+    ) or next((a for a in summ["attempts"] if a["valid"] and a["passed"]), None)
+    o = summ["overall"]
+    lat = summ.get("latency_p95_ms") or {}
+    return {
+        "run_id": run_id,
+        "manifest": man,
+        "summary": summ,
+        "stamp": summ.get("stamp"),
+        "started_at": man.get("started_at"),
+        "duration_s": man.get("duration_s"),
+        "engine": man.get("engine"),
+        "repeat": man.get("repeat"),
+        "concurrency": man.get("concurrency"),
+        "overall": o | {"rate_class": rate_class(o.get("rate") if o.get("n") else None)},
+        "invalid_count": summ.get("invalid", 0),
+        "p95_median_ms": lat.get("median"),
+        "p95_max_ms": lat.get("max"),
+        "p95_class": _lat_class(lat.get("median")),
+        "top_failures": summ.get("top_failures", []),
+        "flaky": summ.get("flaky_sessions", []),
+        "sessions": rows,
+        "failing": failing,
+        "invalid": invalid,
+        "flagged": flagged,
+        "reference": reference,
+        "previous": {"run_id": prev.get("run_id"), "rate": prev["overall"].get("rate")}
+        if prev
+        else None,
+        "regressed": [r for r in rows if r["vs"] == "regressed"],
+        "fixed": [r for r in rows if r["vs"] == "fixed"],
+        "soft_labels": SOFT_LABELS,
+        "in_progress": in_progress,
+        "planned_calls": len(man.get("sessions", [])) * int(man.get("repeat") or 0),
+    }
+
+
+def _empty_summary(man: dict[str, Any]) -> dict[str, Any]:
+    """A run with no finished call yet (just started from the UI)."""
+    return {
+        "run_id": man.get("run_id"),
+        "stamp": None,
+        "started_at": man.get("started_at"),
+        "calls": 0,
+        "invalid": 0,
+        "overall": {
+            "n": 0,
+            "passed": 0,
+            "rate": None,
+            "ci_low": None,
+            "ci_high": None,
+            "flaky": False,
+        },
+        "latency_p95_ms": {},
+        "top_failures": [],
+        "flaky_sessions": [],
+        "sessions": [
+            {
+                "session_id": s["id"],
+                "title": s["title"],
+                "conditions": {},
+                "expected_outcome": "",
+                "attempts": 0,
+                "invalid": 0,
+                "n": 0,
+                "passed": 0,
+                "rate": 0.0,
+                "ci_low": 0.0,
+                "ci_high": 0.0,
+                "flaky": False,
+                "latency_p95_ms_max": None,
+                "main_failure": "",
+                "soft_flags": {},
+            }
+            for s in man.get("sessions", [])
+        ],
+        "attempts": [],
+    }
+
+
+SOFT_LABELS = {
+    "speech.entities": "a key fact was misheard",
+    "speech.misheard_to_tool": "misheard value reached a tool",
+    "ux.latency_p95": "slow replies",
+    "ux.dead_air": "dead air",
+    "ux.talk_over": "talked over the caller",
+    "ux.barge_in": "slow to stop when interrupted",
+    "ux.repeats": "caller had to repeat",
+    "ux.would_hang_up": "a real caller would hang up",
+    "ux.greeting_first": "caller spoke first",
+    "tools.arg_problems": "malformed tool arguments",
+    "quality.stutter": "stutter",
+    "quality.tool_name_leak": "spoke a tool name",
+    "quality.truncated": "cut-off sentence",
+    "quality.repeated_question": "re-asked a question",
+    "quality.filler_only_turns": "filler-only turns",
+}
+
+
+def _lat_class(p95_ms: int | None) -> str:
+    if p95_ms is None:
+        return "grey"
+    th = thresholds()
+    if p95_ms > th.latency_p95_fail_s * 1000:
+        return "red"
+    if p95_ms > th.latency_p95_warn_s * 1000:
+        return "amber"
+    return "green"
+
+
+# ---------------------------------------------------------------- one call
+
+
+def call_folder(run_id: str, session_id: str, attempt: int) -> Path:
+    return settings().runs_dir / run_id / session_id / str(attempt)
+
+
+def call_report(
+    run_id: str, session_id: str, attempt: int, *, audio_href: str | None = None
+) -> dict[str, Any]:
+    folder = call_folder(run_id, session_id, attempt)
+    return call_report_from_folder(folder, audio_href=audio_href, run_id=run_id)
+
+
+def call_report_from_folder(
+    folder: Path, *, audio_href: str | None = None, run_id: str | None = None
+) -> dict[str, Any]:
+    record = CallRecord.load(folder)
+    scores = _json(folder / "scores.json")
+    timeline = _json(folder / "timeline.json")
+    sessions = {s.id: s for s in load_all(settings().sessions_dir)}
+    session = sessions.get(record.session_id)
+    if scores is None or timeline is None:
+        from gf.record.timeline import write_timeline
+        from gf.scoring.score import score_attempt
+
+        if session is None:
+            raise FileNotFoundError(f"session {record.session_id} not in sessions/")
+        timeline = write_timeline(folder)
+        scores = score_attempt(folder, session)
+    checks = scores.get("checks", [])
+    if not checks and session is not None:  # summary rows carry no checks; re-score for the page
+        from gf.scoring.score import score_attempt
+
+        scores = score_attempt(folder, session)
+        checks = scores["checks"]
+
+    groups = []
+    for gid, title in GROUPS:
+        cs = [c for c in checks if c["group"] == gid]
+        if not cs:
+            continue
+        fails = [c for c in cs if not c["passed"] and c["severity"] == "hard"]
+        soft = [c for c in cs if not c["passed"] and c["severity"] == "soft"]
+        groups.append(
+            {
+                "id": gid,
+                "title": title,
+                "checks": [c | {"jump_ms": _jump_ms(c)} for c in cs],
+                "state": "fail" if fails else ("warn" if soft else "pass"),
+                "n_fail": len(fails),
+                "n_warn": len(soft),
+            }
+        )
+
+    verdict = (
+        "invalid" if not scores.get("valid", True) else ("pass" if scores.get("passed") else "fail")
+    )
+    ux = timeline.get("ux", {})
+    turns = _merge_turns(record, timeline)
+    env = envelopes(record.audio_path) if record.audio_path else None
+    meta = record.meta
+    caller = meta.get("caller", {})
+    cond_measured = (
+        (record.caller_result.get("conditions") or {})
+        if isinstance(record.caller_result, dict)
+        else {}
+    )
+    return {
+        "run_id": run_id,
+        "call_id": record.call_id,
+        "session_id": record.session_id,
+        "attempt": record.attempt,
+        "title": meta.get("session_title") or (session.title if session else record.session_id),
+        "verdict": verdict,
+        "failure_reason": scores.get("failure_reason", ""),
+        "soft_flags": [SOFT_LABELS.get(f, f) for f in scores.get("soft_flags", [])],
+        "duration_ms": ux.get("duration_ms") or int(record.audio_duration_s * 1000),
+        "ended_by": record.ended_by,
+        "end_reason": record.end_reason,
+        "goal_met": record.caller_result.get("goal_met"),
+        "gave_up": record.caller_result.get("gave_up"),
+        "caller_summary": record.caller_result.get("summary"),
+        "latency": ux.get("latency_ms", {}),
+        "latency_class": _lat_class((ux.get("latency_ms") or {}).get("p95")),
+        "agent_reported_latency_s": _agent_latency(record),
+        "wer": scores.get("wer"),
+        "dead_air_total_ms": ux.get("dead_air_total_ms", 0),
+        "talk_over": len(ux.get("talk_over", [])),
+        "barge_in": ux.get("barge_in", []),
+        "greeting_first": ux.get("greeting_first"),
+        "first_agent_audio_ms": ux.get("first_agent_audio_ms"),
+        "groups": groups,
+        "turns": turns,
+        "tool_calls": [t.model_dump() for t in record.tool_calls],
+        "timeline": timeline,
+        "envelopes": env,
+        "audio_href": audio_href,
+        "session": session_card(session)
+        if session
+        else {"id": record.session_id, "title": record.session_id},
+        "caller": caller,
+        "conditions_measured": cond_measured,
+        "unsupported": meta.get("caller_params_unsupported", []),
+        "agent_models": meta.get("agent_models", {}),
+        "agent_config_hash": meta.get("agent_config_hash"),
+        "room": meta.get("room"),
+        "backend_state": record.backend_state,
+        "agent_metrics": _agent_turn_metrics(record),
+        "files": sorted(p.name for p in Path(folder).iterdir()),
+        "folder": str(folder),
+        "thresholds": thresholds().model_dump(),
+    }
+
+
+def _jump_ms(check: dict[str, Any]) -> int | None:
+    ev = check.get("evidence") or {}
+    t = ev.get("t_ms")
+    if t is None and ev.get("claims"):
+        bad = [c for c in ev["claims"] if not c.get("backed")]
+        t = (bad or ev["claims"])[0].get("t_ms")
+    if t is None and ev.get("gaps"):
+        t = ev["gaps"][0].get("start_ms")
+    if t is None and ev.get("events"):
+        e0 = ev["events"][0]
+        t = e0.get("agent_start_ms") or e0.get("caller_start_ms")
+    return int(t) if t is not None else None
+
+
+def _agent_latency(record: CallRecord) -> float | None:
+    vals = [
+        t.metrics.get("e2e_latency") for t in record.agent_turns if t.metrics.get("e2e_latency")
+    ]
+    return round(sum(vals) / len(vals), 2) if vals else None
+
+
+def _agent_turn_metrics(record: CallRecord) -> list[dict[str, Any]]:
+    rows = []
+    for t in record.agent_turns:
+        m = t.metrics or {}
+        rows.append(
+            {
+                "n": t.n,
+                "text": t.text[:80],
+                "e2e_s": m.get("e2e_latency"),
+                "eou_s": m.get("end_of_turn_delay"),
+                "transcription_s": m.get("transcription_delay"),
+                "llm_ttft_s": m.get("llm_node_ttft") or m.get("ttft"),
+                "tts_ttfb_s": m.get("tts_node_ttfb"),
+            }
+        )
+    return rows
+
+
+def _merge_turns(record: CallRecord, timeline: dict[str, Any]) -> list[dict[str, Any]]:
+    """One chronological list for the transcript: caller turns (said + heard-as), agent
+    turns (with the latency the caller actually experienced), tool calls."""
+    t0 = record.t0_ms
+    items: list[dict[str, Any]] = []
+    responses = (timeline.get("ux") or {}).get("responses", [])
+    agent_speech = [e for e in timeline.get("events", []) if e["kind"] == "agent_speech"]
+    heard = list(record.agent_heard)
+
+    for ct in record.caller_turns:
+        # what the agent's STT produced while this turn was being spoken (plus a tail)
+        parts = [h["text"] for h in heard if ct.t_start_ms - 500 <= h["t_ms"] <= ct.t_end_ms + 2500]
+        heard_text = " ".join(parts).strip()
+        items.append(
+            {
+                "kind": "caller",
+                "t_ms": ct.t_start_ms,
+                "end_ms": ct.t_end_ms,
+                "n": ct.n,
+                "text": ct.text,
+                "heard": heard_text,
+                "heard_differs": _differs(ct.text, heard_text) if heard_text else None,
+            }
+        )
+    for at in record.agent_turns:
+        m = at.metrics or {}
+        start = int(m["started_speaking_at"] * 1000) - t0 if m.get("started_speaking_at") else None
+        end = int(m["stopped_speaking_at"] * 1000) - t0 if m.get("stopped_speaking_at") else None
+        if start is None:
+            seg = max(
+                (s for s in agent_speech if s["t_ms"] <= at.t_ms),
+                key=lambda s: s["t_ms"],
+                default=None,
+            )
+            start = seg["t_ms"] if seg else at.t_ms
+        # heard latency: the response whose agent_start is closest to this turn's audio start
+        lat = None
+        if start is not None:
+            cands = [
+                r
+                for r in responses
+                if r.get("agent_start_ms") is not None and abs(r["agent_start_ms"] - start) <= 1500
+            ]
+            if cands:
+                lat = min(cands, key=lambda r: abs(r["agent_start_ms"] - start))["latency_ms"]
+        items.append(
+            {
+                "kind": "agent",
+                "t_ms": start,
+                "end_ms": end,
+                "n": at.n,
+                "text": at.text,
+                "interrupted": at.interrupted,
+                "latency_ms": lat,
+                "latency_class": _lat_class(lat) if lat is not None else None,
+                "e2e_s": m.get("e2e_latency"),
+            }
+        )
+    for c in record.tool_calls:
+        items.append(
+            {
+                "kind": "tool",
+                "t_ms": c.t_ms,
+                "end_ms": c.t_ms + c.duration_ms,
+                "id": c.id,
+                "tool": c.tool,
+                "args": c.args,
+                "status": c.status,
+                "ok": c.ok,
+                "duration_ms": c.duration_ms,
+                "response": c.response,
+                "response_short": _response_short(c.response, c.ok),
+                "arg_problems": c.arg_problems,
+                "fault": c.fault,
+            }
+        )
+    for d in (timeline.get("ux") or {}).get("dead_air", []):
+        items.append(
+            {
+                "kind": "dead_air",
+                "t_ms": d["start_ms"],
+                "end_ms": d["end_ms"],
+                "gap_ms": d["gap_ms"],
+            }
+        )
+    items.sort(
+        key=lambda e: (e["t_ms"] if e["t_ms"] is not None else 0, 0 if e["kind"] == "tool" else 1)
+    )
+    return items
+
+
+def _response_short(resp: dict[str, Any], ok: bool) -> str:
+    if not isinstance(resp, dict):
+        return str(resp)[:120]
+    if not ok:
+        return str(resp.get("error") or resp.get("detail") or resp)[:160]
+    keys = [
+        k
+        for k in (
+            "status",
+            "total",
+            "items",
+            "amount",
+            "refund_id",
+            "ticket_id",
+            "shipping_address",
+            "message",
+        )
+        if k in resp
+    ]
+    if keys:
+        return ", ".join(f"{k}={resp[k]}" for k in keys)[:160]
+    return json.dumps(resp)[:160]
+
+
+def _differs(said: str, heard: str) -> bool:
+    from gf.scoring.speech import normalize
+
+    a, b = normalize(said).split(), normalize(heard).split()
+    if not a or not b:
+        return False
+    import difflib
+
+    return difflib.SequenceMatcher(a=a, b=b).ratio() < 0.9
+
+
+def envelopes(audio_path: str, step_ms: int = 50) -> dict[str, Any]:
+    """Per-channel loudness in 0–100 per step, for the canvas lanes (no audio lib in the page)."""
+    data, sr = sf.read(audio_path, dtype="int16")
+    if data.ndim == 1:
+        data = np.stack([data, np.zeros_like(data)], axis=1)
+    n = int(sr * step_ms / 1000)
+    out = {}
+    for ch, name in ((0, "caller"), (1, "agent")):
+        x = data[:, ch].astype(np.float32) / 32768.0
+        m = len(x) // n
+        if m == 0:
+            out[name] = []
+            continue
+        frames = x[: m * n].reshape(m, n)
+        rms = np.sqrt(np.mean(frames * frames, axis=1) + 1e-12)
+        db = 20 * np.log10(rms + 1e-9)
+        lvl = np.clip((db + 60) / 60, 0, 1) * 100  # -60 dB → 0, 0 dB → 100
+        out[name] = [int(v) for v in lvl]
+    out["step_ms"] = step_ms
+    out["duration_ms"] = int(len(data) / sr * 1000)
+    return out

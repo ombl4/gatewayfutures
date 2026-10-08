@@ -1,0 +1,29 @@
+# Publishes docs/sample-report (the bundled static report of the latest committed run) to
+# GitHub Pages, so the report has a permanent link without any server.
+name: pages
+on:
+  push:
+    branches: [main]
+    paths: ["docs/sample-report/**", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/sample-report
+      - id: deployment
+        uses: actions/deploy-pages@v4

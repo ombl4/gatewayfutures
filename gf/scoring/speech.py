@@ -68,20 +68,20 @@ def check_speech(record: CallRecord, session: Session) -> list[Check]:
     )
 
     # entities: did each fact reach the agent intact?
+    # Only numeric facts the caller actually spoke digit by digit are checked (an amount said
+    # as "eighty-nine ninety-nine" or an item name has no exact form to be heard intact).
     heard_digits_all = digits_of(heard)
-    heard_norm = normalize(heard)
+    said_digits_all = digits_of(said)
     entity_rows = []
     for key, val in session.caller.facts.items():
         sval = str(val)
         d = digits_of(sval)
-        if d and len(d) >= 3:
-            intact = d in heard_digits_all
-            # nearest digit run of the same length in what was heard
-            runs = re.findall(rf"\d{{{len(d)}}}", heard_digits_all)
-            nearest = max(runs, key=lambda r: SequenceMatcher(None, r, d).ratio(), default=None)
-        else:
-            intact = normalize(sval) in heard_norm
-            nearest = None
+        if not d or len(d) < 3 or d not in said_digits_all:
+            continue
+        intact = d in heard_digits_all
+        # nearest digit run of the same length in what was heard
+        runs = re.findall(rf"(?=(\d{{{len(d)}}}))", heard_digits_all)
+        nearest = max(runs, key=lambda r: SequenceMatcher(None, r, d).ratio(), default=None)
         entity_rows.append({"fact": key, "value": sval, "intact": intact, "nearest_heard": nearest})
     missed = [r for r in entity_rows if not r["intact"] and r["value"]]
     checks.append(

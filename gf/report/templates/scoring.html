@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% set page='scoring' %}
+{% block title %}Scoring · Call simulator{% endblock %}
+{% block content %}
+<h1>How calls are scored</h1>
+<p class="sub">Every call gets the checks below. A <b>hard</b> check failing fails the call. A <b>soft</b> check failing flags it ("passed but flagged"). <b>Info</b> rows are measurements. Thresholds come from <code>thresholds.yaml</code>.</p>
+
+<div class="two">
+<div>
+{% for g in s.groups %}
+<h2>{{ g.title }}</h2>
+<div class="tablewrap"><table>
+<tr><th style="width:38%">check</th><th>why it matters</th><th>severity</th></tr>
+{% for c in g.checks %}
+<tr><td>{{ c.label }}</td><td class="small">{{ c.why_it_matters }}</td><td><span class="chip">{{ c.severity }}</span></td></tr>
+{% endfor %}
+</table></div>
+{% endfor %}
+</div>
+<div>
+<h2>Thresholds</h2>
+<div class="card"><div class="kv">
+{% for k, v in s.thresholds.items() %}<span class="k mono">{{ k }}</span><span>{{ v }}</span>{% endfor %}
+</div></div>
+<h2>Statistics</h2>
+<div class="card small">
+<ul class="list">
+<li><b>Pass rate</b> with a Wilson 95% interval. With 3 repeats a 3/3 reads as 44–100%, which is why the interval is always shown.</li>
+<li><b>Flaky</b>: a session with mixed outcomes in one run. Flaky sessions are the first thing to rerun.</li>
+<li><b>Invalid</b> calls are excluded from rates and listed with the reason.</li>
+<li><b>Comparable runs</b> share a stamp: agent config hash + session set hash + scoring method version. Only then are "fixed" and "regressed" marks shown.</li>
+</ul>
+</div>
+<h2>Where the evidence comes from</h2>
+<div class="card small">
+<ul class="list">
+<li>Tool calls and outcomes: the mock backend's request log and final state.</li>
+<li>Latency, dead air, talk-over: the stereo recording (what the caller actually heard), compared with the agent's own reported latency.</li>
+<li>Speech accuracy: the caller's exact words vs what the agent's speech recognition produced.</li>
+<li>Honesty: claims in the agent's own words matched to backend writes earlier in the call.</li>
+</ul>
+</div>
+</div>
+</div>
+{% endblock %}

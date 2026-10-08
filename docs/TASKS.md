@@ -4,6 +4,11 @@ Status of every task in [spec.md](spec.md). A task is marked done only after its
 
 Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!]` blocked
 
+## End result (the deliverables)
+- [x] D1 A repository that runs with one command (`make up`: order system + agent worker + UI), README covers setup, CLI, adding a session, hosting — T7.3 (clean-clone check pending)
+- [x] D2 Sample report from real calls — `docs/sample-report/` (run `full-1`, 11 sessions × 2, 20/22, two caught failures: an address change confirmed but never written, a refund never issued), MP3 audio bundled
+- [x] D3 `docs/design-note.md`: choices, findings from the first runs, next week, second provider
+
 ## Part 0 — Scaffold and environment
 - [x] T0.1 Project skeleton (uv, ruff, pytest, `gf` CLI, Makefile, compose, thresholds.yaml) — `make test` 3 passed, `ruff` clean, `gf --help` lists commands
 - [x] T0.2 `gf doctor` environment check — all 11 checks green with keys in `.env` (LiveKit, Deepgram, OpenAI, Docker 29.8, ffmpeg, lk)
@@ -44,10 +49,10 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 - Persona: deterministic in-character check (facts-only numbers, no meta-talk) counts toward validity; an advisory LLM persona judge exists (`GF_PERSONA_JUDGE=1`), never gating
 
 ## Next up (in order)
-1. Part 6: `gf/report/model.py` (L1–L4 data), Jinja templates, `gf report <run_id>` static folder, `gf ui` FastAPI app (same templates)
-2. Score run `full-1` (11 sessions × 2) and commit it as `docs/sample-report`
-3. T7.3 README (setup, adding a session), `docs/design-note.md` (choices, next week, second provider incl. `lk agent simulate` import)
-4. If time: import `lk agent simulate export` as a second engine column; T4.5 generation
+1. Clean-clone check: `git clone` → `make up` → `make smoke` (T7.3); enable GitHub Pages (Source: GitHub Actions) and confirm both workflows are green
+2. Gate 6 human review of the UI and the sample report
+3. If time: interruptions parameter; import `lk agent simulate export` as a second engine column; T4.5 generation
+- Reproducibility (2026-10-08): the scoring stamp now includes a hash of `thresholds.yaml`; every manifest records package versions, Python and the git commit (`environment`), shown on the run page
 
 ## Part 5 — Scoring
 - [x] T5.1 Tool and outcome checks — required args, order, forbidden, final-state assertions, wrong writes, arg problems (`gf/scoring/tools.py`)
@@ -59,12 +64,18 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 - [~] Gate 5 — all scoring tests pass on real records; the "claimed without acting" catch is proven on a synthetic liar record, still to be caught on a real call (a fault session where the agent lies has not occurred yet)
 
 ## Part 6 — Reports and UI
-- [ ] T6.1 Layered report model
-- [ ] T6.2 Templates and static report
-- [ ] T6.3 Live UI
-- [ ] Gate 6
+- [x] T6.1 Layered report model — `gf/report/model.py`: run (L1/L2), call (L3/L4), overview, agent, order system, caller, scoring catalogue; plain-language labels come from the checks
+- [x] T6.2 Templates and static report — 11 templates, clickable flow diagram on the overview, canvas lanes + native audio on the call page; `gf report full-1` renders 40 pages (verified in headless Chrome)
+- [x] T6.3 Live UI — `gf ui` (FastAPI) serves the same templates live over runs/ and sessions/
+- [x] T6.4 Run control — `gf/ui/jobs.py`: start/stop/rescore, `job.json` per run, progress banner + pending squares + log tail, auto-refresh; verified with a run started from the UI (passed, scored itself); one-at-a-time enforced (tested)
+- [x] T6.5 System status panel (keys, order system, LiveKit, agent worker, ffmpeg; cached 60 s) + `/api/status`
+- [x] T6.6 New session form — validated YAML editor, template or copy of an existing session, duplicate names refused; tested
+- [x] T6.7 Service hardening — compose `ui` service (health check, restart), gzip, HTML/JSON error pages, `/health`, `/version`, JSON API + `/api/docs`, `GF_UI_TOKEN` login; 9 route tests; image builds
+- [x] T6.8 Publishing — `gf report --bundle`, `.github/workflows/ci.yml` and `pages.yml`, hosting section in README (workflows still to be seen green on GitHub)
+- [~] Gate 6 — pages verified in headless Chrome; human review pending
+- Scoring fixes found while building the report (2026-10-08): digit groups in the in-character check are read per numeric phrase (was merging "$89.99 … GW-48213" into a fake 5-digit number → 4 false invalids); "already refunded" is prior state, not a claim (2 false fails); the "key fact misheard" flag only checks numeric facts the caller spoke as digits (was firing on every call). `full-1` after the fixes: 20/22, 0 invalid, 2 real failures
 
 ## Part 7 — Deliverables
-- [ ] T7.1 Session set
-- [ ] T7.2 Full run and sample report
-- [ ] T7.3 README, design note, clean-clone check
+- [x] T7.1 Session set — 11 hand-written sessions (generation deferred, see T4.5)
+- [x] T7.2 Full run and sample report — `full-1` bundled into `docs/sample-report/`
+- [~] T7.3 README and design note written; clean-clone `make up` + `make smoke` check still to run

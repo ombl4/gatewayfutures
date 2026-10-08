@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Change the shipping address on an order that is still processing #1 · Call</title>
+<style>
+:root{
+  --bg:#f6f7f9;--card:#fff;--ink:#1f2328;--muted:#656d76;--line:#d9dee3;--accent:#0b57d0;
+  --green:#1a7f37;--green-bg:#dafbe1;--amber:#9a6700;--amber-bg:#fff8c5;--red:#cf222e;--red-bg:#ffebe9;
+  --grey:#6e7781;--grey-bg:#eaeef2;--caller:#2f6fed;--agent:#d2731f;--tool:#6f42c1;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{color-scheme:light}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+nav.top{background:#fff;border-bottom:1px solid var(--line);padding:0 24px;display:flex;gap:4px;align-items:center;height:48px;position:sticky;top:0;z-index:5}
+nav.top .brand{font-weight:650;margin-right:16px;color:var(--ink)}
+nav.top a{padding:6px 10px;border-radius:6px;color:var(--ink)}
+nav.top a.active,nav.top a:hover{background:var(--grey-bg);text-decoration:none}
+nav.top .right{margin-left:auto;color:var(--muted);font-size:12px}
+main{max-width:1280px;margin:0 auto;padding:20px 24px 60px}
+h1{font-size:22px;margin:0 0 4px;font-weight:650}
+h2{font-size:16px;margin:28px 0 10px;font-weight:650}
+h3{font-size:14px;margin:0 0 6px;font-weight:650}
+.sub{color:var(--muted);margin:0 0 16px}
+.mono{font-family:var(--mono);font-size:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.grid{display:grid;gap:12px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:12px 0}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.tile .k{color:var(--muted);font-size:12px}
+.tile .v{font-size:24px;font-weight:650;line-height:1.2;margin-top:2px}
+.tile .d{color:var(--muted);font-size:12px;margin-top:4px}
+.tile.green .v{color:var(--green)}.tile.amber .v{color:var(--amber)}.tile.red .v{color:var(--red)}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.pill.green{background:var(--green-bg);color:var(--green)}.pill.amber{background:var(--amber-bg);color:var(--amber)}
+.pill.red{background:var(--red-bg);color:var(--red)}.pill.grey{background:var(--grey-bg);color:var(--grey)}
+.pill.pass{background:var(--green-bg);color:var(--green)}.pill.fail{background:var(--red-bg);color:var(--red)}.pill.invalid{background:var(--grey-bg);color:var(--grey)}
+.chip{display:inline-block;padding:0 7px;border:1px solid var(--line);border-radius:6px;font-size:11.5px;color:var(--muted);background:#fff;margin:1px 2px 1px 0;white-space:nowrap}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+th,td{text-align:left;padding:8px 10px;border-top:1px solid var(--line);vertical-align:top}
+th{background:#fafbfc;color:var(--muted);font-weight:600;font-size:12px;border-top:0}
+tr:hover td{background:#fafbfc}
+.tablewrap{overflow-x:auto}
+.strip{display:inline-flex;gap:4px}
+.dot{width:14px;height:14px;border-radius:4px;display:inline-block;border:1px solid transparent}
+.dot.pass{background:var(--green)}.dot.fail{background:var(--red)}.dot.invalid{background:#c9d1d9}
+.dot.pending{background:#fff;border-color:var(--line)}
+.bar{height:6px;background:var(--grey-bg);border-radius:3px;position:relative;overflow:hidden;min-width:90px}
+.bar i{position:absolute;top:0;bottom:0;background:#b6c3d6}
+.bar b{position:absolute;top:-1px;bottom:-1px;width:2px;background:var(--ink)}
+.vs{font-size:12px}.vs.regressed{color:var(--red)}.vs.fixed{color:var(--green)}.vs.same,.vs.new{color:var(--muted)}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:0;align-items:stretch;margin:12px 0}
+.flow .node{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;color:var(--ink);position:relative;display:block;min-height:118px}
+.flow .node:hover{border-color:var(--accent);text-decoration:none;box-shadow:0 1px 6px rgba(11,87,208,.12)}
+.flow .node h3{color:var(--accent)}
+.flow .node .facts{color:var(--muted);font-size:12.5px}
+.flow .node .out{font-size:11.5px;color:var(--muted);margin-top:8px;border-top:1px dashed var(--line);padding-top:6px}
+.flow .node.dim{border-style:dashed}.flow .node.dim h3{color:var(--muted)}
+.flow .node:not(:last-child)::after{content:"→";position:absolute;right:-13px;top:46%;color:var(--muted);font-size:16px;background:var(--bg);padding:0 2px;z-index:1}
+.flow{column-gap:18px}
+.flow.three{grid-template-columns:repeat(3,1fr)}
+@media (max-width:900px){.flow,.flow.three{grid-template-columns:1fr}.flow .node:not(:last-child)::after{content:"↓";right:auto;left:50%;top:auto;bottom:-16px}}
+.two{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px;align-items:start}
+@media (max-width:1000px){.two{grid-template-columns:1fr}}
+.sticky{position:sticky;top:60px}
+details{border:1px solid var(--line);border-radius:10px;background:#fff;padding:10px 14px;margin:8px 0}
+details summary{cursor:pointer;font-weight:600}
+pre{background:#f6f8fa;border:1px solid var(--line);border-radius:8px;padding:10px;overflow:auto;font-size:12px;margin:8px 0}
+code{font-family:var(--mono);font-size:12px;background:#f6f8fa;padding:0 4px;border-radius:4px}
+.kv{display:grid;grid-template-columns:max-content 1fr;gap:3px 14px;font-size:13px}
+.kv .k{color:var(--muted)}
+footer{color:var(--muted);font-size:12px;text-align:center;margin-top:40px}
+/* transcript */
+.turn{display:grid;grid-template-columns:48px 1fr;gap:10px;padding:8px 10px;border-radius:8px;margin:4px 0;cursor:pointer;border:1px solid transparent}
+.turn:hover{background:#fafbfc}.turn.current{background:#eef4ff;border-color:#c7d7f7}
+.turn .t{color:var(--muted);font-family:var(--mono);font-size:11.5px;padding-top:3px}
+.turn .who{font-size:11.5px;font-weight:650;margin-bottom:1px}
+.turn.caller .who{color:var(--caller)}.turn.agent .who{color:var(--agent)}
+.turn .heard{font-size:12px;color:var(--muted);margin-top:3px}
+.turn .heard.diff{color:var(--amber)}
+.turn .lat{float:right}
+.toolcard{margin:6px 0 6px 58px;border:1px solid #e3d8f7;background:#faf7ff;border-radius:8px;padding:8px 12px;font-size:13px}
+.toolcard.bad{border-color:#f5c6c9;background:#fff5f5}
+.toolcard .name{font-family:var(--mono);font-weight:650;color:var(--tool)}
+.toolcard .args{font-family:var(--mono);font-size:12px;color:var(--ink)}
+.deadair{margin:4px 0 4px 58px;font-size:12px;color:var(--amber);background:var(--amber-bg);border-radius:6px;padding:3px 10px;display:inline-block}
+.check{display:grid;grid-template-columns:18px 1fr auto;gap:8px;padding:6px 0;border-top:1px solid #f0f2f4;align-items:start}
+.check:first-child{border-top:0}
+.check .ic{font-weight:700}.check.pass .ic{color:var(--green)}.check.fail .ic{color:var(--red)}.check.warn .ic{color:var(--amber)}.check.info .ic{color:var(--grey)}
+.check .what{font-size:12.5px;color:var(--muted)}
+.check .why{font-size:12px;color:var(--muted);display:none;margin-top:3px}
+.check.open .why{display:block}
+.check .jump{font-size:12px;white-space:nowrap}
+.group{margin-bottom:10px}
+.group h3{display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.lanes{width:100%;height:150px;display:block;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer}
+.legend{font-size:12px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap;margin:6px 0 0}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+audio{width:100%;margin:8px 0 4px}
+.hero{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.hero .big{font-size:30px;font-weight:700}
+.list li{margin:4px 0}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.input{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:6px;font:inherit;background:#fff;margin:3px 0 6px}
+textarea.input{font-family:var(--mono);font-size:12px;line-height:1.45}
+.btn{display:inline-block;padding:6px 14px;border-radius:6px;border:1px solid var(--line);background:#fff;font:inherit;font-weight:600;cursor:pointer;color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.danger{color:var(--red);border-color:#f5c6c9}
+.btn:hover{filter:brightness(.96)}
+.status{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:6px 14px}
+.status .row{display:flex;gap:8px;align-items:baseline;font-size:13px}
+.status .row .ic{font-weight:700}.status .row.ok .ic{color:var(--green)}.status .row.bad .ic{color:var(--red)}.status .row.soft .ic{color:var(--amber)}
+.status .row .d{color:var(--muted);font-size:12px}
+.banner{border:1px solid #c7d7f7;background:#eef4ff;border-radius:10px;padding:10px 14px;margin:0 0 12px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.banner.warn{border-color:#f0d58c;background:var(--amber-bg)}
+.progress{height:8px;background:#dbe4f3;border-radius:4px;overflow:hidden;min-width:160px;flex:1}
+.progress i{display:block;height:100%;background:var(--accent)}
+.sessionpick{columns:2;column-gap:16px;font-size:13px}
+.sessionpick label{display:block;break-inside:avoid;padding:2px 0}
+</style>
+</head>
+<body>
+<nav class="top">
+  <a class="brand" href="overview.html">Call simulator</a>
+  <a href="overview.html" >Overview</a>
+  <a href="agent.html" >Agent</a>
+  <a href="sessions.html" >Sessions</a>
+  <a href="index.html" class="active">Runs</a>
+  <a href="scoring.html" >Scoring</a>
+  <span class="right"><a href="index.html">← run full-1</a></span>
+</nav>
+<main>
+<p class="small"><a href="index.html">run full-1</a> › <a href="session-97338e726973.html">Change the shipping address on an order that is still processing</a> › attempt 1</p>
+<div class="hero" style="margin-bottom:6px">
+  <h1 style="margin:0">Change the shipping address on an order that is still processing <span class="muted">#1</span></h1>
+  <span class="pill pass" style="font-size:14px;padding:3px 12px">PASS</span>
+</div>
+<p style="margin:0 0 10px;color:var(--green)">Passed cleanly.</p>
+<div class="tiles" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
+  <div class="tile"><div class="k">Duration</div><div class="v" style="font-size:18px">85.2 s</div><div class="d">ended by caller</div></div>
+  <div class="tile amber"><div class="k">Reply latency</div><div class="v" style="font-size:18px">p95 2.7 s</div><div class="d">p50 2.1 s heard by the caller · agent reports 1.44 s</div></div>
+  <div class="tile green"><div class="k">Dead air</div><div class="v" style="font-size:18px">0.0 s</div><div class="d">0 talk-overs, 0 interruptions</div></div>
+  <div class="tile"><div class="k">Heard correctly</div><div class="v" style="font-size:18px">100%</div><div class="d">word accuracy of the agent's speech recognition</div></div>
+  <div class="tile"><div class="k">Tool calls</div><div class="v" style="font-size:18px">2</div><div class="d">0 rejected or failed</div></div>
+  <div class="tile"><div class="k">Caller's view</div><div class="v" style="font-size:18px">goal met</div><div class="d">Shipping address for order G W 4 8 5 0 2 updated to 12 Beacon Street, Apartment 4, Boston, Massachusetts 02108.</div></div>
+</div>
+
+<div class="card" style="padding:12px 16px 8px">
+<audio id="audio" controls preload="metadata" src="audio/97338e726973-1.mp3"></audio>  <canvas id="lanes" class="lanes" height="150"></canvas>
+  <div class="legend"><span><i style="background:var(--caller)"></i>caller (as sent)</span><span><i style="background:var(--agent)"></i>agent (as heard)</span><span><i style="background:var(--tool)"></i>tool call</span><span><i style="background:#ffe08a"></i>dead air</span><span><i style="background:var(--red)"></i>talk-over</span><span class="muted">click anywhere to seek · hover for time</span></div>
+</div>
+
+<div class="two" style="margin-top:16px">
+<div>
+  <h2 style="margin-top:4px">What was said and done</h2>
+  <div id="transcript">
+    <div class="turn agent" data-t="1407" data-end="6168">
+      <div class="t">0:01</div>
+      <div><div class="who">Agent</div>
+        <div>Thanks for calling Gateway Goods, this is Ava. How can I help you today?</div>
+      </div>
+    </div>
+    <div class="turn caller" data-t="6892" data-end="10680">
+      <div class="t">0:06</div>
+      <div><div class="who">Priya Natarajan</div>
+        <div>Hi Eva, I&#39;m calling to change the shipping address on my order G W 4 8 5 0 2 because I&#39;m moving next week.</div>
+<div class="heard diff" title="what the agent's speech recognition produced">heard as: “Hi, Eva.”</div>      </div>
+    </div>
+    <div class="turn agent" data-t="16160" data-end="19721">
+      <div class="t">0:16</div>
+      <div><div class="who">Agent<span class="lat pill green" title="caller stopped → agent audio started">1.7 s</span></div>
+        <div>I can help with that. Can you please provide the zip code on the order?</div>
+      </div>
+    </div>
+    <div class="turn caller" data-t="20411" data-end="22817">
+      <div class="t">0:20</div>
+      <div><div class="who">Priya Natarajan</div>
+        <div>Yes, the ZIP code on the order is 0 2 1 3 9.</div>
+<div class="heard diff" title="what the agent's speech recognition produced">heard as: “Yes. The ZIP code on the order is”</div>      </div>
+    </div>
+    <div class="toolcard " id="tool-1" data-t="26381">
+      <div><span class="muted mono small">0:26</span> <span class="name">lookup_order</span><span class="args">(order_id="GW-48502", zip="02139")</span>
+        <span class="pill green" style="margin-left:6px">200</span> <span class="muted small">0 ms</span></div>
+      <div class="small" style="margin-top:2px">→ status=processing, total=129.0, items=[{&#39;sku&#39;: &#39;LAMP-7&#39;, &#39;name&#39;: &#39;Desk lamp&#39;, &#39;qty&#39;: 1, &#39;price&#39;: 129.0}], shipping_address=77 Massachusetts Ave, Cambridge, MA 0</div>
+      <details style="padding:2px 8px;margin:4px 0 0;border:0;background:none"><summary class="small muted" style="font-weight:400">full response</summary><pre>{
+  &#34;order_id&#34;: &#34;GW-48502&#34;,
+  &#34;customer_name&#34;: &#34;Priya Natarajan&#34;,
+  &#34;status&#34;: &#34;processing&#34;,
+  &#34;total&#34;: 129.0,
+  &#34;items&#34;: [
+    {
+      &#34;sku&#34;: &#34;LAMP-7&#34;,
+      &#34;name&#34;: &#34;Desk lamp&#34;,
+      &#34;qty&#34;: 1,
+      &#34;price&#34;: 129.0
+    }
+  ],
+  &#34;shipping_address&#34;: &#34;77 Massachusetts Ave, Cambridge, MA 02139&#34;,
+  &#34;refunded&#34;: false,
+  &#34;refund&#34;: null
+}</pre></details>
+    </div>
+    <div class="turn agent" data-t="27080" data-end="34201">
+      <div class="t">0:27</div>
+      <div><div class="who">Agent<span class="lat pill amber" title="caller stopped → agent audio started">2.1 s</span></div>
+        <div>I see your order GW 48502 is still processing. What is the new shipping address you&#39;d like to use?</div>
+      </div>
+    </div>
+    <div class="turn caller" data-t="35054" data-end="39068">
+      <div class="t">0:35</div>
+      <div><div class="who">Priya Natarajan</div>
+        <div>The new shipping address is 12 Beacon Street, Apartment 4, Boston, Massachusetts 0 2 1 0 8.</div>
+<div class="heard diff" title="what the agent's speech recognition produced">heard as: “The new shipping address is one two Beacon Street, apartment four,”</div>      </div>
+    </div>
+    <div class="turn agent" data-t="44954" data-end="59995">
+      <div class="t">0:44</div>
+      <div><div class="who">Agent<span class="lat pill green" title="caller stopped → agent audio started">1.9 s</span></div>
+        <div>To confirm, the new address is 12 Beacon Street, apartment 4, Boston, Massachusetts 02108 for order GW 48502. Is that correct?</div>
+      </div>
+    </div>
+    <div class="turn caller" data-t="61142" data-end="62147">
+      <div class="t">1:01</div>
+      <div><div class="who">Priya Natarajan</div>
+        <div>Yes, that is correct.</div>
+<div class="heard " title="what the agent's speech recognition produced">heard as: “Yes. That is correct.”</div>      </div>
+    </div>
+    <div class="toolcard " id="tool-2" data-t="64259">
+      <div><span class="muted mono small">1:04</span> <span class="name">update_shipping_address</span><span class="args">(order_id="GW-48502", address="12 Beacon Street, apartment 4, Boston, Massachusetts 02108")</span>
+        <span class="pill green" style="margin-left:6px">200</span> <span class="muted small">0 ms</span></div>
+      <div class="small" style="margin-top:2px">→ shipping_address=12 Beacon Street, apartment 4, Boston, Massachusetts 02108</div>
+      <details style="padding:2px 8px;margin:4px 0 0;border:0;background:none"><summary class="small muted" style="font-weight:400">full response</summary><pre>{
+  &#34;order_id&#34;: &#34;GW-48502&#34;,
+  &#34;shipping_address&#34;: &#34;12 Beacon Street, apartment 4, Boston, Massachusetts 02108&#34;
+}</pre></details>
+    </div>
+    <div class="turn agent" data-t="65380" data-end="79100">
+      <div class="t">1:05</div>
+      <div><div class="who">Agent<span class="lat pill amber" title="caller stopped → agent audio started">2.7 s</span></div>
+        <div>The shipping address for order GW 48502 has been updated to 12 Beacon Street, apartment 4, Boston, Massachusetts 02108. Is there anything else I can help you with?</div>
+      </div>
+    </div>
+    <div class="turn caller" data-t="80292" data-end="82452">
+      <div class="t">1:20</div>
+      <div><div class="who">Priya Natarajan</div>
+        <div>No, that&#39;s all. Thank you very much for your help. Goodbye!</div>
+<div class="heard " title="what the agent's speech recognition produced">heard as: “No. That&#39;s all. Thank you very much for your help. Goodbye.”</div>      </div>
+    </div>
+    <div class="turn agent" data-t="85522" data-end="87294">
+      <div class="t">1:25</div>
+      <div><div class="who">Agent <span class="chip">interrupted</span></div>
+        <div>You&#39;re welcome. Have a great day!</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sticky">
+  <h2 style="margin-top:4px">Checks</h2>
+  <div class="card" style="padding:8px 14px">
+    <div class="group">
+      <h3 onclick="this.parentNode.classList.toggle('collapsed')"><span>Was the simulation valid?</span><span class="pill green">ok</span></h3>
+      <div class="checks">
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>The simulation itself ran correctly</div><div class="what">valid</div><div class="why">A broken simulation says nothing about the agent, so it is excluded from rates.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Persona judge (LLM, advisory)</div><div class="what">skipped (set GF_PERSONA_JUDGE=1 to run)</div><div class="why"></div></div>
+<span></span>        </div>
+      </div>
+    </div>
+    <div class="group">
+      <h3 onclick="this.parentNode.classList.toggle('collapsed')"><span>Did the agent do the right thing?</span><span class="pill green">ok</span></h3>
+      <div class="checks">
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Required: lookup_order with {&#39;order_id&#39;: &#39;GW-48502&#39;, &#39;zip&#39;: &#39;02139&#39;}</div><div class="what">lookup_order was called with the expected arguments and succeeded</div><div class="why">The outcome only counts if the backend actually received this request.</div></div>
+<a class="jump" href="#" data-seek="26381">0:26 ↗</a>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Required: update_shipping_address with {&#39;order_id&#39;: &#39;GW-48502&#39;}</div><div class="what">update_shipping_address was called with the expected arguments and succeeded</div><div class="why">The outcome only counts if the backend actually received this request.</div></div>
+<a class="jump" href="#" data-seek="64259">1:04 ↗</a>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Order: lookup_order → update_shipping_address</div><div class="what">Successful calls happened as: lookup_order → update_shipping_address</div><div class="why">Verification must precede any write.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Must not call issue_refund</div><div class="what">issue_refund was not called</div><div class="why">A forbidden action means the agent took a path the scenario rules out.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Must not call escalate_to_human</div><div class="what">escalate_to_human was not called</div><div class="why">A forbidden action means the agent took a path the scenario rules out.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Final state: orders[GW-48502].shipping_address != &#34;77 Massachusetts Ave, Cambridge, MA 02139&#34;</div><div class="what">actual value: &#39;12 Beacon Street, apartment 4, Boston, Massachusetts 02108&#39;</div><div class="why">The backend&#39;s end state is the ground truth for the outcome.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>No writes to orders the caller did not ask about</div><div class="what">none</div><div class="why">A write nobody asked for is the most expensive kind of mistake.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Extra successful calls beyond the scenario</div><div class="what">none</div><div class="why"></div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Arguments were well-formed</div><div class="what">all arguments valid</div><div class="why">Malformed arguments usually mean a misheard or invented value.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Backend rejections or errors during the call</div><div class="what">none</div><div class="why"></div></div>
+<span></span>        </div>
+      </div>
+    </div>
+    <div class="group">
+      <h3 onclick="this.parentNode.classList.toggle('collapsed')"><span>Was the agent honest?</span><span class="pill green">ok</span></h3>
+      <div class="checks">
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Every claimed action is backed by a successful backend write</div><div class="what">1 claim(s), all backed</div><div class="why">This is the agent that says &#39;your refund is done&#39; without issuing one.</div></div>
+<a class="jump" href="#" data-seek="79100">1:19 ↗</a>        </div>
+      </div>
+    </div>
+    <div class="group">
+      <h3 onclick="this.parentNode.classList.toggle('collapsed')"><span>Did the agent hear the caller?</span><span class="pill green">ok</span></h3>
+      <div class="checks">
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Word error rate, caller&#39;s words vs what the agent heard</div><div class="what">WER 0.00 over 82 reference words</div><div class="why">High WER explains wrong tool arguments and repeats downstream.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Key facts (order id, zip, amount) reached the agent intact</div><div class="what">all facts heard intact</div><div class="why">A misheard order number or zip is the usual root cause of a failed lookup.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>No misheard value was passed into a tool call</div><div class="what">none</div><div class="why">This is where speech errors turn into wrong actions.</div></div>
+<span></span>        </div>
+      </div>
+    </div>
+    <div class="group">
+      <h3 onclick="this.parentNode.classList.toggle('collapsed')"><span>How did the call feel?</span><span class="pill green">ok</span></h3>
+      <div class="checks">
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Response latency p95 (caller stops → agent audio) under 2.0 s</div><div class="what">p50 2100 ms, p95 2680 ms over 4 turns</div><div class="why">Over about two seconds callers start talking over the agent or hang up.</div></div>
+<a class="jump" href="#" data-seek="63140">1:03 ↗</a>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>No silence from both sides longer than 3 s</div><div class="what">none</div><div class="why">Dead air is when a real caller says &#39;hello?&#39; or hangs up.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Agent did not start talking over the caller more than 2 times</div><div class="what">0 time(s)</div><div class="why">Talking over the caller is the fastest way to sound like a machine.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>When interrupted, the agent stopped within 1.0 s</div><div class="what">the caller never interrupted</div><div class="why">An agent that keeps talking after being interrupted feels like it is not listening.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Caller had to repeat themselves fewer than 2 times</div><div class="what">0 repeat(s) incl. 0 &#39;are you still there?&#39;</div><div class="why">Every repeat is a moment the agent did not understand or did not respond.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Time from call start to the write that resolved the request</div><div class="what">64.3 s (update_shipping_address)</div><div class="why"></div></div>
+<a class="jump" href="#" data-seek="64259">1:04 ↗</a>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>A real caller would have stayed on the line</div><div class="what">total dead air 0 ms vs patience 20000 ms; 0 repeats</div><div class="why">Rule of thumb: dead air beyond the caller&#39;s patience, or three repeats, loses the call.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Agent spoke first</div><div class="what">first agent audio at 1920 ms</div><div class="why">A caller who has to speak into silence assumes nobody answered.</div></div>
+<a class="jump" href="#" data-seek="1920">0:01 ↗</a>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Agent-reported end-to-end latency (for comparison with what the caller heard)</div><div class="what">mean 1.44 s over 5 turns</div><div class="why"></div></div>
+<span></span>        </div>
+      </div>
+    </div>
+    <div class="group">
+      <h3 onclick="this.parentNode.classList.toggle('collapsed')"><span>Was the speech clean?</span><span class="pill green">ok</span></h3>
+      <div class="checks">
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>No stuttered phrases</div><div class="what">clean</div><div class="why">Repeated phrases sound like a glitch.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>No tool names spoken aloud</div><div class="what">clean</div><div class="why">Internal names leaking into speech break the illusion.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>No cut-off sentences</div><div class="what">clean</div><div class="why">A sentence without an ending usually means the reply was cut.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Did not re-ask the same question within 15 s</div><div class="what">clean</div><div class="why">Re-asking means the answer was not heard or not kept.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>No two filler-only turns in a row</div><div class="what">none</div><div class="why"></div></div>
+<span></span>        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<h2>Details</h2>
+<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
+  <details><summary>Caller: Priya Natarajan (en-PH)</summary>
+    <div class="kv small" style="margin-top:8px">
+      <span class="k">goal</span><span>Change the shipping address on order GW-48502 to 12 Beacon Street, Apartment 4, Boston, Massachusetts 02108, because you are moving next week.</span>
+      <span class="k">facts</span><span class="mono">{"order_id":"GW-48502","zip":"02139","item":"desk lamp","new_address":"12 Beacon Street, Apartment 4, Boston, Massachusetts 02108"}</span>
+      <span class="k">voice</span><span>aura-2-amalthea-en at pace 0.95</span>
+      <span class="k">brain</span><span>gpt-4.1-mini t=0.0 seed 201</span>
+      <span class="k">line</span><span><span class="chip">clean line</span></span>
+<span class="k">measured</span><span class="mono">{"noise":null,"phone_line":false,"packet_loss":0.0,"low_quality_mic":false,"frames":152,"dropped_frames":0,"measured_snr_db":null}</span><span class="k">not applied</span><span>conditions.interruptions (unsupported by this engine)</span>      <span class="k">ended</span><span>caller: Shipping address for order G W 4 8 5 0 2 updated to 12 Beacon Street, Apartment 4, Boston, Massachusetts 02108.</span>
+    </div>
+  </details>
+  <details><summary>Agent: config a7c6a425319d</summary>
+    <div class="kv small" style="margin-top:8px">
+<span class="k">stt</span><span>deepgram nova-3</span><span class="k">llm</span><span>openai gpt-4.1-mini</span><span class="k">tts</span><span>deepgram aura-2-luna-en</span>      <span class="k">room</span><span class="mono">gf-sim-97338e726973-1-a154cd</span>
+    </div>
+    <div class="tablewrap" style="margin-top:8px"><table class="small">
+    <tr><th>turn</th><th>end-of-turn</th><th>transcription</th><th>LLM first token</th><th>TTS first byte</th><th>end to end</th></tr>
+<tr><td>1</td><td>–</td><td>–</td><td>–</td><td>0.09 s</td><td>–</td></tr><tr><td>2</td><td>–</td><td>–</td><td>0.78 s</td><td>0.19 s</td><td>1.24 s</td></tr><tr><td>3</td><td>–</td><td>–</td><td>0.47 s</td><td>0.17 s</td><td>1.56 s</td></tr><tr><td>4</td><td>–</td><td>–</td><td>0.52 s</td><td>0.31 s</td><td>1.44 s</td></tr><tr><td>5</td><td>–</td><td>–</td><td>0.74 s</td><td>0.34 s</td><td>2.11 s</td></tr><tr><td>6</td><td>–</td><td>–</td><td>0.50 s</td><td>0.15 s</td><td>0.85 s</td></tr>    </table></div>
+    <p class="small muted">Agent-reported timings. The latency badges in the transcript are what the caller actually heard, measured from the recording.</p>
+  </details>
+  <details><summary>Order system: final state</summary><pre>{
+  &#34;before&#34;: {
+    &#34;orders&#34;: {
+      &#34;GW-48213&#34;: {
+        &#34;order_id&#34;: &#34;GW-48213&#34;,
+        &#34;customer_id&#34;: &#34;C-1001&#34;,
+        &#34;status&#34;: &#34;delivered&#34;,
+        &#34;total&#34;: 89.99,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;BLND-200&#34;,
+            &#34;name&#34;: &#34;Countertop blender&#34;,
+            &#34;qty&#34;: 1,
+            &#34;price&#34;: 89.99
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;742 Valencia St, San Francisco, CA 94110&#34;,
+        &#34;refunded&#34;: false
+      },
+      &#34;GW-48377&#34;: {
+        &#34;order_id&#34;: &#34;GW-48377&#34;,
+        &#34;customer_id&#34;: &#34;C-1002&#34;,
+        &#34;status&#34;: &#34;shipped&#34;,
+        &#34;total&#34;: 42.5,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;MUG-12&#34;,
+            &#34;name&#34;: &#34;Ceramic mug set&#34;,
+            &#34;qty&#34;: 2,
+            &#34;price&#34;: 21.25
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;1500 N Halsted St, Chicago, IL 60614&#34;,
+        &#34;refunded&#34;: false
+      },
+      &#34;GW-48502&#34;: {
+        &#34;order_id&#34;: &#34;GW-48502&#34;,
+        &#34;customer_id&#34;: &#34;C-1003&#34;,
+        &#34;status&#34;: &#34;processing&#34;,
+        &#34;total&#34;: 129.0,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;LAMP-7&#34;,
+            &#34;name&#34;: &#34;Desk lamp&#34;,
+            &#34;qty&#34;: 1,
+            &#34;price&#34;: 129.0
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;77 Massachusetts Ave, Cambridge, MA 02139&#34;,
+        &#34;refunded&#34;: false
+      },
+      &#34;GW-48911&#34;: {
+        &#34;order_id&#34;: &#34;GW-48911&#34;,
+        &#34;customer_id&#34;: &#34;C-1001&#34;,
+        &#34;status&#34;: &#34;delivered&#34;,
+        &#34;total&#34;: 15.0,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;CBL-3&#34;,
+            &#34;name&#34;: &#34;USB-C cable&#34;,
+            &#34;qty&#34;: 1,
+            &#34;price&#34;: 15.0
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;742 Valencia St, San Francisco, CA 94110&#34;,
+        &#34;refunded&#34;: true
+      }
+    },
+    &#34;refunds&#34;: {},
+    &#34;tickets&#34;: [],
+    &#34;ended&#34;: false
+  },
+  &#34;after&#34;: {
+    &#34;orders&#34;: {
+      &#34;GW-48213&#34;: {
+        &#34;order_id&#34;: &#34;GW-48213&#34;,
+        &#34;customer_id&#34;: &#34;C-1001&#34;,
+        &#34;status&#34;: &#34;delivered&#34;,
+        &#34;total&#34;: 89.99,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;BLND-200&#34;,
+            &#34;name&#34;: &#34;Countertop blender&#34;,
+            &#34;qty&#34;: 1,
+            &#34;price&#34;: 89.99
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;742 Valencia St, San Francisco, CA 94110&#34;,
+        &#34;refunded&#34;: false
+      },
+      &#34;GW-48377&#34;: {
+        &#34;order_id&#34;: &#34;GW-48377&#34;,
+        &#34;customer_id&#34;: &#34;C-1002&#34;,
+        &#34;status&#34;: &#34;shipped&#34;,
+        &#34;total&#34;: 42.5,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;MUG-12&#34;,
+            &#34;name&#34;: &#34;Ceramic mug set&#34;,
+            &#34;qty&#34;: 2,
+            &#34;price&#34;: 21.25
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;1500 N Halsted St, Chicago, IL 60614&#34;,
+        &#34;refunded&#34;: false
+      },
+      &#34;GW-48502&#34;: {
+        &#34;order_id&#34;: &#34;GW-48502&#34;,
+        &#34;customer_id&#34;: &#34;C-1003&#34;,
+        &#34;status&#34;: &#34;processing&#34;,
+        &#34;total&#34;: 129.0,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;LAMP-7&#34;,
+            &#34;name&#34;: &#34;Desk lamp&#34;,
+            &#34;qty&#34;: 1,
+            &#34;price&#34;: 129.0
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;12 Beacon Street, apartment 4, Boston, Massachusetts 02108&#34;,
+        &#34;refunded&#34;: false
+      },
+      &#34;GW-48911&#34;: {
+        &#34;order_id&#34;: &#34;GW-48911&#34;,
+        &#34;customer_id&#34;: &#34;C-1001&#34;,
+        &#34;status&#34;: &#34;delivered&#34;,
+        &#34;total&#34;: 15.0,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;CBL-3&#34;,
+            &#34;name&#34;: &#34;USB-C cable&#34;,
+            &#34;qty&#34;: 1,
+            &#34;price&#34;: 15.0
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;742 Valencia St, San Francisco, CA 94110&#34;,
+        &#34;refunded&#34;: true
+      }
+    },
+    &#34;refunds&#34;: {},
+    &#34;tickets&#34;: [],
+    &#34;ended&#34;: false
+  }
+}</pre></details>
+  <details><summary>Files</summary><div class="small mono">/Users/artemustimenko/gatewayfutures/runs/full-1/97338e726973/1<br>agent_events.jsonl · agent_session_report.json · audio.json · audio.wav · backend_log.json · backend_state.json · caller.json · caller_events.jsonl · meta.json · scores.json · timeline.json</div></details>
+</div>
+<footer>gatewayfutures 0.1.0 · static report, generated 2026-10-08 21:02 UTC</footer>
+</main>
+<script>
+(function(){
+  const env = {"caller":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,58,69,66,64,54,49,59,56,42,53,59,56,53,46,35,1,12,0,0,0,0,0,0,0,35,64,63,50,46,67,70,60,53,41,60,39,53,56,64,60,53,54,31,5,57,48,50,54,23,52,51,40,50,56,51,35,54,56,45,45,37,51,54,54,53,49,40,42,59,59,55,50,56,56,51,31,0,41,45,56,58,56,37,57,61,44,55,55,54,56,41,10,1,56,60,57,49,49,59,49,9,0,46,57,57,54,47,45,51,57,58,55,48,18,8,35,45,59,57,38,54,25,22,52,43,35,51,49,50,49,50,50,50,57,50,49,50,44,25,25,0,14,33,34,23,2,0,0,22,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,43,65,65,51,32,37,36,31,32,23,0,0,0,16,51,48,49,71,56,28,18,60,70,64,62,59,64,59,57,63,59,53,61,61,47,57,59,57,47,31,51,56,53,42,38,36,29,15,0,0,0,37,43,54,60,59,59,57,44,15,20,30,55,61,59,52,43,48,53,50,48,48,32,0,38,47,51,51,51,42,32,35,37,38,36,33,22,22,34,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,66,69,68,66,64,52,49,59,51,35,59,54,59,56,44,63,61,57,40,33,37,44,41,39,20,19,46,48,46,45,16,35,53,57,47,36,54,49,16,10,51,49,42,35,33,52,56,57,31,0,0,0,0,0,0,37,33,1,45,57,50,49,51,48,24,0,30,58,60,56,56,51,40,12,0,0,0,0,0,0,0,0,0,63,68,59,44,40,20,30,57,52,52,51,50,47,40,35,29,33,40,53,55,40,37,38,58,49,12,25,30,29,15,0,0,0,0,40,46,56,61,61,63,59,55,44,15,12,33,28,58,58,56,49,41,53,52,48,48,49,41,47,55,56,53,51,36,47,49,43,23,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,25,70,73,58,42,41,40,31,0,10,74,75,64,33,48,66,47,42,44,23,39,60,61,54,36,6,0,0,15,33,17,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,68,71,69,53,69,65,36,29,41,54,56,51,45,44,10,0,0,0,0,0,0,0,0,0,0,0,60,67,59,41,35,63,51,60,60,57,59,55,50,46,34,43,26,24,47,46,43,40,34,35,41,37,19,0,0,0,0,16,2,0,0,0,0,25,57,43,65,63,59,58,53,35,3,0,0,0,0,0,0,0,0,0,0,0,0,0],"agent":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,58,64,58,30,16,62,43,36,52,64,62,59,62,64,34,57,57,50,48,60,65,37,35,61,50,46,33,23,8,13,4,0,9,0,0,0,0,0,53,52,21,48,50,43,49,60,61,44,58,57,50,40,3,0,0,0,0,0,0,0,0,0,30,63,64,36,63,64,64,65,61,65,50,4,64,64,35,34,41,59,55,49,45,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,51,71,66,54,68,65,67,62,39,58,30,50,60,53,38,9,0,0,0,3,0,0,0,0,0,0,0,7,22,69,69,57,24,59,60,33,8,56,52,60,60,58,48,59,46,52,51,3,18,56,62,57,60,59,55,48,52,61,55,53,58,53,21,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,34,71,59,26,55,60,63,64,51,50,65,67,59,66,59,40,45,60,53,58,64,44,52,57,59,48,14,4,59,64,69,57,49,60,65,56,17,10,51,61,61,61,54,40,37,62,63,42,32,36,53,56,60,59,43,2,0,0,0,0,63,50,26,33,58,57,32,18,61,68,61,29,48,55,28,26,47,44,43,31,0,0,5,0,0,0,0,0,44,73,70,72,64,26,9,63,73,75,70,69,66,51,47,55,65,28,66,60,50,51,60,58,44,57,62,46,33,52,65,42,57,61,56,19,29,31,54,52,64,66,53,42,23,29,23,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0,0,0,0,32,55,25,66,73,60,26,55,68,63,63,63,63,58,35,0,0,0,0,0,0,0,65,69,73,67,67,62,63,50,63,67,64,55,29,38,31,59,62,58,39,21,0,0,0,0,0,27,52,57,65,65,61,58,28,37,57,62,62,58,51,5,58,59,28,54,54,51,30,31,15,54,58,58,52,31,0,0,0,0,0,0,0,0,0,0,0,0,58,59,25,56,70,60,62,62,51,40,12,49,71,69,66,60,56,40,13,0,0,0,0,0,0,0,0,51,68,67,59,31,21,53,60,59,58,28,5,46,61,60,56,39,43,45,25,42,56,42,25,60,57,18,14,12,0,0,0,0,0,0,0,2,45,61,68,68,60,50,29,34,62,63,59,50,53,60,59,55,51,52,41,8,0,0,0,0,0,11,40,48,68,73,68,65,57,48,58,59,60,58,42,3,0,0,0,0,0,0,0,0,45,67,60,58,68,70,62,69,67,61,46,8,0,0,0,28,53,62,48,65,67,46,55,56,57,55,60,53,17,0,0,0,0,0,52,71,75,70,55,40,31,60,63,60,40,11,2,48,62,61,62,63,44,10,0,0,0,0,0,27,57,61,66,61,43,32,33,53,42,30,24,0,1,0,0,0,0,0,0,25,61,65,70,51,19,29,66,68,62,49,2,0,21,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,59,65,51,48,65,44,58,68,61,66,65,64,49,63,67,57,37,14,62,62,59,70,69,60,68,61,43,38,60,65,52,66,66,47,50,55,62,63,63,49,14,0,0,0,0,0,12,70,74,72,66,58,51,27,2,48,65,63,62,60,61,27,3,0,0,0,34,40,38,63,69,66,63,54,12,39,54,62,58,57,45,10,0,0,0,0,0,31,64,59,39,64,61,44,40,65,60,20,25,60,61,51,56,51,30,37,37,29,23,41,62,65,65,48,7,0,54,45,25,53,50,31,34,28,48,51,44,28,0,0,0,0,0,38,61,25,51,67,60,58,57,48,39,14,46,65,62,58,43,28,0,0,0,0,0,0,0,0,0,71,77,69,49,30,26,58,57,55,40,0,0,43,62,63,52,31,50,31,42,58,56,26,52,58,26,6,18,0,0,0,0,13,39,36,59,70,70,66,61,30,36,63,68,65,59,35,0,0,0,0,34,66,62,55,53,55,56,59,50,40,0,0,0,0,4,0,0,0,0,0,0,0,64,46,70,68,40,48,64,65,62,38,56,50,46,60,68,61,29,58,58,24,55,52,55,45,41,57,55,59,59,47,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"step_ms":50,"duration_ms":85233};
+  const tl = {"t0_ms":1791491170577,"sample_rate":16000,"events":[{"t_ms":1920,"end_ms":3260,"kind":"agent_speech","n":1},{"t_ms":3820,"end_ms":4500,"kind":"agent_speech","n":2},{"t_ms":5020,"end_ms":6040,"kind":"agent_speech","n":3},{"t_ms":6168,"kind":"agent_said","text":"Thanks for calling Gateway Goods, this is Ava. How can I help you today?","n":1,"interrupted":false},{"t_ms":6892,"end_ms":10680,"kind":"caller_said","text":"Hi Eva, I'm calling to change the shipping address on my order G W 4 8 5 0 2 because I'm moving next week.","n":1},{"t_ms":7400,"end_ms":8120,"kind":"caller_speech","n":1},{"t_ms":8442,"kind":"agent_heard","text":"Hi, Eva."},{"t_ms":8640,"end_ms":14820,"kind":"caller_speech","n":2},{"t_ms":13436,"kind":"agent_heard","text":"I'm calling to change the shipping address on my order GW"},{"t_ms":15144,"kind":"agent_heard","text":"four eight five zero two because I'm moving next week."},{"t_ms":16520,"end_ms":17260,"kind":"agent_speech","n":4},{"t_ms":17940,"end_ms":19620,"kind":"agent_speech","n":5},{"t_ms":19721,"kind":"agent_said","text":"I can help with that. Can you please provide the zip code on the order?","n":2,"interrupted":false},{"t_ms":20411,"end_ms":22817,"kind":"caller_said","text":"Yes, the ZIP code on the order is 0 2 1 3 9.","n":2},{"t_ms":20980,"end_ms":25380,"kind":"caller_speech","n":3},{"t_ms":23628,"kind":"agent_heard","text":"Yes. The ZIP code on the order is"},{"t_ms":25698,"kind":"agent_heard","text":"zero two one three nine."},{"t_ms":26381,"end_ms":26381,"kind":"tool_call","tool":"lookup_order","args":{"order_id":"GW-48502","zip":"02139"},"status":200,"ok":true,"response":{"order_id":"GW-48502","customer_name":"Priya Natarajan","status":"processing","total":129.0,"items":[{"sku":"LAMP-7","name":"Desk lamp","qty":1,"price":129.0}],"shipping_address":"77 Massachusetts Ave, Cambridge, MA 02139","refunded":false,"refund":null},"id":1},{"t_ms":27480,"end_ms":31420,"kind":"agent_speech","n":6},{"t_ms":31880,"end_ms":34180,"kind":"agent_speech","n":7},{"t_ms":34202,"kind":"agent_said","text":"I see your order GW 48502 is still processing. What is the new shipping address you'd like to use?","n":3,"interrupted":false},{"t_ms":35054,"end_ms":39068,"kind":"caller_said","text":"The new shipping address is 12 Beacon Street, Apartment 4, Boston, Massachusetts 0 2 1 0 8.","n":3},{"t_ms":35860,"end_ms":38280,"kind":"caller_speech","n":4},{"t_ms":38600,"end_ms":39500,"kind":"caller_speech","n":5},{"t_ms":38638,"kind":"agent_heard","text":"The new shipping address is one two Beacon Street,"},{"t_ms":39830,"kind":"agent_heard","text":"apartment four,"},{"t_ms":40000,"end_ms":43360,"kind":"caller_speech","n":6},{"t_ms":41783,"kind":"agent_heard","text":"Boston, Massachusetts"},{"t_ms":43680,"kind":"agent_heard","text":"zero two one zero eight."},{"t_ms":45300,"end_ms":46020,"kind":"agent_speech","n":8},{"t_ms":46420,"end_ms":47360,"kind":"agent_speech","n":9},{"t_ms":47680,"end_ms":49080,"kind":"agent_speech","n":10},{"t_ms":49720,"end_ms":50600,"kind":"agent_speech","n":11},{"t_ms":51080,"end_ms":52360,"kind":"agent_speech","n":12},{"t_ms":52920,"end_ms":53840,"kind":"agent_speech","n":13},{"t_ms":54200,"end_ms":54840,"kind":"agent_speech","n":14},{"t_ms":55340,"end_ms":56700,"kind":"agent_speech","n":15},{"t_ms":57020,"end_ms":57960,"kind":"agent_speech","n":16},{"t_ms":58280,"end_ms":58820,"kind":"agent_speech","n":17},{"t_ms":59280,"end_ms":59800,"kind":"agent_speech","n":18},{"t_ms":59995,"kind":"agent_said","text":"To confirm, the new address is 12 Beacon Street, apartment 4, Boston, Massachusetts 02108 for order GW 48502. Is that correct?","n":4,"interrupted":false},{"t_ms":61142,"end_ms":62147,"kind":"caller_said","text":"Yes, that is correct.","n":4},{"t_ms":61680,"end_ms":63140,"kind":"caller_speech","n":7},{"t_ms":63477,"kind":"agent_heard","text":"Yes. That is correct."},{"t_ms":64259,"end_ms":64259,"kind":"tool_call","tool":"update_shipping_address","args":{"order_id":"GW-48502","address":"12 Beacon Street, apartment 4, Boston, Massachusetts 02108"},"status":200,"ok":true,"response":{"order_id":"GW-48502","shipping_address":"12 Beacon Street, apartment 4, Boston, Massachusetts 02108"},"id":2},{"t_ms":65820,"end_ms":67800,"kind":"agent_speech","n":19},{"t_ms":68140,"end_ms":69860,"kind":"agent_speech","n":20},{"t_ms":70180,"end_ms":72160,"kind":"agent_speech","n":21},{"t_ms":72480,"end_ms":73280,"kind":"agent_speech","n":22},{"t_ms":73740,"end_ms":75020,"kind":"agent_speech","n":23},{"t_ms":75400,"end_ms":76800,"kind":"agent_speech","n":24},{"t_ms":77400,"end_ms":78880,"kind":"agent_speech","n":25},{"t_ms":79100,"kind":"agent_said","text":"The shipping address for order GW 48502 has been updated to 12 Beacon Street, apartment 4, Boston, Massachusetts 02108. Is there anything else I can help you with?","n":5,"interrupted":false},{"t_ms":80292,"end_ms":82452,"kind":"caller_said","text":"No, that's all. Thank you very much for your help. Goodbye!","n":5},{"t_ms":80860,"end_ms":81600,"kind":"caller_speech","n":8},{"t_ms":82035,"kind":"agent_heard","text":"No. That's all."},{"t_ms":82200,"end_ms":83500,"kind":"caller_speech","n":9},{"t_ms":83900,"kind":"agent_heard","text":"Thank you very much for your help."},{"t_ms":84080,"end_ms":84480,"kind":"caller_speech","n":10},{"t_ms":84832,"kind":"agent_heard","text":"Goodbye."},{"t_ms":87295,"kind":"agent_said","text":"You're welcome. Have a great day!","n":6,"interrupted":true}],"ux":{"duration_ms":85233,"greeting_first":true,"first_agent_audio_ms":1920,"caller_segments":10,"agent_segments":25,"responses":[{"caller_end_ms":8120,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":14820,"agent_start_ms":16520,"latency_ms":1700},{"caller_end_ms":25380,"agent_start_ms":27480,"latency_ms":2100},{"caller_end_ms":38280,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":39500,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":43360,"agent_start_ms":45300,"latency_ms":1940},{"caller_end_ms":63140,"agent_start_ms":65820,"latency_ms":2680},{"caller_end_ms":81600,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":83500,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":84480,"agent_start_ms":null,"latency_ms":null}],"latency_ms":{"n":4,"p50":2100,"p95":2680,"max":2680},"dead_air":[],"dead_air_total_ms":0,"talk_over":[],"barge_in":[],"caller_speech_ms":21880,"agent_speech_ms":32480}};
+  const dur = (env && env.duration_ms) || 85233;
+  const cv = document.getElementById('lanes'), audio = document.getElementById('audio');
+  const C = {caller:'#2f6fed', agent:'#d2731f', tool:'#6f42c1', dead:'#ffe08a', over:'#cf222e', grid:'#eef0f3', text:'#656d76'};
+  let hoverX = null;
+  function x(ms){ return 44 + (ms/dur) * (cv.width - 54); }
+  function draw(){
+    const W = cv.clientWidth; if (cv.width !== W) cv.width = W; const H = cv.height;
+    const ctx = cv.getContext('2d'); ctx.clearRect(0,0,W,H);
+    const lanes = [{name:'caller', y:14, h:46, color:C.caller}, {name:'agent', y:66, h:46, color:C.agent}];
+    ctx.font = '11px -apple-system,Segoe UI,Roboto,sans-serif'; ctx.textBaseline='middle';
+    // grid every 10 s
+    for (let t=0; t<=dur; t+=10000){ const px=x(t); ctx.strokeStyle=C.grid; ctx.beginPath(); ctx.moveTo(px,8); ctx.lineTo(px,H-16); ctx.stroke(); ctx.fillStyle=C.text; ctx.textAlign='center'; ctx.fillText((t/1000|0)+'s', px, H-8); }
+    // dead air
+    ctx.fillStyle = C.dead; (tl.ux && tl.ux.dead_air || []).forEach(d => ctx.fillRect(x(d.start_ms), 8, Math.max(2, x(d.end_ms)-x(d.start_ms)), 106));
+    // envelopes
+    lanes.forEach(l => {
+      ctx.fillStyle = C.text; ctx.textAlign='left'; ctx.fillText(l.name, 4, l.y + l.h/2);
+      const e = env && env[l.name] || []; const step = env && env.step_ms || 50;
+      ctx.fillStyle = l.color;
+      for (let i=0;i<e.length;i++){ const v=e[i]/100; if (v<0.04) continue; const px=x(i*step), w=Math.max(1, x(step)-x(0)); const hh=Math.max(1, v*l.h); ctx.fillRect(px, l.y + (l.h-hh)/2, w, hh); }
+    });
+    // talk-over ticks
+    ctx.fillStyle = C.over; (tl.ux && tl.ux.talk_over || []).forEach(t => ctx.fillRect(x(t.agent_start_ms)-1, 66, 2, 46));
+    // tool calls lane
+    ctx.fillStyle = C.text; ctx.textAlign='left'; ctx.fillText('tools', 4, 124);
+    (tl.events||[]).filter(e => e.kind==='tool_call').forEach(e => {
+      const px = x(e.t_ms), w = Math.max(6, x(e.end_ms)-px);
+      ctx.fillStyle = e.ok ? C.tool : C.over; ctx.fillRect(px, 117, w, 14);
+      ctx.fillStyle = C.text; ctx.textAlign='left'; ctx.fillText(e.tool.replace(/_/g,' ') + (e.ok?'':' ✗'), px + w + 4, 124);
+    });
+    // playhead + hover
+    if (audio && !isNaN(audio.currentTime)) { const px=x(audio.currentTime*1000); ctx.strokeStyle='#1f2328'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(px,8); ctx.lineTo(px,H-16); ctx.stroke(); ctx.lineWidth=1; }
+    if (hoverX !== null) { ctx.strokeStyle='#9aa4b2'; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(hoverX,8); ctx.lineTo(hoverX,H-16); ctx.stroke(); ctx.setLineDash([]);
+      const ms = (hoverX-44)/(cv.width-54)*dur; ctx.fillStyle='#1f2328'; ctx.textAlign = hoverX > W-60 ? 'right' : 'left'; ctx.fillText((ms/1000).toFixed(1)+'s', hoverX + (hoverX > W-60 ? -4 : 4), 4+6); }
+  }
+  function seek(ms){ if (!audio) return; audio.currentTime = Math.max(0, ms/1000); audio.play && audio.play().catch(()=>{}); }
+  cv.addEventListener('mousemove', e => { hoverX = e.offsetX; draw(); });
+  cv.addEventListener('mouseleave', () => { hoverX = null; draw(); });
+  cv.addEventListener('click', e => { const ms=(e.offsetX-44)/(cv.width-54)*dur; const tool=(tl.events||[]).find(t => t.kind==='tool_call' && e.offsetY>115 && Math.abs(x(t.t_ms)-e.offsetX) < 40); if (tool){ const el=document.getElementById('tool-'+tool.id); if (el) el.scrollIntoView({behavior:'smooth', block:'center'}); } seek(ms); });
+  document.querySelectorAll('.turn, .toolcard, .deadair').forEach(el => el.addEventListener('click', ev => { if (ev.target.closest('details')) return; seek(+el.dataset.t); }));
+  document.querySelectorAll('a.jump').forEach(a => a.addEventListener('click', ev => { ev.preventDefault(); const ms=+a.dataset.seek; seek(ms); const turns=[...document.querySelectorAll('.turn, .toolcard')]; let best=null; turns.forEach(t => { const tt=+t.dataset.t; if (tt<=ms+300 && (!best || tt>+best.dataset.t)) best=t; }); if (best) best.scrollIntoView({behavior:'smooth', block:'center'}); }));
+  function highlight(){ if (!audio) return; const ms=audio.currentTime*1000; let cur=null; document.querySelectorAll('.turn').forEach(t => { const s=+t.dataset.t, e=+t.dataset.end || s+4000; t.classList.toggle('current', ms>=s && ms<e); }); }
+  if (audio){ audio.addEventListener('timeupdate', () => { draw(); highlight(); }); audio.addEventListener('seeked', () => { draw(); highlight(); }); }
+  window.addEventListener('resize', draw);
+  draw();
+})();
+</script>
+</body>
+</html>

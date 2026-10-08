@@ -14,7 +14,7 @@ Decisions finalized on 2026-10-08 (to be written back into the PRD on approval):
 | Sessions | Immutable. A session's id is the hash of its content; the UI cannot edit, only create new ones |
 | Reports | A static, self-contained `report.html` per run, layered so a non-technical reader can go summary → session → call → timeline |
 | UX thresholds | p95 latency 2.0 s is the starting flag; all thresholds live in one config file |
-| UI | Python-only: FastAPI + Jinja2 + htmx, wavesurfer.js from CDN. The same templates render the live UI and the static report |
+| UI | Python-only: FastAPI + Jinja2, native audio + canvas lanes, no CDN. The same templates render the live UI and the static report |
 | Isolation | Dedicated LiveKit Cloud project; agent names `gf-support-agent` / `gf-sim-caller`; explicit dispatch; rooms `gf-sim-<run>-<call>` |
 
 Local toolchain: Docker Desktop running (CLI at `~/.docker/bin/docker`), `uv` 0.12 for Python 3.12, no Node needed.
@@ -194,13 +194,30 @@ Gate 5: the fault-injected refund session is caught as "claimed without acting" 
 **T6.1 Layered report model.** One `report.json` per run with four layers: L1 run summary (pass rate + interval, invalid rate, p95 latency, top 3 failure reasons, cost); L2 per-session table; L3 per-call checks with evidence; L4 timeline. Non-technical wording for every check (`what happened`, `why it matters`, `where`).
 Verify: unit test builds the model from a fixture run; every check has a plain-language label.
 
-**T6.2 Templates and static report.** Jinja2 templates: overview, agent, sessions, session detail, run, call detail (waveform with lanes, inline tool cards, score panel; clicking a check seeks audio). `gf report runs/<run_id>` renders a self-contained `report.html` (inlined CSS/JS, relative audio paths).
+**T6.2 Templates and static report.** Jinja2 templates: overview (a clickable diagram of the call flow: sessions → simulated caller → support agent → order system → scoring, each box a drill-down), agent, order system, simulated caller, scoring catalogue, sessions, session detail, run, call detail (stereo lanes drawn on a canvas from precomputed loudness envelopes and a native `<audio>` element, no CDN; inline tool cards; score panel; clicking a check or a turn seeks the audio). `gf report <run_id>` renders a folder of plain HTML pages (`index.html` = the run) with relative audio paths; `--bundle` transcodes the audio to MP3 into the folder so it is self-contained.
 Verify: render test on the fixture run; HTML validates; opens from the file system with audio playing; manual checklist (10 items) signed off.
 
-**T6.3 Live UI.** FastAPI app `gf ui` serving the same templates over `runs/`, with htmx for the session list and "New session" (creates a new immutable YAML) and "Run" actions.
-Verify: TestClient tests for each route; a new session created from the form validates and runs.
+**T6.3 Live UI.** FastAPI app `gf ui` serving the same templates over `runs/` and `sessions/`, rendered on every request (a run started from the CLI appears on refresh). Audio is streamed from the record folders.
+Verify: TestClient tests for each page route; a run folder built from fixture records renders every page.
 
-Gate 6: a non-technical reviewer can open `report.html`, read the summary in a minute, drill into one failed call and see the exact moment.
+The tasks below make the UI a production web service rather than a local viewer (added 2026-10-08).
+
+**T6.4 Run control.** Start a run from the browser: pick sessions (or all), repeats and concurrency; the UI spawns `gf run` as a child process and records `runs/<run_id>/job.json` (pid, parameters). One run at a time. While a run is in progress the run page shows progress (calls done / planned, pending attempts as empty squares, the tail of the run log) and refreshes itself; runs started from the CLI are shown the same way. Stop sends SIGTERM to the process group. A "rescore" action re-runs scoring (after scoring code changes); the run page also rescores by itself when `summary.json` is missing or older than the manifest.
+Verify: TestClient — start is refused while a job is running; a job file with a dead pid reads as failed; stop marks the job stopped; a stale summary is rescored on view.
+
+**T6.5 System status.** The overview shows whether a run can start: keys present, order system `/health`, LiveKit reachable, agent worker process found (soft when it runs in Docker), ffmpeg available. Cached 60 s; `GET /api/status` (`?refresh=1` bypasses the cache).
+Verify: route test with the backend down → `ready: false` and the row names the backend.
+
+**T6.6 New session form.** `GET /sessions/new` shows a YAML editor prefilled from a template, or from an existing session (`?copy=<id>`). `POST` validates through the session schema (unknown tools, missing fixtures and bad values are shown as the error), refuses an existing file name, writes `sessions/<name>.yaml` and redirects to the new session. Existing sessions are never edited.
+Verify: TestClient against a temporary `sessions/` dir — a valid session is created and listed; invalid YAML returns 400 with the reason; a duplicate name is refused.
+
+**T6.7 Service hardening.** Compose `ui` service (port 8090, `runs/` and `sessions/` mounted, health check, `restart: unless-stopped`, `BACKEND_URL` pointing at the backend service); gzip; HTML error pages for 404/500 and JSON errors under `/api/`; `/health` and `/version`; JSON API mirroring every page (`/api/status`, `/api/runs`, `/api/runs/{id}`, `/api/runs/{id}/{session}/{attempt}`, `/api/sessions`, `/api/agent`) with OpenAPI at `/api/docs`; optional access token `GF_UI_TOKEN` (cookie set by a login page, `Authorization: Bearer` for the API) so the UI can be exposed behind a reverse proxy.
+Verify: TestClient for every API route; with `GF_UI_TOKEN` set, pages redirect to login and the API returns 401 until the token is presented; `docker compose up ui` answers `/health`.
+
+**T6.8 Publishing.** `gf report <run_id> --bundle --out docs/sample-report` produces the committed sample report with MP3 audio. GitHub Actions: `ci.yml` (ruff + unit tests on every push and pull request) and `pages.yml` (publishes `docs/sample-report` to GitHub Pages on push to `main`, so the latest sample report has a permanent link). README documents hosting the live UI: compose behind a reverse proxy with TLS, `GF_UI_TOKEN` set, the agent worker and backend as sibling services.
+Verify: the bundled folder opens from disk with audio playing; both workflows pass on GitHub.
+
+Gate 6: a non-technical reviewer can open the published report, read the summary in a minute, drill into one failed call and see the exact moment; a teammate can start a run from the UI and watch it finish.
 
 ---
 

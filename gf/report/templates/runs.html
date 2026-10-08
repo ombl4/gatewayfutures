@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% set page='runs' %}
+{% block title %}Runs · Call simulator{% endblock %}
+{% block content %}
+<h1>Runs</h1>
+<p class="sub">Each run is the whole session set, repeated. Runs with the same stamp (agent config + sessions + scoring method) are comparable.</p>
+{% include "_runs_table.html" %}
+{% endblock %}

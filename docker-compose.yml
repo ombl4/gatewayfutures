@@ -3,6 +3,7 @@ services:
   backend:
     build: .
     command: uv run uvicorn gf.backend.app:app --host 0.0.0.0 --port 8080
+    restart: unless-stopped
     ports: ["8080:8080"]
     env_file:
       - path: .env
@@ -11,6 +12,7 @@ services:
   agent:
     build: .
     command: uv run gf agent start
+    restart: unless-stopped
     env_file:
       - path: .env
         required: false
@@ -18,4 +20,25 @@ services:
       BACKEND_URL: http://backend:8080
     volumes:
       - ./runs:/app/runs
+    depends_on: [backend]
+
+  ui:
+    build: .
+    command: uv run gf ui --host 0.0.0.0 --port 8090
+    restart: unless-stopped
+    ports: ["8090:8090"]
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      BACKEND_URL: http://backend:8080
+      GF_UI_TOKEN: ${GF_UI_TOKEN:-}
+    volumes:
+      - ./runs:/app/runs
+      - ./sessions:/app/sessions
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8090/health', timeout=3).status == 200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     depends_on: [backend]

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% set page='sessions' %}
+{% block title %}{{ p.session.title }} · Sessions{% endblock %}
+{% block content %}
+{% set s = p.session %}
+<p class="small"><a href="{{ links.sessions() }}">← all sessions</a></p>
+<h1>{{ s.title }}</h1>
+<p class="sub mono">{{ s.id }} · engine {{ s.engine }}{% if mode == 'live' %} · <a href="/sessions/new?copy={{ s.id }}">create a variant of this session</a>{% endif %}</p>
+
+<div class="two">
+<div>
+  <div class="grid" style="grid-template-columns:1fr 1fr">
+    <div class="card">
+      <h3>Who is calling</h3>
+      <div class="kv">
+        <span class="k">name</span><span>{{ s.persona.name }}</span>
+        <span class="k">style</span><span>{{ s.persona.style }}</span>
+        <span class="k">accent / voice</span><span>{{ s.persona.accent }} · <span class="mono">{{ s.voice }}</span> at pace {{ s.pace }}</span>
+        <span class="k">brain</span><span>{{ s.llm.model }}, temperature {{ s.llm.temperature }}, seed {{ s.llm.seed }}</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3>What they know</h3>
+      <div class="kv">{% for k, v in s.facts.items() %}<span class="k">{{ k }}</span><span class="mono">{{ v }}</span>{% endfor %}</div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>What they want</h3>
+    <p style="margin:0 0 6px">{{ s.goal }}</p>
+    <div class="kv"><span class="k">stops when</span><span>{{ s.stop_when }}</span>{% if s.opening %}<span class="k">opens with</span><span>"{{ s.opening }}"</span>{% endif %}</div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>How the line sounds</h3>
+    {% for c in s.chips %}<span class="chip">{{ c }}</span>{% endfor %}
+    <div class="kv small" style="margin-top:6px">
+      <span class="k">patience</span><span>{{ s.conditions.patience_s }} s of dead air before a real caller would hang up</span>
+      <span class="k">limits</span><span>{{ s.limits.max_turns }} turns · {{ s.limits.max_duration_s }} s · re-prompt after {{ s.limits.mutual_silence_reprompt_s }} s of mutual silence, abort after {{ s.limits.mutual_silence_abort_s }} s</span>
+    </div>
+  </div>
+  {% if s.faults %}
+  <div class="card" style="margin-top:12px">
+    <h3>Injected faults</h3>
+    {% for f in s.faults %}<div class="small">on call #{{ f.nth }} to <span class="mono">{{ f.tool }}</span>: <b>{{ f.type }}</b>{% if f.latency_ms %} ({{ f.latency_ms }} ms){% endif %}</div>{% endfor %}
+  </div>
+  {% endif %}
+</div>
+<div>
+  <div class="card">
+    <h3>What a correct outcome looks like</h3>
+    <div class="kv">
+      <span class="k">outcome</span><span class="chip">{{ s.expected.outcome }}</span>
+      <span class="k">must call</span><span>{% for r in s.expected.tool_calls.required %}<div class="mono">{{ r.tool }} {{ r.args|tojson_compact }}</div>{% endfor %}</span>
+      {% if s.expected.tool_calls.order %}<span class="k">in order</span><span class="mono">{{ s.expected.tool_calls.order|join(' → ') }}</span>{% endif %}
+      {% if s.expected.tool_calls.forbidden %}<span class="k">must not call</span><span class="mono">{{ s.expected.tool_calls.forbidden|join(', ') }}</span>{% endif %}
+      {% if s.expected.final_state %}<span class="k">final state</span><span>{% for a in s.expected.final_state %}<div class="mono">{{ a }}</div>{% endfor %}</span>{% endif %}
+    </div>
+    {% if s.expected.notes %}<p class="small muted" style="margin:8px 0 0">{{ s.expected.notes }}</p>{% endif %}
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>Results by run</h3>
+    {% if p.history %}
+    <div class="kv">{% for h in p.history %}<a class="k" href="{{ links.run(h.run_id) }}">{{ h.run_id }}</a><span><span class="pill {{ 'green' if h.n and h.passed==h.n else ('red' if h.n and h.passed==0 else ('amber' if h.n else 'grey')) }}">{{ h.passed }}/{{ h.n }}</span>{% if h.invalid %} <span class="muted small">{{ h.invalid }} invalid</span>{% endif %}</span>{% endfor %}</div>
+    {% else %}<span class="muted">not run yet</span>{% endif %}
+  </div>
+  {% if p.yaml %}
+  <details style="margin-top:12px"><summary>Session file</summary><pre>{{ p.yaml }}</pre></details>
+  {% endif %}
+</div>
+</div>
+{% endblock %}

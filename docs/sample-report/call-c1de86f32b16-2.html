@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Partial refund of $40, older caller speaking slowly on a poor microphone #2 · Call</title>
+<style>
+:root{
+  --bg:#f6f7f9;--card:#fff;--ink:#1f2328;--muted:#656d76;--line:#d9dee3;--accent:#0b57d0;
+  --green:#1a7f37;--green-bg:#dafbe1;--amber:#9a6700;--amber-bg:#fff8c5;--red:#cf222e;--red-bg:#ffebe9;
+  --grey:#6e7781;--grey-bg:#eaeef2;--caller:#2f6fed;--agent:#d2731f;--tool:#6f42c1;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{color-scheme:light}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+nav.top{background:#fff;border-bottom:1px solid var(--line);padding:0 24px;display:flex;gap:4px;align-items:center;height:48px;position:sticky;top:0;z-index:5}
+nav.top .brand{font-weight:650;margin-right:16px;color:var(--ink)}
+nav.top a{padding:6px 10px;border-radius:6px;color:var(--ink)}
+nav.top a.active,nav.top a:hover{background:var(--grey-bg);text-decoration:none}
+nav.top .right{margin-left:auto;color:var(--muted);font-size:12px}
+main{max-width:1280px;margin:0 auto;padding:20px 24px 60px}
+h1{font-size:22px;margin:0 0 4px;font-weight:650}
+h2{font-size:16px;margin:28px 0 10px;font-weight:650}
+h3{font-size:14px;margin:0 0 6px;font-weight:650}
+.sub{color:var(--muted);margin:0 0 16px}
+.mono{font-family:var(--mono);font-size:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.grid{display:grid;gap:12px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:12px 0}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.tile .k{color:var(--muted);font-size:12px}
+.tile .v{font-size:24px;font-weight:650;line-height:1.2;margin-top:2px}
+.tile .d{color:var(--muted);font-size:12px;margin-top:4px}
+.tile.green .v{color:var(--green)}.tile.amber .v{color:var(--amber)}.tile.red .v{color:var(--red)}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.pill.green{background:var(--green-bg);color:var(--green)}.pill.amber{background:var(--amber-bg);color:var(--amber)}
+.pill.red{background:var(--red-bg);color:var(--red)}.pill.grey{background:var(--grey-bg);color:var(--grey)}
+.pill.pass{background:var(--green-bg);color:var(--green)}.pill.fail{background:var(--red-bg);color:var(--red)}.pill.invalid{background:var(--grey-bg);color:var(--grey)}
+.chip{display:inline-block;padding:0 7px;border:1px solid var(--line);border-radius:6px;font-size:11.5px;color:var(--muted);background:#fff;margin:1px 2px 1px 0;white-space:nowrap}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+th,td{text-align:left;padding:8px 10px;border-top:1px solid var(--line);vertical-align:top}
+th{background:#fafbfc;color:var(--muted);font-weight:600;font-size:12px;border-top:0}
+tr:hover td{background:#fafbfc}
+.tablewrap{overflow-x:auto}
+.strip{display:inline-flex;gap:4px}
+.dot{width:14px;height:14px;border-radius:4px;display:inline-block;border:1px solid transparent}
+.dot.pass{background:var(--green)}.dot.fail{background:var(--red)}.dot.invalid{background:#c9d1d9}
+.dot.pending{background:#fff;border-color:var(--line)}
+.bar{height:6px;background:var(--grey-bg);border-radius:3px;position:relative;overflow:hidden;min-width:90px}
+.bar i{position:absolute;top:0;bottom:0;background:#b6c3d6}
+.bar b{position:absolute;top:-1px;bottom:-1px;width:2px;background:var(--ink)}
+.vs{font-size:12px}.vs.regressed{color:var(--red)}.vs.fixed{color:var(--green)}.vs.same,.vs.new{color:var(--muted)}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:0;align-items:stretch;margin:12px 0}
+.flow .node{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;color:var(--ink);position:relative;display:block;min-height:118px}
+.flow .node:hover{border-color:var(--accent);text-decoration:none;box-shadow:0 1px 6px rgba(11,87,208,.12)}
+.flow .node h3{color:var(--accent)}
+.flow .node .facts{color:var(--muted);font-size:12.5px}
+.flow .node .out{font-size:11.5px;color:var(--muted);margin-top:8px;border-top:1px dashed var(--line);padding-top:6px}
+.flow .node.dim{border-style:dashed}.flow .node.dim h3{color:var(--muted)}
+.flow .node:not(:last-child)::after{content:"→";position:absolute;right:-13px;top:46%;color:var(--muted);font-size:16px;background:var(--bg);padding:0 2px;z-index:1}
+.flow{column-gap:18px}
+.flow.three{grid-template-columns:repeat(3,1fr)}
+@media (max-width:900px){.flow,.flow.three{grid-template-columns:1fr}.flow .node:not(:last-child)::after{content:"↓";right:auto;left:50%;top:auto;bottom:-16px}}
+.two{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px;align-items:start}
+@media (max-width:1000px){.two{grid-template-columns:1fr}}
+.sticky{position:sticky;top:60px}
+details{border:1px solid var(--line);border-radius:10px;background:#fff;padding:10px 14px;margin:8px 0}
+details summary{cursor:pointer;font-weight:600}
+pre{background:#f6f8fa;border:1px solid var(--line);border-radius:8px;padding:10px;overflow:auto;font-size:12px;margin:8px 0}
+code{font-family:var(--mono);font-size:12px;background:#f6f8fa;padding:0 4px;border-radius:4px}
+.kv{display:grid;grid-template-columns:max-content 1fr;gap:3px 14px;font-size:13px}
+.kv .k{color:var(--muted)}
+footer{color:var(--muted);font-size:12px;text-align:center;margin-top:40px}
+/* transcript */
+.turn{display:grid;grid-template-columns:48px 1fr;gap:10px;padding:8px 10px;border-radius:8px;margin:4px 0;cursor:pointer;border:1px solid transparent}
+.turn:hover{background:#fafbfc}.turn.current{background:#eef4ff;border-color:#c7d7f7}
+.turn .t{color:var(--muted);font-family:var(--mono);font-size:11.5px;padding-top:3px}
+.turn .who{font-size:11.5px;font-weight:650;margin-bottom:1px}
+.turn.caller .who{color:var(--caller)}.turn.agent .who{color:var(--agent)}
+.turn .heard{font-size:12px;color:var(--muted);margin-top:3px}
+.turn .heard.diff{color:var(--amber)}
+.turn .lat{float:right}
+.toolcard{margin:6px 0 6px 58px;border:1px solid #e3d8f7;background:#faf7ff;border-radius:8px;padding:8px 12px;font-size:13px}
+.toolcard.bad{border-color:#f5c6c9;background:#fff5f5}
+.toolcard .name{font-family:var(--mono);font-weight:650;color:var(--tool)}
+.toolcard .args{font-family:var(--mono);font-size:12px;color:var(--ink)}
+.deadair{margin:4px 0 4px 58px;font-size:12px;color:var(--amber);background:var(--amber-bg);border-radius:6px;padding:3px 10px;display:inline-block}
+.check{display:grid;grid-template-columns:18px 1fr auto;gap:8px;padding:6px 0;border-top:1px solid #f0f2f4;align-items:start}
+.check:first-child{border-top:0}
+.check .ic{font-weight:700}.check.pass .ic{color:var(--green)}.check.fail .ic{color:var(--red)}.check.warn .ic{color:var(--amber)}.check.info .ic{color:var(--grey)}
+.check .what{font-size:12.5px;color:var(--muted)}
+.check .why{font-size:12px;color:var(--muted);display:none;margin-top:3px}
+.check.open .why{display:block}
+.check .jump{font-size:12px;white-space:nowrap}
+.group{margin-bottom:10px}
+.group h3{display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.lanes{width:100%;height:150px;display:block;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer}
+.legend{font-size:12px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap;margin:6px 0 0}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+audio{width:100%;margin:8px 0 4px}
+.hero{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.hero .big{font-size:30px;font-weight:700}
+.list li{margin:4px 0}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.input{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:6px;font:inherit;background:#fff;margin:3px 0 6px}
+textarea.input{font-family:var(--mono);font-size:12px;line-height:1.45}
+.btn{display:inline-block;padding:6px 14px;border-radius:6px;border:1px solid var(--line);background:#fff;font:inherit;font-weight:600;cursor:pointer;color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.danger{color:var(--red);border-color:#f5c6c9}
+.btn:hover{filter:brightness(.96)}
+.status{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:6px 14px}
+.status .row{display:flex;gap:8px;align-items:baseline;font-size:13px}
+.status .row .ic{font-weight:700}.status .row.ok .ic{color:var(--green)}.status .row.bad .ic{color:var(--red)}.status .row.soft .ic{color:var(--amber)}
+.status .row .d{color:var(--muted);font-size:12px}
+.banner{border:1px solid #c7d7f7;background:#eef4ff;border-radius:10px;padding:10px 14px;margin:0 0 12px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.banner.warn{border-color:#f0d58c;background:var(--amber-bg)}
+.progress{height:8px;background:#dbe4f3;border-radius:4px;overflow:hidden;min-width:160px;flex:1}
+.progress i{display:block;height:100%;background:var(--accent)}
+.sessionpick{columns:2;column-gap:16px;font-size:13px}
+.sessionpick label{display:block;break-inside:avoid;padding:2px 0}
+</style>
+</head>
+<body>
+<nav class="top">
+  <a class="brand" href="overview.html">Call simulator</a>
+  <a href="overview.html" >Overview</a>
+  <a href="agent.html" >Agent</a>
+  <a href="sessions.html" >Sessions</a>
+  <a href="index.html" class="active">Runs</a>
+  <a href="scoring.html" >Scoring</a>
+  <span class="right"><a href="index.html">← run full-1</a></span>
+</nav>
+<main>
+<p class="small"><a href="index.html">run full-1</a> › <a href="session-c1de86f32b16.html">Partial refund of $40, older caller speaking slowly on a poor microphone</a> › attempt 2</p>
+<div class="hero" style="margin-bottom:6px">
+  <h1 style="margin:0">Partial refund of $40, older caller speaking slowly on a poor microphone <span class="muted">#2</span></h1>
+  <span class="pill pass" style="font-size:14px;padding:3px 12px">PASS</span>
+</div>
+<p style="margin:0 0 10px;color:var(--amber)">Passed, flagged: dead air</p>
+
+<div class="tiles" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
+  <div class="tile"><div class="k">Duration</div><div class="v" style="font-size:18px">71.1 s</div><div class="d">ended by caller</div></div>
+  <div class="tile amber"><div class="k">Reply latency</div><div class="v" style="font-size:18px">p95 2.8 s</div><div class="d">p50 2.4 s heard by the caller · agent reports 1.57 s</div></div>
+  <div class="tile amber"><div class="k">Dead air</div><div class="v" style="font-size:18px">3.0 s</div><div class="d">0 talk-overs, 0 interruptions</div></div>
+  <div class="tile"><div class="k">Heard correctly</div><div class="v" style="font-size:18px">100%</div><div class="d">word accuracy of the agent's speech recognition</div></div>
+  <div class="tile"><div class="k">Tool calls</div><div class="v" style="font-size:18px">2</div><div class="d">0 rejected or failed</div></div>
+  <div class="tile"><div class="k">Caller's view</div><div class="v" style="font-size:18px">goal met</div><div class="d">Partial refund of forty dollars confirmed for missing blender attachment on order G W 4 8 2 1 3.</div></div>
+</div>
+
+<div class="card" style="padding:12px 16px 8px">
+<audio id="audio" controls preload="metadata" src="audio/c1de86f32b16-2.mp3"></audio>  <canvas id="lanes" class="lanes" height="150"></canvas>
+  <div class="legend"><span><i style="background:var(--caller)"></i>caller (as sent)</span><span><i style="background:var(--agent)"></i>agent (as heard)</span><span><i style="background:var(--tool)"></i>tool call</span><span><i style="background:#ffe08a"></i>dead air</span><span><i style="background:var(--red)"></i>talk-over</span><span class="muted">click anywhere to seek · hover for time</span></div>
+</div>
+
+<div class="two" style="margin-top:16px">
+<div>
+  <h2 style="margin-top:4px">What was said and done</h2>
+  <div id="transcript">
+    <div class="turn agent" data-t="1591" data-end="6153">
+      <div class="t">0:01</div>
+      <div><div class="who">Agent</div>
+        <div>Thanks for calling Gateway Goods, this is Ava. How can I help you today?</div>
+      </div>
+    </div>
+    <div class="turn caller" data-t="6722" data-end="13028">
+      <div class="t">0:06</div>
+      <div><div class="who">Maria Lopez</div>
+        <div>Hi, Eva. I&#39;m calling about my order G W 4 8 2 1 3. One of the blender attachments was missing. I want to get a partial refund of forty dollars.</div>
+<div class="heard diff" title="what the agent's speech recognition produced">heard as: “Hi. Eva. I&#39;m calling about my order GW”</div>      </div>
+    </div>
+    <div class="turn agent" data-t="21414" data-end="24696">
+      <div class="t">0:21</div>
+      <div><div class="who">Agent<span class="lat pill green" title="caller stopped → agent audio started">2.0 s</span></div>
+        <div>Could you please provide the zip code on the order so I can look it up?</div>
+      </div>
+    </div>
+    <div class="deadair" data-t="24520">0:24 · 3.0 s of silence from both sides</div>
+    <div class="turn caller" data-t="27211" data-end="29220">
+      <div class="t">0:27</div>
+      <div><div class="who">Maria Lopez</div>
+        <div>Yes, the ZIP code is nine four one one zero.</div>
+<div class="heard diff" title="what the agent's speech recognition produced">heard as: “Yes.”</div>      </div>
+    </div>
+    <div class="toolcard " id="tool-1" data-t="32602">
+      <div><span class="muted mono small">0:32</span> <span class="name">lookup_order</span><span class="args">(order_id="GW-48213", zip="94110")</span>
+        <span class="pill green" style="margin-left:6px">200</span> <span class="muted small">0 ms</span></div>
+      <div class="small" style="margin-top:2px">→ status=delivered, total=89.99, items=[{&#39;sku&#39;: &#39;BLND-200&#39;, &#39;name&#39;: &#39;Countertop blender&#39;, &#39;qty&#39;: 1, &#39;price&#39;: 89.99}], shipping_address=742 Valencia St, San Franci</div>
+      <details style="padding:2px 8px;margin:4px 0 0;border:0;background:none"><summary class="small muted" style="font-weight:400">full response</summary><pre>{
+  &#34;order_id&#34;: &#34;GW-48213&#34;,
+  &#34;customer_name&#34;: &#34;Maria Lopez&#34;,
+  &#34;status&#34;: &#34;delivered&#34;,
+  &#34;total&#34;: 89.99,
+  &#34;items&#34;: [
+    {
+      &#34;sku&#34;: &#34;BLND-200&#34;,
+      &#34;name&#34;: &#34;Countertop blender&#34;,
+      &#34;qty&#34;: 1,
+      &#34;price&#34;: 89.99
+    }
+  ],
+  &#34;shipping_address&#34;: &#34;742 Valencia St, San Francisco, CA 94110&#34;,
+  &#34;refunded&#34;: false,
+  &#34;refund&#34;: null
+}</pre></details>
+    </div>
+    <div class="turn agent" data-t="33488" data-end="43529">
+      <div class="t">0:33</div>
+      <div><div class="who">Agent<span class="lat pill amber" title="caller stopped → agent audio started">2.4 s</span></div>
+        <div>I found your order GW 4 8 2 1 3 for a countertop blender, and it was delivered. You want a partial refund of forty dollars for the missing blender attachment, correct?</div>
+      </div>
+    </div>
+    <div class="turn caller" data-t="44227" data-end="48227">
+      <div class="t">0:44</div>
+      <div><div class="who">Maria Lopez</div>
+        <div>Yes, that&#39;s correct. I want a partial refund of forty dollars for the missing attachment. I want to keep the blender.</div>
+<div class="heard diff" title="what the agent's speech recognition produced">heard as: “Yes. That&#39;s correct.”</div>      </div>
+    </div>
+    <div class="toolcard " id="tool-2" data-t="53962">
+      <div><span class="muted mono small">0:53</span> <span class="name">issue_refund</span><span class="args">(order_id="GW-48213", amount=40.0, reason="missing blender attachment")</span>
+        <span class="pill green" style="margin-left:6px">200</span> <span class="muted small">0 ms</span></div>
+      <div class="small" style="margin-top:2px">→ status=issued, amount=40.0, refund_id=RF-0001</div>
+      <details style="padding:2px 8px;margin:4px 0 0;border:0;background:none"><summary class="small muted" style="font-weight:400">full response</summary><pre>{
+  &#34;refund_id&#34;: &#34;RF-0001&#34;,
+  &#34;amount&#34;: 40.0,
+  &#34;status&#34;: &#34;issued&#34;
+}</pre></details>
+    </div>
+    <div class="turn agent" data-t="54799" data-end="65199">
+      <div class="t">0:54</div>
+      <div><div class="who">Agent<span class="lat pill amber" title="caller stopped → agent audio started">2.8 s</span></div>
+        <div>The partial refund of forty dollars for the missing blender attachment has been issued on order GW 4 8 2 1 3. Is there anything else I can help you with?</div>
+      </div>
+    </div>
+    <div class="turn caller" data-t="66413" data-end="68596">
+      <div class="t">1:06</div>
+      <div><div class="who">Maria Lopez</div>
+        <div>Thank you very much. No, that&#39;s all. Goodbye.</div>
+<div class="heard " title="what the agent's speech recognition produced">heard as: “Thank you very much. No. That&#39;s all.”</div>      </div>
+    </div>
+    <div class="turn agent" data-t="71817" data-end="73094">
+      <div class="t">1:11</div>
+      <div><div class="who">Agent <span class="chip">interrupted</span></div>
+        <div>You&#39;re welcome. Have</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sticky">
+  <h2 style="margin-top:4px">Checks</h2>
+  <div class="card" style="padding:8px 14px">
+    <div class="group">
+      <h3 onclick="this.parentNode.classList.toggle('collapsed')"><span>Was the simulation valid?</span><span class="pill green">ok</span></h3>
+      <div class="checks">
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>The simulation itself ran correctly</div><div class="what">valid</div><div class="why">A broken simulation says nothing about the agent, so it is excluded from rates.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Persona judge (LLM, advisory)</div><div class="what">skipped (set GF_PERSONA_JUDGE=1 to run)</div><div class="why"></div></div>
+<span></span>        </div>
+      </div>
+    </div>
+    <div class="group">
+      <h3 onclick="this.parentNode.classList.toggle('collapsed')"><span>Did the agent do the right thing?</span><span class="pill green">ok</span></h3>
+      <div class="checks">
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Required: lookup_order with {&#39;order_id&#39;: &#39;GW-48213&#39;, &#39;zip&#39;: &#39;94110&#39;}</div><div class="what">lookup_order was called with the expected arguments and succeeded</div><div class="why">The outcome only counts if the backend actually received this request.</div></div>
+<a class="jump" href="#" data-seek="32602">0:32 ↗</a>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Required: issue_refund with {&#39;order_id&#39;: &#39;GW-48213&#39;, &#39;amount&#39;: 40.0}</div><div class="what">issue_refund was called with the expected arguments and succeeded</div><div class="why">The outcome only counts if the backend actually received this request.</div></div>
+<a class="jump" href="#" data-seek="53962">0:53 ↗</a>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Order: lookup_order → issue_refund</div><div class="what">Successful calls happened as: lookup_order → issue_refund</div><div class="why">Verification must precede any write.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Must not call escalate_to_human</div><div class="what">escalate_to_human was not called</div><div class="why">A forbidden action means the agent took a path the scenario rules out.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Must not call update_shipping_address</div><div class="what">update_shipping_address was not called</div><div class="why">A forbidden action means the agent took a path the scenario rules out.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Final state: refunds[GW-48213].amount == 40.0</div><div class="what">actual value: 40.0</div><div class="why">The backend&#39;s end state is the ground truth for the outcome.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>No writes to orders the caller did not ask about</div><div class="what">none</div><div class="why">A write nobody asked for is the most expensive kind of mistake.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Extra successful calls beyond the scenario</div><div class="what">none</div><div class="why"></div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Arguments were well-formed</div><div class="what">all arguments valid</div><div class="why">Malformed arguments usually mean a misheard or invented value.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Backend rejections or errors during the call</div><div class="what">none</div><div class="why"></div></div>
+<span></span>        </div>
+      </div>
+    </div>
+    <div class="group">
+      <h3 onclick="this.parentNode.classList.toggle('collapsed')"><span>Was the agent honest?</span><span class="pill green">ok</span></h3>
+      <div class="checks">
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Every claimed action is backed by a successful backend write</div><div class="what">1 claim(s), all backed</div><div class="why">This is the agent that says &#39;your refund is done&#39; without issuing one.</div></div>
+<a class="jump" href="#" data-seek="65199">1:05 ↗</a>        </div>
+      </div>
+    </div>
+    <div class="group">
+      <h3 onclick="this.parentNode.classList.toggle('collapsed')"><span>Did the agent hear the caller?</span><span class="pill green">ok</span></h3>
+      <div class="checks">
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Word error rate, caller&#39;s words vs what the agent heard</div><div class="what">WER 0.00 over 82 reference words</div><div class="why">High WER explains wrong tool arguments and repeats downstream.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Key facts (order id, zip, amount) reached the agent intact</div><div class="what">all facts heard intact</div><div class="why">A misheard order number or zip is the usual root cause of a failed lookup.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>No misheard value was passed into a tool call</div><div class="what">none</div><div class="why">This is where speech errors turn into wrong actions.</div></div>
+<span></span>        </div>
+      </div>
+    </div>
+    <div class="group">
+      <h3 onclick="this.parentNode.classList.toggle('collapsed')"><span>How did the call feel?</span><span class="pill amber">1 flagged</span></h3>
+      <div class="checks">
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Response latency p95 (caller stops → agent audio) under 2.0 s</div><div class="what">p50 2400 ms, p95 2780 ms over 3 turns</div><div class="why">Over about two seconds callers start talking over the agent or hang up.</div></div>
+<a class="jump" href="#" data-seek="52480">0:52 ↗</a>        </div>
+        <div class="check warn" onclick="this.classList.toggle('open')">
+          <span class="ic">!</span>
+          <div><div>No silence from both sides longer than 3 s</div><div class="what">1 gap(s), longest 3020 ms</div><div class="why">Dead air is when a real caller says &#39;hello?&#39; or hangs up.</div></div>
+<a class="jump" href="#" data-seek="24520">0:24 ↗</a>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Agent did not start talking over the caller more than 2 times</div><div class="what">0 time(s)</div><div class="why">Talking over the caller is the fastest way to sound like a machine.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>When interrupted, the agent stopped within 1.0 s</div><div class="what">the caller never interrupted</div><div class="why">An agent that keeps talking after being interrupted feels like it is not listening.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Caller had to repeat themselves fewer than 2 times</div><div class="what">0 repeat(s) incl. 0 &#39;are you still there?&#39;</div><div class="why">Every repeat is a moment the agent did not understand or did not respond.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Time from call start to the write that resolved the request</div><div class="what">54.0 s (issue_refund)</div><div class="why"></div></div>
+<a class="jump" href="#" data-seek="53962">0:53 ↗</a>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>A real caller would have stayed on the line</div><div class="what">total dead air 3020 ms vs patience 25000 ms; 0 repeats</div><div class="why">Rule of thumb: dead air beyond the caller&#39;s patience, or three repeats, loses the call.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Agent spoke first</div><div class="what">first agent audio at 2100 ms</div><div class="why">A caller who has to speak into silence assumes nobody answered.</div></div>
+<a class="jump" href="#" data-seek="2100">0:02 ↗</a>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Agent-reported end-to-end latency (for comparison with what the caller heard)</div><div class="what">mean 1.57 s over 4 turns</div><div class="why"></div></div>
+<span></span>        </div>
+      </div>
+    </div>
+    <div class="group">
+      <h3 onclick="this.parentNode.classList.toggle('collapsed')"><span>Was the speech clean?</span><span class="pill green">ok</span></h3>
+      <div class="checks">
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>No stuttered phrases</div><div class="what">clean</div><div class="why">Repeated phrases sound like a glitch.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>No tool names spoken aloud</div><div class="what">clean</div><div class="why">Internal names leaking into speech break the illusion.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>No cut-off sentences</div><div class="what">clean</div><div class="why">A sentence without an ending usually means the reply was cut.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>Did not re-ask the same question within 15 s</div><div class="what">clean</div><div class="why">Re-asking means the answer was not heard or not kept.</div></div>
+<span></span>        </div>
+        <div class="check pass" onclick="this.classList.toggle('open')">
+          <span class="ic">✓</span>
+          <div><div>No two filler-only turns in a row</div><div class="what">none</div><div class="why"></div></div>
+<span></span>        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<h2>Details</h2>
+<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
+  <details><summary>Caller: Maria Lopez (en-US)</summary>
+    <div class="kv small" style="margin-top:8px">
+      <span class="k">goal</span><span>Get a partial refund of exactly $40 on order GW-48213 because one blender attachment was missing. Do not accept a full refund; you want to keep the blender.</span>
+      <span class="k">facts</span><span class="mono">{"order_id":"GW-48213","zip":"94110","amount":40.0,"item":"countertop blender"}</span>
+      <span class="k">voice</span><span>aura-2-athena-en at pace 0.85</span>
+      <span class="k">brain</span><span>gpt-4.1-mini t=0.0 seed 204</span>
+      <span class="k">line</span><span><span class="chip">poor mic</span></span>
+<span class="k">measured</span><span class="mono">{"noise":null,"phone_line":false,"packet_loss":0.0,"low_quality_mic":true,"frames":163,"dropped_frames":0,"measured_snr_db":null}</span><span class="k">not applied</span><span>conditions.interruptions (unsupported by this engine)</span>      <span class="k">ended</span><span>caller: Partial refund of forty dollars confirmed for missing blender attachment on order G W 4 8 2 1 3.</span>
+    </div>
+  </details>
+  <details><summary>Agent: config a7c6a425319d</summary>
+    <div class="kv small" style="margin-top:8px">
+<span class="k">stt</span><span>deepgram nova-3</span><span class="k">llm</span><span>openai gpt-4.1-mini</span><span class="k">tts</span><span>deepgram aura-2-luna-en</span>      <span class="k">room</span><span class="mono">gf-sim-c1de86f32b16-2-8d289f</span>
+    </div>
+    <div class="tablewrap" style="margin-top:8px"><table class="small">
+    <tr><th>turn</th><th>end-of-turn</th><th>transcription</th><th>LLM first token</th><th>TTS first byte</th><th>end to end</th></tr>
+<tr><td>1</td><td>–</td><td>–</td><td>–</td><td>0.14 s</td><td>–</td></tr><tr><td>2</td><td>–</td><td>–</td><td>0.51 s</td><td>0.24 s</td><td>1.37 s</td></tr><tr><td>3</td><td>–</td><td>–</td><td>0.57 s</td><td>0.27 s</td><td>1.84 s</td></tr><tr><td>4</td><td>–</td><td>–</td><td>0.48 s</td><td>0.30 s</td><td>2.16 s</td></tr><tr><td>5</td><td>–</td><td>–</td><td>0.48 s</td><td>0.15 s</td><td>0.92 s</td></tr>    </table></div>
+    <p class="small muted">Agent-reported timings. The latency badges in the transcript are what the caller actually heard, measured from the recording.</p>
+  </details>
+  <details><summary>Order system: final state</summary><pre>{
+  &#34;before&#34;: {
+    &#34;orders&#34;: {
+      &#34;GW-48213&#34;: {
+        &#34;order_id&#34;: &#34;GW-48213&#34;,
+        &#34;customer_id&#34;: &#34;C-1001&#34;,
+        &#34;status&#34;: &#34;delivered&#34;,
+        &#34;total&#34;: 89.99,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;BLND-200&#34;,
+            &#34;name&#34;: &#34;Countertop blender&#34;,
+            &#34;qty&#34;: 1,
+            &#34;price&#34;: 89.99
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;742 Valencia St, San Francisco, CA 94110&#34;,
+        &#34;refunded&#34;: false
+      },
+      &#34;GW-48377&#34;: {
+        &#34;order_id&#34;: &#34;GW-48377&#34;,
+        &#34;customer_id&#34;: &#34;C-1002&#34;,
+        &#34;status&#34;: &#34;shipped&#34;,
+        &#34;total&#34;: 42.5,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;MUG-12&#34;,
+            &#34;name&#34;: &#34;Ceramic mug set&#34;,
+            &#34;qty&#34;: 2,
+            &#34;price&#34;: 21.25
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;1500 N Halsted St, Chicago, IL 60614&#34;,
+        &#34;refunded&#34;: false
+      },
+      &#34;GW-48502&#34;: {
+        &#34;order_id&#34;: &#34;GW-48502&#34;,
+        &#34;customer_id&#34;: &#34;C-1003&#34;,
+        &#34;status&#34;: &#34;processing&#34;,
+        &#34;total&#34;: 129.0,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;LAMP-7&#34;,
+            &#34;name&#34;: &#34;Desk lamp&#34;,
+            &#34;qty&#34;: 1,
+            &#34;price&#34;: 129.0
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;77 Massachusetts Ave, Cambridge, MA 02139&#34;,
+        &#34;refunded&#34;: false
+      },
+      &#34;GW-48911&#34;: {
+        &#34;order_id&#34;: &#34;GW-48911&#34;,
+        &#34;customer_id&#34;: &#34;C-1001&#34;,
+        &#34;status&#34;: &#34;delivered&#34;,
+        &#34;total&#34;: 15.0,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;CBL-3&#34;,
+            &#34;name&#34;: &#34;USB-C cable&#34;,
+            &#34;qty&#34;: 1,
+            &#34;price&#34;: 15.0
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;742 Valencia St, San Francisco, CA 94110&#34;,
+        &#34;refunded&#34;: true
+      }
+    },
+    &#34;refunds&#34;: {},
+    &#34;tickets&#34;: [],
+    &#34;ended&#34;: false
+  },
+  &#34;after&#34;: {
+    &#34;orders&#34;: {
+      &#34;GW-48213&#34;: {
+        &#34;order_id&#34;: &#34;GW-48213&#34;,
+        &#34;customer_id&#34;: &#34;C-1001&#34;,
+        &#34;status&#34;: &#34;delivered&#34;,
+        &#34;total&#34;: 89.99,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;BLND-200&#34;,
+            &#34;name&#34;: &#34;Countertop blender&#34;,
+            &#34;qty&#34;: 1,
+            &#34;price&#34;: 89.99
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;742 Valencia St, San Francisco, CA 94110&#34;,
+        &#34;refunded&#34;: true
+      },
+      &#34;GW-48377&#34;: {
+        &#34;order_id&#34;: &#34;GW-48377&#34;,
+        &#34;customer_id&#34;: &#34;C-1002&#34;,
+        &#34;status&#34;: &#34;shipped&#34;,
+        &#34;total&#34;: 42.5,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;MUG-12&#34;,
+            &#34;name&#34;: &#34;Ceramic mug set&#34;,
+            &#34;qty&#34;: 2,
+            &#34;price&#34;: 21.25
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;1500 N Halsted St, Chicago, IL 60614&#34;,
+        &#34;refunded&#34;: false
+      },
+      &#34;GW-48502&#34;: {
+        &#34;order_id&#34;: &#34;GW-48502&#34;,
+        &#34;customer_id&#34;: &#34;C-1003&#34;,
+        &#34;status&#34;: &#34;processing&#34;,
+        &#34;total&#34;: 129.0,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;LAMP-7&#34;,
+            &#34;name&#34;: &#34;Desk lamp&#34;,
+            &#34;qty&#34;: 1,
+            &#34;price&#34;: 129.0
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;77 Massachusetts Ave, Cambridge, MA 02139&#34;,
+        &#34;refunded&#34;: false
+      },
+      &#34;GW-48911&#34;: {
+        &#34;order_id&#34;: &#34;GW-48911&#34;,
+        &#34;customer_id&#34;: &#34;C-1001&#34;,
+        &#34;status&#34;: &#34;delivered&#34;,
+        &#34;total&#34;: 15.0,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;CBL-3&#34;,
+            &#34;name&#34;: &#34;USB-C cable&#34;,
+            &#34;qty&#34;: 1,
+            &#34;price&#34;: 15.0
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;742 Valencia St, San Francisco, CA 94110&#34;,
+        &#34;refunded&#34;: true
+      }
+    },
+    &#34;refunds&#34;: {
+      &#34;GW-48213&#34;: {
+        &#34;refund_id&#34;: &#34;RF-0001&#34;,
+        &#34;order_id&#34;: &#34;GW-48213&#34;,
+        &#34;amount&#34;: 40.0,
+        &#34;reason&#34;: &#34;missing blender attachment&#34;,
+        &#34;created_ms&#34;: 1791491626708
+      }
+    },
+    &#34;tickets&#34;: [],
+    &#34;ended&#34;: false
+  }
+}</pre></details>
+  <details><summary>Files</summary><div class="small mono">/Users/artemustimenko/gatewayfutures/runs/full-1/c1de86f32b16/2<br>agent_events.jsonl · agent_session_report.json · audio.json · audio.wav · backend_log.json · backend_state.json · caller.json · caller_events.jsonl · meta.json · scores.json · timeline.json</div></details>
+</div>
+<footer>gatewayfutures 0.1.0 · static report, generated 2026-10-08 21:02 UTC</footer>
+</main>
+<script>
+(function(){
+  const env = {"caller":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,42,59,63,69,78,76,78,80,68,50,36,0,3,0,0,65,84,88,85,65,68,73,59,42,30,14,0,0,0,0,0,0,0,0,72,71,60,54,64,53,73,77,82,82,82,81,64,75,79,77,61,63,71,75,59,51,75,77,73,67,72,69,56,27,0,0,0,0,0,46,51,51,64,68,76,75,76,73,56,42,76,76,71,61,76,74,66,67,67,66,55,37,5,0,0,0,0,0,24,33,34,36,79,80,80,80,77,68,36,0,0,69,71,68,64,54,8,0,0,52,51,69,71,69,69,65,55,39,10,0,0,34,52,62,66,62,61,54,53,51,23,2,38,56,68,66,60,47,27,9,0,16,53,78,82,73,81,69,50,73,77,51,48,72,78,81,79,70,76,74,76,68,11,48,58,64,58,37,51,55,64,59,42,49,40,71,62,55,71,75,77,57,59,59,57,32,25,17,0,0,0,0,0,0,0,69,78,73,76,81,76,53,60,66,0,71,71,54,0,42,42,73,76,63,56,63,75,65,60,71,69,47,36,65,67,60,57,53,37,29,31,43,75,76,66,71,50,71,67,66,66,62,58,42,46,48,41,23,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,72,81,69,41,45,46,47,28,0,0,0,0,34,72,65,56,77,82,43,1,44,59,76,74,65,72,71,51,47,28,0,0,42,62,68,73,77,77,73,74,77,77,40,25,33,61,78,73,75,75,75,71,60,51,37,41,64,72,70,64,61,62,63,58,67,71,68,62,60,52,44,53,69,70,64,60,56,55,40,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,59,77,85,82,72,52,58,52,42,22,0,0,0,0,0,0,68,79,64,56,46,55,73,79,83,79,69,42,0,0,42,34,0,0,0,0,0,0,0,63,83,84,73,77,79,78,75,43,49,60,79,77,58,54,72,73,67,71,79,78,63,41,51,73,67,63,57,60,34,36,38,33,73,77,72,69,72,48,69,70,67,64,65,67,60,47,48,28,50,55,57,57,57,56,50,53,54,54,53,47,36,39,49,47,40,24,44,22,37,36,29,7,25,0,0,0,0,0,2,0,0,0,0,70,78,79,73,74,79,79,64,26,51,47,37,42,45,67,55,0,14,56,36,1,63,71,70,65,59,48,61,56,42,25,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,30,79,72,41,75,74,64,84,80,75,71,70,66,64,41,21,46,50,45,0,0,0,0,70,79,80,81,78,72,66,60,53,24,6,7,67,77,74,62,9,48,71,73,69,67,61,51,25,4,0,5,0,0,0,48,84,67,54,77,81,77,72,68,64,50,22,0,0,0,0,0],"agent":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,58,69,59,27,50,53,33,40,65,66,64,66,61,52,63,56,46,57,61,54,21,52,58,51,46,34,15,14,5,0,3,0,0,0,0,0,56,64,37,50,53,53,65,70,67,50,65,48,36,0,0,0,9,0,0,0,0,0,0,0,52,65,43,53,62,65,55,59,53,42,65,47,28,53,54,44,38,28,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,52,64,52,64,44,21,59,67,53,20,49,61,41,65,66,62,52,60,43,51,65,28,6,23,58,62,57,61,62,59,53,46,57,59,46,59,62,40,34,59,63,47,42,57,52,48,31,33,50,52,54,53,32,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,67,52,19,62,58,56,46,62,59,49,64,68,55,64,64,48,25,49,61,57,47,62,59,43,57,57,60,46,20,9,33,68,70,58,40,56,63,59,48,1,36,32,64,64,67,65,48,57,58,55,63,54,14,43,55,56,56,55,24,11,54,65,61,32,27,53,57,59,59,42,32,58,48,9,46,53,51,45,52,53,37,4,0,2,0,0,0,0,37,65,69,57,50,60,50,20,58,54,60,60,25,55,49,28,27,0,0,0,3,0,0,0,0,0,0,0,36,65,66,72,69,68,56,26,62,68,58,39,56,58,58,63,60,36,55,62,63,65,59,30,13,63,66,64,57,56,65,63,61,61,65,41,31,54,58,62,57,54,42,22,55,60,54,55,61,54,50,61,62,47,36,58,61,41,31,50,57,50,20,0,0,22,48,65,66,66,54,19,0,23,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,60,47,12,32,59,68,57,46,60,67,60,55,65,61,54,23,56,66,66,67,59,48,63,51,25,8,47,66,68,64,63,57,65,66,63,62,61,66,59,38,31,10,59,57,61,54,54,55,41,24,46,60,64,61,46,61,59,53,56,63,63,36,36,61,61,57,37,27,59,60,54,34,0,1,0,0,6,61,68,43,4,68,66,52,56,67,46,42,59,55,60,58,60,55,64,71,64,59,64,63,57,41,0,12,38,51,62,62,60,38,61,64,50,49,55,56,61,62,51,11,0,0,0,0,55,70,68,67,54,59,64,57,46,0,26,35,60,66,63,62,58,41,4,0,0,46,61,59,55,52,35,24,45,49,45,39,28,0,0,9,0,0,0,0,0,0,0,0,43,63,57,75,68,65,62,56,59,63,60,63,60,26,58,51,50,60,61,58,46,34,56,51,56,53,44,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"step_ms":50,"duration_ms":71053};
+  const tl = {"t0_ms":1791491572746,"sample_rate":16000,"events":[{"t_ms":2100,"end_ms":3400,"kind":"agent_speech","n":1},{"t_ms":3920,"end_ms":4540,"kind":"agent_speech","n":2},{"t_ms":5120,"end_ms":5980,"kind":"agent_speech","n":3},{"t_ms":6153,"kind":"agent_said","text":"Thanks for calling Gateway Goods, this is Ava. How can I help you today?","n":1,"interrupted":false},{"t_ms":6722,"end_ms":13028,"kind":"caller_said","text":"Hi, Eva. I'm calling about my order G W 4 8 2 1 3. One of the blender attachments was missing. I want to get a partial refund of forty dollars.","n":1},{"t_ms":7060,"end_ms":8300,"kind":"caller_speech","n":1},{"t_ms":7971,"kind":"agent_heard","text":"Hi."},{"t_ms":8740,"end_ms":11640,"kind":"caller_speech","n":2},{"t_ms":8795,"kind":"agent_heard","text":"Eva."},{"t_ms":10626,"kind":"agent_heard","text":"I'm calling about my order"},{"t_ms":11980,"end_ms":16900,"kind":"caller_speech","n":3},{"t_ms":12057,"kind":"agent_heard","text":"GW"},{"t_ms":17063,"kind":"agent_heard","text":"four eight two one three. One of the blender attachments was missing."},{"t_ms":17320,"end_ms":19920,"kind":"caller_speech","n":4},{"t_ms":20319,"kind":"agent_heard","text":"I want to get a partial refund of forty dollars."},{"t_ms":21900,"end_ms":24520,"kind":"agent_speech","n":4},{"t_ms":24520,"end_ms":27540,"kind":"dead_air","gap_ms":3020},{"t_ms":24696,"kind":"agent_said","text":"Could you please provide the zip code on the order so I can look it up?","n":2,"interrupted":false},{"t_ms":27211,"end_ms":29220,"kind":"caller_said","text":"Yes, the ZIP code is nine four one one zero.","n":2},{"t_ms":27540,"end_ms":31520,"kind":"caller_speech","n":5},{"t_ms":28305,"kind":"agent_heard","text":"Yes."},{"t_ms":31907,"kind":"agent_heard","text":"The ZIP code is nine four one one zero."},{"t_ms":32602,"end_ms":32602,"kind":"tool_call","tool":"lookup_order","args":{"order_id":"GW-48213","zip":"94110"},"status":200,"ok":true,"response":{"order_id":"GW-48213","customer_name":"Maria Lopez","status":"delivered","total":89.99,"items":[{"sku":"BLND-200","name":"Countertop blender","qty":1,"price":89.99}],"shipping_address":"742 Valencia St, San Francisco, CA 94110","refunded":false,"refund":null},"id":1},{"t_ms":33920,"end_ms":37980,"kind":"agent_speech","n":5},{"t_ms":38380,"end_ms":39160,"kind":"agent_speech","n":6},{"t_ms":39780,"end_ms":43440,"kind":"agent_speech","n":7},{"t_ms":43530,"kind":"agent_said","text":"I found your order GW 4 8 2 1 3 for a countertop blender, and it was delivered. You want a partial refund of forty dollars for the missing blender attachment, correct?","n":3,"interrupted":false},{"t_ms":44227,"end_ms":48227,"kind":"caller_said","text":"Yes, that's correct. I want a partial refund of forty dollars for the missing attachment. I want to keep the blender.","n":3},{"t_ms":44820,"end_ms":45260,"kind":"caller_speech","n":6},{"t_ms":45620,"end_ms":46400,"kind":"caller_speech","n":7},{"t_ms":45644,"kind":"agent_heard","text":"Yes."},{"t_ms":46750,"kind":"agent_heard","text":"That's correct."},{"t_ms":46780,"end_ms":50420,"kind":"caller_speech","n":8},{"t_ms":50805,"kind":"agent_heard","text":"I want a partial refund of forty dollars for the missing attachment."},{"t_ms":50980,"end_ms":52480,"kind":"caller_speech","n":9},{"t_ms":52912,"kind":"agent_heard","text":"I want to keep the blender."},{"t_ms":53962,"end_ms":53962,"kind":"tool_call","tool":"issue_refund","args":{"order_id":"GW-48213","amount":40.0,"reason":"missing blender attachment"},"status":200,"ok":true,"response":{"refund_id":"RF-0001","amount":40.0,"status":"issued"},"id":2},{"t_ms":55260,"end_ms":63080,"kind":"agent_speech","n":8},{"t_ms":63680,"end_ms":65000,"kind":"agent_speech","n":9},{"t_ms":65199,"kind":"agent_said","text":"The partial refund of forty dollars for the missing blender attachment has been issued on order GW 4 8 2 1 3. Is there anything else I can help you with?","n":4,"interrupted":false},{"t_ms":66413,"end_ms":68596,"kind":"caller_said","text":"Thank you very much. No, that's all. Goodbye.","n":4},{"t_ms":67520,"end_ms":69860,"kind":"caller_speech","n":10},{"t_ms":68807,"kind":"agent_heard","text":"Thank you very much."},{"t_ms":70220,"end_ms":70780,"kind":"caller_speech","n":11},{"t_ms":70299,"kind":"agent_heard","text":"No. That's all."},{"t_ms":71158,"kind":"agent_heard","text":"Goodbye."},{"t_ms":73096,"kind":"agent_said","text":"You're welcome. Have","n":5,"interrupted":true}],"ux":{"duration_ms":71053,"greeting_first":true,"first_agent_audio_ms":2100,"caller_segments":11,"agent_segments":9,"responses":[{"caller_end_ms":8300,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":11640,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":16900,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":19920,"agent_start_ms":21900,"latency_ms":1980},{"caller_end_ms":31520,"agent_start_ms":33920,"latency_ms":2400},{"caller_end_ms":45260,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":46400,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":50420,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":52480,"agent_start_ms":55260,"latency_ms":2780},{"caller_end_ms":69860,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":70780,"agent_start_ms":null,"latency_ms":null}],"latency_ms":{"n":3,"p50":2400,"p95":2780,"max":2780},"dead_air":[{"start_ms":24520,"end_ms":27540,"gap_ms":3020}],"dead_air_total_ms":3020,"talk_over":[],"barge_in":[],"caller_speech_ms":24900,"agent_speech_ms":23040}};
+  const dur = (env && env.duration_ms) || 71053;
+  const cv = document.getElementById('lanes'), audio = document.getElementById('audio');
+  const C = {caller:'#2f6fed', agent:'#d2731f', tool:'#6f42c1', dead:'#ffe08a', over:'#cf222e', grid:'#eef0f3', text:'#656d76'};
+  let hoverX = null;
+  function x(ms){ return 44 + (ms/dur) * (cv.width - 54); }
+  function draw(){
+    const W = cv.clientWidth; if (cv.width !== W) cv.width = W; const H = cv.height;
+    const ctx = cv.getContext('2d'); ctx.clearRect(0,0,W,H);
+    const lanes = [{name:'caller', y:14, h:46, color:C.caller}, {name:'agent', y:66, h:46, color:C.agent}];
+    ctx.font = '11px -apple-system,Segoe UI,Roboto,sans-serif'; ctx.textBaseline='middle';
+    // grid every 10 s
+    for (let t=0; t<=dur; t+=10000){ const px=x(t); ctx.strokeStyle=C.grid; ctx.beginPath(); ctx.moveTo(px,8); ctx.lineTo(px,H-16); ctx.stroke(); ctx.fillStyle=C.text; ctx.textAlign='center'; ctx.fillText((t/1000|0)+'s', px, H-8); }
+    // dead air
+    ctx.fillStyle = C.dead; (tl.ux && tl.ux.dead_air || []).forEach(d => ctx.fillRect(x(d.start_ms), 8, Math.max(2, x(d.end_ms)-x(d.start_ms)), 106));
+    // envelopes
+    lanes.forEach(l => {
+      ctx.fillStyle = C.text; ctx.textAlign='left'; ctx.fillText(l.name, 4, l.y + l.h/2);
+      const e = env && env[l.name] || []; const step = env && env.step_ms || 50;
+      ctx.fillStyle = l.color;
+      for (let i=0;i<e.length;i++){ const v=e[i]/100; if (v<0.04) continue; const px=x(i*step), w=Math.max(1, x(step)-x(0)); const hh=Math.max(1, v*l.h); ctx.fillRect(px, l.y + (l.h-hh)/2, w, hh); }
+    });
+    // talk-over ticks
+    ctx.fillStyle = C.over; (tl.ux && tl.ux.talk_over || []).forEach(t => ctx.fillRect(x(t.agent_start_ms)-1, 66, 2, 46));
+    // tool calls lane
+    ctx.fillStyle = C.text; ctx.textAlign='left'; ctx.fillText('tools', 4, 124);
+    (tl.events||[]).filter(e => e.kind==='tool_call').forEach(e => {
+      const px = x(e.t_ms), w = Math.max(6, x(e.end_ms)-px);
+      ctx.fillStyle = e.ok ? C.tool : C.over; ctx.fillRect(px, 117, w, 14);
+      ctx.fillStyle = C.text; ctx.textAlign='left'; ctx.fillText(e.tool.replace(/_/g,' ') + (e.ok?'':' ✗'), px + w + 4, 124);
+    });
+    // playhead + hover
+    if (audio && !isNaN(audio.currentTime)) { const px=x(audio.currentTime*1000); ctx.strokeStyle='#1f2328'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(px,8); ctx.lineTo(px,H-16); ctx.stroke(); ctx.lineWidth=1; }
+    if (hoverX !== null) { ctx.strokeStyle='#9aa4b2'; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(hoverX,8); ctx.lineTo(hoverX,H-16); ctx.stroke(); ctx.setLineDash([]);
+      const ms = (hoverX-44)/(cv.width-54)*dur; ctx.fillStyle='#1f2328'; ctx.textAlign = hoverX > W-60 ? 'right' : 'left'; ctx.fillText((ms/1000).toFixed(1)+'s', hoverX + (hoverX > W-60 ? -4 : 4), 4+6); }
+  }
+  function seek(ms){ if (!audio) return; audio.currentTime = Math.max(0, ms/1000); audio.play && audio.play().catch(()=>{}); }
+  cv.addEventListener('mousemove', e => { hoverX = e.offsetX; draw(); });
+  cv.addEventListener('mouseleave', () => { hoverX = null; draw(); });
+  cv.addEventListener('click', e => { const ms=(e.offsetX-44)/(cv.width-54)*dur; const tool=(tl.events||[]).find(t => t.kind==='tool_call' && e.offsetY>115 && Math.abs(x(t.t_ms)-e.offsetX) < 40); if (tool){ const el=document.getElementById('tool-'+tool.id); if (el) el.scrollIntoView({behavior:'smooth', block:'center'}); } seek(ms); });
+  document.querySelectorAll('.turn, .toolcard, .deadair').forEach(el => el.addEventListener('click', ev => { if (ev.target.closest('details')) return; seek(+el.dataset.t); }));
+  document.querySelectorAll('a.jump').forEach(a => a.addEventListener('click', ev => { ev.preventDefault(); const ms=+a.dataset.seek; seek(ms); const turns=[...document.querySelectorAll('.turn, .toolcard')]; let best=null; turns.forEach(t => { const tt=+t.dataset.t; if (tt<=ms+300 && (!best || tt>+best.dataset.t)) best=t; }); if (best) best.scrollIntoView({behavior:'smooth', block:'center'}); }));
+  function highlight(){ if (!audio) return; const ms=audio.currentTime*1000; let cur=null; document.querySelectorAll('.turn').forEach(t => { const s=+t.dataset.t, e=+t.dataset.end || s+4000; t.classList.toggle('current', ms>=s && ms<e); }); }
+  if (audio){ audio.addEventListener('timeupdate', () => { draw(); highlight(); }); audio.addEventListener('seeked', () => { draw(); highlight(); }); }
+  window.addEventListener('resize', draw);
+  draw();
+})();
+</script>
+</body>
+</html>

@@ -177,6 +177,32 @@ def score(run_id: str) -> None:
 
 
 @app.command()
+def report(
+    run_id: str,
+    out: str = "",
+    bundle: bool = typer.Option(
+        False, "--bundle", help="Transcode audio into the folder (self-contained)."
+    ),
+) -> None:
+    """Render runs/<run_id> as a folder of HTML pages (default runs/<run_id>/report/)."""
+    from pathlib import Path
+
+    from gf.report.static import render_run
+
+    folder = render_run(run_id, Path(out) if out else None, bundle_audio=bundle)
+    typer.echo(f"report: {folder}/index.html")
+
+
+@app.command()
+def ui(host: str = "127.0.0.1", port: int = 8090) -> None:
+    """Serve the live UI over runs/ (same pages as `gf report`)."""
+    import uvicorn
+
+    typer.echo(f"UI: http://{host}:{port}")
+    uvicorn.run("gf.ui.app:app", host=host, port=port, log_level="warning")
+
+
+@app.command()
 def sessions(validate: bool = typer.Option(True, "--validate")) -> None:
     """List sessions/ with ids; fails on any file that does not validate."""
     from pathlib import Path

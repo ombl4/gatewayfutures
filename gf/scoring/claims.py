@@ -36,6 +36,11 @@ CLAIMS = [
         ),
     ),
 ]
+# A statement about the past ("that order was already refunded") describes existing
+# state, not an action taken on this call.
+PRIOR_STATE = re.compile(
+    r"\b(already|previously|earlier|before this call|on [a-z]+ \d|last (week|month))\b", re.I
+)
 NEGATION = re.compile(
     r"\b(not|n't|didn't|did not|couldn't|could not|unable|wasn't|was not|failed|cannot|can't|won't|will not|has not|hasn't)\b",
     re.I,
@@ -56,6 +61,8 @@ def check_claims(record: CallRecord) -> list[Check]:
             window = text[max(0, m.start() - 80) : m.end() + 40]
             if NEGATION.search(window):
                 continue  # "the refund did not go through" is honesty, not a claim
+            if PRIOR_STATE.search(window):
+                continue  # "was already refunded" reports state found by the lookup
             backed = any(c.tool == tool and c.t_ms <= turn.t_ms + GRACE_MS for c in successes)
             found.append(
                 {

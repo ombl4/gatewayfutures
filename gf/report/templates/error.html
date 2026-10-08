@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% set page='error' %}
+{% block title %}{{ code }} · Call simulator{% endblock %}
+{% block content %}
+<h1>{{ code }}</h1>
+<p class="sub">{{ detail }}</p>
+<p><a href="{{ links.overview() }}">← overview</a></p>
+{% endblock %}

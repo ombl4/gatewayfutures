@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% set page='sessions' %}
+{% block title %}New session · Call simulator{% endblock %}
+{% block content %}
+<p class="small"><a href="{{ links.sessions() }}">← all sessions</a></p>
+<h1>New practice session</h1>
+<p class="sub">Sessions are immutable: this form creates a new file in <code>sessions/</code>. The id is a hash of the content, so results always point at exactly this definition. Validation runs the same checks as <code>gf sessions</code>: known tools, existing fixture, well-formed values.</p>
+<form method="post" action="/sessions/new" class="two" style="grid-template-columns:minmax(0,1fr) 320px">
+  <div>
+    <label class="small muted">Session file name (without .yaml)</label>
+    <input type="text" name="name" value="{{ name }}" class="input" placeholder="refund-angry-caller" required>
+    <label class="small muted" style="display:block;margin-top:10px">Session YAML</label>
+    <textarea name="yaml_text" class="input mono" rows="30" spellcheck="false">{{ yaml_text }}</textarea>
+    {% if error %}<p style="color:var(--red)"><b>Not saved.</b> {{ error }}</p>{% endif %}
+    <button type="submit" class="btn primary">Validate and create</button>
+  </div>
+  <div class="card small">
+    <h3>What each part means</h3>
+    <div class="kv">
+      <span class="k">persona</span><span>name, style, accent (the accent picks a Deepgram Aura-2 voice family; <code>voice</code> sets the exact voice)</span>
+      <span class="k">facts</span><span>the only numbers and names the caller may say; anything else makes the call invalid</span>
+      <span class="k">goal / stop_when</span><span>what the caller wants and when it hangs up satisfied</span>
+      <span class="k">llm</span><span>caller brain: model, temperature 0 and a seed for reproducibility</span>
+      <span class="k">conditions</span><span><code>noise: cafe@15dB</code>, <code>phone_line</code>, <code>packet_loss</code>, <code>low_quality_mic</code>, <code>patience_s</code></span>
+      <span class="k">faults</span><span>e.g. <code>[{tool: issue_refund, type: error_500, nth: 1}]</code>; types: latency_ms, error_500, timeout, reject</span>
+      <span class="k">expected</span><span>outcome label, required tool calls with arguments, order, forbidden tools, final-state assertions such as <code>refunds[GW-48213].amount == 89.99</code></span>
+    </div>
+    <p class="muted" style="margin:10px 0 0">Orders available in the fixture: see the <a href="{{ links.backend() }}">order system</a> page.</p>
+  </div>
+</form>
+{% endblock %}

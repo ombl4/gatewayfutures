@@ -5,9 +5,7 @@
   "valid": true,
   "passed": true,
   "hard_fails": [],
-  "soft_flags": [
-    "speech.entities"
-  ],
+  "soft_flags": [],
   "failure_reason": "",
   "ended_by": "caller",
   "goal_met": true,
@@ -234,9 +232,9 @@
       "id": "speech.entities",
       "group": "speech",
       "label": "Key facts (order id, zip, amount) reached the agent intact",
-      "passed": false,
+      "passed": true,
       "severity": "soft",
-      "what_happened": "amount 89.99 was never heard intact (closest: 1099)",
+      "what_happened": "all facts heard intact",
       "why_it_matters": "A misheard order number or zip is the usual root cause of a failed lookup.",
       "evidence": {
         "entities": [
@@ -251,22 +249,10 @@
             "value": "94110",
             "intact": true,
             "nearest_heard": "94110"
-          },
-          {
-            "fact": "amount",
-            "value": "89.99",
-            "intact": false,
-            "nearest_heard": "1099"
-          },
-          {
-            "fact": "item",
-            "value": "countertop blender",
-            "intact": true,
-            "nearest_heard": null
           }
         ]
       },
-      "value": 1
+      "value": 0
     },
     {
       "id": "speech.misheard_to_tool",
@@ -499,5 +485,5 @@
       "value": 0
     }
   ],
-  "method_version": "score-v1+claims-regex-v1"
+  "method_version": "score-v1+claims-regex-v1+th-73c54200"
 }

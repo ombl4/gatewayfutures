@@ -1,4 +1,4 @@
-.PHONY: install test test-live smoke lint doctor up down
+.PHONY: install test test-live smoke lint doctor up down ui report sample-report
 
 install:        ## Create the venv and install everything
 	uv sync
@@ -23,3 +23,12 @@ up:             ## Start every service
 
 down:
 	docker compose down --remove-orphans
+
+ui:             ## Live UI on http://127.0.0.1:8090 (reads runs/ and sessions/)
+	uv run gf ui
+
+report:         ## Static report folder for a run: make report RUN=full-1
+	uv run gf report $(RUN)
+
+sample-report:  ## Bundle a run (MP3 audio) into docs/sample-report: make sample-report RUN=full-1
+	rm -rf docs/sample-report && uv run gf report $(RUN) --bundle --out docs/sample-report

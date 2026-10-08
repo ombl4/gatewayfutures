@@ -287,6 +287,24 @@ META_TALK = re.compile(
 )
 
 
+def _numeric_runs(phrase: str) -> list[str]:
+    """Digits of each run of consecutive numeric tokens, runs kept apart by a space."""
+    from gf.scoring.speech import WORD2DIGIT
+
+    out, cur = [], []
+    for tok in re.findall(r"[a-z]+|\d+", phrase):
+        d = tok if tok.isdigit() else WORD2DIGIT.get(tok)
+        if d is None:
+            if cur:
+                out.append("".join(cur))
+                cur = []
+            continue
+        cur.append(d)
+    if cur:
+        out.append("".join(cur))
+    return [r + " " for r in out]
+
+
 def caller_in_character(record: CallRecord, session: Session) -> list[str]:
     """Deterministic character check: only the session's facts, no meta-talk."""
     from gf.scoring.speech import digits_of
@@ -296,9 +314,12 @@ def caller_in_character(record: CallRecord, session: Session) -> list[str]:
     for t in record.caller_turns:
         if META_TALK.search(t.text):
             problems.append(f"turn {t.n}: meta-talk ({META_TALK.search(t.text).group(0)!r})")
-        for run in re.findall(r"\d{5}", digits_of(t.text)):
-            if not any(run in a for a in allowed):
-                problems.append(f"turn {t.n}: spoke a 5-digit number not in its facts ({run})")
+        # Digit groups are read per numeric phrase ("4 8 2 1 3"), never across unrelated
+        # numbers ("$89.99 ... 48213" must not become "899948213").
+        for phrase in re.split(r"[^\w\s-]+", t.text.lower()):
+            for run in re.findall(r"\d{5}", "".join(_numeric_runs(phrase))):
+                if not any(run in a for a in allowed):
+                    problems.append(f"turn {t.n}: spoke a 5-digit number not in its facts ({run})")
     return problems
 
 

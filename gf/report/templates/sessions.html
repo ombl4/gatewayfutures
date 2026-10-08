@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% set page='sessions' %}
+{% block title %}Sessions · Call simulator{% endblock %}
+{% block content %}
+<div class="hero" style="justify-content:space-between"><h1 style="margin:0">Practice sessions</h1>{% if mode == 'live' %}<a class="btn primary" href="/sessions/new">New session</a>{% endif %}</div>
+<p class="sub">{{ p.sessions|length }} sessions. Each is an immutable YAML file: who is calling, what they know, what they want, how the line sounds, and what a correct outcome looks like. The id is a hash of the content.</p>
+<div class="tablewrap"><table>
+<tr><th>session</th><th>caller</th><th>line</th><th>goal</th><th>expected</th><th>history</th></tr>
+{% for s in p.sessions %}
+<tr>
+  <td><a href="{{ links.session(s.id) }}">{{ s.title }}</a><div class="mono muted">{{ s.id }}{% if s.faults %} · fault: {{ s.faults|map(attribute='type')|join(', ') }}{% endif %}</div></td>
+  <td>{{ s.persona.name }}<div class="small muted">{{ s.persona.accent }} · {{ s.persona.style }}</div></td>
+  <td>{% for c in s.chips %}<span class="chip">{{ c }}</span>{% endfor %}</td>
+  <td class="small">{{ s.goal }}</td>
+  <td><span class="chip">{{ s.expected.outcome }}</span><div class="small muted">{% for r in s.expected.tool_calls.required %}{{ r.tool }}{% if not loop.last %} → {% endif %}{% endfor %}</div></td>
+  <td>{% for h in s.history %}<a href="{{ links.run(h.run_id) }}" class="pill {{ 'green' if h.n and h.passed==h.n else ('red' if h.n and h.passed==0 else ('amber' if h.n else 'grey')) }}" title="{{ h.run_id }}">{{ h.passed }}/{{ h.n }}</a> {% endfor %}</td>
+</tr>
+{% endfor %}
+</table></div>
+<p class="small muted" style="margin-top:12px">To add a session: copy a file in <code>sessions/</code>, edit it, run <code>gf sessions</code> to validate. Editing an existing file changes its id, so results stay tied to the exact definition they were produced with.</p>
+{% endblock %}

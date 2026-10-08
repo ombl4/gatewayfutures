@@ -21,6 +21,7 @@ dependencies = [
     "soundfile>=0.12",
     "python-dotenv>=1.0",
     "rich>=13.0",
+    "python-multipart>=0.0.32",
 ]
 
 [project.scripts]
@@ -57,4 +58,8 @@ target-version = "py312"
 select = ["E", "F", "I", "B", "UP"]
 
 [tool.ruff.lint.per-file-ignores]
-"gf/scoring/*.py" = ["E501"]  # long plain-language messages for the report
+"gf/scoring/*.py" = ["E501"]
+"gf/report/*.py" = ["E501"]
+"gf/ui/*.py" = ["E501"]
+"tests/**/*.py" = ["E501"]
+"gf/cli.py" = ["E501"]  # long plain-language messages for the report

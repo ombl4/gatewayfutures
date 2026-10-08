@@ -1,0 +1,21 @@
+{% if o.runs %}
+<div class="tablewrap"><table>
+  <tr><th>run</th><th>started</th><th>sessions × repeat</th><th>calls</th><th>passed</th><th>95% interval</th><th>invalid</th><th>flaky</th><th>p95 latency</th><th>stamp</th></tr>
+  {% for r in o.runs %}
+  <tr>
+    <td><a href="{{ links.run(r.run_id) }}">{{ r.run_id }}</a></td>
+    <td class="small">{{ r.started_at|dt }}</td>
+    <td>{{ r.sessions }} × {{ r.repeat }}</td>
+    <td>{{ r.calls }}</td>
+    <td>{% if r.scored %}<span class="pill {{ r.rate_class }}">{{ r.passed }}/{{ r.n }}</span>{% else %}<span class="muted">not scored</span>{% endif %}</td>
+    <td>{% if r.scored %}{{ r.ci_low|pct }}–{{ r.ci_high|pct }}{% endif %}</td>
+    <td>{{ r.invalid if r.scored else '' }}</td>
+    <td>{{ r.flaky if r.scored else '' }}</td>
+    <td>{{ r.p95_ms|ms if r.scored else '' }}</td>
+    <td class="mono muted">{{ r.stamp or '' }}</td>
+  </tr>
+  {% endfor %}
+</table></div>
+{% else %}
+<p class="muted">No runs yet. Start one with <code>gf run --all --repeat 3</code>.</p>
+{% endif %}

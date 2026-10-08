@@ -8,7 +8,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-from gf.config import ROOT, settings, thresholds
+from gf.config import ROOT, settings, thresholds, thresholds_hash
 from gf.record.model import CallRecord
 from gf.record.timeline import build_timeline
 from gf.scoring import METHOD_VERSION
@@ -20,6 +20,11 @@ from gf.scoring.stats import pass_summary
 from gf.scoring.tools import check_tools
 from gf.scoring.ux import check_quality, check_ux, check_validity
 from gf.sessions.schema import Session
+
+
+def method_version() -> str:
+    """Scoring code version plus the thresholds file hash."""
+    return f"{METHOD_VERSION}+th-{thresholds_hash()}"
 
 
 def score_attempt(folder: str | Path, session: Session) -> dict[str, Any]:
@@ -72,7 +77,7 @@ def score_attempt(folder: str | Path, session: Session) -> dict[str, Any]:
         "dead_air_total_ms": ux.get("dead_air_total_ms"),
         "tool_calls": [(c.tool, c.status) for c in record.tool_calls],
         "checks": [c.model_dump() for c in checks],
-        "method_version": METHOD_VERSION,
+        "method_version": method_version(),
     }
     (folder / "scores.json").write_text(json.dumps(result, indent=2, default=str))
     return result
@@ -135,8 +140,8 @@ def score_run(run_id: str) -> dict[str, Any]:
         "run_id": run_id,
         "agent_config_hash": manifest.get("agent_config_hash"),
         "sessions_hash": manifest.get("sessions_hash"),
-        "method_version": METHOD_VERSION,
-        "stamp": f"{manifest.get('agent_config_hash')}+{manifest.get('sessions_hash')}+{METHOD_VERSION}",
+        "method_version": method_version(),
+        "stamp": f"{manifest.get('agent_config_hash')}+{manifest.get('sessions_hash')}+{method_version()}",
         "engine": manifest.get("engine"),
         "started_at": manifest.get("started_at"),
         "duration_s": manifest.get("duration_s"),

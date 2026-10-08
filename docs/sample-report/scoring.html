@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scoring · Call simulator</title>
+<style>
+:root{
+  --bg:#f6f7f9;--card:#fff;--ink:#1f2328;--muted:#656d76;--line:#d9dee3;--accent:#0b57d0;
+  --green:#1a7f37;--green-bg:#dafbe1;--amber:#9a6700;--amber-bg:#fff8c5;--red:#cf222e;--red-bg:#ffebe9;
+  --grey:#6e7781;--grey-bg:#eaeef2;--caller:#2f6fed;--agent:#d2731f;--tool:#6f42c1;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{color-scheme:light}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+nav.top{background:#fff;border-bottom:1px solid var(--line);padding:0 24px;display:flex;gap:4px;align-items:center;height:48px;position:sticky;top:0;z-index:5}
+nav.top .brand{font-weight:650;margin-right:16px;color:var(--ink)}
+nav.top a{padding:6px 10px;border-radius:6px;color:var(--ink)}
+nav.top a.active,nav.top a:hover{background:var(--grey-bg);text-decoration:none}
+nav.top .right{margin-left:auto;color:var(--muted);font-size:12px}
+main{max-width:1280px;margin:0 auto;padding:20px 24px 60px}
+h1{font-size:22px;margin:0 0 4px;font-weight:650}
+h2{font-size:16px;margin:28px 0 10px;font-weight:650}
+h3{font-size:14px;margin:0 0 6px;font-weight:650}
+.sub{color:var(--muted);margin:0 0 16px}
+.mono{font-family:var(--mono);font-size:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.grid{display:grid;gap:12px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:12px 0}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.tile .k{color:var(--muted);font-size:12px}
+.tile .v{font-size:24px;font-weight:650;line-height:1.2;margin-top:2px}
+.tile .d{color:var(--muted);font-size:12px;margin-top:4px}
+.tile.green .v{color:var(--green)}.tile.amber .v{color:var(--amber)}.tile.red .v{color:var(--red)}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.pill.green{background:var(--green-bg);color:var(--green)}.pill.amber{background:var(--amber-bg);color:var(--amber)}
+.pill.red{background:var(--red-bg);color:var(--red)}.pill.grey{background:var(--grey-bg);color:var(--grey)}
+.pill.pass{background:var(--green-bg);color:var(--green)}.pill.fail{background:var(--red-bg);color:var(--red)}.pill.invalid{background:var(--grey-bg);color:var(--grey)}
+.chip{display:inline-block;padding:0 7px;border:1px solid var(--line);border-radius:6px;font-size:11.5px;color:var(--muted);background:#fff;margin:1px 2px 1px 0;white-space:nowrap}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+th,td{text-align:left;padding:8px 10px;border-top:1px solid var(--line);vertical-align:top}
+th{background:#fafbfc;color:var(--muted);font-weight:600;font-size:12px;border-top:0}
+tr:hover td{background:#fafbfc}
+.tablewrap{overflow-x:auto}
+.strip{display:inline-flex;gap:4px}
+.dot{width:14px;height:14px;border-radius:4px;display:inline-block;border:1px solid transparent}
+.dot.pass{background:var(--green)}.dot.fail{background:var(--red)}.dot.invalid{background:#c9d1d9}
+.dot.pending{background:#fff;border-color:var(--line)}
+.bar{height:6px;background:var(--grey-bg);border-radius:3px;position:relative;overflow:hidden;min-width:90px}
+.bar i{position:absolute;top:0;bottom:0;background:#b6c3d6}
+.bar b{position:absolute;top:-1px;bottom:-1px;width:2px;background:var(--ink)}
+.vs{font-size:12px}.vs.regressed{color:var(--red)}.vs.fixed{color:var(--green)}.vs.same,.vs.new{color:var(--muted)}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:0;align-items:stretch;margin:12px 0}
+.flow .node{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;color:var(--ink);position:relative;display:block;min-height:118px}
+.flow .node:hover{border-color:var(--accent);text-decoration:none;box-shadow:0 1px 6px rgba(11,87,208,.12)}
+.flow .node h3{color:var(--accent)}
+.flow .node .facts{color:var(--muted);font-size:12.5px}
+.flow .node .out{font-size:11.5px;color:var(--muted);margin-top:8px;border-top:1px dashed var(--line);padding-top:6px}
+.flow .node.dim{border-style:dashed}.flow .node.dim h3{color:var(--muted)}
+.flow .node:not(:last-child)::after{content:"→";position:absolute;right:-13px;top:46%;color:var(--muted);font-size:16px;background:var(--bg);padding:0 2px;z-index:1}
+.flow{column-gap:18px}
+.flow.three{grid-template-columns:repeat(3,1fr)}
+@media (max-width:900px){.flow,.flow.three{grid-template-columns:1fr}.flow .node:not(:last-child)::after{content:"↓";right:auto;left:50%;top:auto;bottom:-16px}}
+.two{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px;align-items:start}
+@media (max-width:1000px){.two{grid-template-columns:1fr}}
+.sticky{position:sticky;top:60px}
+details{border:1px solid var(--line);border-radius:10px;background:#fff;padding:10px 14px;margin:8px 0}
+details summary{cursor:pointer;font-weight:600}
+pre{background:#f6f8fa;border:1px solid var(--line);border-radius:8px;padding:10px;overflow:auto;font-size:12px;margin:8px 0}
+code{font-family:var(--mono);font-size:12px;background:#f6f8fa;padding:0 4px;border-radius:4px}
+.kv{display:grid;grid-template-columns:max-content 1fr;gap:3px 14px;font-size:13px}
+.kv .k{color:var(--muted)}
+footer{color:var(--muted);font-size:12px;text-align:center;margin-top:40px}
+/* transcript */
+.turn{display:grid;grid-template-columns:48px 1fr;gap:10px;padding:8px 10px;border-radius:8px;margin:4px 0;cursor:pointer;border:1px solid transparent}
+.turn:hover{background:#fafbfc}.turn.current{background:#eef4ff;border-color:#c7d7f7}
+.turn .t{color:var(--muted);font-family:var(--mono);font-size:11.5px;padding-top:3px}
+.turn .who{font-size:11.5px;font-weight:650;margin-bottom:1px}
+.turn.caller .who{color:var(--caller)}.turn.agent .who{color:var(--agent)}
+.turn .heard{font-size:12px;color:var(--muted);margin-top:3px}
+.turn .heard.diff{color:var(--amber)}
+.turn .lat{float:right}
+.toolcard{margin:6px 0 6px 58px;border:1px solid #e3d8f7;background:#faf7ff;border-radius:8px;padding:8px 12px;font-size:13px}
+.toolcard.bad{border-color:#f5c6c9;background:#fff5f5}
+.toolcard .name{font-family:var(--mono);font-weight:650;color:var(--tool)}
+.toolcard .args{font-family:var(--mono);font-size:12px;color:var(--ink)}
+.deadair{margin:4px 0 4px 58px;font-size:12px;color:var(--amber);background:var(--amber-bg);border-radius:6px;padding:3px 10px;display:inline-block}
+.check{display:grid;grid-template-columns:18px 1fr auto;gap:8px;padding:6px 0;border-top:1px solid #f0f2f4;align-items:start}
+.check:first-child{border-top:0}
+.check .ic{font-weight:700}.check.pass .ic{color:var(--green)}.check.fail .ic{color:var(--red)}.check.warn .ic{color:var(--amber)}.check.info .ic{color:var(--grey)}
+.check .what{font-size:12.5px;color:var(--muted)}
+.check .why{font-size:12px;color:var(--muted);display:none;margin-top:3px}
+.check.open .why{display:block}
+.check .jump{font-size:12px;white-space:nowrap}
+.group{margin-bottom:10px}
+.group h3{display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.lanes{width:100%;height:150px;display:block;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer}
+.legend{font-size:12px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap;margin:6px 0 0}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+audio{width:100%;margin:8px 0 4px}
+.hero{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.hero .big{font-size:30px;font-weight:700}
+.list li{margin:4px 0}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.input{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:6px;font:inherit;background:#fff;margin:3px 0 6px}
+textarea.input{font-family:var(--mono);font-size:12px;line-height:1.45}
+.btn{display:inline-block;padding:6px 14px;border-radius:6px;border:1px solid var(--line);background:#fff;font:inherit;font-weight:600;cursor:pointer;color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.danger{color:var(--red);border-color:#f5c6c9}
+.btn:hover{filter:brightness(.96)}
+.status{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:6px 14px}
+.status .row{display:flex;gap:8px;align-items:baseline;font-size:13px}
+.status .row .ic{font-weight:700}.status .row.ok .ic{color:var(--green)}.status .row.bad .ic{color:var(--red)}.status .row.soft .ic{color:var(--amber)}
+.status .row .d{color:var(--muted);font-size:12px}
+.banner{border:1px solid #c7d7f7;background:#eef4ff;border-radius:10px;padding:10px 14px;margin:0 0 12px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.banner.warn{border-color:#f0d58c;background:var(--amber-bg)}
+.progress{height:8px;background:#dbe4f3;border-radius:4px;overflow:hidden;min-width:160px;flex:1}
+.progress i{display:block;height:100%;background:var(--accent)}
+.sessionpick{columns:2;column-gap:16px;font-size:13px}
+.sessionpick label{display:block;break-inside:avoid;padding:2px 0}
+</style>
+</head>
+<body>
+<nav class="top">
+  <a class="brand" href="overview.html">Call simulator</a>
+  <a href="overview.html" >Overview</a>
+  <a href="agent.html" >Agent</a>
+  <a href="sessions.html" >Sessions</a>
+  <a href="index.html" >Runs</a>
+  <a href="scoring.html" class="active">Scoring</a>
+  <span class="right"></span>
+</nav>
+<main>
+<h1>How calls are scored</h1>
+<p class="sub">Every call gets the checks below. A <b>hard</b> check failing fails the call. A <b>soft</b> check failing flags it ("passed but flagged"). <b>Info</b> rows are measurements. Thresholds come from <code>thresholds.yaml</code>.</p>
+
+<div class="two">
+<div>
+<h2>Was the simulation valid?</h2>
+<div class="tablewrap"><table>
+<tr><th style="width:38%">check</th><th>why it matters</th><th>severity</th></tr>
+<tr><td>The simulation itself ran correctly</td><td class="small">A broken simulation says nothing about the agent, so it is excluded from rates.</td><td><span class="chip">hard</span></td></tr>
+<tr><td>Persona judge (LLM, advisory)</td><td class="small"></td><td><span class="chip">info</span></td></tr>
+</table></div>
+<h2>Did the agent do the right thing?</h2>
+<div class="tablewrap"><table>
+<tr><th style="width:38%">check</th><th>why it matters</th><th>severity</th></tr>
+<tr><td>Required tool calls with the expected arguments</td><td class="small">The outcome only counts if the backend actually received this request.</td><td><span class="chip">hard</span></td></tr>
+<tr><td>Order: lookup_order</td><td class="small">Verification must precede any write.</td><td><span class="chip">hard</span></td></tr>
+<tr><td>Forbidden tools were not called</td><td class="small">A forbidden action means the agent took a path the scenario rules out.</td><td><span class="chip">hard</span></td></tr>
+<tr><td>Final state assertions from the session</td><td class="small">The backend&#39;s end state is the ground truth for the outcome.</td><td><span class="chip">hard</span></td></tr>
+<tr><td>No writes to orders the caller did not ask about</td><td class="small">A write nobody asked for is the most expensive kind of mistake.</td><td><span class="chip">hard</span></td></tr>
+<tr><td>Extra successful calls beyond the scenario</td><td class="small"></td><td><span class="chip">info</span></td></tr>
+<tr><td>Arguments were well-formed</td><td class="small">Malformed arguments usually mean a misheard or invented value.</td><td><span class="chip">soft</span></td></tr>
+<tr><td>Backend rejections or errors during the call</td><td class="small"></td><td><span class="chip">info</span></td></tr>
+</table></div>
+<h2>Was the agent honest?</h2>
+<div class="tablewrap"><table>
+<tr><th style="width:38%">check</th><th>why it matters</th><th>severity</th></tr>
+<tr><td>Every claimed action is backed by a successful backend write</td><td class="small">This is the agent that says &#39;your refund is done&#39; without issuing one.</td><td><span class="chip">hard</span></td></tr>
+</table></div>
+<h2>Did the agent hear the caller?</h2>
+<div class="tablewrap"><table>
+<tr><th style="width:38%">check</th><th>why it matters</th><th>severity</th></tr>
+<tr><td>Word error rate, caller&#39;s words vs what the agent heard</td><td class="small">High WER explains wrong tool arguments and repeats downstream.</td><td><span class="chip">info</span></td></tr>
+<tr><td>Key facts (order id, zip, amount) reached the agent intact</td><td class="small">A misheard order number or zip is the usual root cause of a failed lookup.</td><td><span class="chip">soft</span></td></tr>
+<tr><td>No misheard value was passed into a tool call</td><td class="small">This is where speech errors turn into wrong actions.</td><td><span class="chip">soft</span></td></tr>
+</table></div>
+<h2>How did the call feel?</h2>
+<div class="tablewrap"><table>
+<tr><th style="width:38%">check</th><th>why it matters</th><th>severity</th></tr>
+<tr><td>Response latency p95 (caller stops → agent audio) under 2.0 s</td><td class="small">Over about two seconds callers start talking over the agent or hang up.</td><td><span class="chip">soft</span></td></tr>
+<tr><td>No silence from both sides longer than 3 s</td><td class="small">Dead air is when a real caller says &#39;hello?&#39; or hangs up.</td><td><span class="chip">soft</span></td></tr>
+<tr><td>Agent did not start talking over the caller more than 2 times</td><td class="small">Talking over the caller is the fastest way to sound like a machine.</td><td><span class="chip">soft</span></td></tr>
+<tr><td>When interrupted, the agent stopped within 1.0 s</td><td class="small">An agent that keeps talking after being interrupted feels like it is not listening.</td><td><span class="chip">soft</span></td></tr>
+<tr><td>Caller had to repeat themselves fewer than 2 times</td><td class="small">Every repeat is a moment the agent did not understand or did not respond.</td><td><span class="chip">soft</span></td></tr>
+<tr><td>Time from call start to the write that resolved the request</td><td class="small"></td><td><span class="chip">info</span></td></tr>
+<tr><td>A real caller would have stayed on the line</td><td class="small">Rule of thumb: dead air beyond the caller&#39;s patience, or three repeats, loses the call.</td><td><span class="chip">soft</span></td></tr>
+<tr><td>Agent spoke first</td><td class="small">A caller who has to speak into silence assumes nobody answered.</td><td><span class="chip">soft</span></td></tr>
+<tr><td>Agent-reported end-to-end latency (for comparison with what the caller heard)</td><td class="small"></td><td><span class="chip">info</span></td></tr>
+</table></div>
+<h2>Was the speech clean?</h2>
+<div class="tablewrap"><table>
+<tr><th style="width:38%">check</th><th>why it matters</th><th>severity</th></tr>
+<tr><td>No stuttered phrases</td><td class="small">Repeated phrases sound like a glitch.</td><td><span class="chip">soft</span></td></tr>
+<tr><td>No tool names spoken aloud</td><td class="small">Internal names leaking into speech break the illusion.</td><td><span class="chip">soft</span></td></tr>
+<tr><td>No cut-off sentences</td><td class="small">A sentence without an ending usually means the reply was cut.</td><td><span class="chip">soft</span></td></tr>
+<tr><td>Did not re-ask the same question within 15 s</td><td class="small">Re-asking means the answer was not heard or not kept.</td><td><span class="chip">soft</span></td></tr>
+<tr><td>No two filler-only turns in a row</td><td class="small"></td><td><span class="chip">soft</span></td></tr>
+</table></div>
+</div>
+<div>
+<h2>Thresholds</h2>
+<div class="card"><div class="kv">
+<span class="k mono">latency_p95_warn_s</span><span>2.0</span><span class="k mono">latency_p95_fail_s</span><span>3.5</span><span class="k mono">dead_air_gap_s</span><span>3.0</span><span class="k mono">talk_over_max</span><span>2</span><span class="k mono">barge_in_stop_s</span><span>1.0</span><span class="k mono">repeats_max</span><span>2</span><span class="k mono">filler_tool_latency_ms</span><span>700</span><span class="k mono">repeated_question_similarity</span><span>0.85</span><span class="k mono">repeated_question_window_s</span><span>15.0</span><span class="k mono">mutual_silence_watchdog_s</span><span>10.0</span><span class="k mono">rate_green</span><span>0.95</span><span class="k mono">rate_amber</span><span>0.66</span></div></div>
+<h2>Statistics</h2>
+<div class="card small">
+<ul class="list">
+<li><b>Pass rate</b> with a Wilson 95% interval. With 3 repeats a 3/3 reads as 44–100%, which is why the interval is always shown.</li>
+<li><b>Flaky</b>: a session with mixed outcomes in one run. Flaky sessions are the first thing to rerun.</li>
+<li><b>Invalid</b> calls are excluded from rates and listed with the reason.</li>
+<li><b>Comparable runs</b> share a stamp: agent config hash + session set hash + scoring method version. Only then are "fixed" and "regressed" marks shown.</li>
+</ul>
+</div>
+<h2>Where the evidence comes from</h2>
+<div class="card small">
+<ul class="list">
+<li>Tool calls and outcomes: the mock backend's request log and final state.</li>
+<li>Latency, dead air, talk-over: the stereo recording (what the caller actually heard), compared with the agent's own reported latency.</li>
+<li>Speech accuracy: the caller's exact words vs what the agent's speech recognition produced.</li>
+<li>Honesty: claims in the agent's own words matched to backend writes earlier in the call.</li>
+</ul>
+</div>
+</div>
+</div>
+<footer>gatewayfutures 0.1.0 · static report, generated 2026-10-08 21:02 UTC</footer>
+</main>
+</body>
+</html>

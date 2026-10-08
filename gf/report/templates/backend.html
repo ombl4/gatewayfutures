@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% set page='backend' %}
+{% block title %}Order system · Call simulator{% endblock %}
+{% block content %}
+<h1>Mock order system</h1>
+<p class="sub">Stands in for the store's real systems. Every call gets its own copy of the fixture data, so calls never see each other's refunds or address changes. Its request log is the ground truth for what the agent did.</p>
+
+<div class="two">
+<div>
+<h2>Tools and rules</h2>
+<div class="tablewrap"><table>
+<tr><th>tool</th><th>rule</th></tr>
+{% for name, rule in b.rules %}<tr><td class="mono">{{ name }}</td><td>{{ rule }}</td></tr>{% endfor %}
+</table></div>
+
+<h2>Customers and orders (fixture <code>orders_basic</code>)</h2>
+<div class="tablewrap"><table>
+<tr><th>order</th><th>customer</th><th>zip</th><th>status</th><th>total</th><th>items</th><th>ships to</th></tr>
+{% for o in b.fixtures.orders %}
+{% set c = (b.fixtures.customers|selectattr('id','equalto',o.customer_id)|list)[0] %}
+<tr><td class="mono">{{ o.order_id }}</td><td>{{ c.name }}</td><td class="mono">{{ c.zip }}</td><td><span class="chip">{{ o.status }}</span></td><td class="num">${{ '%.2f'|format(o.total) }}</td><td>{% for it in o['items'] %}{{ it.qty }} × {{ it.name }}{% if not loop.last %}, {% endif %}{% endfor %}</td><td class="small">{{ o.shipping_address }}</td></tr>
+{% endfor %}
+</table></div>
+{% if b.fixtures.refunds %}
+<p class="small muted">Pre-existing refunds: {% for r in b.fixtures.refunds %}{{ r.order_id }} ${{ r.amount }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
+{% endif %}
+</div>
+<div>
+<h2>What is recorded per call</h2>
+<div class="card">
+<ul class="list">
+<li><b>Request log</b>: every tool call with arguments, response, HTTP status, start/end time, injected fault tag and any argument problems.</li>
+<li><b>State before and after</b>: orders, refunds and tickets, so "final state" expectations can be asserted.</li>
+<li><b>Faults</b>: a session can make the nth call to a tool slow, fail with a 500, time out or be rejected, to test honesty and recovery.</li>
+</ul>
+</div>
+</div>
+</div>
+{% endblock %}

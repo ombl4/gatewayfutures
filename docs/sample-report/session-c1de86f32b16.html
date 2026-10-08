@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Partial refund of $40, older caller speaking slowly on a poor microphone · Sessions</title>
+<style>
+:root{
+  --bg:#f6f7f9;--card:#fff;--ink:#1f2328;--muted:#656d76;--line:#d9dee3;--accent:#0b57d0;
+  --green:#1a7f37;--green-bg:#dafbe1;--amber:#9a6700;--amber-bg:#fff8c5;--red:#cf222e;--red-bg:#ffebe9;
+  --grey:#6e7781;--grey-bg:#eaeef2;--caller:#2f6fed;--agent:#d2731f;--tool:#6f42c1;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{color-scheme:light}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+nav.top{background:#fff;border-bottom:1px solid var(--line);padding:0 24px;display:flex;gap:4px;align-items:center;height:48px;position:sticky;top:0;z-index:5}
+nav.top .brand{font-weight:650;margin-right:16px;color:var(--ink)}
+nav.top a{padding:6px 10px;border-radius:6px;color:var(--ink)}
+nav.top a.active,nav.top a:hover{background:var(--grey-bg);text-decoration:none}
+nav.top .right{margin-left:auto;color:var(--muted);font-size:12px}
+main{max-width:1280px;margin:0 auto;padding:20px 24px 60px}
+h1{font-size:22px;margin:0 0 4px;font-weight:650}
+h2{font-size:16px;margin:28px 0 10px;font-weight:650}
+h3{font-size:14px;margin:0 0 6px;font-weight:650}
+.sub{color:var(--muted);margin:0 0 16px}
+.mono{font-family:var(--mono);font-size:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.grid{display:grid;gap:12px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:12px 0}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.tile .k{color:var(--muted);font-size:12px}
+.tile .v{font-size:24px;font-weight:650;line-height:1.2;margin-top:2px}
+.tile .d{color:var(--muted);font-size:12px;margin-top:4px}
+.tile.green .v{color:var(--green)}.tile.amber .v{color:var(--amber)}.tile.red .v{color:var(--red)}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.pill.green{background:var(--green-bg);color:var(--green)}.pill.amber{background:var(--amber-bg);color:var(--amber)}
+.pill.red{background:var(--red-bg);color:var(--red)}.pill.grey{background:var(--grey-bg);color:var(--grey)}
+.pill.pass{background:var(--green-bg);color:var(--green)}.pill.fail{background:var(--red-bg);color:var(--red)}.pill.invalid{background:var(--grey-bg);color:var(--grey)}
+.chip{display:inline-block;padding:0 7px;border:1px solid var(--line);border-radius:6px;font-size:11.5px;color:var(--muted);background:#fff;margin:1px 2px 1px 0;white-space:nowrap}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+th,td{text-align:left;padding:8px 10px;border-top:1px solid var(--line);vertical-align:top}
+th{background:#fafbfc;color:var(--muted);font-weight:600;font-size:12px;border-top:0}
+tr:hover td{background:#fafbfc}
+.tablewrap{overflow-x:auto}
+.strip{display:inline-flex;gap:4px}
+.dot{width:14px;height:14px;border-radius:4px;display:inline-block;border:1px solid transparent}
+.dot.pass{background:var(--green)}.dot.fail{background:var(--red)}.dot.invalid{background:#c9d1d9}
+.dot.pending{background:#fff;border-color:var(--line)}
+.bar{height:6px;background:var(--grey-bg);border-radius:3px;position:relative;overflow:hidden;min-width:90px}
+.bar i{position:absolute;top:0;bottom:0;background:#b6c3d6}
+.bar b{position:absolute;top:-1px;bottom:-1px;width:2px;background:var(--ink)}
+.vs{font-size:12px}.vs.regressed{color:var(--red)}.vs.fixed{color:var(--green)}.vs.same,.vs.new{color:var(--muted)}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:0;align-items:stretch;margin:12px 0}
+.flow .node{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;color:var(--ink);position:relative;display:block;min-height:118px}
+.flow .node:hover{border-color:var(--accent);text-decoration:none;box-shadow:0 1px 6px rgba(11,87,208,.12)}
+.flow .node h3{color:var(--accent)}
+.flow .node .facts{color:var(--muted);font-size:12.5px}
+.flow .node .out{font-size:11.5px;color:var(--muted);margin-top:8px;border-top:1px dashed var(--line);padding-top:6px}
+.flow .node.dim{border-style:dashed}.flow .node.dim h3{color:var(--muted)}
+.flow .node:not(:last-child)::after{content:"→";position:absolute;right:-13px;top:46%;color:var(--muted);font-size:16px;background:var(--bg);padding:0 2px;z-index:1}
+.flow{column-gap:18px}
+.flow.three{grid-template-columns:repeat(3,1fr)}
+@media (max-width:900px){.flow,.flow.three{grid-template-columns:1fr}.flow .node:not(:last-child)::after{content:"↓";right:auto;left:50%;top:auto;bottom:-16px}}
+.two{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px;align-items:start}
+@media (max-width:1000px){.two{grid-template-columns:1fr}}
+.sticky{position:sticky;top:60px}
+details{border:1px solid var(--line);border-radius:10px;background:#fff;padding:10px 14px;margin:8px 0}
+details summary{cursor:pointer;font-weight:600}
+pre{background:#f6f8fa;border:1px solid var(--line);border-radius:8px;padding:10px;overflow:auto;font-size:12px;margin:8px 0}
+code{font-family:var(--mono);font-size:12px;background:#f6f8fa;padding:0 4px;border-radius:4px}
+.kv{display:grid;grid-template-columns:max-content 1fr;gap:3px 14px;font-size:13px}
+.kv .k{color:var(--muted)}
+footer{color:var(--muted);font-size:12px;text-align:center;margin-top:40px}
+/* transcript */
+.turn{display:grid;grid-template-columns:48px 1fr;gap:10px;padding:8px 10px;border-radius:8px;margin:4px 0;cursor:pointer;border:1px solid transparent}
+.turn:hover{background:#fafbfc}.turn.current{background:#eef4ff;border-color:#c7d7f7}
+.turn .t{color:var(--muted);font-family:var(--mono);font-size:11.5px;padding-top:3px}
+.turn .who{font-size:11.5px;font-weight:650;margin-bottom:1px}
+.turn.caller .who{color:var(--caller)}.turn.agent .who{color:var(--agent)}
+.turn .heard{font-size:12px;color:var(--muted);margin-top:3px}
+.turn .heard.diff{color:var(--amber)}
+.turn .lat{float:right}
+.toolcard{margin:6px 0 6px 58px;border:1px solid #e3d8f7;background:#faf7ff;border-radius:8px;padding:8px 12px;font-size:13px}
+.toolcard.bad{border-color:#f5c6c9;background:#fff5f5}
+.toolcard .name{font-family:var(--mono);font-weight:650;color:var(--tool)}
+.toolcard .args{font-family:var(--mono);font-size:12px;color:var(--ink)}
+.deadair{margin:4px 0 4px 58px;font-size:12px;color:var(--amber);background:var(--amber-bg);border-radius:6px;padding:3px 10px;display:inline-block}
+.check{display:grid;grid-template-columns:18px 1fr auto;gap:8px;padding:6px 0;border-top:1px solid #f0f2f4;align-items:start}
+.check:first-child{border-top:0}
+.check .ic{font-weight:700}.check.pass .ic{color:var(--green)}.check.fail .ic{color:var(--red)}.check.warn .ic{color:var(--amber)}.check.info .ic{color:var(--grey)}
+.check .what{font-size:12.5px;color:var(--muted)}
+.check .why{font-size:12px;color:var(--muted);display:none;margin-top:3px}
+.check.open .why{display:block}
+.check .jump{font-size:12px;white-space:nowrap}
+.group{margin-bottom:10px}
+.group h3{display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.lanes{width:100%;height:150px;display:block;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer}
+.legend{font-size:12px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap;margin:6px 0 0}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+audio{width:100%;margin:8px 0 4px}
+.hero{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.hero .big{font-size:30px;font-weight:700}
+.list li{margin:4px 0}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.input{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:6px;font:inherit;background:#fff;margin:3px 0 6px}
+textarea.input{font-family:var(--mono);font-size:12px;line-height:1.45}
+.btn{display:inline-block;padding:6px 14px;border-radius:6px;border:1px solid var(--line);background:#fff;font:inherit;font-weight:600;cursor:pointer;color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.danger{color:var(--red);border-color:#f5c6c9}
+.btn:hover{filter:brightness(.96)}
+.status{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:6px 14px}
+.status .row{display:flex;gap:8px;align-items:baseline;font-size:13px}
+.status .row .ic{font-weight:700}.status .row.ok .ic{color:var(--green)}.status .row.bad .ic{color:var(--red)}.status .row.soft .ic{color:var(--amber)}
+.status .row .d{color:var(--muted);font-size:12px}
+.banner{border:1px solid #c7d7f7;background:#eef4ff;border-radius:10px;padding:10px 14px;margin:0 0 12px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.banner.warn{border-color:#f0d58c;background:var(--amber-bg)}
+.progress{height:8px;background:#dbe4f3;border-radius:4px;overflow:hidden;min-width:160px;flex:1}
+.progress i{display:block;height:100%;background:var(--accent)}
+.sessionpick{columns:2;column-gap:16px;font-size:13px}
+.sessionpick label{display:block;break-inside:avoid;padding:2px 0}
+</style>
+</head>
+<body>
+<nav class="top">
+  <a class="brand" href="overview.html">Call simulator</a>
+  <a href="overview.html" >Overview</a>
+  <a href="agent.html" >Agent</a>
+  <a href="sessions.html" class="active">Sessions</a>
+  <a href="index.html" >Runs</a>
+  <a href="scoring.html" >Scoring</a>
+  <span class="right"></span>
+</nav>
+<main>
+<p class="small"><a href="sessions.html">← all sessions</a></p>
+<h1>Partial refund of $40, older caller speaking slowly on a poor microphone</h1>
+<p class="sub mono">c1de86f32b16 · engine gf-caller</p>
+
+<div class="two">
+<div>
+  <div class="grid" style="grid-template-columns:1fr 1fr">
+    <div class="card">
+      <h3>Who is calling</h3>
+      <div class="kv">
+        <span class="k">name</span><span>Maria Lopez</span>
+        <span class="k">style</span><span>slow</span>
+        <span class="k">accent / voice</span><span>en-US · <span class="mono">aura-2-athena-en</span> at pace 0.85</span>
+        <span class="k">brain</span><span>gpt-4.1-mini, temperature 0.0, seed 204</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3>What they know</h3>
+      <div class="kv"><span class="k">order_id</span><span class="mono">GW-48213</span><span class="k">zip</span><span class="mono">94110</span><span class="k">amount</span><span class="mono">40.0</span><span class="k">item</span><span class="mono">countertop blender</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>What they want</h3>
+    <p style="margin:0 0 6px">Get a partial refund of exactly $40 on order GW-48213 because one blender attachment was missing. Do not accept a full refund; you want to keep the blender.</p>
+    <div class="kv"><span class="k">stops when</span><span>the agent confirms a $40 refund was issued</span></div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>How the line sounds</h3>
+<span class="chip">poor mic</span>    <div class="kv small" style="margin-top:6px">
+      <span class="k">patience</span><span>25.0 s of dead air before a real caller would hang up</span>
+      <span class="k">limits</span><span>12 turns · 150.0 s · re-prompt after 5.0 s of mutual silence, abort after 10.0 s</span>
+    </div>
+  </div>
+</div>
+<div>
+  <div class="card">
+    <h3>What a correct outcome looks like</h3>
+    <div class="kv">
+      <span class="k">outcome</span><span class="chip">refunded_partial</span>
+      <span class="k">must call</span><span><div class="mono">lookup_order {"order_id":"GW-48213","zip":"94110"}</div><div class="mono">issue_refund {"order_id":"GW-48213","amount":40.0}</div></span>
+<span class="k">in order</span><span class="mono">lookup_order → issue_refund</span><span class="k">must not call</span><span class="mono">escalate_to_human, update_shipping_address</span><span class="k">final state</span><span><div class="mono">refunds[GW-48213].amount == 40.0</div></span>    </div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>Results by run</h3>
+    <div class="kv"><a class="k" href="index.html">full-1</a><span><span class="pill green">2/2</span></span></div>
+  </div>
+  <details style="margin-top:12px"><summary>Session file</summary><pre>title: Partial refund of $40, older caller speaking slowly on a poor microphone
+caller:
+  persona: {name: Maria Lopez, style: slow, deliberate, repeats numbers carefully, asks the agent to speak up once, accent: en-US}
+  facts: {order_id: GW-48213, zip: &#34;94110&#34;, amount: 40.00, item: countertop blender}
+  goal: Get a partial refund of exactly $40 on order GW-48213 because one blender attachment was missing. Do not accept a full refund; you want to keep the blender.
+  stop_when: the agent confirms a $40 refund was issued
+  voice: aura-2-athena-en
+  pace: 0.85
+  llm: {model: gpt-4.1-mini, temperature: 0.0, seed: 204}
+  conditions: {noise: null, phone_line: false, packet_loss: 0.0, low_quality_mic: true, patience_s: 25}
+  limits: {max_turns: 12, max_duration_s: 150, mutual_silence_reprompt_s: 5, mutual_silence_abort_s: 10}
+fixtures: orders_basic
+faults: []
+expected:
+  outcome: refunded_partial
+  tool_calls:
+    required:
+      - {tool: lookup_order, args: {order_id: GW-48213, zip: &#34;94110&#34;}}
+      - {tool: issue_refund, args: {order_id: GW-48213, amount: 40.0}}
+    order: [lookup_order, issue_refund]
+    forbidden: [escalate_to_human, update_shipping_address]
+  final_state:
+    - refunds[GW-48213].amount == 40.0
+</pre></details>
+</div>
+</div>
+<footer>gatewayfutures 0.1.0 · static report, generated 2026-10-08 21:02 UTC</footer>
+</main>
+</body>
+</html>

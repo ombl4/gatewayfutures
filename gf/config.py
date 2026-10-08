@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from functools import lru_cache
 from pathlib import Path
 
@@ -55,9 +56,15 @@ class Thresholds(BaseModel):
     rate_amber: float = 0.66
 
 
-@lru_cache
 def settings() -> Settings:
-    return Settings()
+    # Paths and the backend URL are re-read from the environment on every call, so tests and
+    # the UI's child processes can point at other folders after import.
+    overrides = {
+        k: os.environ[k.upper()]
+        for k in ("runs_dir", "sessions_dir", "backend_url")
+        if os.environ.get(k.upper())
+    }
+    return Settings(**overrides)
 
 
 @lru_cache
@@ -65,3 +72,13 @@ def thresholds(path: Path | None = None) -> Thresholds:
     path = path or ROOT / "thresholds.yaml"
     data = yaml.safe_load(path.read_text()) if path.exists() else {}
     return Thresholds(**(data or {}))
+
+
+def thresholds_hash(path: Path | None = None) -> str:
+    """Short hash of thresholds.yaml, part of the scoring stamp: changing a threshold changes
+    which calls are flagged, so runs scored under different thresholds are not comparable."""
+    import hashlib
+
+    path = path or ROOT / "thresholds.yaml"
+    data = path.read_bytes() if path.exists() else b""
+    return hashlib.sha256(data).hexdigest()[:8]

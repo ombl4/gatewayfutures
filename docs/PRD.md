@@ -246,6 +246,15 @@ The UI is read-mostly: it explains the configuration and the results, and its on
 
 A sample report from real calls, including at least one caught failure, is committed under `docs/sample-report/`.
 
+**Production web setup.** The UI runs as a service, not only as a local viewer:
+
+- Run control: start a run from the browser (sessions, repeats, concurrency), watch calls land while it runs, stop it; one run at a time; runs started from the CLI appear the same way; rescore after scoring changes.
+- System status on the overview: keys, order system, LiveKit, agent worker, ffmpeg, so a user knows a run can start before pressing Start.
+- New session form: a validated YAML editor that writes a new immutable file; existing sessions are never edited.
+- Service hygiene: a Compose `ui` service with health check and restart policy, gzip, error pages, `/health` and `/version`, and a JSON API mirroring every page (OpenAPI at `/api/docs`).
+- Access control for hosting: an optional access token (`GF_UI_TOKEN`), with the service placed behind a reverse proxy with TLS.
+- Publishing: the bundled sample report is published to GitHub Pages by a workflow on every push to `main`, giving an always-on link; CI runs lint and unit tests on every push.
+
 ## Stack and repository layout
 
 | Layer | Technology | Notes |
@@ -256,7 +265,7 @@ A sample report from real calls, including at least one caught failure, is commi
 | Mock backend | FastAPI | Seeded per call; request log and state exposed over HTTP |
 | Runner and scorer | Python CLI (`gf`) | `jiwer` for WER, `numpy` for audio analysis, Pydantic schemas throughout |
 | Storage | Files under `runs/` + SQLite index | The index is rebuilt from files on demand |
-| UI and reports | FastAPI + Jinja2 + htmx, `wavesurfer.js` from a CDN | The same templates render the live UI and the static `report.html` |
+| UI and reports | FastAPI + Jinja2, native audio element and canvas lanes, no CDN | The same templates render the live UI and the static report folder |
 | Packaging | Docker Compose, `uv` | `make up` starts the backend, UI and both workers |
 
 ```
