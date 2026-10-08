@@ -3,10 +3,11 @@
 <section class="insp" id="inspector" data-call="{{ c.session_id }}/{{ c.attempt }}">
   <div class="hd">
     <h2>Call inspector</h2>
-    <div class="meta"><span><b>{{ c.title }}</b></span><i>·</i><span>attempt {{ c.attempt }}{% if nb.of %} of {{ nb.of }}{% endif %}</span><i>·</i><span class="pill {{ c.verdict }}">{{ {'pass':'Passed','fail':'Failed','invalid':'Invalid simulation'}[c.verdict] }}</span>{% if c.started_at %}<i>·</i><span>{{ c.started_at|dt }}</span>{% endif %}<i>·</i><span>{{ c.duration_ms|clock }}</span><i>·</i><span>ended by {{ c.ended_by }}</span>{% if c.engine != 'gf-caller' %}<i>·</i><span>engine {{ c.engine }}</span>{% endif %}</div>
+    <div class="meta"><span class="ttl" title="{{ c.title }}">{{ c.title }}</span><i>·</i><span class="pill {{ c.verdict }}">{{ {'pass':'Passed','fail':'Failed','invalid':'Invalid simulation'}[c.verdict] }}</span><i>·</i><span>{{ c.duration_ms|clock }}</span>{% if c.started_at %}<i>·</i><span>{{ c.started_at|dt }}</span>{% endif %}</div>
     <div class="nav">
+      <span class="small muted">ended by {{ c.ended_by }}{% if c.engine != 'gf-caller' %} · {{ c.engine }}{% endif %}</span>
       {% if nb.prev %}<a class="btn sm" href="{{ links.call(c.run_id, c.session_id, nb.prev) }}" id="insp-prev" title="previous attempt">‹</a>{% else %}<span class="btn sm" style="opacity:.4">‹</span>{% endif %}
-      <span class="small muted">attempt {{ nb.n or c.attempt }}{% if nb.of %} / {{ nb.of }}{% endif %}</span>
+      <span class="small">attempt {{ nb.n or c.attempt }}{% if nb.of %} of {{ nb.of }}{% endif %}</span>
       {% if nb.next %}<a class="btn sm" href="{{ links.call(c.run_id, c.session_id, nb.next) }}" id="insp-next" title="next attempt">›</a>{% else %}<span class="btn sm" style="opacity:.4">›</span>{% endif %}
       {% if embedded %}<a class="btn sm" href="{{ links.call(c.run_id, c.session_id, c.attempt) }}" id="insp-open">Open full call →</a>{% else %}<a class="btn sm" href="{{ links.run(c.run_id) }}">← Run {{ c.run_id }}</a>{% endif %}
     </div>

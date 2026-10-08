@@ -246,7 +246,7 @@ def kpi_cards(
             "rate",
             "Task success",
             lambda v: _pct(v),
-            f"{o.get('passed', 0)} / {n_valid} valid calls · 95% interval {_pct(o.get('ci_low'))}–{_pct(o.get('ci_high'))}"
+            f"{o.get('passed', 0)} / {n_valid} valid calls · CI {_pct(o.get('ci_low'))}–{_pct(o.get('ci_high'))}"
             if n_valid
             else "no valid calls yet",
             cls=rate_class(cur["rate"]),
@@ -256,7 +256,7 @@ def kpi_cards(
             "tool_rate",
             "Tool correctness",
             lambda v: _pct(v),
-            "valid calls with the right tools, arguments, order and nothing extra"
+            "of valid calls, from the backend log"
             if cur["tool_rate"] is not None
             else "rescore this run to measure",
             cls=rate_class(cur["tool_rate"]),
@@ -264,9 +264,9 @@ def kpi_cards(
         ),
         card(
             "wer",
-            "Speech word error rate",
+            "Speech WER",
             lambda v: _pct(v),
-            "lower is better · mean over valid calls",
+            "lower is better · mean per call",
             higher_is_better=False,
             cls="green"
             if cur["wer"] is not None and cur["wer"] <= 0.1
@@ -281,7 +281,7 @@ def kpi_cards(
             "p95_ms",
             "p95 reply latency",
             lambda v: fmt_ms(v),
-            f"median session · flag above {th.latency_p95_warn_s:g} s",
+            f"median session · flag over {th.latency_p95_warn_s:g} s",
             higher_is_better=False,
             cls=_lat_class(cur["p95_ms"]),
             note="Measured from the recording: caller stops speaking → agent audio starts.",
@@ -326,7 +326,7 @@ def _issue(r, a, severity, text) -> dict[str, Any]:
     head = text.split(";")[0].strip()
     return {
         "severity": severity,
-        "title": _clip(head if "_" in head.split(" ")[0] else head[:1].upper() + head[1:], 96),
+        "title": _clip(head if "_" in head.split(" ")[0] else head[:1].upper() + head[1:], 72),
         "detail": text if text != head else "",
         "run_id": r["run_id"],
         "session_id": a["session_id"],

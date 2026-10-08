@@ -6,16 +6,17 @@
 {% block content %}
 <h1>Evaluation overview</h1>
 {% if r %}
-<p class="meta"><span>latest run <a href="{{ links.run(r.run_id) }}">{{ r.run_id }}</a></span><i>·</i><span>{{ r.started_at|dt }}</span><i>·</i><span>{{ r.sessions|length }} practice sessions</span><i>·</i><span>{{ r.summary.calls }} calls ({{ r.valid_count }} valid, {{ r.invalid_count }} invalid)</span>{% if r.previous %}<i>·</i><span>compared with <a href="{{ links.run(r.previous.run_id) }}">{{ r.previous.run_id }}</a></span>{% endif %}</p>
+<p class="meta"><span>Run <a href="{{ links.run(r.run_id) }}">{{ r.run_id }}</a></span><i>·</i><span>{{ r.started_at|dt }}</span><i>·</i><span>{{ r.sessions|length }} practice sessions</span><i>·</i><span>{{ r.summary.calls }} calls ({{ r.valid_count }} valid, {{ r.invalid_count }} invalid)</span></p>
 {% else %}
 <p class="meta"><span>No completed run yet.</span></p>
 {% endif %}
 
 <div class="flow" id="flow" title="How a simulated call flows. Click a step to see how it is configured.">
-  <a href="{{ links.sessions() }}"><b>1</b>Practice sessions <span class="muted">{{ o.sessions.count }}</span></a><i>→</i>
+  <span class="lbl">How a call flows</span>
+  <a href="{{ links.sessions() }}"><b>1</b>Practice sessions</a><i>→</i>
   <a href="{{ links.caller() }}"><b>2</b>Simulated caller</a><i>⇄</i>
-  <a href="{{ links.agent() }}"><b>3</b>Support agent <span class="muted">{{ o.agent.provider }}</span></a><i>→</i>
-  <a href="{{ links.backend() }}"><b>4</b>Order system <span class="muted">{{ o.agent.tools|length }} tools</span></a><i>→</i>
+  <a href="{{ links.agent() }}"><b>3</b>Support agent</a><i>→</i>
+  <a href="{{ links.backend() }}"><b>4</b>Order system</a><i>→</i>
   <a href="{{ links.scoring() }}"><b>5</b>Scoring</a>
 </div>
 

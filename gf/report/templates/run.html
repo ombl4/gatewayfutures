@@ -14,7 +14,7 @@
 </span>
 {% endif %}
 </div>
-<p class="meta"><span>{{ r.started_at|dt }}</span><i>·</i><span>{{ r.sessions|length }} sessions × {{ r.repeat }}</span><i>·</i><span>{{ r.summary.calls }} calls ({{ r.valid_count }} valid, {{ r.invalid_count }} invalid){% if r.duration_s %} in {{ (r.duration_s/60)|round(1) }} min{% endif %}</span><i>·</i><span>concurrency {{ r.concurrency }}</span><i>·</i><span>engine {{ r.engine }}</span>{% if r.previous %}<i>·</i><span>compared with <a href="{{ links.run(r.previous.run_id) }}">{{ r.previous.run_id }}</a></span>{% else %}<i>·</i><span>no earlier run with the same stamp to compare against</span>{% endif %}{% if r.stamp %}<i>·</i><span class="mono" title="agent config hash + session set hash + scoring method">stamp {{ r.stamp }}</span>{% endif %}</p>
+<p class="meta"><span>{{ r.started_at|dt }}</span><i>·</i><span>{{ r.sessions|length }} sessions × {{ r.repeat }}</span><i>·</i><span>{{ r.summary.calls }} calls ({{ r.valid_count }} valid, {{ r.invalid_count }} invalid){% if r.duration_s %} in {{ (r.duration_s/60)|round(1) }} min{% endif %}</span>{% if r.previous %}<i>·</i><span>compared with <a href="{{ links.run(r.previous.run_id) }}">{{ r.previous.run_id }}</a></span>{% endif %}</p>
 
 {% if r.detector %}
 <div class="banner" style="border-color:{{ '#86efac' if r.detector.caught else ('#fecaca' if r.detector.missed else '#fde68a') }};background:{{ 'var(--green-bg)' if r.detector.caught else ('var(--red-bg)' if r.detector.missed else 'var(--amber-bg)') }}">
@@ -84,14 +84,15 @@
 </table></div>
 <p class="small muted">Squares in the session rows are attempts in order: <span class="dot pass"></span> passed, <span class="dot fail"></span> failed, <span class="dot invalid"></span> invalid, <span class="dot pending"></span> not run yet. Click one to open the call.</p>
 
-{% if r.manifest.environment %}
+{% if r.manifest.environment or r.stamp %}
 <details><summary>Reproducibility: what this run was produced with</summary>
 <div class="kv small" style="margin-top:8px">
   <span class="k">stamp</span><span class="mono">{{ r.stamp }} <span class="muted">= agent config hash + session set hash + scoring method (incl. thresholds)</span></span>
   <span class="k">agent config</span><span class="mono">{{ r.manifest.agent_config_hash }}</span>
   <span class="k">session set</span><span class="mono">{{ r.manifest.sessions_hash }} ({{ r.sessions|length }} sessions, each id = hash of its file)</span>
-  <span class="k">caller</span><span>engine {{ r.engine }}; per session: LLM model, temperature 0, seed, voice, pace, seeded noise and packet loss (see each session)</span>
-  {% for k, v in r.manifest.environment.items() %}<span class="k">{{ k }}</span><span class="mono">{{ v }}</span>{% endfor %}
+  <span class="k">engine</span><span>{{ r.engine }} · concurrency {{ r.concurrency }}{% if not r.previous %} · no earlier run with the same stamp to compare against{% endif %}</span>
+  <span class="k">caller</span><span>per session: LLM model, temperature 0, seed, voice, pace, seeded noise and packet loss (see each session)</span>
+  {% for k, v in (r.manifest.environment or {}).items() %}<span class="k">{{ k }}</span><span class="mono">{{ v }}</span>{% endfor %}
 </div>
 <p class="small muted" style="margin:8px 0 0">The agent's own LLM and the live speech services are the only sources of variation, by design: the agent is the thing under test. Repeats and confidence intervals account for that.</p>
 </details>

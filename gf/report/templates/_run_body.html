@@ -53,7 +53,7 @@
     </summary>
     <div class="sbody">
       <div class="cols4" style="margin:8px 0 10px">
-        <div><div class="h">Persona</div><b>{{ row.persona.name }}</b><div class="muted">{{ row.persona.style }} · {{ row.persona.accent }}</div></div>
+        <div><div class="h">Persona</div>{% if row.persona.name %}<b>{{ row.persona.name }}</b><div class="muted">{{ row.persona.style }} · {{ row.persona.accent }}</div>{% else %}<span class="muted">from the engine's scenario</span>{% endif %}</div>
         <div><div class="h">Goal</div>{{ row.goal }}</div>
         <div><div class="h">Conditions</div>{% for c in row.chips %}<span class="chip">{{ c }}</span>{% endfor %}</div>
         <div><div class="h">Expected</div><span class="chip">{{ row.expected_outcome }}</span><div class="muted mono" style="margin-top:3px">{{ row.expected_tools|join(' → ') }}</div></div>
@@ -81,7 +81,7 @@
   {% for i in r.issues['items'] %}
     <a class="issue {{ i.severity }}" href="{{ call_link(i) }}" data-issue="{{ i.session_id }}/{{ i.attempt }}" data-t="{{ i.t_ms if i.t_ms is not none else '' }}">
       <div class="t"><span>{{ i.title }}</span><span class="sev {{ i.severity }}">{{ {'critical':'critical','high':'high','medium':'flagged','simulation':'invalid sim'}[i.severity] }}</span></div>
-      <div class="m"><span>{{ i.session_title }}</span><i>·</i><span>#{{ i.attempt }}</span>{% if i.t_ms is not none %}<i>·</i><span class="mono">{{ i.t_ms|clock }}</span>{% endif %}</div>
+      <div class="m">{{ i.session_title }} · attempt {{ i.attempt }}{% if i.t_ms is not none %} · at <span class="mono">{{ i.t_ms|clock }}</span>{% endif %}</div>
     </a>
   {% else %}
     <div class="card small muted">Nothing to investigate: every valid call passed cleanly.</div>
