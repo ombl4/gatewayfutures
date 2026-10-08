@@ -39,6 +39,7 @@ from gf.util import now_ms
 log = logging.getLogger("gf.runner")
 CALLER_IDENTITY = "caller"
 GOODBYE_GRACE_S = 4.0
+GREETING_WAIT_S = 15.0  # agent cold start + greeting; silence rules arm after this
 AGENT_RECORD_TIMEOUT_S = 20.0
 
 
@@ -71,7 +72,20 @@ async def run_call(session: Session, call_id: str, record_dir: Path, *, attempt:
     room = rtc.Room()
     sim: AgentSession | None = None
     events = EventRecorder(record_dir / "caller_events.jsonl", room=None, call_id=call_id)
-    silence = {"last_audio_ms": now_ms(), "reprompted": False, "mutual_ms": 0}
+    # Mutual silence = neither side is speaking. Track both states; the quiet clock starts
+    # when the second side falls silent.
+    silence = {
+        "caller_speaking": False,
+        "agent_speaking": False,
+        "quiet_since_ms": now_ms(),
+        "reprompted": False,
+    }
+
+    def _update_silence(t: int) -> None:
+        if not silence["caller_speaking"] and not silence["agent_speaking"]:
+            silence["quiet_since_ms"] = t
+        else:
+            silence["quiet_since_ms"] = None
 
     try:
         await backend.post(
@@ -113,15 +127,15 @@ async def run_call(session: Session, call_id: str, record_dir: Path, *, attempt:
         def _agent_state(ev):
             t = int(ev.created_at * 1000)
             caller.heard.on_agent_state(ev.old_state, ev.new_state, t)
-            if ev.new_state == "speaking":
-                silence["last_audio_ms"] = t
+            silence["caller_speaking"] = ev.new_state == "speaking"
+            _update_silence(t)
 
         @sim.on("user_state_changed")
         def _user_state(ev):
             t = int(ev.created_at * 1000)
             caller.heard.on_user_state(ev.old_state, ev.new_state, t)
-            if ev.new_state == "speaking":
-                silence["last_audio_ms"] = t
+            silence["agent_speaking"] = ev.new_state == "speaking"
+            _update_silence(t)
 
         await sim.start(
             agent=caller,
@@ -137,9 +151,22 @@ async def run_call(session: Session, call_id: str, record_dir: Path, *, attempt:
 
         async def watchdog():
             lim = session.caller.limits
+            # The agent needs a few seconds to spawn and greet; mutual-silence rules only
+            # apply once someone has spoken (or the greeting wait has expired).
+            armed_at = now_ms() + int(GREETING_WAIT_S * 1000)
+            heard_anything = False
             while not caller.done.is_set():
                 await asyncio.sleep(0.5)
-                quiet_s = (now_ms() - silence["last_audio_ms"]) / 1000
+                heard_anything = (
+                    heard_anything or silence["agent_speaking"] or silence["caller_speaking"]
+                )
+                if not heard_anything and now_ms() < armed_at:
+                    continue
+                since = silence["quiet_since_ms"]
+                if since is None:
+                    silence["reprompted"] = False
+                    continue
+                quiet_s = (now_ms() - max(since, armed_at if not heard_anything else since)) / 1000
                 if quiet_s >= lim.mutual_silence_abort_s:
                     events.emit("mutual_silence_abort", quiet_s=round(quiet_s, 1))
                     caller.end_from_outside("mutual_silence", f"{quiet_s:.1f}s of mutual silence")

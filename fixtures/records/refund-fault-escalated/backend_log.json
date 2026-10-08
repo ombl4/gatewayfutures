@@ -1,0 +1,70 @@
+[
+  {
+    "id": 1,
+    "tool": "lookup_order",
+    "args": {
+      "order_id": "GW-48213",
+      "zip": "94110"
+    },
+    "response": {
+      "order_id": "GW-48213",
+      "customer_name": "Maria Lopez",
+      "status": "delivered",
+      "total": 89.99,
+      "items": [
+        {
+          "sku": "BLND-200",
+          "name": "Countertop blender",
+          "qty": 1,
+          "price": 89.99
+        }
+      ],
+      "shipping_address": "742 Valencia St, San Francisco, CA 94110",
+      "refunded": false,
+      "refund": null
+    },
+    "status": 200,
+    "ok": true,
+    "ts_ms": 1791490409141,
+    "duration_ms": 0,
+    "arg_problems": [],
+    "fault": null
+  },
+  {
+    "id": 2,
+    "tool": "issue_refund",
+    "args": {
+      "order_id": "GW-48213",
+      "amount": 89.99,
+      "reason": "Broken countertop blender"
+    },
+    "response": {
+      "error": "internal_error",
+      "message": "Order system unavailable"
+    },
+    "status": 500,
+    "ok": false,
+    "ts_ms": 1791490437047,
+    "duration_ms": 0,
+    "arg_problems": [],
+    "fault": null
+  },
+  {
+    "id": 3,
+    "tool": "escalate_to_human",
+    "args": {
+      "reason": "caller requested human after refund failure",
+      "summary": "Caller wants a refund for broken blender order GW 48213, refund attempt failed."
+    },
+    "response": {
+      "ticket_id": "TK-0001",
+      "status": "escalated"
+    },
+    "status": 200,
+    "ok": true,
+    "ts_ms": 1791490467563,
+    "duration_ms": 0,
+    "arg_problems": [],
+    "fault": null
+  }
+]

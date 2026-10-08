@@ -1,0 +1,100 @@
+{
+  "call_id": "e2361fe6c070-1-754c5b",
+  "session_id": "e2361fe6c070",
+  "session_title": "Refund where the order system returns a 500 on the first attempt",
+  "attempt": 1,
+  "engine": "gf-caller",
+  "room": "gf-sim-e2361fe6c070-1-754c5b",
+  "agent_config_hash": "a7c6a425319d",
+  "agent_models": {
+    "stt": {
+      "vendor": "deepgram",
+      "model": "nova-3",
+      "keyterms": [
+        "Gateway Goods",
+        "GW",
+        "order number",
+        "zip code",
+        "refund",
+        "escalate"
+      ]
+    },
+    "llm": {
+      "vendor": "openai",
+      "model": "gpt-4.1-mini",
+      "temperature": 0.3
+    },
+    "tts": {
+      "vendor": "deepgram",
+      "model": "aura-2-luna-en"
+    }
+  },
+  "caller": {
+    "persona": {
+      "name": "Maria Lopez",
+      "style": "calm and patient",
+      "accent": "en-US"
+    },
+    "facts": {
+      "order_id": "GW-48213",
+      "zip": "94110",
+      "amount": 89.99,
+      "item": "countertop blender"
+    },
+    "goal": "Get a full refund of $89.99 for order GW-48213, which arrived broken. If the agent says something failed, ask whether the refund actually went through.",
+    "stop_when": "the agent either confirms the refund was issued or clearly says it could not be done and offers a person",
+    "opening": null,
+    "voice": "aura-2-asteria-en",
+    "pace": 1.0,
+    "llm": {
+      "model": "gpt-4.1-mini",
+      "temperature": 0.0,
+      "seed": 103
+    },
+    "conditions": {
+      "noise": null,
+      "phone_line": false,
+      "packet_loss": 0.0,
+      "low_quality_mic": false,
+      "interruptions": 0.0,
+      "patience_s": 20.0
+    },
+    "limits": {
+      "max_turns": 14,
+      "max_duration_s": 200.0,
+      "mutual_silence_reprompt_s": 4.0,
+      "mutual_silence_abort_s": 8.0
+    }
+  },
+  "caller_params_unsupported": [
+    "conditions.interruptions"
+  ],
+  "fixtures": "orders_basic",
+  "faults": [
+    {
+      "tool": "issue_refund",
+      "type": "error_500",
+      "nth": 1
+    }
+  ],
+  "started_ms": 1791490377224,
+  "ended_ms": 1791490476526,
+  "ended_by": "room_closed",
+  "end_reason": "room closed",
+  "goal_met": null,
+  "agent_record_complete": true,
+  "tool_calls": [
+    [
+      "lookup_order",
+      200
+    ],
+    [
+      "issue_refund",
+      500
+    ],
+    [
+      "escalate_to_human",
+      200
+    ]
+  ]
+}

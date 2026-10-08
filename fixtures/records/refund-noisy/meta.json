@@ -1,0 +1,90 @@
+{
+  "call_id": "ef113fc07616-2-1d1c3d",
+  "session_id": "ef113fc07616",
+  "session_title": "Refund for a broken blender, impatient caller in a cafe over a phone line",
+  "attempt": 2,
+  "engine": "gf-caller",
+  "room": "gf-sim-ef113fc07616-2-1d1c3d",
+  "agent_config_hash": "a7c6a425319d",
+  "agent_models": {
+    "stt": {
+      "vendor": "deepgram",
+      "model": "nova-3",
+      "keyterms": [
+        "Gateway Goods",
+        "GW",
+        "order number",
+        "zip code",
+        "refund",
+        "escalate"
+      ]
+    },
+    "llm": {
+      "vendor": "openai",
+      "model": "gpt-4.1-mini",
+      "temperature": 0.3
+    },
+    "tts": {
+      "vendor": "deepgram",
+      "model": "aura-2-luna-en"
+    }
+  },
+  "caller": {
+    "persona": {
+      "name": "Maria Lopez",
+      "style": "polite but impatient",
+      "accent": "en-US"
+    },
+    "facts": {
+      "order_id": "GW-48213",
+      "zip": "94110",
+      "amount": 89.99,
+      "item": "countertop blender"
+    },
+    "goal": "Get a full refund of $89.99 for order GW-48213, which arrived broken.",
+    "stop_when": "the agent confirms the refund was issued",
+    "opening": null,
+    "voice": "aura-2-asteria-en",
+    "pace": 1.15,
+    "llm": {
+      "model": "gpt-4.1-mini",
+      "temperature": 0.0,
+      "seed": 102
+    },
+    "conditions": {
+      "noise": "cafe@15dB",
+      "phone_line": true,
+      "packet_loss": 0.02,
+      "low_quality_mic": false,
+      "interruptions": 0.0,
+      "patience_s": 15.0
+    },
+    "limits": {
+      "max_turns": 12,
+      "max_duration_s": 180.0,
+      "mutual_silence_reprompt_s": 4.0,
+      "mutual_silence_abort_s": 8.0
+    }
+  },
+  "caller_params_unsupported": [
+    "conditions.interruptions"
+  ],
+  "fixtures": "orders_basic",
+  "faults": [],
+  "started_ms": 1791490480529,
+  "ended_ms": 1791490551854,
+  "ended_by": "caller",
+  "end_reason": "Refund of eighty-nine ninety-nine dollars confirmed for broken countertop blender, order G W 4 8 2 1 3.",
+  "goal_met": true,
+  "agent_record_complete": true,
+  "tool_calls": [
+    [
+      "lookup_order",
+      200
+    ],
+    [
+      "issue_refund",
+      200
+    ]
+  ]
+}

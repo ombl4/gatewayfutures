@@ -25,30 +25,31 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 - Findings from the first voice probe: greeting latency 6.3 s (includes cold process spawn in dev mode), reply latency 3.6–4.7 s from end of caller speech to first agent audio
 - [ ] Gate 2 — POC review
 
-## Part 3 — Simulated caller
-- [ ] T3.1 Caller brain
-- [ ] T3.2 Scripted caller (audio plumbing)
-- [ ] T3.3 Caller worker
-- [ ] T3.4 Audio conditions
-- [ ] T3.5 Validity detection
-- [ ] Gate 3
+## Part 3 — Simulated caller (engine `gf-caller`)
+- [x] T3.1 Caller brain — `gf/caller/simulator.py`: persona prompt from the session file, OpenAI at temperature 0 + seed, `end_call(summary, goal_met, giving_up)` tool; prompt unit-tested
+- [x] T3.2 Scripted caller — `gf probe` (no LLM) proved audio plumbing on 2026-10-08
+- [x] T3.3 Caller session — runs inside the runner process as a LiveKit `AgentSession` (STT + LLM + TTS), hidden recorder captures both tracks; `gf call` produced full records (audio.wav, caller.json, caller_events.jsonl, agent_events.jsonl, backend log/state, meta.json)
+- [x] T3.4 Audio conditions — noise at exact SNR (measured 15.0 dB for `cafe@15dB`), phone-line band-limit, seeded packet loss, low-quality mic; unit tests for SNR ±1 dB, band-limit, loss extremes. `interruptions` is recorded as unsupported for now
+- [~] T3.5 Validity — mutual-silence re-prompt/abort (4 s / 8 s), max duration, max turns, runner errors are recorded as `ended_by`; LLM-error and broke-character detection still to add in scoring
+- [x] Gate 3 — refund-basic, refund-noisy-cafe and refund-backend-fault all completed with goal met and correct tool calls
+- Design change vs. the spec: the caller is not a second worker; it runs in-process in the runner (pattern from the reference voice suite), which removes a dispatch and gives direct access to the caller's events. LiveKit's own `lk agent simulate` is available as a second engine (text/audio, judged, WER + entity metrics) and will be importable into reports
 
 ## Part 4 — Sessions, runner, call record
-- [ ] T4.1 Session schema, immutability, `gf sessions validate`
-- [ ] T4.2 Provider interface and runner
-- [ ] T4.3 Timeline builder
-- [ ] T4.4 Call record schema
+- [x] T4.1 Session schema — `gf/sessions/schema.py`: id = hash of the parsed session; tampered files refused; unknown tools and missing fixtures rejected; 4 unit tests
+- [x] T4.2 Runner — `gf run --all --repeat N --concurrency K`: one room per call, per-call backend seeding, record folder per attempt, `manifest.json` with config/session hashes. Verified: 6 calls in 175 s at concurrency 3, per-call backend logs isolated, all agent records complete. Provider interface deferred (single engine today)
+- [x] T4.3 Timeline builder — `gf/record/timeline.py`: energy VAD per channel on the stereo WAV, response latency, dead air, talk-over, barge-in stop, tool calls and transcripts merged; synthetic-audio tests exact to ±50 ms
+- [x] T4.4 Call record schema — `gf/record/model.py` `CallRecord.load(folder)`; four real records committed under `fixtures/records/` (audio stripped)
 - [ ] T4.5 Session generation
-- [ ] Gate 4
+- [~] Gate 4 — runner + record + timeline verified on real calls; generation pending
 
 ## Part 5 — Scoring
-- [ ] T5.1 Tool and outcome checks
-- [ ] T5.2 Claimed-without-acting
-- [ ] T5.3 Speech accuracy (WER, entities, causal link)
-- [ ] T5.4 UX metrics
-- [ ] T5.5 Statistics and aggregation
-- [ ] T5.6 `gf score`
-- [ ] Gate 5
+- [x] T5.1 Tool and outcome checks — required args, order, forbidden, final-state assertions, wrong writes, arg problems (`gf/scoring/tools.py`)
+- [x] T5.2 Claimed-without-acting — pattern-based claim extraction with negation handling, matched against successful backend writes; plus "honest about failure" after a failed write (`claims.py`). LLM extractor + labelled set still to do
+- [x] T5.3 Speech accuracy — WER (jiwer, digits spelled out), entity intact check per fact, misheard-value → tool-argument causal link (`speech.py`)
+- [x] T5.4 UX metrics — latency p95, dead air, talk-over, barge-in stop, repeats (incl. "are you still there?"), time to resolution, would-hang-up, greeting first; quality gates (stutter, tool-name leak, truncated, repeated question, filler-only); validity (`ux.py`)
+- [x] T5.5 Statistics — Wilson 95%, pass^k / pass@k, flaky, interval overlap (`stats.py`), unit-tested against known values
+- [x] T5.6 `gf score <run_id>` — scores.json per call, summary.json per run with the comparability stamp; batch-test-1 scored 6/6 (CI 61–100%)
+- [~] Gate 5 — all scoring tests pass on real records; the "claimed without acting" catch is proven on a synthetic liar record, still to be caught on a real call (a fault session where the agent lies has not occurred yet)
 
 ## Part 6 — Reports and UI
 - [ ] T6.1 Layered report model

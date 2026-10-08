@@ -36,7 +36,7 @@ class Conditions(BaseModel):
 
 class Limits(BaseModel):
     max_turns: int = 12
-    max_duration_s: float = 180.0
+    max_duration_s: float = 120.0  # keeps a 36-call matrix inside ~15 min at concurrency 4
     mutual_silence_reprompt_s: float = 4.0
     mutual_silence_abort_s: float = 8.0
 

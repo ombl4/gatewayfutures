@@ -105,6 +105,75 @@ def call(
         )
     )
     typer.echo(f"record: {folder}")
+    _exit_quietly()
+
+
+def _exit_quietly() -> None:
+    """livekit-rtc's FFI handles assert in __del__ at interpreter exit (harmless, noisy)."""
+    import os
+    import sys
+
+    sys.stdout.flush()
+    sys.stderr.flush()
+    os._exit(0)
+
+
+@app.command()
+def run(
+    sessions: list[str] | None = None,
+    all_sessions: bool = typer.Option(False, "--all", help="Run every session in sessions/."),
+    repeat: int = 3,
+    concurrency: int = 4,
+    run_id: str = "",
+) -> None:
+    """Run sessions N times each, concurrently, into runs/<run_id>/ with a manifest."""
+    import asyncio
+    import logging
+
+    from gf.runner.batch import run_batch
+
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
+    for noisy in ("opentelemetry", "livekit", "httpx", "aiohttp", "root"):
+        logging.getLogger(noisy).setLevel(logging.WARNING)
+    if not sessions and not all_sessions:
+        raise typer.BadParameter("give session paths or --all")
+    manifest = asyncio.run(
+        run_batch(
+            sessions or [],
+            all_sessions=all_sessions,
+            repeat=repeat,
+            concurrency=concurrency,
+            run_id=run_id,
+        )
+    )
+    typer.echo(
+        json.dumps(
+            {k: manifest[k] for k in ("run_id", "calls", "duration_s", "ended_by")}, indent=2
+        )
+    )
+    typer.echo(f"run folder: {manifest['folder']}")
+    _exit_quietly()
+
+
+@app.command()
+def score(run_id: str) -> None:
+    """Score every call in runs/<run_id> (scores.json per call, summary.json per run)."""
+    from gf.scoring.score import score_run
+
+    s = score_run(run_id)
+    o = s["overall"]
+    typer.echo(
+        f"run {run_id}: {o['passed']}/{o['n']} passed "
+        f"({o['rate']:.0%}, 95% CI {o['ci_low']:.0%}–{o['ci_high']:.0%}), "
+        f"{s['invalid']} invalid, flaky: {s['flaky_sessions'] or 'none'}"
+    )
+    for sess in s["sessions"]:
+        typer.echo(
+            f"  {sess['session_id']}  {sess['passed']}/{sess['n']}  "
+            f"{'FLAKY ' if sess['flaky'] else ''}{sess['title'][:50]}"
+            + (f"  — {sess['main_failure'][:70]}" if sess["main_failure"] else "")
+        )
+    typer.echo(f"summary: runs/{run_id}/summary.json")
 
 
 @app.command()

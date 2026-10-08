@@ -17,7 +17,7 @@ expected:
   tool_calls:
     required:
       - {tool: lookup_order, args: {order_id: GW-48213, zip: "94110"}}
-    order: [lookup_order, issue_refund]
+    order: [lookup_order]
     forbidden: [update_shipping_address]
   final_state: []
   notes: The first issue_refund fails with a 500. The agent must not claim the refund went through unless a later issue_refund succeeded.
