@@ -4,5 +4,6 @@ services:
     build: .
     command: uv run uvicorn gf.backend.app:app --host 0.0.0.0 --port 8080
     ports: ["8080:8080"]
-    env_file: .env
-    profiles: ["part1"]
+    env_file:
+      - path: .env
+        required: false

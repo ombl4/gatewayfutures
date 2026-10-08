@@ -6,15 +6,15 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 
 ## Part 0 — Scaffold and environment
 - [x] T0.1 Project skeleton (uv, ruff, pytest, `gf` CLI, Makefile, compose, thresholds.yaml) — `make test` 3 passed, `ruff` clean, `gf --help` lists commands
-- [~] T0.2 `gf doctor` environment check — implemented; waiting on API keys in `.env` to verify all green
-- [ ] Gate 0 — blocked on T0.2 keys
+- [x] T0.2 `gf doctor` environment check — all 11 checks green with keys in `.env` (LiveKit, Deepgram, OpenAI, Docker 29.8, ffmpeg, lk)
+- [x] Gate 0 — passed 2026-10-08
 
 ## Part 1 — Mock backend
-- [ ] T1.1 Data model and per-call seeding
-- [ ] T1.2 Tool endpoints and business rules
-- [ ] T1.3 Request log and state endpoints
-- [ ] T1.4 Fault injection
-- [ ] Gate 1
+- [x] T1.1 Data model and per-call seeding — `fixtures/orders_basic.yaml`; per-call state isolated; auto-seed for unknown call ids
+- [x] T1.2 Tool endpoints and business rules — zip-verified lookup, refund rules, address lock after shipping, escalation ends call, strict argument formats
+- [x] T1.3 Request log and state endpoints — `/calls/{id}/log`, `/state` (before/after), `/seed`, `DELETE`
+- [x] T1.4 Fault injection — latency_ms, error_500, timeout, reject on the nth call; tagged in the log
+- [x] Gate 1 — 18 unit tests pass; `docker compose up backend` + curl lookup/refund both 200 and logged
 
 ## Part 2 — Support agent (real LiveKit voice agent)
 - [ ] T2.0 LiveKit Cloud project setup (explicit dispatch, `lk` CLI)

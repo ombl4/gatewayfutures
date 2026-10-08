@@ -1,0 +1,38 @@
+# Default seed for the mock backend. Every call starts from exactly this state.
+customers:
+  - id: C-1001
+    name: Maria Lopez
+    zip: "94110"
+  - id: C-1002
+    name: James Carter
+    zip: "60614"
+  - id: C-1003
+    name: Priya Natarajan
+    zip: "02139"
+
+orders:
+  - order_id: GW-48213
+    customer_id: C-1001
+    status: delivered            # refundable
+    total: 89.99
+    items: [{sku: BLND-200, name: "Countertop blender", qty: 1, price: 89.99}]
+    shipping_address: "742 Valencia St, San Francisco, CA 94110"
+  - order_id: GW-48377
+    customer_id: C-1002
+    status: shipped              # too late for an address change, not yet refundable
+    total: 42.50
+    items: [{sku: MUG-12, name: "Ceramic mug set", qty: 2, price: 21.25}]
+    shipping_address: "1500 N Halsted St, Chicago, IL 60614"
+  - order_id: GW-48502
+    customer_id: C-1003
+    status: processing           # address can still change
+    total: 129.00
+    items: [{sku: LAMP-7, name: "Desk lamp", qty: 1, price: 129.00}]
+    shipping_address: "77 Massachusetts Ave, Cambridge, MA 02139"
+  - order_id: GW-48911
+    customer_id: C-1001
+    status: delivered
+    total: 15.00
+    items: [{sku: CBL-3, name: "USB-C cable", qty: 1, price: 15.00}]
+    shipping_address: "742 Valencia St, San Francisco, CA 94110"
+    refunded: true               # already refunded: a second refund must be rejected
