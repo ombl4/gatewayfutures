@@ -255,6 +255,10 @@ A sample report from real calls, including at least one caught failure, is commi
 - Access control for hosting: an optional access token (`GF_UI_TOKEN`), with the service placed behind a reverse proxy with TLS.
 - Publishing: the bundled sample report is published to GitHub Pages by a workflow on every push to `main`, giving an always-on link; CI runs lint and unit tests on every push.
 
+**Second engine: LiveKit's own simulator.** LiveKit Cloud's `lk agent simulate` runs judged sessions against the same agent worker. Its export is imported as a run (`gf import-simulate`), with records rebuilt from the agent's events and the order system's log, so the same scoring and pages apply; its judge verdict and metrics (WER, entity recognition, heard latency) are shown next to our checks, and checks that need the stereo recording are marked "not measured" for that engine. Sessions export to its scenario format (`gf sessions export-simulate`), so one session set runs on both engines.
+
+**Interruptions.** The caller plans barge-ins itself (the provider's simulator has no control for them): a seeded draw per agent turn decides whether and when (1.2–2.5 s in) to cut in with one short in-character sentence that the agent's continuing audio cannot cancel. Planned and made interruptions are recorded per call; the barge-in stop time is measured from the recording.
+
 ## Stack and repository layout
 
 | Layer | Technology | Notes |

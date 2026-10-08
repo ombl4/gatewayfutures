@@ -62,7 +62,11 @@ uv run gf run --all --repeat 3 --concurrency 4     # the whole session set → r
 uv run gf score <run_id>                           # scores.json per call, summary.json per run
 uv run gf report <run_id>                          # static pages in runs/<run_id>/report/
 uv run gf report <run_id> --bundle --out docs/sample-report   # self-contained, MP3 audio
-uv run gf sessions                                 # validate and list sessions
+uv run gf sessions                                 # validate and list sessions (incl. sessions/generated/)
+uv run gf sessions generate --count 8 --focus "refund edge cases"   # LLM-generated sessions → sessions/generated/
+uv run gf sessions export-simulate --out scenarios.yaml             # same sessions for LiveKit's own simulator
+lk agent simulate audio --agent-name gf-support-agent --scenarios scenarios.yaml   # then: lk agent simulate export <run-id> > lk.json
+uv run gf import-simulate lk.json --run-id lk-1    # LiveKit's results as a run, with its verdict next to our checks
 uv run gf probe                                    # scripted caller, no LLM: checks the audio path
 ```
 
@@ -72,7 +76,7 @@ A full run of 11 sessions × 3 takes about 12 minutes at concurrency 4.
 
 A session is one YAML file in `sessions/`. It is immutable: its id is a hash of the content, so editing a file creates a new session and old results stay tied to the definition that produced them.
 
-Either use **Sessions → New session** in the UI (a validated editor, prefilled from a template or from any existing session), or copy a file:
+Three ways: **Sessions → Generate** in the UI (or `gf sessions generate`) proposes sessions from the agent description and the fixture data, validates them and writes them to `sessions/generated/` for review; **Sessions → New session** is a validated editor, prefilled from a template or from any existing session; or copy a file:
 
 ```bash
 cp sessions/refund-basic.yaml sessions/refund-angry-caller.yaml
@@ -90,7 +94,7 @@ caller:
   voice: aura-2-asteria-en            # Deepgram Aura-2 voice; accents: en-US, en-GB, en-AU, en-PH, ...
   pace: 1.0
   llm: {model: gpt-4.1-mini, temperature: 0.0, seed: 101}
-  conditions: {noise: "cafe@15dB", phone_line: true, packet_loss: 0.02, low_quality_mic: false, patience_s: 20}
+  conditions: {noise: "cafe@15dB", phone_line: true, packet_loss: 0.02, low_quality_mic: false, interruptions: 0.4, patience_s: 20}
   limits: {max_turns: 12, max_duration_s: 150, mutual_silence_reprompt_s: 4, mutual_silence_abort_s: 8}
 fixtures: orders_basic                # customers and orders the mock backend starts from (fixtures/orders_basic.yaml)
 faults: [{tool: issue_refund, type: error_500, nth: 1}]   # optional: latency_ms | error_500 | timeout | reject

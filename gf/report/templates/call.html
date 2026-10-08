@@ -21,6 +21,21 @@
   <div class="tile"><div class="k">Caller's view</div><div class="v" style="font-size:18px">{{ 'goal met' if c.goal_met else ('gave up' if c.gave_up else ('agent hung up' if c.ended_by in ('room_closed','agent_left') else 'unresolved')) }}</div><div class="d">{{ c.caller_summary or c.end_reason }}</div></div>
 </div>
 
+{% if c.livekit %}
+<div class="card" style="margin-bottom:12px;border-color:#c7d7f7">
+  <h3>LiveKit simulator verdict <span class="pill {{ 'green' if c.livekit.passed else 'red' }}">{{ 'passed' if c.livekit.passed else c.livekit.status|replace('STATUS_','')|lower }}</span></h3>
+  {% if c.livekit.judge_reasoning %}<p class="small" style="margin:4px 0 8px">{{ c.livekit.judge_reasoning }}</p>{% endif %}
+  {% set m = c.livekit.metrics or {} %}
+  <div class="kv small">
+    <span class="k">LiveKit WER (caller → agent)</span><span>{{ '%.0f%%'|format((m.stt or {}).get('wer', 0) * 100) }} · entities recognised {{ '%.0f%%'|format((m.stt or {}).get('entity_recognition', 0) * 100) }}</span>
+    <span class="k">heard latency p50 / p95</span><span>{{ (m.conversation or {}).get('heard_e2e_latency_p50_ms')|ms }} / {{ (m.conversation or {}).get('heard_e2e_latency_p95_ms')|ms }}</span>
+    <span class="k">turn taking</span><span>score {{ '%.2f'|format((m.conversation or {}).get('turn_taking_score', 0)) }} · {{ (m.conversation or {}).get('awkward_silence_count', 0) }} awkward silences · {{ (m.conversation or {}).get('eot_misprediction_count', 0) }} end-of-turn mispredictions · overlap {{ '%.1f%%'|format((m.conversation or {}).get('overlap_ratio', 0) * 100) }}</span>
+    <span class="k">scenario</span><span>{{ c.livekit.instructions }}</span>
+    <span class="k">expected</span><span>{{ c.livekit.agent_expectations }}</span>
+  </div>
+  <p class="small muted" style="margin:8px 0 0">This call was run by LiveKit Cloud's simulator (<code>lk agent simulate</code>), which keeps the recording in LiveKit Cloud: the caller's exact words are not exported, so our word-accuracy, talk-over and barge-in checks are not measured here; timings come from the agent's own per-message timestamps.</p>
+</div>
+{% endif %}
 <div class="card" style="padding:12px 16px 8px">
   {% if c.audio_href %}<audio id="audio" controls preload="metadata" src="{{ c.audio_href }}"></audio>{% else %}<p class="muted small">No audio file for this call.</p>{% endif %}
   <canvas id="lanes" class="lanes" height="150"></canvas>
@@ -35,7 +50,7 @@
     {% if it.kind == 'caller' %}
     <div class="turn caller" data-t="{{ it.t_ms }}" data-end="{{ it.end_ms }}">
       <div class="t">{{ it.t_ms|clock }}</div>
-      <div><div class="who">{{ c.caller.persona.name if c.caller.persona else 'Caller' }}</div>
+      <div><div class="who">{{ c.caller.persona.name if c.caller.persona else 'Caller' }}{% if it.interruption %} <span class="chip" style="color:var(--red);border-color:#f5c6c9">interrupts the agent</span>{% endif %}</div>
         <div>{{ it.text }}</div>
         {% if it.heard %}<div class="heard {{ 'diff' if it.heard_differs else '' }}" title="what the agent's speech recognition produced">heard as: “{{ it.heard }}”</div>{% endif %}
       </div>

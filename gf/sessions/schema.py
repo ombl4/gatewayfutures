@@ -128,4 +128,6 @@ class Session(BaseModel):
 
 
 def load_all(folder: Path) -> list[Session]:
-    return [Session.load(p) for p in sorted(folder.glob("*.yaml"))]
+    """Hand-written sessions in `folder` plus generated ones in `folder/generated/`."""
+    paths = sorted(folder.glob("*.yaml")) + sorted((folder / "generated").glob("*.yaml"))
+    return [Session.load(p) for p in paths]

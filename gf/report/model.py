@@ -29,6 +29,7 @@ GROUPS = [
     ("speech", "Did the agent hear the caller?"),
     ("ux", "How did the call feel?"),
     ("quality", "Was the speech clean?"),
+    ("livekit", "What LiveKit's judge said"),
 ]
 
 TOOL_DOCS = {
@@ -121,6 +122,7 @@ def session_card(s: Session) -> dict[str, Any]:
         "expected": s.expected.model_dump(),
         "engine": s.engine,
         "path": s.source_path,
+        "generated": "/generated/" in (s.source_path or "").replace("\\", "/"),
     }
 
 
@@ -615,6 +617,8 @@ def call_report_from_folder(
         "room": meta.get("room"),
         "backend_state": record.backend_state,
         "agent_metrics": _agent_turn_metrics(record),
+        "engine": meta.get("engine", "gf-caller"),
+        "livekit": meta.get("livekit"),
         "files": sorted(p.name for p in Path(folder).iterdir()),
         "folder": str(folder),
         "thresholds": thresholds().model_dump(),
@@ -680,6 +684,7 @@ def _merge_turns(record: CallRecord, timeline: dict[str, Any]) -> list[dict[str,
                 "end_ms": ct.t_end_ms,
                 "n": ct.n,
                 "text": ct.text,
+                "interruption": ct.interruption,
                 "heard": heard_text,
                 "heard_differs": _differs(ct.text, heard_text) if heard_text else None,
             }

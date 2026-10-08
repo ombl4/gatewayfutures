@@ -152,8 +152,8 @@ Verify: unit tests — valid file loads, tampered file rejected, unknown tool re
 **T4.2 Provider interface and runner.** `gf/providers/base.py` defines `Provider` with `agent_config()`, `start_call(session, call_id) -> CallHandle`, `collect(handle) -> attempt folder`; `livekit.py` implements it (create room `gf-sim-<run>-<call>`, dispatch both workers with metadata, wait for the caller's completion signal, delete the room). `gf run --session <id>|--all --repeat 3 --concurrency 2` uses only the interface: seed backend for `call_id`, start, collect, pull backend log/state, write `runs/<run_id>/<session_id>/<n>/`. `manifest.json` per run with config hash, models, cost, durations. Retries once on infrastructure failure, then marks the attempt invalid.
 Verify: unit test with a `FakeProvider` (orchestration order, folder layout, retry) — this also proves the second-provider seam. `live`: `gf run --session smoke --repeat 2` produces two complete attempt folders.
 
-**T4.5 Session generation.** `gf sessions generate --count 12` from `description.md` and the tool list: asks the LLM for sessions spread across tools, policy edges, injected faults and hard callers; validates each against the schema and agent config; writes to `sessions/generated/` for human review.
-Verify: `live` test generates 10 valid sessions; unit test that invalid generated output is rejected.
+**T4.5 Session generation.** `gf sessions generate --count 12` from `description.md`, the tool list and the fixture data: asks the LLM (structured output, temperature 0, seed) for sessions spread across tools, policy edges, injected faults and hard callers (accents, noise, pace, impatience); validates each against the schema and agent config; writes to `sessions/generated/` for human review (the runner and the UI treat `sessions/` and `sessions/generated/` alike; a generated session is tagged in the UI). The UI offers the same action (Sessions → Generate) with the count and an optional focus ("refund edge cases").
+Verify: `live` test generates 5 valid sessions; unit test that invalid generated output is rejected and never written.
 
 **T4.3 Timeline builder.** Pure function over an attempt folder: VAD per channel on `audio.wav` → speech segments; align event clock to audio using the sync marker; merge agent events and backend log into `timeline.json` (one ordered list: caller_turn, agent_turn, tool_call, silence, overlap).
 Verify: unit tests on synthetic WAVs with known gaps — dead air and latency exact to ±50 ms; overlap detected; tool calls land inside the right agent turn.
@@ -217,6 +217,9 @@ Verify: TestClient for every API route; with `GF_UI_TOKEN` set, pages redirect t
 **T6.8 Publishing.** `gf report <run_id> --bundle --out docs/sample-report` produces the committed sample report with MP3 audio. GitHub Actions: `ci.yml` (ruff + unit tests on every push and pull request) and `pages.yml` (publishes `docs/sample-report` to GitHub Pages on push to `main`, so the latest sample report has a permanent link). README documents hosting the live UI: compose behind a reverse proxy with TLS, `GF_UI_TOKEN` set, the agent worker and backend as sibling services.
 Verify: the bundled folder opens from disk with audio playing; both workflows pass on GitHub.
 
+**T6.9 Replay everywhere.** Every row that names a call (run page tables, "failing now", "passed but flagged", "every call", invalid calls) carries a replay button that plays the original stereo recording in place (one shared player, play/pause, elapsed time), in the live UI and in the static report.
+Verify: route test finds a replay control per call row; manual: audio plays from the run page.
+
 Gate 6: a non-technical reviewer can open the published report, read the summary in a minute, drill into one failed call and see the exact moment; a teammate can start a run from the UI and watch it finish.
 
 ---
@@ -233,6 +236,14 @@ Verify: the committed report shows a real failure with evidence.
 Verify: fresh clone on this machine → `make up` → `make smoke` passes.
 
 ---
+
+## Part 8 — Second engine: LiveKit's own simulator
+
+**T8.1 Import `lk agent simulate` results.** LiveKit Cloud's simulator (`lk agent simulate text|audio --scenarios file --export out.json`) runs judged sessions against the same worker. `gf import-simulate <export.json> --run-id <id>` turns an export into a run folder: one record per job (the agent's own events and the backend log are already written under `runs/_adhoc/<room>` by the worker, keyed by the room name the simulator used), `manifest.json` with `engine: livekit-simulate`, a session per scenario label (mapped to an existing session by label when one matches). LiveKit's judge verdict, WER, entity recall and heard-latency p95 are stored per call and shown as an extra column ("LiveKit verdict") next to our checks. Checks that need the stereo recording (dead air, talk-over, barge-in) are marked "not measured by this engine".
+Verify: unit test imports a committed export fixture into a temporary runs dir and the run page renders; scoring over the backend log agrees with the LiveKit verdict on the fixture.
+
+**T8.2 Scenario export.** `gf sessions export-simulate` writes a `--scenarios` YAML (label, instructions, agent_expectations) from the session files, so the same sessions run on both engines.
+Verify: the exported file is accepted by `lk agent simulate text`.
 
 ## Metrics catalogue (adopted definitions)
 

@@ -66,7 +66,7 @@ def probe(
 
 @app.command()
 def call(
-    session: str = "sessions/refund-basic.yaml",
+    session: str = typer.Argument("sessions/refund-basic.yaml", help="session YAML"),
     out: str = "",
     attempt: int = 1,
 ) -> None:
@@ -202,25 +202,78 @@ def ui(host: str = "127.0.0.1", port: int = 8090) -> None:
     uvicorn.run("gf.ui.app:app", host=host, port=port, log_level="warning")
 
 
-@app.command()
-def sessions(validate: bool = typer.Option(True, "--validate")) -> None:
-    """List sessions/ with ids; fails on any file that does not validate."""
+sessions_app = typer.Typer(
+    help="Practice sessions: list/validate, generate, export.", invoke_without_command=True
+)
+app.add_typer(sessions_app, name="sessions")
+
+
+@sessions_app.callback()
+def sessions(ctx: typer.Context) -> None:
+    """List sessions/ (and sessions/generated/) with ids; fails on any file that does not validate."""
+    if ctx.invoked_subcommand is not None:
+        return
     from pathlib import Path
 
     from gf.sessions.schema import Session
 
     bad = 0
-    for p in sorted(Path("sessions").glob("*.yaml")):
+    folder = Path("sessions")
+    for p in sorted(folder.glob("*.yaml")) + sorted((folder / "generated").glob("*.yaml")):
         try:
             s = Session.load(p)
+            name = f"generated/{p.name}" if p.parent.name == "generated" else p.name
             typer.echo(
-                f"{s.id}  {p.name:<36} {s.caller.persona.name:<18} "
+                f"{s.id}  {name:<44} {s.caller.persona.name:<18} "
                 f"{s.caller.voice:<22} {s.title[:50]}"
             )
         except Exception as e:  # noqa: BLE001
             bad += 1
             typer.echo(f"INVALID     {p.name}: {e}")
     raise typer.Exit(code=1 if bad else 0)
+
+
+@sessions_app.command("generate")
+def sessions_generate(
+    count: int = 10,
+    focus: str = "",
+    seed: int = 42,
+    model: str = "gpt-4.1-mini",
+) -> None:
+    """Generate sessions from the agent description into sessions/generated/ (needs OPENAI_API_KEY)."""
+    from gf.sessions.generate import generate
+
+    rep = generate(count, focus, seed=seed, model=model)
+    for w in rep["written"]:
+        typer.echo(f"written  {w['id']}  {w['file']}  {w['title'][:60]}")
+    for r in rep["rejected"]:
+        typer.echo(f"rejected {r['title'][:50]}: {r['reason']}")
+    typer.echo(f"{len(rep['written'])} written, {len(rep['rejected'])} rejected")
+
+
+@sessions_app.command("export-simulate")
+def sessions_export_simulate(out: str = "scenarios.yaml") -> None:
+    """Write a --scenarios YAML for `lk agent simulate` from the session files."""
+    from pathlib import Path
+
+    from gf.engines.livekit_simulate import export_scenarios
+
+    n = export_scenarios(Path(out))
+    typer.echo(f"{n} scenarios -> {out}")
+    typer.echo("run: lk agent simulate audio --agent-name gf-support-agent --scenarios " + out)
+
+
+@app.command("import-simulate")
+def import_simulate(export_json: str, run_id: str = "") -> None:
+    """Import an `lk agent simulate export` JSON as a run (engine livekit-simulate)."""
+    from pathlib import Path
+
+    from gf.engines.livekit_simulate import import_export
+
+    man = import_export(Path(export_json), run_id=run_id)
+    typer.echo(
+        f"imported {len(man['calls'])} call(s) into runs/{man['run_id']}; score with: gf score {man['run_id']}"
+    )
 
 
 @app.command()

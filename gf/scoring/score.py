@@ -47,6 +47,7 @@ def score_attempt(folder: str | Path, session: Session) -> dict[str, Any]:
     checks += check_claims(record)
     checks += check_speech(record, session)
     checks += check_ux(record, session, timeline, th)
+    checks += check_livekit_judge(record, session)
     checks += check_quality(record, th)
 
     valid = all(c.passed for c in checks if c.group == "validity")
@@ -74,6 +75,8 @@ def score_attempt(folder: str | Path, session: Session) -> dict[str, Any]:
         "latency_p50_ms": (ux.get("latency_ms") or {}).get("p50"),
         "latency_p95_ms": (ux.get("latency_ms") or {}).get("p95"),
         "wer": next((c.value for c in checks if c.id == "speech.wer"), None),
+        "engine": record.meta.get("engine", "gf-caller"),
+        "livekit": _livekit_brief(record.meta.get("livekit")),
         "dead_air_total_ms": ux.get("dead_air_total_ms"),
         "tool_calls": [(c.tool, c.status) for c in record.tool_calls],
         "checks": [c.model_dump() for c in checks],
@@ -160,3 +163,44 @@ def score_run(run_id: str) -> dict[str, Any]:
     }
     (run_dir / "summary.json").write_text(json.dumps(summary, indent=2, default=str))
     return summary
+
+
+def _livekit_brief(lk: dict | None) -> dict | None:
+    """The LiveKit simulator's own verdict and headline metrics, when the call came from it."""
+    if not lk:
+        return None
+    m = lk.get("metrics") or {}
+    return {
+        "passed": bool(lk.get("passed")),
+        "status": lk.get("status"),
+        "wer": (m.get("stt") or {}).get("wer"),
+        "entity_recognition": (m.get("stt") or {}).get("entity_recognition"),
+        "heard_p95_ms": (m.get("conversation") or {}).get("heard_e2e_latency_p95_ms"),
+        "overall_score": m.get("overall_score"),
+    }
+
+
+def check_livekit_judge(record, session) -> list[Check]:
+    """The LiveKit simulator's own verdict, when the call came from it. Hard for a stand-in
+    session (no expectations of our own), informational when our checks apply too."""
+    lk = record.meta.get("livekit")
+    if not lk:
+        return []
+    judge_only = session.expected.outcome == "livekit_judge"
+    return [
+        Check(
+            id="livekit.verdict",
+            group="livekit",
+            label="LiveKit simulator judge",
+            passed=bool(lk.get("passed")),
+            severity="hard" if judge_only else "info",
+            what_happened=(lk.get("judge_reasoning") or "").strip()[:400]
+            or ("passed" if lk.get("passed") else str(lk.get("status"))),
+            why_it_matters="An independent judge on the same call; where it disagrees with our checks is where to listen.",
+            evidence={
+                "status": lk.get("status"),
+                "overall_score": (lk.get("metrics") or {}).get("overall_score"),
+            },
+            value=(lk.get("metrics") or {}).get("overall_score"),
+        )
+    ]

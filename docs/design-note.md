@@ -27,17 +27,20 @@ From run `full-1` (11 sessions × 2, see `docs/sample-report`):
 - Two real failures: an address change that was confirmed four times but never written (the agent kept re-reading the address until the call timed out), and a refund never issued when the caller opened with an amount above the order total. Both show up with the exact moment in the timeline.
 - Reply latency p95 was 2.4–4.4 s per session against a 2.0 s target: the agent waits for the end-of-turn model plus the LLM, then TTS. This is the main UX finding and it is visible on every call.
 - Speech recognition of spoken digits is the weak point: order numbers read one digit at a time are sometimes merged or dropped, which produced a 404 on the first lookup in the noisy-street sessions (caught as "misheard value reached a tool").
-- The caller's own speech recognition also mishears the agent (it heard "Austin" for "Boston" once), so part of a long confirmation loop can be the simulator's fault. The persona judge and the transcript side-by-side make this visible; a stricter rule for it is on the list below.
+- The caller's own speech recognition also mishears the agent (it heard "Austin" for "Boston" once), so part of a long confirmation loop can be the simulator's fault. The persona judge and the transcript side-by-side make this visible.
+- LiveKit's own simulator, on the same agent, reached the same conclusion from a different angle: its judge failed an address-change call because the agent looped on the order number, and its issues list names spoken order-number handling as the top problem.
+
+**Interruptions are the caller's job, not the provider's.** LiveKit's own simulator exposes noise, poor-microphone and packet-loss flags but no barge-in control, so the caller plans interruptions itself: a seeded draw per agent turn decides whether and when (1.2–2.5 s in) to cut in with one short in-character sentence, spoken with interruptions disabled so the agent's continuing audio cannot cancel it. On the first real call the agent stopped within 200–500 ms on all eight barge-ins and still completed the refund.
+
+**Two engines, one record format.** LiveKit Cloud's `lk agent simulate` runs judged sessions against the same worker; its export is imported as a run (`gf import-simulate`) with records built from the worker's own events and the order system's log, so the same checks and pages apply. Its verdict and metrics sit next to ours; checks that need the stereo recording are marked "not measured" for that engine. Sessions export to its scenario format (`gf sessions export-simulate`), so one session set runs on both.
 
 ## With another week
 
-1. **Second caller engine from LiveKit's own simulator.** `lk agent simulate` already runs judged text and audio sessions against the same worker and exports WER, entity recall and heard-latency metrics; import its export as a second engine column so the two simulators cross-check each other.
-2. **Interruptions.** The `interruptions` parameter is recorded but not applied; barge-in needs the caller to start speaking while the agent is mid-sentence, which means driving the caller's TTS from the agent's audio state.
-3. **Session generation.** `gf sessions generate` from the agent description and tool list, producing candidates for human review, so coverage grows beyond the 11 hand-written sessions.
-4. **Labelled set for claims.** Thirty hand-labelled agent turns to measure the claim extractor, then an LLM extractor with quote-or-drop gated on agreement.
-5. **Trend view.** Pass rate and latency per session across runs with the same stamp, and an "unstable" flag over the last five runs.
-6. **Cost and usage.** Token and audio minutes per call from the session usage events, shown per run.
-7. **Hosted instance.** The compose stack behind a reverse proxy with the access token, so the team shares one always-on UI with run control.
+1. **Cross-check the two engines on the full set.** Run every session on both engines and report where LiveKit's judge and our deterministic checks disagree; those calls are the ones worth listening to.
+2. **Labelled set for claims.** Thirty hand-labelled agent turns to measure the claim extractor, then an LLM extractor with quote-or-drop gated on agreement.
+3. **Trend view.** Pass rate and latency per session across runs with the same stamp, and an "unstable" flag over the last five runs.
+4. **Cost and usage.** Token and audio minutes per call from the session usage events, shown per run.
+5. **Hosted instance.** The compose stack behind a reverse proxy with the access token, so the team shares one always-on UI with run control.
 
 ## Adding a second provider
 

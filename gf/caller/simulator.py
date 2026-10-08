@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import random
 from collections.abc import AsyncGenerator, AsyncIterable
 from dataclasses import dataclass, field
 
@@ -42,6 +43,9 @@ class CallerResult:
     repeats: int = 0
     started_ms: int = 0
     ended_ms: int = 0
+    interruptions_planned: int = 0
+    interruptions_made: int = 0
+    interruptions: list[dict] = field(default_factory=list)
 
 
 class HeardLatency:
@@ -99,6 +103,36 @@ RULES:
   do not just stop talking."""
 
 
+class InterruptPlanner:
+    """Decides, reproducibly, whether and when the caller barges in on an agent turn.
+
+    `p` is the session's `conditions.interruptions`; draws come from a seeded generator so the
+    same session interrupts at the same turns with the same delays on every run."""
+
+    MIN_DELAY_S = 1.2
+    MAX_DELAY_S = 2.5
+
+    def __init__(self, p: float, seed: int):
+        self.p = max(0.0, min(1.0, float(p)))
+        self._rng = random.Random(f"{seed}:interrupt")
+
+    def decide(self) -> float | None:
+        """Delay in seconds after the agent starts speaking, or None for no interruption."""
+        if self.p <= 0:
+            return None
+        if self._rng.random() >= self.p:
+            return None
+        return round(self._rng.uniform(self.MIN_DELAY_S, self.MAX_DELAY_S), 2)
+
+
+INTERRUPT_INSTRUCTIONS = (
+    "The support agent is still talking. Interrupt right now with ONE short sentence, in "
+    "character, that pushes toward your goal or asks them to get to the point (for example "
+    "'Sorry, I just need the refund.' or 'Yes, yes, that is right, go ahead.'). Do not repeat "
+    "facts you already gave. Do not call end_call now."
+)
+
+
 class CallerAgent(Agent):
     def __init__(self, spec: Caller, http_session: aiohttp.ClientSession, seed_offset: int = 0):
         self.spec = spec
@@ -109,6 +143,10 @@ class CallerAgent(Agent):
         self._chain: ConditionChain | None = None
         self._last_said: str = ""
         seed = spec.llm.seed + seed_offset
+        self._planner = InterruptPlanner(spec.conditions.interruptions, seed)
+        self._interrupt_task: asyncio.Task | None = None
+        self._agent_speaking = False
+        self._pending_interruption = False
         super().__init__(
             instructions=build_prompt(spec),
             llm=openai.LLM(
@@ -157,9 +195,51 @@ class CallerAgent(Agent):
             if norm == self._last_said:
                 self.result.repeats += 1
             self._last_said = norm
-            self.result.turns_said.append({"ts_ms": t_start, "end_ms": now_ms(), "text": line})
+            self.result.turns_said.append(
+                {
+                    "ts_ms": t_start,
+                    "end_ms": now_ms(),
+                    "text": line,
+                    "interruption": self._pending_interruption,
+                }
+            )
+            if self._pending_interruption:
+                self.result.interruptions_made += 1
+                self.result.interruptions.append({"ts_ms": t_start, "text": line})
+            self._pending_interruption = False
         if self._turns >= self.spec.limits.max_turns and not self.done.is_set():
             self._finish("max_turns", "turn limit reached", goal_met=False)
+
+    def on_agent_speaking(self, speaking: bool) -> None:
+        """Called by the runner on the agent's speaking state. Plans a barge-in when the agent
+        starts a turn; cancels it when the agent finishes first."""
+        self._agent_speaking = speaking
+        if speaking:
+            if self.done.is_set() or (self._interrupt_task and not self._interrupt_task.done()):
+                return
+            delay = self._planner.decide()
+            if delay is None:
+                return
+            self.result.interruptions_planned += 1
+            self._interrupt_task = asyncio.create_task(self._interrupt_after(delay))
+        elif self._interrupt_task and not self._interrupt_task.done():
+            self._interrupt_task.cancel()
+
+    async def _interrupt_after(self, delay_s: float) -> None:
+        try:
+            await asyncio.sleep(delay_s)
+        except asyncio.CancelledError:
+            return
+        if not self._agent_speaking or self.done.is_set():
+            return
+        self._pending_interruption = True
+        try:
+            # Uninterruptible: the agent's continuing audio must not cancel the interjection.
+            self.session.generate_reply(
+                instructions=INTERRUPT_INSTRUCTIONS, allow_interruptions=False
+            )
+        except Exception:  # noqa: BLE001 - the session may be closing
+            self._pending_interruption = False
 
     def conditions_report(self) -> dict | None:
         return self._chain.describe() if self._chain else None

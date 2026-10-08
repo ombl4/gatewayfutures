@@ -47,7 +47,8 @@ def check_speech(record: CallRecord, session: Session) -> list[Check]:
         h["text"] for h in record.agent_heard
     )
     ref, hyp = normalize(said), normalize(heard)
-    if ref and hyp:
+    external_ref = bool(record.caller_result.get("reference_is_agent_transcript"))
+    if ref and hyp and not external_ref:
         wer = jiwer.wer(ref, hyp)
     else:
         wer = None
@@ -60,7 +61,12 @@ def check_speech(record: CallRecord, session: Session) -> list[Check]:
             severity="info",
             what_happened=f"WER {wer:.2f} over {len(ref.split())} reference words"
             if wer is not None
-            else "no transcript to compare",
+            else (
+                "not measured by this engine (the caller's exact words are not exported; "
+                "see the LiveKit verdict for its own WER)"
+                if external_ref
+                else "no transcript to compare"
+            ),
             why_it_matters="High WER explains wrong tool arguments and repeats downstream.",
             evidence={"reference_words": len(ref.split()), "hypothesis_words": len(hyp.split())},
             value=round(wer, 3) if wer is not None else None,

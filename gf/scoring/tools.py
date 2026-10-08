@@ -131,6 +131,8 @@ def check_tools(record: CallRecord, session: Session) -> list[Check]:
             group="tools",
             label="No writes to orders the caller did not ask about",
             passed=not wrong,
+            # a LiveKit-judge session carries no facts, so every write would look wrong
+            severity="info" if session.expected.outcome == "livekit_judge" else "hard",
             what_happened=", ".join(f"{c.tool}({c.args.get('order_id')})" for c in wrong) or "none",
             why_it_matters="A write nobody asked for is the most expensive kind of mistake.",
             evidence={"tool_ids": [c.id for c in wrong], "t_ms": wrong[0].t_ms if wrong else None},

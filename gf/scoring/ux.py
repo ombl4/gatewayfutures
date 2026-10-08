@@ -326,7 +326,10 @@ def caller_in_character(record: CallRecord, session: Session) -> list[str]:
 def check_validity(record: CallRecord, session: Session | None = None) -> list[Check]:
     """Invalid = the simulation broke, so the call must not count against the agent."""
     reasons = []
-    if session is not None:
+    external = record.meta.get("engine") == "livekit-simulate"
+    if session is not None and not external:
+        # LiveKit's simulator does not export the caller's own words (only what the agent
+        # heard), and its judge covers character; the digit rule would misfire on STT errors.
         reasons += caller_in_character(record, session)
     if record.meta.get("runner_error"):
         reasons.append(f"runner error: {record.meta['runner_error']}")

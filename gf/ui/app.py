@@ -175,6 +175,14 @@ def session_create(name: str = Form(...), yaml_text: str = Form(...)):
     return RedirectResponse(f"/sessions/{sess.id}", status_code=303)
 
 
+@app.post("/sessions/generate")
+def sessions_generate(count: int = Form(6), focus: str = Form("")):
+    from gf.sessions.generate import generate
+
+    rep = generate(max(1, min(20, count)), focus.strip())
+    return page("sessions.html", p=model.sessions_page(), generated=rep)
+
+
 @app.get("/sessions/{session_id}", response_class=HTMLResponse)
 def session(session_id: str):
     try:

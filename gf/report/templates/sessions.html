@@ -3,12 +3,26 @@
 {% block title %}Sessions · Call simulator{% endblock %}
 {% block content %}
 <div class="hero" style="justify-content:space-between"><h1 style="margin:0">Practice sessions</h1>{% if mode == 'live' %}<a class="btn primary" href="/sessions/new">New session</a>{% endif %}</div>
+{% if mode == 'live' %}
+<details class="card" style="margin:0 0 12px">
+  <summary>Generate sessions from the agent description</summary>
+  <form method="post" action="/sessions/generate" class="small" style="display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-top:8px">
+    <label>How many<br><input class="input" type="number" name="count" value="6" min="1" max="20" style="width:90px"></label>
+    <label style="flex:1;min-width:240px">Focus (optional)<br><input class="input" type="text" name="focus" placeholder="e.g. refund edge cases, confused elderly callers, injected faults"></label>
+    <button class="btn primary" type="submit" style="margin-bottom:6px">Generate</button>
+    <span class="muted">Proposals are validated like hand-written files and written to <code>sessions/generated/</code> for review. Takes 20–40 s.</span>
+  </form>
+</details>
+{% if generated %}
+<div class="banner"><b>{{ generated.written|length }} generated</b>{% if generated.rejected %} <span class="small">· {{ generated.rejected|length }} rejected: {% for r in generated.rejected %}{{ r.title }} ({{ r.reason[:80] }}){% if not loop.last %}; {% endif %}{% endfor %}</span>{% endif %}</div>
+{% endif %}
+{% endif %}
 <p class="sub">{{ p.sessions|length }} sessions. Each is an immutable YAML file: who is calling, what they know, what they want, how the line sounds, and what a correct outcome looks like. The id is a hash of the content.</p>
 <div class="tablewrap"><table>
 <tr><th>session</th><th>caller</th><th>line</th><th>goal</th><th>expected</th><th>history</th></tr>
 {% for s in p.sessions %}
 <tr>
-  <td><a href="{{ links.session(s.id) }}">{{ s.title }}</a><div class="mono muted">{{ s.id }}{% if s.faults %} · fault: {{ s.faults|map(attribute='type')|join(', ') }}{% endif %}</div></td>
+  <td><a href="{{ links.session(s.id) }}">{{ s.title }}</a><div class="mono muted">{{ s.id }}{% if s.generated %} <span class="chip">generated</span>{% endif %}{% if s.faults %} · fault: {{ s.faults|map(attribute='type')|join(', ') }}{% endif %}</div></td>
   <td>{{ s.persona.name }}<div class="small muted">{{ s.persona.accent }} · {{ s.persona.style }}</div></td>
   <td>{% for c in s.chips %}<span class="chip">{{ c }}</span>{% endfor %}</td>
   <td class="small">{{ s.goal }}</td>

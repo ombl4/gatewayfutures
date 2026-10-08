@@ -58,7 +58,7 @@ async def run_call(session: Session, call_id: str, record_dir: Path, *, attempt:
         "agent_config_hash": cfg.config_hash,
         "agent_models": cfg.models.model_dump(),
         "caller": session.caller.model_dump(),
-        "caller_params_unsupported": ["conditions.interruptions"],
+        "caller_params_unsupported": [],
         "fixtures": session.fixtures,
         "faults": session.faults,
         "started_ms": now_ms(),
@@ -135,6 +135,7 @@ async def run_call(session: Session, call_id: str, record_dir: Path, *, attempt:
             t = int(ev.created_at * 1000)
             caller.heard.on_user_state(ev.old_state, ev.new_state, t)
             silence["agent_speaking"] = ev.new_state == "speaking"
+            caller.on_agent_speaking(ev.new_state == "speaking")
             _update_silence(t)
 
         await sim.start(

@@ -34,7 +34,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 - [x] T3.1 Caller brain — `gf/caller/simulator.py`: persona prompt from the session file, OpenAI at temperature 0 + seed, `end_call(summary, goal_met, giving_up)` tool; prompt unit-tested
 - [x] T3.2 Scripted caller — `gf probe` (no LLM) proved audio plumbing on 2026-10-08
 - [x] T3.3 Caller session — runs inside the runner process as a LiveKit `AgentSession` (STT + LLM + TTS), hidden recorder captures both tracks; `gf call` produced full records (audio.wav, caller.json, caller_events.jsonl, agent_events.jsonl, backend log/state, meta.json)
-- [x] T3.4 Audio conditions — noise at exact SNR (measured 15.0 dB for `cafe@15dB`), phone-line band-limit, seeded packet loss, low-quality mic; unit tests for SNR ±1 dB, band-limit, loss extremes. `interruptions` is recorded as unsupported for now
+- [x] T3.4 Audio conditions — noise at exact SNR (measured 15.0 dB for `cafe@15dB`), phone-line band-limit, seeded packet loss, low-quality mic; unit tests for SNR ±1 dB, band-limit, loss extremes. Interruptions (added 2026-10-08 evening): seeded `InterruptPlanner` barges in on agent turns with an uninterruptible one-sentence interjection; verified on a real call (`refund-interrupting-caller`: 9 planned / 9 made, 8 barge-ins detected from the audio, agent stopped within 200–500 ms every time, refund still issued)
 - [~] T3.5 Validity — mutual-silence re-prompt/abort (4 s / 8 s), max duration, max turns, runner errors are recorded as `ended_by`; LLM-error and broke-character detection still to add in scoring
 - [x] Gate 3 — refund-basic, refund-noisy-cafe and refund-backend-fault all completed with goal met and correct tool calls
 - Design change vs. the spec: the caller is not a second worker; it runs in-process in the runner (pattern from the reference voice suite), which removes a dispatch and gives direct access to the caller's events. LiveKit's own `lk agent simulate` is available as a second engine (text/audio, judged, WER + entity metrics) and will be importable into reports
@@ -44,13 +44,14 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 - [x] T4.2 Runner — `gf run --all --repeat N --concurrency K`: one room per call, per-call backend seeding, record folder per attempt, `manifest.json` with config/session hashes. Verified: 6 calls in 175 s at concurrency 3, per-call backend logs isolated, all agent records complete. Provider interface deferred (single engine today)
 - [x] T4.3 Timeline builder — `gf/record/timeline.py`: energy VAD per channel on the stereo WAV, response latency, dead air, talk-over, barge-in stop, tool calls and transcripts merged; synthetic-audio tests exact to ±50 ms
 - [x] T4.4 Call record schema — `gf/record/model.py` `CallRecord.load(folder)`; four real records committed under `fixtures/records/` (audio stripped)
-- [ ] T4.5 Session generation (LLM) — 11 hand-written sessions exist instead (3 fixture customers, 5 accents, refund/address/escalation/policy-block goals, noise/phone-line/packet-loss/poor-mic conditions); `gf sessions` validates them
+- [x] T4.5 Session generation — `gf sessions generate --count N --focus ...` and Sessions → Generate in the UI; proposals validated through the schema, written to `sessions/generated/`; unit test for rejection paths; 12 hand-written sessions
 - [~] Gate 4 — runner + record + timeline verified on real calls; generation pending
 - Persona: deterministic in-character check (facts-only numbers, no meta-talk) counts toward validity; an advisory LLM persona judge exists (`GF_PERSONA_JUDGE=1`), never gating
 
 ## Next up (in order)
 1. Gate 6 human review of the UI and the sample report (CI green on GitHub; Pages enabled)
-2. Add an `e2e` smoke test so `make smoke` runs one call end to end against the services
+2. Re-run the full matrix with the new sessions (interrupting caller + generated) and refresh `docs/sample-report`
+3. Add an `e2e` smoke test so `make smoke` runs one call end to end against the services
 3. If time: interruptions parameter; import `lk agent simulate export` as a second engine column; T4.5 generation
 - Reproducibility (2026-10-08): the scoring stamp now includes a hash of `thresholds.yaml`; every manifest records package versions, Python and the git commit (`environment`), shown on the run page
 
@@ -72,8 +73,13 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 - [x] T6.6 New session form — validated YAML editor, template or copy of an existing session, duplicate names refused; tested
 - [x] T6.7 Service hardening — compose `ui` service (health check, restart), gzip, HTML/JSON error pages, `/health`, `/version`, JSON API + `/api/docs`, `GF_UI_TOKEN` login; 9 route tests; image builds
 - [x] T6.8 Publishing — `gf report --bundle`, `.github/workflows/ci.yml` and `pages.yml`, hosting section in README (workflows still to be seen green on GitHub)
+- [x] T6.9 Replay button on every call row (run tables, shared bottom player), live and static
 - [~] Gate 6 — pages verified in headless Chrome; human review pending
 - Scoring fixes found while building the report (2026-10-08): digit groups in the in-character check are read per numeric phrase (was merging "$89.99 … GW-48213" into a fake 5-digit number → 4 false invalids); "already refunded" is prior state, not a claim (2 false fails); the "key fact misheard" flag only checks numeric facts the caller spoke as digits (was firing on every call). `full-1` after the fixes: 20/22, 0 invalid, 2 real failures
+
+## Part 8 — Second engine: LiveKit's own simulator
+- [x] T8.1 `gf import-simulate` — export JSON → run folder (records from the worker's own events + backend log, timeline from message timestamps), LiveKit verdict + metrics on the run and call pages; engine-aware scoring (recording-based checks "not measured"); fixture `fixtures/livekit/export-audio.json` + 2 tests
+- [x] T8.2 `gf sessions export-simulate` — sessions → `--scenarios` YAML (label = session title so imports map back); tested
 
 ## Part 7 — Deliverables
 - [x] T7.1 Session set — 11 hand-written sessions (generation deferred, see T4.5)

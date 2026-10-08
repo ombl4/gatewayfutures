@@ -28,6 +28,7 @@ class CallerTurn(BaseModel):
     text: str  # what the caller said (reference)
     t_start_ms: int
     t_end_ms: int
+    interruption: bool = False
 
 
 class AgentTurn(BaseModel):
@@ -75,7 +76,11 @@ class CallRecord(BaseModel):
 
         caller_turns = [
             CallerTurn(
-                n=i + 1, text=t["text"], t_start_ms=rel(t["ts_ms"]), t_end_ms=rel(t["end_ms"])
+                n=i + 1,
+                text=t["text"],
+                t_start_ms=rel(t["ts_ms"]),
+                t_end_ms=rel(t["end_ms"]),
+                interruption=bool(t.get("interruption")),
             )
             for i, t in enumerate(caller.get("turns_said", []))
         ]

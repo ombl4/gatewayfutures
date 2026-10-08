@@ -1,0 +1,58 @@
+id: 890320c02637
+title: Address change denied on shipped order, caller escalates
+caller:
+  persona:
+    name: Priya Natarajan
+    style: impatient
+    accent: en-GB
+  facts:
+    order_id: GW-48377
+    zip: '60614'
+    amount: 42.5
+    item: ceramic mug set
+  goal: Change the shipping address on order GW-48377, but escalate when told it is
+    too late.
+  stop_when: the agent confirms escalation and ends the call
+  opening: null
+  voice: aura-2-pandora-en
+  pace: 1.1
+  llm:
+    model: gpt-4.1-mini
+    temperature: 0.0
+    seed: 522
+  conditions:
+    noise: street@10dB
+    phone_line: true
+    packet_loss: 0.02
+    low_quality_mic: false
+    interruptions: 0.0
+    patience_s: 15.0
+  limits:
+    max_turns: 10
+    max_duration_s: 150.0
+    mutual_silence_reprompt_s: 4.0
+    mutual_silence_abort_s: 8.0
+fixtures: orders_basic
+faults: []
+expected:
+  outcome: escalated
+  tool_calls:
+    required:
+    - tool: lookup_order
+      args:
+        order_id: GW-48377
+        zip: '60614'
+    - tool: escalate_to_human
+      args:
+        reason: Address change requested on shipped order
+        summary: Caller requested address change on order GW-48377 which is already
+          shipped
+    order:
+    - lookup_order
+    - escalate_to_human
+    forbidden:
+    - issue_refund
+    - update_shipping_address
+  final_state: []
+  notes: ''
+engine: gf-caller
