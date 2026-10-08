@@ -5,7 +5,7 @@ Status of every task in [spec.md](spec.md). A task is marked done only after its
 Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!]` blocked
 
 ## End result (the deliverables)
-- [x] D1 A repository that runs with one command (`make up`: order system + agent worker + UI), README covers setup, CLI, adding a session, hosting — T7.3 (clean-clone check pending)
+- [x] D1 A repository that runs with one command (`make up`: order system + agent worker + UI), README covers setup, CLI, adding a session, hosting — T7.3; clean clone: `uv sync` → 58 unit tests pass, `gf --help`, `docker compose config` lists backend/agent/ui, image builds
 - [x] D2 Sample report from real calls — `docs/sample-report/` (run `full-1`, 11 sessions × 2, 20/22, two caught failures: an address change confirmed but never written, a refund never issued), MP3 audio bundled
 - [x] D3 `docs/design-note.md`: choices, findings from the first runs, next week, second provider
 
@@ -49,8 +49,8 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 - Persona: deterministic in-character check (facts-only numbers, no meta-talk) counts toward validity; an advisory LLM persona judge exists (`GF_PERSONA_JUDGE=1`), never gating
 
 ## Next up (in order)
-1. Clean-clone check: `git clone` → `make up` → `make smoke` (T7.3); enable GitHub Pages (Source: GitHub Actions) and confirm both workflows are green
-2. Gate 6 human review of the UI and the sample report
+1. Gate 6 human review of the UI and the sample report (CI green on GitHub; Pages enabled)
+2. Add an `e2e` smoke test so `make smoke` runs one call end to end against the services
 3. If time: interruptions parameter; import `lk agent simulate export` as a second engine column; T4.5 generation
 - Reproducibility (2026-10-08): the scoring stamp now includes a hash of `thresholds.yaml`; every manifest records package versions, Python and the git commit (`environment`), shown on the run page
 
@@ -78,4 +78,4 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 ## Part 7 — Deliverables
 - [x] T7.1 Session set — 11 hand-written sessions (generation deferred, see T4.5)
 - [x] T7.2 Full run and sample report — `full-1` bundled into `docs/sample-report/`
-- [~] T7.3 README and design note written; clean-clone `make up` + `make smoke` check still to run
+- [x] T7.3 README and design note written; clean-clone check done (install, tests, CLI, compose config, image build). `make smoke` has no e2e test yet: a smoke call is `gf call sessions/refund-basic.yaml` with the services up

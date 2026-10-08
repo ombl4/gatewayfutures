@@ -2,7 +2,7 @@
 
 Runs simulated phone calls against a LiveKit support agent, records each call (audio, both transcripts, tool calls, timings), scores it on what actually happened, and shows the results in a web UI and a static report that a non-technical reader can follow from a one-minute summary down to the exact second a call went wrong.
 
-- **Sample report** from real calls (11 sessions × 2, two failures caught): `docs/sample-report/index.html` (open it from disk, or see the GitHub Pages link on the repository page once Pages is enabled).
+- **Sample report** from real calls (11 sessions × 2, two failures caught): published at **https://ombl4.github.io/gatewayfutures/** (also `docs/sample-report/index.html`, which opens from disk).
 - **Design note**: [docs/design-note.md](docs/design-note.md) (choices, next week, second provider).
 - **PRD** and **spec**: [docs/PRD.md](docs/PRD.md), [docs/spec.md](docs/spec.md); progress in [docs/TASKS.md](docs/TASKS.md).
 
@@ -122,7 +122,7 @@ The UI is a stateless FastAPI service over `runs/` and `sessions/`; the compose 
 
 The JSON API mirrors every page (`/api/runs`, `/api/runs/<id>`, `/api/runs/<id>/<session>/<attempt>`, `/api/sessions`, `/api/agent`, `/api/status`), with OpenAPI docs at `/api/docs`.
 
-The static report has no server at all: `.github/workflows/pages.yml` publishes `docs/sample-report` to GitHub Pages on every push to `main` (enable Pages → Source: GitHub Actions in the repository settings).
+The static report has no server at all: `.github/workflows/pages.yml` publishes `docs/sample-report` to GitHub Pages on every push to `main` (Pages source: GitHub Actions). Current link: https://ombl4.github.io/gatewayfutures/
 
 ## Tests
 
