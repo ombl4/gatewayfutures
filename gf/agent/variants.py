@@ -47,6 +47,14 @@ VARIANTS: dict[str, Variant] = {
 }
 
 
+def applicable(variant: Variant, required_tools: list[str] | tuple[str, ...]) -> bool:
+    """Can this variant be proven on a session? Only when the session expects one of the
+    tools the variant takes away (an escalation-only session cannot show a false 'done')."""
+    if not variant.remove_tools:
+        return True
+    return any(t in variant.remove_tools for t in required_tools)
+
+
 def get_variant(name: str | None) -> Variant | None:
     if not name:
         return None

@@ -19,16 +19,16 @@
 {% if r.detector %}
 <div class="banner" style="border-color:{{ '#86efac' if r.detector.caught else ('#fecaca' if r.detector.missed else '#fde68a') }};background:{{ 'var(--green-bg)' if r.detector.caught else ('var(--red-bg)' if r.detector.missed else 'var(--amber-bg)') }}">
   <b>Detector check · variant "{{ r.detector.variant }}"</b>
-  <span>{% if r.detector.caught %}<span class="pill green">caught it</span> every conclusive call failed on <code>{{ r.detector.expected_check }}</code>{% elif r.in_progress %}<span class="pill grey">running</span>{% elif r.detector.missed %}<span class="pill red">MISSED</span> only {{ r.detector.n_fired }} of {{ r.detector.n }} calls failed on <code>{{ r.detector.expected_check }}</code>{% else %}<span class="pill amber">inconclusive</span> the agent never reached the point of claiming an action; rerun the check{% endif %}</span>
+  <span>{% if r.detector.caught %}<span class="pill green">caught it</span> {{ r.detector.n_fired }} of {{ r.detector.n }} applicable calls failed on <code>{{ r.detector.expected_check }}</code>{% if r.detector.n_inconclusive %}, {{ r.detector.n_inconclusive }} inconclusive{% endif %}{% if r.detector.n_not_applicable %}, {{ r.detector.n_not_applicable }} not applicable{% endif %}{% elif r.in_progress %}<span class="pill grey">running</span>{% elif r.detector.missed %}<span class="pill red">MISSED</span> only {{ r.detector.n_fired }} of {{ r.detector.n }} calls failed on <code>{{ r.detector.expected_check }}</code>{% else %}<span class="pill amber">inconclusive</span> the agent never reached the point of claiming an action; rerun the check{% endif %}</span>
   <span class="small muted">The agent was deliberately made to misbehave; "failed" below is the expected, correct outcome. Never compared with real runs.</span>
 </div>
 <div class="card" style="margin-bottom:12px">
-{% for a in r.detector.per_attempt %}<div class="small"><span class="pill {{ 'green' if a.fired else ('amber' if a.inconclusive else 'red') }}">{{ 'caught' if a.fired else ('inconclusive' if a.inconclusive else 'missed') }}</span> <a href="{{ links.call(r.run_id, a.session_id, a.attempt) }}">{{ a.title }}</a> #{{ a.attempt }}{% if a.reason %} — {{ a.reason }}{% endif %}</div>{% endfor %}
+{% for a in r.detector.per_attempt %}<div class="small"><span class="pill {{ 'grey' if a.not_applicable else ('green' if a.fired else ('amber' if a.inconclusive else 'red')) }}">{{ 'n/a' if a.not_applicable else ('caught' if a.fired else ('inconclusive' if a.inconclusive else 'missed')) }}</span> <a href="{{ links.call(r.run_id, a.session_id, a.attempt) }}">{{ a.title }}</a> #{{ a.attempt }}{% if a.reason %} — {{ a.reason }}{% endif %}</div>{% endfor %}
 </div>
 {% endif %}
 {% if mode == 'live' and job and job.state != 'done' %}
 <div class="banner {{ 'warn' if job.state in ('failed','stopped') else '' }}">
-  {% if job.state == 'running' %}<b>In progress</b> <span class="progress"><i style="width:{{ (100 * job.done / job.total) if job.total else 0 }}%"></i></span> <span class="small">{{ job.done }} / {{ job.total }} calls done · page refreshes every 15 s</span>
+  {% if job.state == 'running' %}<b>In progress</b> <span class="progress"><i style="width:{{ (100 * job.done / job.total) if job.total else 0 }}%"></i></span> <span class="small">{{ job.done }} / {{ job.total }} calls done{% if job.last_call_s_ago is not none %} · last finished {{ job.last_call_s_ago }} s ago{% endif %} · a call takes 1–3 min · page refreshes every 15 s</span>
   {% elif job.state == 'stopped' %}<b>Stopped</b> <span class="small">after {{ job.done }} of {{ job.total }} calls; the calls that finished are scored below</span>
   {% elif job.state == 'failed' %}<b>Runner exited early</b> <span class="small">{{ job.done }} of {{ job.total }} calls finished; see the log</span>
   {% else %}<b>Unknown state</b> <span class="small">no job file and the manifest was never finalised</span>{% endif %}

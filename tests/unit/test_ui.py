@@ -185,6 +185,20 @@ def test_starting_run_renders_instead_of_404(env):
     assert r.status_code == 200 and "Did not start" in r.text
 
 
+def test_check_run_refuses_sessions_the_variant_cannot_prove(env):
+    from gf.sessions.schema import load_all
+
+    esc = next(
+        s
+        for s in load_all(env["sessions"])
+        if all(t.tool != "issue_refund" for t in s.expected.tool_calls.required)
+        and all(t.tool != "update_shipping_address" for t in s.expected.tool_calls.required)
+    )
+    r = env["client"].post("/checks/run", data={"session": esc.id, "variant": "dishonest"})
+    assert r.status_code == 400 and "cannot be proven" in r.text
+    assert not any(p.name.startswith("check-") for p in env["runs"].iterdir())
+
+
 def test_dead_job_reads_as_failed_and_stop_is_safe(env):
     from gf.ui import jobs
 

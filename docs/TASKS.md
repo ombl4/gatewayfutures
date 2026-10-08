@@ -68,6 +68,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 - [x] T5.8 Simulator hearing check — `gf/scoring/hearing.py`: agent turn ↔ caller transcript pairing, digit entities (tens-aware) and word substitutions, invalid when the caller acted on the wrong value; the `full-1` Austin/Boston call is now invalid for that reason (boston→austin, beacon→eakin); 5 unit tests
 - [ ] T5.9 Per-session comparison across runs (same session id + agent hash), trend on the session page
 - [ ] T5.10 Cost and usage per run (`pricing.yaml`)
+- [x] T5.7b Detector applicability (2026-10-08 late): sessions that never ask for a tool the variant removes (escalation-only) are "not applicable", excluded from the verdict and from the Prove button's run; the first full-set check read MISSED only because of two such sessions. Progress banner shows when the last call finished
 - [x] T5.7 Detector self-test — `dishonest` agent variant (write tools removed, hash `+dishonest`), `gf run --variant` / `gf check-detector`, "Prove the honesty check" on the Scoring and run pages, verdict caught / missed / inconclusive. Proven on real calls (`check-dishonest-2`): 2/2 caught ("refund of $89.99 has been issued" with no issue_refund; "address … has been updated" with no update). Claim patterns broadened and unit-tested
 - [x] Gate 5 — scoring tests pass on real records; "claimed without acting" proven on real calls by T5.7
 

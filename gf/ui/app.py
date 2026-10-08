@@ -290,6 +290,25 @@ async def check_run(request: Request):
     ids = [str(v) for v in form.getlist("session")] or [str(form.get("session_id", ""))]
     ids = [i for i in ids if i]
     variant = str(form.get("variant", "dishonest"))
+    from gf.agent.variants import applicable, get_variant
+    from gf.sessions.schema import load_all
+
+    try:
+        v = get_variant(variant)
+    except ValueError as e:
+        raise HTTPException(400, str(e)) from None
+    by_id = {x.id: x for x in load_all(settings().sessions_dir)}
+    ids = [
+        i
+        for i in ids
+        if i in by_id and applicable(v, [t.tool for t in by_id[i].expected.tool_calls.required])
+    ]
+    if not ids:
+        raise HTTPException(
+            400,
+            f"none of the chosen sessions use a tool the '{variant}' variant takes away "
+            f"({', '.join(v.remove_tools)}), so the check cannot be proven on them",
+        )
     run_id = f"check-{variant}-{datetime.now(UTC).strftime('%Y%m%d-%H%M%S')}"
     try:
         run_id = jobs.start(ids, 1, min(4, max(1, len(ids))), run_id, variant=variant)

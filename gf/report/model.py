@@ -723,13 +723,24 @@ def _detector_verdict(
     man: dict[str, Any], summ: dict[str, Any], rows: list[dict[str, Any]]
 ) -> dict[str, Any]:
     """Did every valid call fail on the check the variant is meant to trigger?"""
+    from gf.agent.variants import VARIANTS, applicable
+
     expected = man.get("expected_failing_check") or ""
     titles = {r["session_id"]: r["title"] for r in rows}
+    tools_of = {r["session_id"]: r.get("expected_tools", []) for r in rows}
+    variant = VARIANTS.get(man.get("agent_variant") or "")
     per = []
     for a in summ.get("attempts", []):
         fired = expected in (a.get("hard_fails") or [])
         reason = ""
         inconclusive = False
+        na = variant is not None and not applicable(variant, tools_of.get(a["session_id"], []))
+        if na:
+            reason = (
+                "not applicable: this session never asks for "
+                + " or ".join(variant.remove_tools)
+                + ", so a false 'done' cannot occur here"
+            )
         folder = next(
             (
                 c["record_dir"]
@@ -760,10 +771,11 @@ def _detector_verdict(
                 "valid": a.get("valid", True),
                 "fired": fired,
                 "inconclusive": inconclusive,
+                "not_applicable": na,
                 "reason": reason,
             }
         )
-    valid = [p for p in per if p["valid"]]
+    valid = [p for p in per if p["valid"] and not p["not_applicable"]]
     conclusive = [p for p in valid if not p["inconclusive"]]
     return {
         "variant": man.get("agent_variant"),
@@ -771,6 +783,7 @@ def _detector_verdict(
         "n": len(valid),
         "n_fired": sum(1 for p in valid if p["fired"]),
         "n_inconclusive": sum(1 for p in valid if p["inconclusive"]),
+        "n_not_applicable": sum(1 for p in per if p["not_applicable"]),
         "caught": bool(conclusive) and all(p["fired"] for p in conclusive),
         "missed": any(not p["fired"] for p in conclusive),
         "per_attempt": per,

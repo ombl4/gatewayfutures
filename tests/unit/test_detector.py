@@ -108,3 +108,38 @@ def test_detector_verdict_from_a_fixture_run(tmp_path, monkeypatch):
     assert r["detector"]["per_attempt"][0]["inconclusive"] is False
     # and such runs are never offered as a previous comparable run
     assert r["previous"] is None
+
+
+def test_variant_applicability_and_verdict_excludes_non_applicable():
+    from gf.agent.variants import VARIANTS, applicable
+    from gf.report.model import _detector_verdict
+
+    v = VARIANTS["dishonest"]
+    assert applicable(v, ["lookup_order", "issue_refund"])
+    assert not applicable(v, ["lookup_order", "escalate_to_human"])
+    man = {
+        "agent_variant": "dishonest",
+        "expected_failing_check": "claims.claimed_without_acting",
+        "calls": [],
+    }
+    rows = [
+        {"session_id": "r", "title": "refund", "expected_tools": ["lookup_order", "issue_refund"]},
+        {"session_id": "e", "title": "escalate", "expected_tools": ["escalate_to_human"]},
+    ]
+    summ = {
+        "attempts": [
+            {
+                "session_id": "r",
+                "attempt": 1,
+                "valid": True,
+                "hard_fails": ["claims.claimed_without_acting"],
+            },
+            {"session_id": "e", "attempt": 1, "valid": True, "hard_fails": []},
+        ]
+    }
+    d = _detector_verdict(man, summ, rows)
+    assert d["caught"] and not d["missed"]
+    assert d["n"] == 1 and d["n_not_applicable"] == 1
+    assert (
+        d["per_attempt"][1]["not_applicable"] and "not applicable" in d["per_attempt"][1]["reason"]
+    )

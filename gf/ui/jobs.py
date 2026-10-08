@@ -64,7 +64,16 @@ def job_status(run_id: str) -> dict[str, Any]:
         "started_at": man.get("started_at") or job.get("started_at"),
         "log": str(run_dir / "run.log") if (run_dir / "run.log").exists() else None,
         "started_from": job.get("started_from", "cli"),
+        "last_call_s_ago": _last_call_age(run_dir),
     }
+
+
+def _last_call_age(run_dir: Path) -> int | None:
+    metas = list(run_dir.glob("*/*/meta.json"))
+    if not metas:
+        return None
+    newest = max(m.stat().st_mtime for m in metas)
+    return int(datetime.now(UTC).timestamp() - newest)
 
 
 def _recent(path: Path, seconds: int = 600) -> bool:
