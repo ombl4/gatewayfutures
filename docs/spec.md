@@ -303,3 +303,35 @@ Learned from reviewing two existing voice-eval frameworks (definitions only; no 
 ## Verification of the whole plan
 
 After approval: write `docs/spec.md` from this file, update the PRD doc, commit. Then build Part 0 → Part 2 and stop at Gate 2 for review before the harness.
+
+## Risk review responses (2026-10-08)
+
+| # | Risk | Decision |
+| --- | --- | --- |
+| 1 | Mutual-silence watchdog at 10 s inflates run time and cost | Mutual silence is a broken interaction after 3 s. Rule: at 4 s of mutual silence the caller re-prompts once ("Hello?"); at 8 s cumulative the call ends and is marked invalid (reason `mutual_silence`). Both values live in `thresholds.yaml` (`mutual_silence_reprompt_s`, `mutual_silence_abort_s`). The agent's own 20 s caller-silence hang-up is a separate, agent-side behaviour under test. |
+| 2 | Clock skew; are audio timestamps stream-relative? | Timestamps are stream-relative, never file-length based. Each channel is placed by sample count from one shared origin T0 (the recorder's first frame); frames that arrive late open an explicit silence gap of the right length, and packet loss shows up as concealment frames from the SDK's jitter buffer, so the timeline keeps its length. Event timestamps (tool calls, transcripts) are mapped onto the same T0 via the clock-sync marker. `timeline.json` stores both `t_stream_ms` and the raw event time so any drift is inspectable. |
+| 3 | Forced alignment adds processing time | Alignment never runs in the call loop. The runner writes raw records only; `gf score` runs post-call and asynchronously (per-attempt tasks, bounded concurrency), so a slow alignment delays a score, not the next call. Cost is small: Deepgram pre-recorded STT on the caller's clean TTS audio takes about 1 s per minute of audio. When the reference text already comes with turn timestamps (LiveKit simulation export + agent-side STT finals), alignment is skipped. |
+| 4 | Is 30 labelled examples enough? | No. 30 is the smoke-calibration set that proves the pipeline; judges stay advisory (never gate) until κ ≥ 0.75 on ≥ 100 labelled items, measured per category. The set grows by active labelling: every judge/human disagreement and every flagged production-style call is added. Business logic stays in code (claims matched against the backend log), so judge variance only affects extraction. |
+| 5 | Run cost in CI | `make smoke` (`--repeat 1`, 3 sessions, text mode where possible) is the only target CI runs on pull requests; the full matrix (`--repeat 3`, all sessions, audio) runs nightly and on merges to `main`. Every run has a hard budget (`GF_MAX_COST_USD`, default 10) and a concurrency cap; the runner stops scheduling new calls when the projected cost exceeds the budget and marks the run partial. |
+| 6 | Threshold for a significant regression | Automatic flag only when (a) the Wilson 95% intervals of the current and baseline run pass rates do not overlap, or (b) a zero-tolerance category appears (claimed-without-acting, wrong write, invalid-call rate > 20%). A drop inside overlapping intervals (for example 95% → 91% with N = 36) is shown as "within noise" and triggers an automatic single re-run of the affected sessions; it is flagged only if the re-run confirms it. Per session, pass^k → any fail is listed as "regressed, unconfirmed" until re-run. |
+
+## Simulated caller parameterization (reproducibility)
+
+A session file is the only input; nothing about the caller is implicit.
+
+```yaml
+caller:
+  persona: {name, style, accent}
+  facts: {order_id, zip, amount, address}   # the only facts the caller may use
+  goal: "..."
+  stop_when: "the agent confirms the refund was issued"
+  voice: aura-2-luna-en                      # TTS voice id
+  pace: 1.0                                  # TTS speed multiplier
+  llm: {model: gpt-4.1-mini, temperature: 0, seed: 101}
+  conditions: {noise: cafe@15dB, phone_line: true, packet_loss: 0.02, low_quality_mic: false,
+               interruptions: 0.2, patience_s: 20}
+  limits: {max_turns: 12, max_duration_s: 180, mutual_silence_reprompt_s: 4, mutual_silence_abort_s: 8}
+engine: livekit-simulate | gf-caller          # which simulator ran it
+```
+
+The run manifest records: session id (content hash), agent `config_hash`, engine and its version, every caller parameter above, the LiveKit run/job ids, model ids and the scoring `method_version`. Two attempts are comparable only when all of these match. Where the engine cannot honour a parameter (for example LiveKit simulation exposes noise/mic/packet-loss as switches, not levels, and no LLM seed), the manifest records the parameter as `unsupported_by_engine` rather than silently dropping it.
