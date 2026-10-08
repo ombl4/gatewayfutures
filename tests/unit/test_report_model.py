@@ -190,7 +190,8 @@ def test_time_breakdown_is_median_of_call_medians():
     assert rows["heard_ms"]["p50"] == 2000 and rows["stt_ms"]["p50"] is None
 
 
-def test_wer_falls_back_to_the_engine_measurement():
+def test_wer_falls_back_to_the_engine_measurement(tmp_path, monkeypatch):
+    monkeypatch.setenv("RUNS_DIR", str(tmp_path / "runs"))  # no runs on disk, as on CI
     s = _summary("r", "2026-10-08T10:00:00+00:00", [_attempt("a", 1, wer=None)])
     s["attempts"][0]["livekit"] = {"wer": 0.12}
     m = model.run_metrics(s)

@@ -28,7 +28,7 @@
     <button type="button" data-tab="latency">Latency{% if c.latency_turns.summary.heard_ms.p95 %}<b>p95 {{ c.latency_turns.summary.heard_ms.p95|ms }}</b>{% endif %}</button>
     <button type="button" data-tab="checks">Checks{% if c.n_fail %}<b style="background:var(--red-bg);color:var(--red)">{{ c.n_fail }} failed</b>{% endif %}{% if c.n_warn %}<b style="background:var(--amber-bg);color:var(--amber)">{{ c.n_warn }} flagged</b>{% endif %}</button>
     {% if not embedded %}<button type="button" data-tab="details">Details</button>{% endif %}
-    <label class="sw on" data-toggle="heard-off" data-target="#inspector" id="insp-heard"><span class="tg"></span>Show what the agent heard</label>
+    {% if c.engine == 'gf-caller' %}<label class="sw on" data-toggle="heard-off" data-target="#inspector" id="insp-heard"><span class="tg"></span>Show what the agent heard</label>{% else %}<span class="sw" style="cursor:default" title="this engine does not export the caller's exact words">agent transcript only</span>{% endif %}
   </div>
 
   <div class="panes">
@@ -40,7 +40,7 @@
           <div class="t">{{ it.t_ms|clock }}</div><div class="av">C</div>
           <div><div class="who">{{ c.caller.persona.name if c.caller.persona else 'Caller' }}{% if it.interruption %}<span class="chip" style="color:#b45309;border-color:#fde68a">interrupts</span>{% endif %}</div>
             <div>{{ it.text }}</div>
-            {% if it.heard %}<div class="heard" title="what the agent's speech recognition produced">agent heard: “{% for m in it.heard_marks %}{% if m.bad %}<mark>{{ m.w }}</mark>{% else %}{{ m.w }}{% endif %}{% if not loop.last %} {% endif %}{% endfor %}”</div>{% endif %}
+            {% if it.heard and c.engine == 'gf-caller' %}<div class="heard" title="what the agent's speech recognition produced">agent heard: “{% for m in it.heard_marks %}{% if m.bad %}<mark>{{ m.w }}</mark>{% else %}{{ m.w }}{% endif %}{% if not loop.last %} {% endif %}{% endfor %}”</div>{% endif %}
           </div>
         </div>
         {% elif it.kind == 'agent' %}
@@ -252,7 +252,15 @@
       for (let t=0; t<=dur; t+=10000){ const px=xOf(c,t); ctx.strokeStyle=C.grid; ctx.beginPath(); ctx.moveTo(px,top); ctx.lineTo(px,H-16); ctx.stroke(); ctx.fillText((t/1000|0)+'s', px, H-8); } }
     lanes.forEach(l => {
       const e = env && env[l.name] || []; const step = env && env.step_ms || 50; ctx.fillStyle = l.color;
-      for (let i=0;i<e.length;i++){ const v=e[i]/100; if (v<0.04) continue; const px=xOf(c,i*step), w=Math.max(1, xOf(c,step)-xOf(c,0)); const hh=Math.max(1, v*laneH); ctx.fillRect(px, l.y + (laneH-hh)/2, w, hh); }
+      if (e.length) {
+        for (let i=0;i<e.length;i++){ const v=e[i]/100; if (v<0.04) continue; const px=xOf(c,i*step), w=Math.max(1, xOf(c,step)-xOf(c,0)); const hh=Math.max(1, v*laneH); ctx.fillRect(px, l.y + (laneH-hh)/2, w, hh); }
+      } else {
+        // no recording (e.g. the LiveKit simulator keeps the audio): draw the turns from their timestamps
+        const kind = l.name === 'caller' ? 'caller_speech' : 'agent_speech';
+        ctx.globalAlpha = 0.55;
+        (tl.events||[]).filter(ev => ev.kind === kind).forEach(ev => { const px = xOf(c, ev.t_ms), w = Math.max(2, xOf(c, ev.end_ms || ev.t_ms + 1000) - px); ctx.fillRect(px, l.y + laneH*0.25, w, laneH*0.5); });
+        ctx.globalAlpha = 1;
+      }
       if (!compact){ ctx.fillStyle = C.text; ctx.textAlign='left'; ctx.fillText(l.name, 4, l.y + laneH/2); }
     });
     const dotY = compact ? H-7 : H-24;

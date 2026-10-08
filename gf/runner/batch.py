@@ -127,6 +127,8 @@ def load_manifest(run_id: str) -> dict:
 
 def list_runs() -> list[Path]:
     runs = settings().runs_dir
+    if not runs.exists():
+        return []
     return sorted((p for p in runs.iterdir() if (p / "manifest.json").exists()), reverse=True)
 
 

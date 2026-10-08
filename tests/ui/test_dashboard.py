@@ -64,6 +64,12 @@ def site(tmp_path_factory):
         shutil.copytree(src, dst)
         _synth_audio(dst)
         calls.append({"session_id": sid, "attempt": n, "record_dir": str(dst), "call_id": sid})
+    # a call with no recording (as LiveKit-simulator imports have): lanes come from timestamps
+    noaudio = run / "ef113fc07616" / "1"
+    shutil.copytree(RECORDS / "refund-noisy", noaudio)
+    calls.append(
+        {"session_id": "ef113fc07616", "attempt": 1, "record_dir": str(noaudio), "call_id": "x"}
+    )
     (run / "manifest.json").write_text(
         json.dumps(
             {
@@ -284,6 +290,19 @@ def test_inspector_controls(site, page):
     assert page.locator("#insp-cur").inner_text() != "0:00"
     # prev/next attempt links exist when there is a neighbour (fixture has one attempt per session)
     assert insp.locator(".nav").inner_text()
+    _no_errors(page)
+
+
+def test_inspector_without_recording_still_draws_lanes(site, page):
+    page.goto(site["base"] + "/runs/t1/ef113fc07616/1")
+    assert page.locator("#insp-audio").count() == 0
+    assert page.locator("#insp-play").is_disabled()
+    assert page.locator("#insp-play svg:visible").count() == 1  # one icon, not both
+    painted = page.evaluate(
+        """() => { const c = document.getElementById('insp-lanes'); const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 0) n++; return n; }"""
+    )
+    assert painted > 200  # speech blocks drawn from the timeline
+    assert "no recording" in page.locator("#inspector .legend").first.inner_text()
     _no_errors(page)
 
 

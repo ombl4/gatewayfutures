@@ -171,6 +171,8 @@ details.srow summary .ttl .chip{font-weight:400}
 .abar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line)}
 .abar .pb{width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;border:0;display:grid;place-items:center;cursor:pointer;flex:none}
 .abar .pb svg{width:14px;height:14px;fill:#fff}
+.abar .pb svg[hidden]{display:none}
+.abar .pb[disabled]{background:#c7cbd1;cursor:not-allowed}
 .abar .tm{font-family:var(--mono);font-size:12px;color:var(--muted);min-width:84px;white-space:nowrap}
 .abar canvas.lanes{flex:1;height:64px;min-width:0;display:block;cursor:pointer;border-radius:6px}
 .legend{font-size:11.5px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap;padding:0 14px 8px}
@@ -265,7 +267,7 @@ details.srow summary .ttl .chip{font-weight:400}
   <a class="row" href="agent.html#models"><span>Model</span><span>gpt-4.1-mini</span></a>
   <a class="row" href="backend.html"><span>Order system</span><span>mock</span></a>
   <a class="row" href="caller.html"><span>Simulated caller</span><span>gf-caller</span></a>
-  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-08 23:08 UTC</div>
+  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-08 23:13 UTC</div>
 </aside>
 <div class="wrap">
 <header class="top">
@@ -298,8 +300,7 @@ details.srow summary .ttl .chip{font-weight:400}
     <button type="button" data-tab="timeline">Timeline</button>
     <button type="button" data-tab="latency">Latency<b>p95 2.6 s</b></button>
     <button type="button" data-tab="checks">Checks<b style="background:var(--amber-bg);color:var(--amber)">1 flagged</b></button>
-<button type="button" data-tab="details">Details</button>    <label class="sw on" data-toggle="heard-off" data-target="#inspector" id="insp-heard"><span class="tg"></span>Show what the agent heard</label>
-  </div>
+<button type="button" data-tab="details">Details</button><label class="sw on" data-toggle="heard-off" data-target="#inspector" id="insp-heard"><span class="tg"></span>Show what the agent heard</label>  </div>
 
   <div class="panes">
     <div>
@@ -1119,7 +1120,15 @@ dead air      </div>
       for (let t=0; t<=dur; t+=10000){ const px=xOf(c,t); ctx.strokeStyle=C.grid; ctx.beginPath(); ctx.moveTo(px,top); ctx.lineTo(px,H-16); ctx.stroke(); ctx.fillText((t/1000|0)+'s', px, H-8); } }
     lanes.forEach(l => {
       const e = env && env[l.name] || []; const step = env && env.step_ms || 50; ctx.fillStyle = l.color;
-      for (let i=0;i<e.length;i++){ const v=e[i]/100; if (v<0.04) continue; const px=xOf(c,i*step), w=Math.max(1, xOf(c,step)-xOf(c,0)); const hh=Math.max(1, v*laneH); ctx.fillRect(px, l.y + (laneH-hh)/2, w, hh); }
+      if (e.length) {
+        for (let i=0;i<e.length;i++){ const v=e[i]/100; if (v<0.04) continue; const px=xOf(c,i*step), w=Math.max(1, xOf(c,step)-xOf(c,0)); const hh=Math.max(1, v*laneH); ctx.fillRect(px, l.y + (laneH-hh)/2, w, hh); }
+      } else {
+        // no recording (e.g. the LiveKit simulator keeps the audio): draw the turns from their timestamps
+        const kind = l.name === 'caller' ? 'caller_speech' : 'agent_speech';
+        ctx.globalAlpha = 0.55;
+        (tl.events||[]).filter(ev => ev.kind === kind).forEach(ev => { const px = xOf(c, ev.t_ms), w = Math.max(2, xOf(c, ev.end_ms || ev.t_ms + 1000) - px); ctx.fillRect(px, l.y + laneH*0.25, w, laneH*0.5); });
+        ctx.globalAlpha = 1;
+      }
       if (!compact){ ctx.fillStyle = C.text; ctx.textAlign='left'; ctx.fillText(l.name, 4, l.y + laneH/2); }
     });
     const dotY = compact ? H-7 : H-24;
@@ -1159,7 +1168,7 @@ dead air      </div>
   if (t0 !== null && t0 !== undefined && audio) { seek(t0, false); scrollToTime(t0); draw(); highlight(); if (hashT !== undefined) root.scrollIntoView({block:'start'}); }
   window.gfInspector = { seek, selectTool, draw };
 })();
-</script><footer>gatewayfutures 0.1.0 · static report generated 2026-10-08 23:08 UTC</footer>
+</script><footer>gatewayfutures 0.1.0 · static report generated 2026-10-08 23:13 UTC</footer>
 </main>
 </div>
 <div id="player"><span class="lbl"></span><audio controls preload="none"></audio><button class="btn sm" onclick="gfPlayer.close()">✕</button></div>
