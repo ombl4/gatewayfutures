@@ -1,4 +1,4 @@
-# Services are added part by part (see docs/spec.md). Part 0 defines the skeleton only.
+# Services are added part by part (see docs/spec.md).
 services:
   backend:
     build: .
@@ -7,3 +7,15 @@ services:
     env_file:
       - path: .env
         required: false
+
+  agent:
+    build: .
+    command: uv run gf agent start
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      BACKEND_URL: http://backend:8080
+    volumes:
+      - ./runs:/app/runs
+    depends_on: [backend]

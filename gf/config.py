@@ -6,10 +6,15 @@ from functools import lru_cache
 from pathlib import Path
 
 import yaml
+from dotenv import load_dotenv
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ROOT = Path(__file__).resolve().parent.parent
+
+# The LiveKit plugins (OpenAI, Deepgram) and the LiveKit SDK read their keys from the
+# environment, so .env is loaded into os.environ as soon as gf is imported.
+load_dotenv(ROOT / ".env", override=False)
 
 
 class Settings(BaseSettings):

@@ -26,5 +26,54 @@ def doctor() -> None:
     raise typer.Exit(code=run_doctor())
 
 
+@app.command(context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
+def agent(ctx: typer.Context) -> None:
+    """Run the support agent worker: `gf agent dev|start|console|download-files`."""
+    import sys
+
+    from gf.agent.worker import main
+
+    sys.argv = ["gf-agent", *ctx.args]
+    main()
+
+
+PROBE_LINES = [
+    "Hi, I need a refund. My order number is G W 4 8 2 1 3 and the zip code is 9 4 1 1 0.",
+    "The blender arrived broken. I'd like the full amount back.",
+    "Yes, that's right, go ahead.",
+]
+
+
+@app.command()
+def probe(
+    room: str = "gf-probe",
+    say: list[str] | None = None,
+    out: str = "runs/_probe",
+) -> None:
+    """Scripted voice call against the running agent worker (no LLM on the caller side).
+
+    --room: room name (the agent is dispatched into it). --say: a line, repeatable.
+    --out: output folder for audio and summary.
+    """
+    from pathlib import Path
+
+    from gf.caller.probe import main
+
+    raise typer.Exit(code=main(room, say or PROBE_LINES, Path(out)))
+
+
+@app.command()
+def config() -> None:
+    """Print the agent configuration and its hash."""
+    from gf.agent.config import agent_config
+
+    cfg = agent_config()
+    typer.echo(f"{cfg.name}  hash={cfg.config_hash}")
+    typer.echo(
+        f"stt={cfg.models.stt.model}  llm={cfg.models.llm.model}  tts={cfg.models.tts.model}"
+    )
+    typer.echo(f"tools={', '.join(cfg.tools)}")
+
+
 if __name__ == "__main__":
     app()

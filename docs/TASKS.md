@@ -17,11 +17,12 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 - [x] Gate 1 — 18 unit tests pass; `docker compose up backend` + curl lookup/refund both 200 and logged
 
 ## Part 2 — Support agent (real LiveKit voice agent)
-- [ ] T2.0 LiveKit Cloud project setup (explicit dispatch, `lk` CLI)
-- [ ] T2.1 Agent config and `config_hash`
-- [ ] T2.2 Agent worker with voice behaviours
-- [ ] T2.3 Agent event capture
-- [ ] T2.4 Conversation test cases (text mode)
+- [x] T2.0 LiveKit Cloud project setup — worker registers as `gf-support-agent` (explicit dispatch); `CreateAgentDispatch` from the probe is picked up
+- [x] T2.1 Agent config and `config_hash` — `gf/agent/config.yaml`, `gf config`, 5 unit tests
+- [x] T2.2 Agent worker with voice behaviours — verified over real audio with `gf probe` (scripted caller, no human): greeting first, spoken digits → `lookup_order(GW-48213, 94110)`, read-back + yes → `issue_refund(89.99)`, honest confirmation. Console check optional
+- [x] T2.3 Agent event capture — `agent_events.jsonl` (messages, final transcripts, tool calls, states) and `agent_session_report.json` written per call; data-channel relay fixed (publish_data awaited)
+- [x] T2.4 Conversation test cases (text mode) — 6 behaviours in `tests/live/test_agent_text.py`; 6/6 on most runs, `test_unknown_order_asks_to_repeat_digits` intermittently fails (agent asks a question before looking up) — a real agent flaw, kept as a finding for the report
+- Findings from the first voice probe: greeting latency 6.3 s (includes cold process spawn in dev mode), reply latency 3.6–4.7 s from end of caller speech to first agent audio
 - [ ] Gate 2 — POC review
 
 ## Part 3 — Simulated caller
