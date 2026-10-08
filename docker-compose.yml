@@ -1,0 +1,8 @@
+# Services are added part by part (see docs/spec.md). Part 0 defines the skeleton only.
+services:
+  backend:
+    build: .
+    command: uv run uvicorn gf.backend.app:app --host 0.0.0.0 --port 8080
+    ports: ["8080:8080"]
+    env_file: .env
+    profiles: ["part1"]

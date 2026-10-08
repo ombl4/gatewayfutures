@@ -1,0 +1,57 @@
+[project]
+name = "gf"
+version = "0.1.0"
+description = "Simulated phone calls for voice agents: run LLM-driven callers against a LiveKit support agent, record, score, report."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "livekit-agents[deepgram,openai,silero,turn-detector]>=1.2",
+    "livekit-plugins-noise-cancellation>=0.2",
+    "livekit-api>=1.0",
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "typer>=0.12",
+    "pydantic>=2.8",
+    "pydantic-settings>=2.4",
+    "pyyaml>=6.0",
+    "httpx>=0.27",
+    "jinja2>=3.1",
+    "jiwer>=3.0",
+    "numpy>=2.0",
+    "soundfile>=0.12",
+    "python-dotenv>=1.0",
+    "rich>=13.0",
+]
+
+[project.scripts]
+gf = "gf.cli:app"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "ruff>=0.6",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["gf"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = [
+    "live: needs real API keys (OpenAI, Deepgram, LiveKit); run with `make test-live`",
+    "e2e: full simulated call; run with `make smoke`",
+]
+addopts = "-m 'not live and not e2e'"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
