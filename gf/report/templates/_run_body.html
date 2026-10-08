@@ -29,13 +29,13 @@
     <div class="k">{{ k.label }}</div>
     <div class="v">{{ k.value }}</div>
     <div class="d">{{ k.sub }}</div>
-    <div class="trend">{{ spark(k.series, k.cls) }}{% if k.delta_text %}<span class="vs {{ k.delta_class }}">{{ k.delta_text }} vs previous</span>{% elif not k.comparable %}<span class="vs none">no comparable run</span>{% else %}<span class="vs same">no change</span>{% endif %}</div>
+    <div class="trend">{{ spark(k.series, k.cls) }}{% if k.delta_text %}<span class="vs {{ k.delta_class }}" title="{{ 'same sessions and agent' if k.like_for_like else 'sessions or agent changed since ' ~ k.prev_id ~ ': not like-for-like' }}">{{ k.delta_text }} vs {{ k.prev_id }}{% if not k.like_for_like %} *{% endif %}</span>{% elif not k.comparable %}<span class="vs none">first run</span>{% else %}<span class="vs same" title="{{ 'same sessions and agent' if k.like_for_like else 'sessions or agent changed: not like-for-like' }}">no change vs {{ k.prev_id }}{% if not k.like_for_like %} *{% endif %}</span>{% endif %}</div>
   </div>
 {% endfor %}
 </div>
 {% endmacro %}
 
-{% macro sessions(r, title='Practice sessions', open_first_failing=True) %}
+{% macro sessions(r, title='Practice sessions', open_first_failing=False) %}
 <div class="acc" id="sessions">
   <div class="hd"><h3>{{ title }} <span class="muted" style="font-weight:500">({{ r.sessions|length }})</span></h3><span class="small muted">{{ r.repeat }} attempt{{ '' if r.repeat == 1 else 's' }} each · click a row to expand</span></div>
   {% set ns = namespace(opened=False) %}

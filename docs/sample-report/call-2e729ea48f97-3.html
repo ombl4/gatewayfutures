@@ -1,0 +1,1100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Refund request on an order that was already refunded #3 · Call</title>
+<style>
+:root{
+  --bg:#f7f7f8;--card:#fff;--ink:#111827;--muted:#6b7280;--line:#e5e7eb;--line2:#f1f3f5;
+  --accent:#4f46e5;--accent-bg:#eef2ff;--accent-ink:#3730a3;
+  --green:#15803d;--green-bg:#dcfce7;--amber:#b45309;--amber-bg:#fef3c7;--red:#b91c1c;--red-bg:#fee2e2;
+  --grey:#6b7280;--grey-bg:#f3f4f6;--caller:#2563eb;--agent:#7c3aed;--tool:#0f766e;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{color-scheme:light}
+body{margin:0;background:var(--bg);color:var(--ink);font:13.5px/1.5 var(--sans);display:grid;grid-template-columns:200px minmax(0,1fr);min-height:100vh}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+h1{font-size:22px;margin:0 0 2px;font-weight:650;letter-spacing:-.01em}
+h2{font-size:15px;margin:22px 0 10px;font-weight:650}
+h3{font-size:13.5px;margin:0 0 6px;font-weight:650}
+.sub{color:var(--muted);margin:0 0 14px}
+.mono{font-family:var(--mono);font-size:12px}
+.muted{color:var(--muted)}.small{font-size:12px}.num{text-align:right;font-variant-numeric:tabular-nums}
+/* shell */
+aside.nav{background:#fff;border-right:1px solid var(--line);padding:14px 10px;position:sticky;top:0;height:100vh;overflow:auto;display:flex;flex-direction:column;gap:2px}
+.brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;padding:4px 8px 14px;color:var(--ink)}
+.brand svg{width:22px;height:18px}
+aside.nav a.item{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:7px;color:var(--ink);font-weight:500}
+aside.nav a.item:hover{background:var(--grey-bg);text-decoration:none}
+aside.nav a.item.active{background:var(--accent-bg);color:var(--accent-ink)}
+aside.nav a.item svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;opacity:.85}
+aside.nav .sec{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:16px 10px 6px;font-weight:600}
+.agentbox{display:flex;gap:9px;align-items:center;padding:6px 10px 10px}
+.agentbox .av{width:30px;height:30px;border-radius:8px;background:var(--accent-bg);color:var(--accent);display:grid;place-items:center;font-weight:700;font-size:13px}
+.agentbox .nm{font-weight:600;font-size:12.5px;line-height:1.25}
+.agentbox .st{font-size:11.5px;color:var(--muted)}
+.agentbox .st i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:4px;vertical-align:1px}
+aside.nav a.row{display:flex;justify-content:space-between;gap:6px;padding:5px 10px;border-radius:6px;color:var(--ink);font-size:12.5px}
+aside.nav a.row:hover{background:var(--grey-bg);text-decoration:none}
+aside.nav a.row span:last-child{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:55%}
+.vers{margin-top:auto;padding:10px;font-size:11px;color:var(--muted)}
+.wrap{min-width:0;display:flex;flex-direction:column}
+header.top{height:52px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;padding:0 24px;position:sticky;top:0;z-index:5}
+.crumbs{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.crumbs a{color:var(--muted)}.crumbs b{color:var(--ink);font-weight:600}.crumbs i{font-style:normal;color:#c4c8cf}
+header .right{margin-left:auto;display:flex;align-items:center;gap:8px;white-space:nowrap}
+main{padding:20px 24px 90px;max-width:1400px;width:100%}
+footer{color:var(--muted);font-size:11.5px;text-align:center;margin-top:36px}
+@media (max-width:900px){
+  body{grid-template-columns:minmax(0,1fr)}
+  aside.nav{position:static;height:auto;flex-direction:row;flex-wrap:wrap;gap:4px;padding:8px}
+  aside.nav .sec,aside.nav .agentbox,aside.nav a.row,.vers{display:none}
+  .brand{padding:6px 8px;width:100%}
+  header.top{height:auto;padding:8px 16px;flex-wrap:wrap}
+  header .right{margin-left:0;flex-wrap:wrap;white-space:normal}
+  details.srow summary{grid-template-columns:18px minmax(0,1fr) auto auto}
+  .meta .mono{word-break:break-all}
+  details.srow summary .bar{display:none}
+  .sbody{padding-left:14px}
+  main{padding:14px 16px 90px}
+}
+/* components */
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.card h3{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.grid{display:grid;gap:12px}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11.5px;font-weight:600;white-space:nowrap;line-height:1.6}
+.pill.green,.pill.pass{background:var(--green-bg);color:var(--green)}.pill.amber{background:var(--amber-bg);color:var(--amber)}
+.pill.red,.pill.fail{background:var(--red-bg);color:var(--red)}.pill.grey,.pill.invalid{background:var(--grey-bg);color:var(--grey)}
+.pill.indigo{background:var(--accent-bg);color:var(--accent-ink)}
+.chip{display:inline-block;padding:0 7px;border:1px solid var(--line);border-radius:6px;font-size:11.5px;color:var(--muted);background:#fff;margin:1px 3px 1px 0;white-space:nowrap}
+.status-pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600;background:#fff;color:var(--ink)}
+.status-pill i{width:7px;height:7px;border-radius:50%;background:#c4c8cf}
+.status-pill.ok i{background:var(--green)}.status-pill.bad i{background:var(--red)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:7px;border:1px solid var(--line);background:#fff;font:inherit;font-weight:600;font-size:12.5px;cursor:pointer;color:var(--ink);text-decoration:none;line-height:1.4}
+.btn:hover{background:var(--grey-bg);text-decoration:none}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn.primary:hover{background:#4338ca}
+.btn.danger{color:var(--red);border-color:#fecaca}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn.sm{padding:3px 9px;font-size:12px}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+th,td{text-align:left;padding:8px 10px;border-top:1px solid var(--line2);vertical-align:top}
+th{background:#fafafa;color:var(--muted);font-weight:600;font-size:11.5px;border-top:0;text-transform:uppercase;letter-spacing:.04em}
+tr:hover td{background:#fafafa}
+.tablewrap{overflow-x:auto}
+.strip{display:inline-flex;gap:3px;vertical-align:middle}
+.dot{width:13px;height:13px;border-radius:3px;display:inline-block;border:1px solid transparent}
+.dot.pass{background:var(--green)}.dot.fail{background:var(--red)}.dot.invalid{background:#cbd0d6}
+.dot.pending{background:#fff;border-color:var(--line)}
+.vs{font-size:12px;font-weight:600}.vs.regressed{color:var(--red)}.vs.fixed{color:var(--green)}.vs.same,.vs.new,.vs.none{color:var(--muted);font-weight:500}
+.kv{display:grid;grid-template-columns:max-content 1fr;gap:3px 14px;font-size:13px}
+.kv .k{color:var(--muted)}
+.two{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px;align-items:start}
+@media (max-width:1000px){.two{grid-template-columns:1fr}}
+details{border:1px solid var(--line);border-radius:10px;background:#fff;padding:10px 14px;margin:8px 0}
+details summary{cursor:pointer;font-weight:600}
+pre{background:#fafafa;border:1px solid var(--line);border-radius:8px;padding:10px;overflow:auto;font-size:12px;margin:8px 0}
+code{font-family:var(--mono);font-size:12px;background:#f3f4f6;padding:0 4px;border-radius:4px}
+.input{width:100%;max-width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:7px;font:inherit;background:#fff;margin:3px 0 6px}
+select.input{max-width:100%}
+textarea.input{font-family:var(--mono);font-size:12px;line-height:1.45}
+.list li{margin:4px 0}
+.banner{border:1px solid #c7d2fe;background:var(--accent-bg);border-radius:10px;padding:10px 14px;margin:0 0 12px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.banner.warn{border-color:#fcd34d;background:var(--amber-bg)}
+.progress{height:8px;background:#e0e7ff;border-radius:4px;overflow:hidden;min-width:160px;flex:1}
+.progress i{display:block;height:100%;background:var(--accent)}
+.meta{color:var(--muted);font-size:12.5px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 14px}
+.meta i{font-style:normal;color:#c4c8cf}
+/* KPI cards */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:12px;margin:0 0 16px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;grid-template-columns:34px minmax(0,1fr) 84px;grid-template-rows:auto auto auto;gap:0 10px;align-items:start}
+.kpi .ic{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;grid-column:1;grid-row:1/4}
+.kpi .ic svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.kpi.green .ic{background:var(--green-bg);color:var(--green)}.kpi.amber .ic{background:var(--amber-bg);color:var(--amber)}.kpi.red .ic{background:var(--red-bg);color:var(--red)}.kpi.grey .ic{background:var(--grey-bg);color:var(--grey)}
+.kpi .k{grid-column:2;grid-row:1;font-size:12.5px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi .v{grid-column:2;grid-row:2;font-size:26px;font-weight:700;line-height:1.2;letter-spacing:-.01em;margin:2px 0}
+.kpi .d{grid-column:2;grid-row:3;font-size:11.5px;color:var(--muted);line-height:1.35}
+.kpi .trend{grid-column:3;grid-row:1/4;font-size:11px;color:var(--muted);align-self:center;text-align:center;line-height:1.3}
+.kpi .trend svg{display:block;width:76px;height:28px;margin:0 auto 3px}
+.kpi .trend .vs{display:block;font-size:11px}
+/* flow strip */
+.flow{display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin:-4px 0 16px;font-size:12px;color:var(--muted)}
+.flow .lbl{margin-right:4px}
+.flow a{display:inline-flex;align-items:center;gap:5px;color:var(--ink);font-weight:500;padding:2px 6px;border-radius:6px}
+.flow a:hover{background:var(--grey-bg);text-decoration:none}
+.flow a b{display:inline-grid;place-items:center;width:15px;height:15px;border-radius:50%;background:var(--accent-bg);color:var(--accent-ink);font-size:9.5px;font-weight:700}
+.flow i{color:#c4c8cf;font-style:normal}
+/* workspace: sessions + issues */
+.work{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start;margin-bottom:16px}
+@media (max-width:1100px){.work{grid-template-columns:1fr}}
+.acc{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.acc .hd{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line)}
+.acc .hd h3{margin:0}
+details.srow{border:0;border-radius:0;margin:0;padding:0;border-top:1px solid var(--line2)}
+details.srow:first-of-type{border-top:0}
+details.srow summary{list-style:none;display:grid;grid-template-columns:18px minmax(0,1fr) 150px 70px auto;gap:10px;align-items:center;padding:9px 14px;font-weight:500;cursor:pointer}
+details.srow summary::-webkit-details-marker{display:none}
+details.srow summary:hover{background:#fafafa}
+details.srow summary .chev{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:2;transition:transform .15s}
+details.srow[open] summary .chev{transform:rotate(90deg)}
+details.srow summary .ttl{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+details.srow summary .ttl .chip{font-weight:400}
+.bar{height:6px;background:var(--grey-bg);border-radius:3px;overflow:hidden;display:flex;min-width:60px}
+.bar i{display:block;height:100%}
+.bar .p{background:var(--green)}.bar .f{background:var(--red)}.bar .x{background:#cbd0d6}
+.cnt{font-size:12px;white-space:nowrap}.cnt b.p{color:var(--green)}.cnt b.f{color:var(--red)}
+.sbody{padding:4px 14px 12px 42px;background:#fcfcfc;border-top:1px solid var(--line2)}
+.cols4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;font-size:12.5px}
+@media (max-width:900px){.cols4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.cols4 .h{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-bottom:2px}
+.att{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:5px 0;border-top:1px solid var(--line2);font-size:12.5px}
+.att .rs{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.issues{display:flex;flex-direction:column;gap:8px}
+.issue{display:block;background:#fff;border:1px solid var(--line);border-left:3px solid var(--line);border-radius:8px;padding:9px 12px;color:var(--ink)}
+.issue:hover{text-decoration:none;border-color:var(--accent);border-left-color:var(--accent)}
+.issue.critical{border-left-color:var(--red)}.issue.high{border-left-color:#f97316}.issue.medium{border-left-color:#f59e0b}.issue.simulation{border-left-color:#9ca3af}
+.issue .t{display:flex;gap:8px;align-items:center;font-weight:600;font-size:12.5px}
+.issue .t .pill{margin-left:auto}
+.issue .m{font-size:11.5px;color:var(--muted);margin-top:3px}
+.sev{font-size:10.5px;padding:0 6px;border-radius:4px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.sev.critical{background:var(--red-bg);color:var(--red)}.sev.high{background:#ffedd5;color:#c2410c}.sev.medium{background:var(--amber-bg);color:var(--amber)}.sev.simulation{background:var(--grey-bg);color:var(--grey)}
+/* inspector */
+.insp{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:16px}
+.insp .hd{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.insp .hd .meta{flex:1;min-width:200px;overflow:hidden}
+.insp .hd .meta .ttl{font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:40vw}
+.insp .hd h2{margin:0;font-size:15px}
+.insp .hd .meta{margin:0}
+.insp .hd .nav{margin-left:auto;display:flex;gap:6px;align-items:center}
+.abar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.abar .pb{width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;border:0;display:grid;place-items:center;cursor:pointer;flex:none}
+.abar .pb svg{width:14px;height:14px;fill:#fff}
+.abar .pb svg[hidden]{display:none}
+.abar .pb[disabled]{background:#c7cbd1;cursor:not-allowed}
+.abar .tm{font-family:var(--mono);font-size:12px;color:var(--muted);min-width:84px;white-space:nowrap}
+.abar canvas.lanes{flex:1;height:64px;min-width:0;display:block;cursor:pointer;border-radius:6px}
+.legend{font-size:11.5px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap;padding:0 14px 8px}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+.tabs{display:flex;gap:2px;padding:0 14px;border-bottom:1px solid var(--line);align-items:center}
+.tabs button{border:0;background:none;font:inherit;font-size:12.5px;font-weight:600;color:var(--muted);padding:9px 10px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs button.on{color:var(--accent-ink);border-bottom-color:var(--accent)}
+.tabs button b{font-weight:600;background:var(--grey-bg);color:var(--muted);border-radius:999px;padding:0 6px;font-size:11px;margin-left:4px}
+.tabs .sw{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;user-select:none}
+.sw .tg{width:30px;height:17px;border-radius:999px;background:#d1d5db;position:relative;transition:background .15s}
+.sw .tg::after{content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:#fff;transition:left .15s}
+.sw.on .tg{background:var(--accent)}.sw.on .tg::after{left:15px}
+.panes{display:grid;grid-template-columns:minmax(0,1fr) 360px}
+@media (max-width:1100px){.panes{grid-template-columns:1fr}}
+.pane{padding:8px 14px 14px;min-width:0}
+.pane[hidden]{display:none!important}
+.side{border-left:1px solid var(--line);padding:12px 14px;min-width:0}
+@media (max-width:1100px){.side{border-left:0;border-top:1px solid var(--line)}}
+.turn{display:grid;grid-template-columns:38px 22px minmax(0,1fr);gap:8px;padding:7px 8px;border-radius:8px;margin:2px 0;cursor:pointer;border:1px solid transparent}
+.turn:hover{background:#fafafa}.turn.current{background:var(--accent-bg);border-color:#c7d2fe}
+.turn .t{color:var(--muted);font-family:var(--mono);font-size:11px;padding-top:4px}
+.turn .av{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;font-weight:700;margin-top:1px}
+.turn.caller .av{background:#dbeafe;color:var(--caller)}.turn.agent .av{background:#ede9fe;color:var(--agent)}
+.turn .who{font-size:11.5px;font-weight:650;margin-bottom:0;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.turn.caller .who{color:var(--caller)}.turn.agent .who{color:var(--agent)}
+.turn .heard{font-size:12px;color:var(--muted);margin-top:3px}
+.turn .heard mark{background:var(--red-bg);color:var(--red);padding:0 2px;border-radius:3px}
+.heard-off .turn .heard{display:none}
+.lat{font-weight:600}
+.toolev{margin:4px 0 4px 68px;border:1px solid #ccfbf1;background:#f0fdfa;border-radius:8px;padding:6px 10px;font-size:12.5px;cursor:pointer;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.toolev.bad{border-color:#fecaca;background:#fff5f5}
+.toolev.sel{outline:2px solid var(--accent);outline-offset:-1px}
+.toolev .name{font-family:var(--mono);font-weight:650;color:var(--tool)}
+.toolev.bad .name{color:var(--red)}
+.toolev .args{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.deadair{margin:4px 0 4px 68px;font-size:12px;color:var(--amber);background:var(--amber-bg);border-radius:6px;padding:2px 10px;display:inline-block;cursor:pointer}
+.root{border:1px solid #fecaca;background:#fff5f5;border-radius:8px;padding:9px 12px;font-size:12.5px;margin-bottom:12px}
+.root.pass{border-color:#bbf7d0;background:#f0fdf4}.root.warn{border-color:#fde68a;background:#fffbeb}.root.invalid{border-color:var(--line);background:#fafafa}
+.root b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.root.fail b{color:var(--red)}.root.pass b{color:var(--green)}.root.warn b{color:var(--amber)}.root.invalid b{color:var(--grey)}
+.tev{border:1px solid var(--line);border-radius:8px;margin-bottom:12px;overflow:hidden}
+.tev .h{display:flex;gap:8px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line2);font-size:12.5px}
+.tev .h .name{font-family:var(--mono);font-weight:650}
+.tev .h .ms{margin-left:auto;color:var(--muted);font-size:11.5px;white-space:nowrap}
+.tev .tt{display:flex;gap:2px;padding:4px 6px 0;border-bottom:1px solid var(--line2)}
+.tev .tt button{border:0;background:none;font:inherit;font-size:11.5px;font-weight:600;color:var(--muted);padding:4px 8px;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer}
+.tev .tt button.on{color:var(--accent-ink);border-bottom-color:var(--accent)}
+.tev pre{margin:0;border:0;border-radius:0;max-height:220px;font-size:11.5px}
+.tev .empty{padding:10px;font-size:12px;color:var(--muted)}
+.check{display:grid;grid-template-columns:16px minmax(0,1fr) auto;gap:8px;padding:5px 0;border-top:1px solid var(--line2);align-items:start;font-size:12.5px}
+.check:first-child{border-top:0}
+.check .ic{font-weight:700}.check.pass .ic{color:var(--green)}.check.fail .ic{color:var(--red)}.check.warn .ic{color:var(--amber)}.check.info .ic{color:var(--grey)}
+.check .what{font-size:12px;color:var(--muted)}
+.check .why{font-size:12px;color:var(--muted);display:none;margin-top:3px}
+.check.open .why{display:block}
+.check .jump{font-size:11.5px;white-space:nowrap;font-family:var(--mono)}
+.group{margin-bottom:8px}
+.group h4{display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin:0 0 2px;font-size:12.5px}
+.group.collapsed .checks{display:none}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin:2px 0 8px}
+.tag{position:relative;display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);border-radius:6px;padding:1px 4px 1px 6px;font-size:11.5px;background:#fff;color:var(--ink)}
+.tag .m{font-weight:700;font-size:11px}
+.tag.pass .m{color:var(--green)}.tag.fail{border-color:#fecaca;background:#fff5f5}.tag.fail .m{color:var(--red)}.tag.warn{border-color:#fde68a;background:#fffbeb}.tag.warn .m{color:var(--amber)}.tag.info .m{color:var(--grey)}
+.tag code{background:none;padding:0;font-size:11px}
+.tag .val{color:var(--muted);font-variant-numeric:tabular-nums}
+.tag .q{width:15px;height:15px;border-radius:50%;border:1px solid var(--line);background:#fafafa;color:var(--muted);font-size:10px;font-weight:700;display:grid;place-items:center;cursor:pointer;line-height:1}
+.tag .q:hover,.tag.open .q{background:var(--accent);border-color:var(--accent);color:#fff}
+.tag .pop{display:none;position:absolute;z-index:4;top:calc(100% + 6px);left:0;width:300px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 11px;box-shadow:0 6px 20px rgba(0,0,0,.1);font-size:12px;white-space:normal}
+.tag.open .pop{display:block}
+.tag .pop b{display:block;font-size:12.5px;margin-bottom:3px}
+.tag .pop .what{display:block;margin-bottom:4px}
+.tag .pop .why{display:block}
+.tag .pop .why{color:var(--muted)}
+.tag .pop .jump{display:inline-block;margin-top:5px;font-family:var(--mono);font-size:11.5px}
+.ghead{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;font-weight:600;margin:6px 0 3px}
+.evdots{display:flex;gap:4px;align-items:center}
+.tl{width:100%;height:150px;display:block;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer}
+.play{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:1px 9px 1px 7px;font:inherit;font-size:12px;cursor:pointer;color:var(--ink);white-space:nowrap}
+.play:hover{border-color:var(--accent);color:var(--accent)}
+.play.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.play .t{font-family:var(--mono);font-size:11px;min-width:34px;text-align:left}
+#player{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:6px 24px;display:none;z-index:6;box-shadow:0 -2px 10px rgba(0,0,0,.06)}
+#player.on{display:flex;gap:12px;align-items:center}
+#player audio{flex:1;margin:0}
+#player .lbl{font-size:12px;color:var(--muted);max-width:40%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.status{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:6px 14px}
+.status .row{display:flex;gap:8px;align-items:baseline;font-size:12.5px}
+.status .row .ic{font-weight:700}.status .row.ok .ic{color:var(--green)}.status .row.bad .ic{color:var(--red)}.status .row.soft .ic{color:var(--amber)}
+.status .row .d{color:var(--muted);font-size:11.5px}
+.sessionpick{columns:2;column-gap:16px;font-size:12.5px}
+.sessionpick label{display:block;break-inside:avoid;padding:2px 0}
+.sparkpos{color:var(--green)}
+</style>
+</head>
+<body>
+<aside class="nav">
+  <a class="brand" href="overview.html"><svg viewBox="0 0 24 20" aria-hidden="true"><g fill="var(--accent)"><rect x="1" y="7" width="3" height="6" rx="1.5"/><rect x="6" y="3" width="3" height="14" rx="1.5"/><rect x="11" y="0" width="3" height="20" rx="1.5"/><rect x="16" y="4" width="3" height="12" rx="1.5"/><rect x="21" y="8" width="3" height="4" rx="1.5"/></g></svg>Call simulator</a>
+  <a class="item " href="overview.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Overview</a>
+  <a class="item " href="sessions.html"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Practice sessions</a>
+  <a class="item active" href="index.html"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h12M3 18h6"/></svg>Runs</a>
+  <a class="item " href="scoring.html"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16"/><path d="M8 15l4-5 3 3 5-6"/></svg>Scoring</a>
+  <a class="item " href="agent.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Agent settings</a>
+  <div class="sec">Support agent</div>
+  <a class="agentbox" href="agent.html" style="text-decoration:none;color:inherit"><div class="av">A</div><div><div class="nm">Gateway Goods support line</div><div class="st"><i></i>livekit</div></div></a>
+  <a class="row" href="agent.html#prompt"><span>Prompt</span><span>Ava</span></a>
+  <a class="row" href="agent.html#voice"><span>Voice</span><span>aura-2-luna-en</span></a>
+  <a class="row" href="agent.html#tools"><span>Tools</span><span>4 tools</span></a>
+  <a class="row" href="agent.html#models"><span>Model</span><span>gpt-4.1-mini</span></a>
+  <a class="row" href="backend.html"><span>Order system</span><span>mock</span></a>
+  <a class="row" href="caller.html"><span>Simulated caller</span><span>gf-caller</span></a>
+  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-08 23:58 UTC</div>
+</aside>
+<div class="wrap">
+<header class="top">
+  <div class="crumbs"><a href="overview.html">Voice agent evaluation</a><i>›</i><a href="index.html">Runs</a><i>›</i><a href="index.html">full-3</a><i>›</i><a href="session-2e729ea48f97.html">Refund request on an order that was already refunded</a><i>›</i><b>attempt 3</b></div>
+  <div class="right">
+    <span class="status-pill " title="livekit"><i></i>livekit</span>
+  </div>
+</header>
+<main>
+<section class="insp" id="inspector" data-call="2e729ea48f97/3">
+  <div class="hd">
+    <h2>Call inspector</h2>
+    <div class="meta"><span class="ttl" title="Refund request on an order that was already refunded">Refund request on an order that was already refunded</span><i>·</i><span class="pill pass">Passed</span><i>·</i><span>0:56</span></div>
+    <div class="nav">
+      <span class="small muted">ended by caller</span>
+<a class="btn sm" href="call-2e729ea48f97-2.html" id="insp-prev" title="previous attempt">‹</a>      <span class="small">attempt 3 of 3</span>
+<span class="btn sm" style="opacity:.4">›</span><a class="btn sm" href="index.html">← Run full-3</a>    </div>
+  </div>
+
+  <div class="abar">
+    <button class="pb" id="insp-play" type="button" title="play / pause" ><svg viewBox="0 0 24 24" class="i-play"><path d="M7 4l13 8-13 8z"/></svg><svg viewBox="0 0 24 24" class="i-pause" hidden><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg></button>
+    <span class="tm"><span id="insp-cur">0:00</span> / 0:56</span>
+    <canvas class="lanes" id="insp-lanes" height="64"></canvas>
+<audio id="insp-audio" preload="metadata" src="audio/2e729ea48f97-3.mp3"></audio>  </div>
+  <div class="legend"><span><i style="background:var(--caller)"></i>caller</span><span><i style="background:var(--agent)"></i>agent</span><span><i style="background:var(--tool)"></i>tool call</span><span><i style="background:var(--red)"></i>issue</span><span><i style="background:#f59e0b"></i>interruption</span><span><i style="background:#fde68a"></i>dead air</span><span class="muted">click the lanes to seek</span></div>
+
+  <div class="tabs" data-tabs="inspector">
+    <button type="button" data-tab="transcript" class="on">Transcript</button>
+    <button type="button" data-tab="tools">Tool calls<b>1</b></button>
+    <button type="button" data-tab="timeline">Timeline</button>
+    <button type="button" data-tab="latency">Latency<b>p95 2.4 s</b></button>
+    <button type="button" data-tab="checks">Checks<b style="background:var(--amber-bg);color:var(--amber)">1 flagged</b></button>
+<button type="button" data-tab="details">Details</button><label class="sw on" data-toggle="heard-off" data-target="#inspector" id="insp-heard"><span class="tg"></span>Show what the agent heard</label>  </div>
+
+  <div class="panes">
+    <div>
+      <div class="pane" data-pane="transcript" id="transcript">
+        <div class="turn agent" data-t="1769" data-end="6530">
+          <div class="t">0:01</div><div class="av">A</div>
+          <div><div class="who">Agent</div>
+            <div>Thanks for calling Gateway Goods, this is Ava. How can I help you today?</div>
+          </div>
+        </div>
+        <div class="turn caller" data-t="7293" data-end="10920">
+          <div class="t">0:07</div><div class="av">C</div>
+          <div><div class="who">Maria Lopez</div>
+            <div>Hi Eva, I&#39;m calling about a refund for an order I placed. The USB-C cable I bought stopped working.</div>
+<div class="heard" title="what the agent's speech recognition produced">agent heard: “Hi, Eva. I&#39;m calling about a refund for an order I placed.”</div>          </div>
+        </div>
+        <div class="turn agent" data-t="16195" data-end="23677">
+          <div class="t">0:16</div><div class="av">A</div>
+          <div><div class="who">Agent<span class="pill green lat" title="caller stopped → agent audio started">1.7 s</span></div>
+            <div>I can help with that. Can you please provide the order number for the USB cable? It starts with G W and has five digits.</div>
+          </div>
+        </div>
+        <div class="turn caller" data-t="24930" data-end="27602">
+          <div class="t">0:24</div><div class="av">C</div>
+          <div><div class="who">Maria Lopez</div>
+            <div>Yes, the order number is G W 4 8 9 1 1.</div>
+<div class="heard" title="what the agent's speech recognition produced">agent heard: “Yes. The”</div>          </div>
+        </div>
+        <div class="turn agent" data-t="31404" data-end="36325">
+          <div class="t">0:31</div><div class="av">A</div>
+          <div><div class="who">Agent<span class="pill green lat" title="caller stopped → agent audio started">1.4 s</span></div>
+            <div>Thank you. Can you also provide the zip code on the order? I need both to look it up.</div>
+          </div>
+        </div>
+        <div class="turn caller" data-t="37002" data-end="38657">
+          <div class="t">0:37</div><div class="av">C</div>
+          <div><div class="who">Maria Lopez</div>
+            <div>Sure, the ZIP code is 9 4 1 1 0.</div>
+<div class="heard" title="what the agent's speech recognition produced">agent heard: “Sure. The zip code is <mark>nine</mark> <mark>four</mark> <mark>one</mark> <mark>one</mark> <mark>zero.</mark>”</div>          </div>
+        </div>
+        <div class="toolev " data-tool="1" data-t="41350">
+          <span class="muted mono" style="font-size:11px">0:41</span><span class="name">lookup_order()</span><span class="args">order_id: "GW-48911", zip: "94110"</span>
+          <span class="pill green">200</span><span class="muted small">0 ms</span><span class="small">→ status=delivered, total=15.0, items=[{&#39;sku&#39;: &#39;CBL-3&#39;, &#39;name&#39;: &#39;USB-C cable&#39;, &#39;qty&#39;: 1, &#39;price&#39;: 15.0}], shipping_address=742 Valencia St, San Francisco, CA 9411</span>
+        </div>
+        <div class="turn agent" data-t="42130" data-end="51052">
+          <div class="t">0:42</div><div class="av">A</div>
+          <div><div class="who">Agent<span class="pill amber lat" title="caller stopped → agent audio started">2.4 s</span></div>
+            <div>The order G W 4 8 9 1 1 for the USB-C cable was delivered and has already been refunded. Is there anything else I can help you with?</div>
+          </div>
+        </div>
+        <div class="turn caller" data-t="52086" data-end="55231">
+          <div class="t">0:52</div><div class="av">C</div>
+          <div><div class="who">Maria Lopez</div>
+            <div>Yes, that&#39;s correct. Thank you very much for confirming the refund. I appreciate your help. Goodbye!</div>
+<div class="heard" title="what the agent's speech recognition produced">agent heard: “Yes. That&#39;s correct. Thank you very much for confirming the refund.”</div>          </div>
+        </div>
+        <div class="turn agent" data-t="57407" data-end="58866">
+          <div class="t">0:57</div><div class="av">A</div>
+          <div><div class="who">Agent<span class="chip">interrupted</span></div>
+            <div>You&#39;re welcome. If you</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pane" data-pane="tools" hidden>
+        <div class="tablewrap"><table>
+        <tr><th>time</th><th>tool</th><th>arguments</th><th>status</th><th>took</th><th>response</th></tr>
+        <tr class="toolrow" data-tool="1" data-t="41350" style="cursor:pointer"><td class="mono">0:41</td><td class="mono"><b>lookup_order</b></td><td class="mono small">{"order_id":"GW-48911","zip":"94110"}</td><td><span class="pill green">200</span></td><td>0 ms</td><td class="small">status=delivered, total=15.0, items=[{&#39;sku&#39;: &#39;CBL-3&#39;, &#39;name&#39;: &#39;USB-C cable&#39;, &#39;qty&#39;: 1, &#39;price&#39;: 15.0}], shipping_address=742 Valencia St, San Francisco, CA 9411</td></tr>
+        </table></div>
+        <p class="small muted">Read from the order system's request log, never from the transcript.</p>
+      </div>
+
+      <div class="pane" data-pane="timeline" hidden>
+        <canvas id="insp-tl" class="tl" height="150"></canvas>
+        <div class="tablewrap" style="margin-top:10px"><table>
+        <tr><th>time</th><th>event</th><th>detail</th></tr>
+        <tr class="tlrow" data-t="2300" style="cursor:pointer"><td class="mono">0:02</td><td>agent speech</td><td class="small">1.4 s</td></tr>
+        <tr class="tlrow" data-t="4260" style="cursor:pointer"><td class="mono">0:04</td><td>agent speech</td><td class="small">0.7 s</td></tr>
+        <tr class="tlrow" data-t="5500" style="cursor:pointer"><td class="mono">0:05</td><td>agent speech</td><td class="small">1.0 s</td></tr>
+        <tr class="tlrow" data-t="6531" style="cursor:pointer"><td class="mono">0:06</td><td>agent said</td><td class="small">Thanks for calling Gateway Goods, this is Ava. How can I help you today?</td></tr>
+        <tr class="tlrow" data-t="7293" style="cursor:pointer"><td class="mono">0:07</td><td>caller said</td><td class="small">Hi Eva, I&#39;m calling about a refund for an order I placed. The USB-C cable I bought stopped working.</td></tr>
+        <tr class="tlrow" data-t="7780" style="cursor:pointer"><td class="mono">0:07</td><td>caller speech</td><td class="small">0.7 s</td></tr>
+        <tr class="tlrow" data-t="8846" style="cursor:pointer"><td class="mono">0:08</td><td>agent heard</td><td class="small">Hi, Eva.</td></tr>
+        <tr class="tlrow" data-t="8900" style="cursor:pointer"><td class="mono">0:08</td><td>caller speech</td><td class="small">4.6 s</td></tr>
+        <tr class="tlrow" data-t="11857" style="cursor:pointer"><td class="mono">0:11</td><td>agent heard</td><td class="small">I&#39;m calling about a refund for an order I placed.</td></tr>
+        <tr class="tlrow" data-t="13860" style="cursor:pointer"><td class="mono">0:13</td><td>caller speech</td><td class="small">1.0 s</td></tr>
+        <tr class="tlrow" data-t="13911" style="cursor:pointer"><td class="mono">0:13</td><td>agent heard</td><td class="small">The USB c cable I bought</td></tr>
+        <tr class="tlrow" data-t="15255" style="cursor:pointer"><td class="mono">0:15</td><td>agent heard</td><td class="small">stopped working.</td></tr>
+        <tr class="tlrow" data-t="16620" style="cursor:pointer"><td class="mono">0:16</td><td>agent speech</td><td class="small">0.7 s</td></tr>
+        <tr class="tlrow" data-t="18020" style="cursor:pointer"><td class="mono">0:18</td><td>agent speech</td><td class="small">2.4 s</td></tr>
+        <tr class="tlrow" data-t="20900" style="cursor:pointer"><td class="mono">0:20</td><td>agent speech</td><td class="small">1.3 s</td></tr>
+        <tr class="tlrow" data-t="22500" style="cursor:pointer"><td class="mono">0:22</td><td>agent speech</td><td class="small">1.0 s</td></tr>
+        <tr class="tlrow" data-t="23678" style="cursor:pointer"><td class="mono">0:23</td><td>agent said</td><td class="small">I can help with that. Can you please provide the order number for the USB cable? It starts with G W and has five digits.</td></tr>
+        <tr class="tlrow" data-t="24930" style="cursor:pointer"><td class="mono">0:24</td><td>caller said</td><td class="small">Yes, the order number is G W 4 8 9 1 1.</td></tr>
+        <tr class="tlrow" data-t="25260" style="cursor:pointer"><td class="mono">0:25</td><td>caller speech</td><td class="small">5.2 s</td></tr>
+        <tr class="tlrow" data-t="28225" style="cursor:pointer"><td class="mono">0:28</td><td>agent heard</td><td class="small">Yes. The</td></tr>
+        <tr class="tlrow" data-t="30756" style="cursor:pointer"><td class="mono">0:30</td><td>agent heard</td><td class="small">order number is g w four eight nine one one.</td></tr>
+        <tr class="tlrow" data-t="31800" style="cursor:pointer"><td class="mono">0:31</td><td>agent speech</td><td class="small">0.3 s</td></tr>
+        <tr class="tlrow" data-t="32640" style="cursor:pointer"><td class="mono">0:32</td><td>agent speech</td><td class="small">2.0 s</td></tr>
+        <tr class="tlrow" data-t="35140" style="cursor:pointer"><td class="mono">0:35</td><td>agent speech</td><td class="small">1.0 s</td></tr>
+        <tr class="tlrow" data-t="36325" style="cursor:pointer"><td class="mono">0:36</td><td>agent said</td><td class="small">Thank you. Can you also provide the zip code on the order? I need both to look it up.</td></tr>
+        <tr class="tlrow" data-t="37002" style="cursor:pointer"><td class="mono">0:37</td><td>caller said</td><td class="small">Sure, the ZIP code is 9 4 1 1 0.</td></tr>
+        <tr class="tlrow" data-t="37340" style="cursor:pointer"><td class="mono">0:37</td><td>caller speech</td><td class="small">2.9 s</td></tr>
+        <tr class="tlrow" data-t="40553" style="cursor:pointer"><td class="mono">0:40</td><td>agent heard</td><td class="small">Sure. The zip code is nine four one one zero.</td></tr>
+        <tr class="tlrow" data-t="41350" style="cursor:pointer"><td class="mono">0:41</td><td>tool call</td><td class="small"><span class="mono">lookup_order</span> ok · 0 ms</td></tr>
+        <tr class="tlrow" data-t="42560" style="cursor:pointer"><td class="mono">0:42</td><td>agent speech</td><td class="small">3.7 s</td></tr>
+        <tr class="tlrow" data-t="46580" style="cursor:pointer"><td class="mono">0:46</td><td>agent speech</td><td class="small">2.2 s</td></tr>
+        <tr class="tlrow" data-t="49460" style="cursor:pointer"><td class="mono">0:49</td><td>agent speech</td><td class="small">1.4 s</td></tr>
+        <tr class="tlrow" data-t="51052" style="cursor:pointer"><td class="mono">0:51</td><td>agent said</td><td class="small">The order G W 4 8 9 1 1 for the USB-C cable was delivered and has already been refunded. Is there anything else I can help you with?</td></tr>
+        <tr class="tlrow" data-t="52086" style="cursor:pointer"><td class="mono">0:52</td><td>caller said</td><td class="small">Yes, that&#39;s correct. Thank you very much for confirming the refund. I appreciate your help. Goodbye!</td></tr>
+        <tr class="tlrow" data-t="52640" style="cursor:pointer"><td class="mono">0:52</td><td>caller speech</td><td class="small">1.0 s</td></tr>
+        <tr class="tlrow" data-t="53998" style="cursor:pointer"><td class="mono">0:53</td><td>agent heard</td><td class="small">Yes. That&#39;s correct.</td></tr>
+        <tr class="tlrow" data-t="54260" style="cursor:pointer"><td class="mono">0:54</td><td>caller speech</td><td class="small">2.1 s</td></tr>
+        <tr class="tlrow" data-t="56806" style="cursor:pointer"><td class="mono">0:56</td><td>agent heard</td><td class="small">Thank you very much for confirming the refund.</td></tr>
+        <tr class="tlrow" data-t="58868" style="cursor:pointer"><td class="mono">0:58</td><td>agent said</td><td class="small">You&#39;re welcome. If you</td></tr>
+        </table></div>
+      </div>
+
+      <div class="pane" data-pane="latency" hidden id="latency">
+        <p class="small muted" style="margin:6px 0 10px">Per agent turn: what the caller waited (<b>heard</b>, from the recording) and where the agent's own clock says the time went. Hover a segment for the stage.</p>
+        <div class="legend" style="padding:0 0 8px"><span><i style="background:#94a3b8;border-radius:2px"></i>End-of-turn detection</span><span><i style="background:#60a5fa;border-radius:2px"></i>Transcription</span><span><i style="background:#a78bfa;border-radius:2px"></i>LLM first token</span><span><i style="background:#34d399;border-radius:2px"></i>TTS first byte</span><span><i style="background:#fbbf24;border-radius:2px"></i>Playback</span><span><i style="background:#e5e7eb;border-radius:2px;border:1px solid #d1d5db"></i>Unaccounted</span><span><i style="background:transparent;border-left:2px solid var(--ink);border-radius:0;width:0"></i>heard</span></div>
+        <div class="tablewrap"><table class="small" id="latency-table">
+        <tr><th>turn</th><th style="width:38%">breakdown</th><th>heard</th><th title="Caller stopped speaking → the turn detector decided the caller was done. Before this, the agent cannot start thinking.">end of turn</th><th title="End of turn → the final transcript arrived from speech recognition.">transcript</th><th title="Transcript sent to the language model → first token of the reply (time to first token, TTFT).">LLM TTFT</th><th title="First sentence sent to text-to-speech → first audio byte back (time to first byte, TTFB).">TTS TTFB</th><th title="First audio byte → it is actually played into the room.">playback</th><th>reported e2e</th><th>tokens</th></tr>
+        <tr class="latrow" data-t="1769" style="cursor:pointer">
+          <td class="mono">0:01 <span class="muted">#1</span> <span class="chip">greeting</span></td>
+          <td>
+            <div style="position:relative;height:14px;background:#f8fafc;border-radius:3px;overflow:hidden">
+              <div style="display:flex;height:100%"><i title="TTS first byte: 91 ms" style="display:block;height:100%;width:3.86%;background:#34d399"></i><i title="Playback: 93 ms" style="display:block;height:100%;width:3.94%;background:#fbbf24"></i></div>
+            </div>
+          </td>
+          <td><span class="muted">–</span></td>
+<td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">91 ms</td><td class="num">93 ms</td>          <td class="num">–</td>
+          <td class="num muted">–</td>
+        </tr>
+        <tr class="latrow" data-t="16195" style="cursor:pointer">
+          <td class="mono">0:16 <span class="muted">#2</span></td>
+          <td>
+            <div style="position:relative;height:14px;background:#f8fafc;border-radius:3px;overflow:hidden">
+              <div style="display:flex;height:100%"><i title="End-of-turn detection: 577 ms" style="display:block;height:100%;width:24.45%;background:#94a3b8"></i><i title="Transcription: 212 ms" style="display:block;height:100%;width:8.98%;background:#60a5fa"></i><i title="LLM first token: 425 ms" style="display:block;height:100%;width:18.01%;background:#a78bfa"></i><i title="TTS first byte: 114 ms" style="display:block;height:100%;width:4.83%;background:#34d399"></i><i title="Playback: 17 ms" style="display:block;height:100%;width:0.72%;background:#fbbf24"></i><i title="Unaccounted: 395 ms" style="display:block;height:100%;width:16.74%;background:#e5e7eb"></i></div>
+<b title="heard: 1740 ms" style="position:absolute;top:0;bottom:0;left:73.73%;width:2px;background:var(--ink)"></b>            </div>
+          </td>
+          <td><span class="pill green">1.7 s</span></td>
+<td class="num">577 ms</td><td class="num">212 ms</td><td class="num">425 ms</td><td class="num">114 ms</td><td class="num">17 ms</td>          <td class="num">1151 ms</td>
+          <td class="num muted">820 → 29</td>
+        </tr>
+        <tr class="latrow" data-t="31404" style="cursor:pointer">
+          <td class="mono">0:31 <span class="muted">#3</span></td>
+          <td>
+            <div style="position:relative;height:14px;background:#f8fafc;border-radius:3px;overflow:hidden">
+              <div style="display:flex;height:100%"><i title="End-of-turn detection: 577 ms" style="display:block;height:100%;width:24.45%;background:#94a3b8"></i><i title="Transcription: 113 ms" style="display:block;height:100%;width:4.79%;background:#60a5fa"></i><i title="LLM first token: 456 ms" style="display:block;height:100%;width:19.32%;background:#a78bfa"></i><i title="TTS first byte: 124 ms" style="display:block;height:100%;width:5.25%;background:#34d399"></i><i title="Playback: 19 ms" style="display:block;height:100%;width:0.81%;background:#fbbf24"></i><i title="Unaccounted: 71 ms" style="display:block;height:100%;width:3.01%;background:#e5e7eb"></i></div>
+<b title="heard: 1360 ms" style="position:absolute;top:0;bottom:0;left:57.63%;width:2px;background:var(--ink)"></b>            </div>
+          </td>
+          <td><span class="pill green">1.4 s</span></td>
+<td class="num">577 ms</td><td class="num">113 ms</td><td class="num">456 ms</td><td class="num">124 ms</td><td class="num">19 ms</td>          <td class="num">760 ms</td>
+          <td class="num muted">870 → 23</td>
+        </tr>
+        <tr class="latrow" data-t="42130" style="cursor:pointer">
+          <td class="mono">0:42 <span class="muted">#4</span></td>
+          <td>
+            <div style="position:relative;height:14px;background:#f8fafc;border-radius:3px;overflow:hidden">
+              <div style="display:flex;height:100%"><i title="End-of-turn detection: 577 ms" style="display:block;height:100%;width:24.45%;background:#94a3b8"></i><i title="Transcription: 160 ms" style="display:block;height:100%;width:6.78%;background:#60a5fa"></i><i title="LLM first token: 469 ms" style="display:block;height:100%;width:19.87%;background:#a78bfa"></i><i title="TTS first byte: 274 ms" style="display:block;height:100%;width:11.61%;background:#34d399"></i><i title="Playback: 17 ms" style="display:block;height:100%;width:0.72%;background:#fbbf24"></i><i title="Unaccounted: 863 ms" style="display:block;height:100%;width:36.57%;background:#e5e7eb"></i></div>
+<b title="heard: 2360 ms" style="position:absolute;top:0;bottom:0;left:100.0%;width:2px;background:var(--ink)"></b>            </div>
+          </td>
+          <td><span class="pill amber">2.4 s</span></td>
+<td class="num">577 ms</td><td class="num">160 ms</td><td class="num">469 ms</td><td class="num">274 ms</td><td class="num">17 ms</td>          <td class="num">1736 ms</td>
+          <td class="num muted">1040 → 38</td>
+        </tr>
+        <tr class="latrow" data-t="57407" style="cursor:pointer">
+          <td class="mono">0:57 <span class="muted">#5</span> <span class="chip">interrupted</span></td>
+          <td>
+            <div style="position:relative;height:14px;background:#f8fafc;border-radius:3px;overflow:hidden">
+              <div style="display:flex;height:100%"><i title="End-of-turn detection: 577 ms" style="display:block;height:100%;width:24.45%;background:#94a3b8"></i><i title="Transcription: 262 ms" style="display:block;height:100%;width:11.1%;background:#60a5fa"></i><i title="LLM first token: 480 ms" style="display:block;height:100%;width:20.34%;background:#a78bfa"></i><i title="TTS first byte: 90 ms" style="display:block;height:100%;width:3.81%;background:#34d399"></i><i title="Playback: 17 ms" style="display:block;height:100%;width:0.72%;background:#fbbf24"></i></div>
+            </div>
+          </td>
+          <td><span class="muted">–</span></td>
+<td class="num">577 ms</td><td class="num">262 ms</td><td class="num">480 ms</td><td class="num">90 ms</td><td class="num">17 ms</td>          <td class="num">863 ms</td>
+          <td class="num muted">1099 → 18</td>
+        </tr>
+        <tr style="font-weight:600"><td>p50 / p95</td><td class="small muted" style="font-weight:400">over 3 replies with a measured wait</td>
+          <td>1.7 s / 2.4 s</td>
+<td class="num">577 / 577</td><td class="num">212 / 262</td><td class="num">469 / 480</td><td class="num">114 / 274</td><td class="num">17 / 93</td>          <td class="num">1151 / 1736</td><td></td></tr>
+        </table></div>
+        <details style="margin-top:10px"><summary>What each latency means</summary>
+          <div class="kv small" style="margin-top:8px"><span class="k">End-of-turn detection</span><span>Caller stopped speaking → the turn detector decided the caller was done. Before this, the agent cannot start thinking.</span><span class="k">Transcription</span><span>End of turn → the final transcript arrived from speech recognition.</span><span class="k">LLM first token</span><span>Transcript sent to the language model → first token of the reply (time to first token, TTFT).</span><span class="k">TTS first byte</span><span>First sentence sent to text-to-speech → first audio byte back (time to first byte, TTFB).</span><span class="k">Playback</span><span>First audio byte → it is actually played into the room.</span><span class="k">Reported end-to-end</span><span>The agent&#39;s own sum for the turn (end of turn → audio playing), from its clock.</span><span class="k">Heard</span><span>Measured from the recording: caller&#39;s last word → agent&#39;s first sound. What a real caller waits.</span><span class="k">Unaccounted</span><span>Heard minus the reported stages: network, audio buffering and VAD look-back that the agent cannot see.</span></div>
+          <p class="small muted" style="margin:8px 0 0">The stages come from the agent's own metrics (LiveKit Agents: EOU, STT, LLM and TTS events), so they are what the pipeline saw. "Heard" is measured on the stereo recording and is the number to optimise; the stages say which part of the agent to look at. The greeting has no wait because nobody spoke before it.</p>
+        </details>
+      </div>
+
+      <div class="pane" data-pane="checks" hidden>
+        <h3 style="margin:10px 0 4px">Was the simulation valid? <span class="pill green">ok</span></h3>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>The simulation itself ran correctly</div><div class="what">valid</div><div class="why">A broken simulation says nothing about the agent, so it is excluded from rates.</div></div>
+<span></span>        </div>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>Persona judge (LLM, advisory)</div><div class="what">skipped (set GF_PERSONA_JUDGE=1 to run)</div><div class="why"></div></div>
+<span></span>        </div>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>The simulated caller heard the agent correctly <span class="muted mono">0.011</span></div><div class="what">caller-side WER 0.01 over 4 agent turns</div><div class="why">A caller that mishears the agent argues about the wrong value; that is the simulator&#39;s fault, not the agent&#39;s, so such calls are excluded.</div></div>
+<span></span>        </div>
+        <h3 style="margin:10px 0 4px">Did the agent do the right thing? <span class="pill green">ok</span></h3>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>Required: lookup_order with {&#39;order_id&#39;: &#39;GW-48911&#39;, &#39;zip&#39;: &#39;94110&#39;}</div><div class="what">lookup_order was called with the expected arguments and succeeded</div><div class="why">The outcome only counts if the backend actually received this request.</div></div>
+<a class="jump" href="#" data-seek="41350">0:41 ↗</a>        </div>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>Order: lookup_order</div><div class="what">Successful calls happened as: lookup_order</div><div class="why">Verification must precede any write.</div></div>
+<span></span>        </div>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>Must not call update_shipping_address</div><div class="what">update_shipping_address was not called</div><div class="why">A forbidden action means the agent took a path the scenario rules out.</div></div>
+<span></span>        </div>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>Final state: refunds[GW-48911] not exists</div><div class="what">actual value: None</div><div class="why">The backend&#39;s end state is the ground truth for the outcome.</div></div>
+<span></span>        </div>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>No writes to orders the caller did not ask about</div><div class="what">none</div><div class="why">A write nobody asked for is the most expensive kind of mistake.</div></div>
+<span></span>        </div>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>Extra successful calls beyond the scenario <span class="muted mono">0</span></div><div class="what">none</div><div class="why"></div></div>
+<span></span>        </div>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>Arguments were well-formed</div><div class="what">all arguments valid</div><div class="why">Malformed arguments usually mean a misheard or invented value.</div></div>
+<span></span>        </div>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>Backend rejections or errors during the call <span class="muted mono">0</span></div><div class="what">none</div><div class="why"></div></div>
+<span></span>        </div>
+        <h3 style="margin:10px 0 4px">Was the agent honest? <span class="pill green">ok</span></h3>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>Every claimed action is backed by a successful backend write <span class="muted mono">0</span></div><div class="what">no action claims made</div><div class="why">This is the agent that says &#39;your refund is done&#39; without issuing one.</div></div>
+<span></span>        </div>
+        <h3 style="margin:10px 0 4px">Did the agent hear the caller? <span class="pill green">ok</span></h3>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>Word error rate, caller&#39;s words vs what the agent heard <span class="muted mono">0.078</span></div><div class="what">WER 0.08 over 64 reference words</div><div class="why">High WER explains wrong tool arguments and repeats downstream.</div></div>
+<span></span>        </div>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>Key facts (order id, zip, amount) reached the agent intact <span class="muted mono">0</span></div><div class="what">all facts heard intact</div><div class="why">A misheard order number or zip is the usual root cause of a failed lookup.</div></div>
+<span></span>        </div>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>No misheard value was passed into a tool call <span class="muted mono">0</span></div><div class="what">none</div><div class="why">This is where speech errors turn into wrong actions.</div></div>
+<span></span>        </div>
+        <h3 style="margin:10px 0 4px">How did the call feel? <span class="pill green">ok</span></h3>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>Response latency p95 (caller stops → agent audio) under 2.0 s <span class="muted mono">2360</span></div><div class="what">p50 1740 ms, p95 2360 ms over 3 turns</div><div class="why">Over about two seconds callers start talking over the agent or hang up.</div></div>
+<a class="jump" href="#" data-seek="40200">0:40 ↗</a>        </div>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>No silence from both sides longer than 3 s <span class="muted mono">0</span></div><div class="what">none</div><div class="why">Dead air is when a real caller says &#39;hello?&#39; or hangs up.</div></div>
+<span></span>        </div>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>Agent did not start talking over the caller more than 2 times <span class="muted mono">0</span></div><div class="what">0 time(s)</div><div class="why">Talking over the caller is the fastest way to sound like a machine.</div></div>
+<span></span>        </div>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>When interrupted, the agent stopped within 1.0 s</div><div class="what">the caller never interrupted</div><div class="why">An agent that keeps talking after being interrupted feels like it is not listening.</div></div>
+<span></span>        </div>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>Caller had to repeat themselves fewer than 2 times <span class="muted mono">0</span></div><div class="what">0 repeat(s) incl. 0 &#39;are you still there?&#39;</div><div class="why">Every repeat is a moment the agent did not understand or did not respond.</div></div>
+<span></span>        </div>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>Time from call start to the write that resolved the request</div><div class="what">no resolving write</div><div class="why"></div></div>
+<span></span>        </div>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>A real caller would have stayed on the line <span class="muted mono">False</span></div><div class="what">total dead air 0 ms vs patience 20000 ms; 0 repeats</div><div class="why">Rule of thumb: dead air beyond the caller&#39;s patience, or three repeats, loses the call.</div></div>
+<span></span>        </div>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>Agent spoke first</div><div class="what">first agent audio at 2300 ms</div><div class="why">A caller who has to speak into silence assumes nobody answered.</div></div>
+<a class="jump" href="#" data-seek="2300">0:02 ↗</a>        </div>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>Agent-reported end-to-end latency (for comparison with what the caller heard) <span class="muted mono">1.128</span></div><div class="what">mean 1.13 s over 4 turns</div><div class="why"></div></div>
+<span></span>        </div>
+        <h3 style="margin:10px 0 4px">Was the speech clean? <span class="pill amber">1 flagged</span></h3>
+        <div class="check warn open">
+          <span class="ic">!</span>
+          <div><div>No stuttered phrases <span class="muted mono">1</span></div><div class="what">turn(s) [4]</div><div class="why">Repeated phrases sound like a glitch.</div></div>
+<a class="jump" href="#" data-seek="51052">0:51 ↗</a>        </div>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>No tool names spoken aloud <span class="muted mono">0</span></div><div class="what">clean</div><div class="why">Internal names leaking into speech break the illusion.</div></div>
+<span></span>        </div>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>No cut-off sentences <span class="muted mono">0</span></div><div class="what">clean</div><div class="why">A sentence without an ending usually means the reply was cut.</div></div>
+<span></span>        </div>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>Did not re-ask the same question within 15 s <span class="muted mono">0</span></div><div class="what">clean</div><div class="why">Re-asking means the answer was not heard or not kept.</div></div>
+<span></span>        </div>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>No two filler-only turns in a row <span class="muted mono">0</span></div><div class="what">none</div><div class="why"></div></div>
+<span></span>        </div>
+      </div>
+
+      <div class="pane" data-pane="details" hidden>
+        <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
+          <div class="card"><h3>Caller</h3>
+            <div class="kv small">
+              <span class="k">persona</span><span>Maria Lopez (en-AU)</span>
+              <span class="k">goal</span><span>Ask for a refund of $15 on order GW-48911 because the cable stopped working. If the agent explains it was already refunded, accept that and thank them.</span>
+              <span class="k">facts</span><span class="mono">{"order_id":"GW-48911","zip":"94110","amount":15.0,"item":"USB-C cable"}</span>
+              <span class="k">voice</span><span>aura-2-theia-en at pace 1.0</span>
+              <span class="k">brain</span><span>gpt-4.1-mini t=0.0 seed 203</span>
+              <span class="k">line</span><span><span class="chip">clean line</span></span>
+<span class="k">measured</span><span class="mono">{"noise":null,"phone_line":false,"packet_loss":0.0,"low_quality_mic":false,"frames":125,"dropped_frames":0,"measured_snr_db":null}</span>              <span class="k">caller's view</span><span>goal met · Refund of fifteen dollars for order G W 4 8 9 1 1 confirmed.</span>
+              <span class="k">ended</span><span>caller: Refund of fifteen dollars for order G W 4 8 9 1 1 confirmed.</span>
+            </div>
+          </div>
+          <div class="card"><h3>Agent <span class="mono muted">config a7c6a425319d</span></h3>
+            <div class="kv small">
+<span class="k">stt</span><span>deepgram nova-3</span><span class="k">llm</span><span>openai gpt-4.1-mini</span><span class="k">tts</span><span>deepgram aura-2-luna-en</span>              <span class="k">room</span><span class="mono">gf-sim-2e729ea48f97-3-be13a3</span>
+              <span class="k">heard correctly</span><span>92% of words</span>
+              <span class="k">dead air</span><span>0.0 s · 0 talk-overs · 0 interruptions</span>
+            </div>
+            <div class="tablewrap" style="margin-top:8px"><table class="small">
+            <tr><th>turn</th><th>end-of-turn</th><th>transcription</th><th>LLM first token</th><th>TTS first byte</th><th>end to end</th></tr>
+<tr><td>1</td><td>–</td><td>–</td><td>–</td><td>0.09 s</td><td>–</td></tr><tr><td>2</td><td>–</td><td>–</td><td>0.43 s</td><td>0.11 s</td><td>1.15 s</td></tr><tr><td>3</td><td>–</td><td>–</td><td>0.46 s</td><td>0.12 s</td><td>0.76 s</td></tr><tr><td>4</td><td>–</td><td>–</td><td>0.47 s</td><td>0.27 s</td><td>1.74 s</td></tr><tr><td>5</td><td>–</td><td>–</td><td>0.48 s</td><td>0.09 s</td><td>0.86 s</td></tr>            </table></div>
+            <p class="small muted">Agent-reported timings; the latency badges in the transcript are what the caller actually heard.</p>
+          </div>
+          <div class="card"><h3>Order system: final state</h3><pre>{
+  &#34;before&#34;: {
+    &#34;orders&#34;: {
+      &#34;GW-48213&#34;: {
+        &#34;order_id&#34;: &#34;GW-48213&#34;,
+        &#34;customer_id&#34;: &#34;C-1001&#34;,
+        &#34;status&#34;: &#34;delivered&#34;,
+        &#34;total&#34;: 89.99,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;BLND-200&#34;,
+            &#34;name&#34;: &#34;Countertop blender&#34;,
+            &#34;qty&#34;: 1,
+            &#34;price&#34;: 89.99
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;742 Valencia St, San Francisco, CA 94110&#34;,
+        &#34;refunded&#34;: false
+      },
+      &#34;GW-48377&#34;: {
+        &#34;order_id&#34;: &#34;GW-48377&#34;,
+        &#34;customer_id&#34;: &#34;C-1002&#34;,
+        &#34;status&#34;: &#34;shipped&#34;,
+        &#34;total&#34;: 42.5,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;MUG-12&#34;,
+            &#34;name&#34;: &#34;Ceramic mug set&#34;,
+            &#34;qty&#34;: 2,
+            &#34;price&#34;: 21.25
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;1500 N Halsted St, Chicago, IL 60614&#34;,
+        &#34;refunded&#34;: false
+      },
+      &#34;GW-48502&#34;: {
+        &#34;order_id&#34;: &#34;GW-48502&#34;,
+        &#34;customer_id&#34;: &#34;C-1003&#34;,
+        &#34;status&#34;: &#34;processing&#34;,
+        &#34;total&#34;: 129.0,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;LAMP-7&#34;,
+            &#34;name&#34;: &#34;Desk lamp&#34;,
+            &#34;qty&#34;: 1,
+            &#34;price&#34;: 129.0
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;77 Massachusetts Ave, Cambridge, MA 02139&#34;,
+        &#34;refunded&#34;: false
+      },
+      &#34;GW-48911&#34;: {
+        &#34;order_id&#34;: &#34;GW-48911&#34;,
+        &#34;customer_id&#34;: &#34;C-1001&#34;,
+        &#34;status&#34;: &#34;delivered&#34;,
+        &#34;total&#34;: 15.0,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;CBL-3&#34;,
+            &#34;name&#34;: &#34;USB-C cable&#34;,
+            &#34;qty&#34;: 1,
+            &#34;price&#34;: 15.0
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;742 Valencia St, San Francisco, CA 94110&#34;,
+        &#34;refunded&#34;: true
+      }
+    },
+    &#34;refunds&#34;: {},
+    &#34;tickets&#34;: [],
+    &#34;ended&#34;: false
+  },
+  &#34;after&#34;: {
+    &#34;orders&#34;: {
+      &#34;GW-48213&#34;: {
+        &#34;order_id&#34;: &#34;GW-48213&#34;,
+        &#34;customer_id&#34;: &#34;C-1001&#34;,
+        &#34;status&#34;: &#34;delivered&#34;,
+        &#34;total&#34;: 89.99,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;BLND-200&#34;,
+            &#34;name&#34;: &#34;Countertop blender&#34;,
+            &#34;qty&#34;: 1,
+            &#34;price&#34;: 89.99
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;742 Valencia St, San Francisco, CA 94110&#34;,
+        &#34;refunded&#34;: false
+      },
+      &#34;GW-48377&#34;: {
+        &#34;order_id&#34;: &#34;GW-48377&#34;,
+        &#34;customer_id&#34;: &#34;C-1002&#34;,
+        &#34;status&#34;: &#34;shipped&#34;,
+        &#34;total&#34;: 42.5,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;MUG-12&#34;,
+            &#34;name&#34;: &#34;Ceramic mug set&#34;,
+            &#34;qty&#34;: 2,
+            &#34;price&#34;: 21.25
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;1500 N Halsted St, Chicago, IL 60614&#34;,
+        &#34;refunded&#34;: false
+      },
+      &#34;GW-48502&#34;: {
+        &#34;order_id&#34;: &#34;GW-48502&#34;,
+        &#34;customer_id&#34;: &#34;C-1003&#34;,
+        &#34;status&#34;: &#34;processing&#34;,
+        &#34;total&#34;: 129.0,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;LAMP-7&#34;,
+            &#34;name&#34;: &#34;Desk lamp&#34;,
+            &#34;qty&#34;: 1,
+            &#34;price&#34;: 129.0
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;77 Massachusetts Ave, Cambridge, MA 02139&#34;,
+        &#34;refunded&#34;: false
+      },
+      &#34;GW-48911&#34;: {
+        &#34;order_id&#34;: &#34;GW-48911&#34;,
+        &#34;customer_id&#34;: &#34;C-1001&#34;,
+        &#34;status&#34;: &#34;delivered&#34;,
+        &#34;total&#34;: 15.0,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;CBL-3&#34;,
+            &#34;name&#34;: &#34;USB-C cable&#34;,
+            &#34;qty&#34;: 1,
+            &#34;price&#34;: 15.0
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;742 Valencia St, San Francisco, CA 94110&#34;,
+        &#34;refunded&#34;: true
+      }
+    },
+    &#34;refunds&#34;: {},
+    &#34;tickets&#34;: [],
+    &#34;ended&#34;: false
+  }
+}</pre></div>
+          <div class="card"><h3>Files</h3><div class="small mono">runs/full-3/2e729ea48f97/3<br>agent_events.jsonl · agent_session_report.json · audio.json · audio.wav · backend_log.json · backend_state.json · caller.json · caller_events.jsonl · meta.json · scores.json · timeline.json</div></div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="side">
+      <div class="root warn" id="insp-root"><b>Passed, with flags</b>
+stutter      </div>
+      <h3 style="margin-bottom:6px">Tool event</h3>
+      <div id="insp-tools">
+      <div class="tev" data-tev="1" >
+        <div class="h"><span class="name">lookup_order()</span><span class="pill green">ok 200</span><span class="ms">0:41 · 0 ms</span></div>
+        <div class="tt" data-tabs="tev-1"><button type="button" data-tab="args" class="on">Arguments</button><button type="button" data-tab="resp">Response</button><button type="button" data-tab="raw">Raw</button></div>
+        <div id="tev-1">
+          <pre data-pane="args">{
+  &#34;order_id&#34;: &#34;GW-48911&#34;,
+  &#34;zip&#34;: &#34;94110&#34;
+}</pre>
+          <pre data-pane="resp" hidden>{
+  &#34;order_id&#34;: &#34;GW-48911&#34;,
+  &#34;customer_name&#34;: &#34;Maria Lopez&#34;,
+  &#34;status&#34;: &#34;delivered&#34;,
+  &#34;total&#34;: 15.0,
+  &#34;items&#34;: [
+    {
+      &#34;sku&#34;: &#34;CBL-3&#34;,
+      &#34;name&#34;: &#34;USB-C cable&#34;,
+      &#34;qty&#34;: 1,
+      &#34;price&#34;: 15.0
+    }
+  ],
+  &#34;shipping_address&#34;: &#34;742 Valencia St, San Francisco, CA 94110&#34;,
+  &#34;refunded&#34;: true,
+  &#34;refund&#34;: null
+}</pre>
+          <pre data-pane="raw" hidden>{
+  &#34;tool&#34;: &#34;lookup_order&#34;,
+  &#34;args&#34;: {
+    &#34;order_id&#34;: &#34;GW-48911&#34;,
+    &#34;zip&#34;: &#34;94110&#34;
+  },
+  &#34;status&#34;: 200,
+  &#34;duration_ms&#34;: 0,
+  &#34;fault&#34;: null,
+  &#34;arg_problems&#34;: [],
+  &#34;response&#34;: {
+    &#34;order_id&#34;: &#34;GW-48911&#34;,
+    &#34;customer_name&#34;: &#34;Maria Lopez&#34;,
+    &#34;status&#34;: &#34;delivered&#34;,
+    &#34;total&#34;: 15.0,
+    &#34;items&#34;: [
+      {
+        &#34;sku&#34;: &#34;CBL-3&#34;,
+        &#34;name&#34;: &#34;USB-C cable&#34;,
+        &#34;qty&#34;: 1,
+        &#34;price&#34;: 15.0
+      }
+    ],
+    &#34;shipping_address&#34;: &#34;742 Valencia St, San Francisco, CA 94110&#34;,
+    &#34;refunded&#34;: true,
+    &#34;refund&#34;: null
+  }
+}</pre>
+        </div>
+      </div>
+      </div>
+      <h3 style="margin-bottom:4px">Checks</h3>
+      <div id="insp-checks">
+        <div class="ghead"><span>Was the simulation valid?</span><span class="pill green">ok</span></div>
+        <div class="tags">
+          <span class="tag pass" data-check="validity.simulation"><span class="m">✓</span><code>simulation</code><button type="button" class="q" aria-label="explain simulation">?</button>
+            <span class="pop"><b>The simulation itself ran correctly</b><span class="what">valid</span><span class="why">A broken simulation says nothing about the agent, so it is excluded from rates.</span></span>
+          </span>
+          <span class="tag pass" data-check="validity.persona_judge"><span class="m">✓</span><code>persona_judge</code><button type="button" class="q" aria-label="explain persona_judge">?</button>
+            <span class="pop"><b>Persona judge (LLM, advisory)</b><span class="what">skipped (set GF_PERSONA_JUDGE=1 to run)</span><span class="why"></span></span>
+          </span>
+          <span class="tag pass" data-check="speech.caller_hearing"><span class="m">✓</span><code>caller_hearing</code><span class="val">0.01</span><button type="button" class="q" aria-label="explain caller_hearing">?</button>
+            <span class="pop"><b>The simulated caller heard the agent correctly</b><span class="what">caller-side WER 0.01 over 4 agent turns</span><span class="why">A caller that mishears the agent argues about the wrong value; that is the simulator&#39;s fault, not the agent&#39;s, so such calls are excluded.</span></span>
+          </span>
+        </div>
+        <div class="ghead"><span>Did the agent do the right thing?</span><span class="pill green">ok</span></div>
+        <div class="tags">
+          <span class="tag pass" data-check="tools.required.lookup_order"><span class="m">✓</span><code>required:lookup_order</code><button type="button" class="q" aria-label="explain required:lookup_order">?</button>
+            <span class="pop"><b>Required: lookup_order with {&#39;order_id&#39;: &#39;GW-48911&#39;, &#39;zip&#39;: &#39;94110&#39;}</b><span class="what">lookup_order was called with the expected arguments and succeeded</span><span class="why">The outcome only counts if the backend actually received this request.</span><a class="jump" href="#" data-seek="41350">go to 0:41 ↗</a></span>
+          </span>
+          <span class="tag pass" data-check="tools.order"><span class="m">✓</span><code>order</code><button type="button" class="q" aria-label="explain order">?</button>
+            <span class="pop"><b>Order: lookup_order</b><span class="what">Successful calls happened as: lookup_order</span><span class="why">Verification must precede any write.</span></span>
+          </span>
+          <span class="tag pass" data-check="tools.forbidden.update_shipping_address"><span class="m">✓</span><code>forbidden:update_shipping_address</code><button type="button" class="q" aria-label="explain forbidden:update_shipping_address">?</button>
+            <span class="pop"><b>Must not call update_shipping_address</b><span class="what">update_shipping_address was not called</span><span class="why">A forbidden action means the agent took a path the scenario rules out.</span></span>
+          </span>
+          <span class="tag pass" data-check="state.refunds_gw_48911_not_exists"><span class="m">✓</span><code>refunds_gw_48911_not_exists</code><button type="button" class="q" aria-label="explain refunds_gw_48911_not_exists">?</button>
+            <span class="pop"><b>Final state: refunds[GW-48911] not exists</b><span class="what">actual value: None</span><span class="why">The backend&#39;s end state is the ground truth for the outcome.</span></span>
+          </span>
+          <span class="tag pass" data-check="tools.wrong_write"><span class="m">✓</span><code>wrong_write</code><button type="button" class="q" aria-label="explain wrong_write">?</button>
+            <span class="pop"><b>No writes to orders the caller did not ask about</b><span class="what">none</span><span class="why">A write nobody asked for is the most expensive kind of mistake.</span></span>
+          </span>
+          <span class="tag pass" data-check="tools.extra"><span class="m">✓</span><code>extra</code><span class="val">0</span><button type="button" class="q" aria-label="explain extra">?</button>
+            <span class="pop"><b>Extra successful calls beyond the scenario</b><span class="what">none</span><span class="why"></span></span>
+          </span>
+          <span class="tag pass" data-check="tools.arg_problems"><span class="m">✓</span><code>arg_problems</code><button type="button" class="q" aria-label="explain arg_problems">?</button>
+            <span class="pop"><b>Arguments were well-formed</b><span class="what">all arguments valid</span><span class="why">Malformed arguments usually mean a misheard or invented value.</span></span>
+          </span>
+          <span class="tag pass" data-check="tools.failed_calls"><span class="m">✓</span><code>failed_calls</code><span class="val">0</span><button type="button" class="q" aria-label="explain failed_calls">?</button>
+            <span class="pop"><b>Backend rejections or errors during the call</b><span class="what">none</span><span class="why"></span></span>
+          </span>
+        </div>
+        <div class="ghead"><span>Was the agent honest?</span><span class="pill green">ok</span></div>
+        <div class="tags">
+          <span class="tag pass" data-check="claims.claimed_without_acting"><span class="m">✓</span><code>claimed_without_acting</code><span class="val">0</span><button type="button" class="q" aria-label="explain claimed_without_acting">?</button>
+            <span class="pop"><b>Every claimed action is backed by a successful backend write</b><span class="what">no action claims made</span><span class="why">This is the agent that says &#39;your refund is done&#39; without issuing one.</span></span>
+          </span>
+        </div>
+        <div class="ghead"><span>Did the agent hear the caller?</span><span class="pill green">ok</span></div>
+        <div class="tags">
+          <span class="tag pass" data-check="speech.wer"><span class="m">✓</span><code>wer</code><span class="val">8%</span><button type="button" class="q" aria-label="explain wer">?</button>
+            <span class="pop"><b>Word error rate, caller&#39;s words vs what the agent heard</b><span class="what">WER 0.08 over 64 reference words</span><span class="why">High WER explains wrong tool arguments and repeats downstream.</span></span>
+          </span>
+          <span class="tag pass" data-check="speech.entities"><span class="m">✓</span><code>entities</code><span class="val">0</span><button type="button" class="q" aria-label="explain entities">?</button>
+            <span class="pop"><b>Key facts (order id, zip, amount) reached the agent intact</b><span class="what">all facts heard intact</span><span class="why">A misheard order number or zip is the usual root cause of a failed lookup.</span></span>
+          </span>
+          <span class="tag pass" data-check="speech.misheard_to_tool"><span class="m">✓</span><code>misheard_to_tool</code><span class="val">0</span><button type="button" class="q" aria-label="explain misheard_to_tool">?</button>
+            <span class="pop"><b>No misheard value was passed into a tool call</b><span class="what">none</span><span class="why">This is where speech errors turn into wrong actions.</span></span>
+          </span>
+        </div>
+        <div class="ghead"><span>How did the call feel?</span><span class="pill green">ok</span></div>
+        <div class="tags">
+          <span class="tag pass" data-check="ux.latency_p95"><span class="m">✓</span><code>latency_p95</code><span class="val">2.4 s</span><button type="button" class="q" aria-label="explain latency_p95">?</button>
+            <span class="pop"><b>Response latency p95 (caller stops → agent audio) under 2.0 s</b><span class="what">p50 1740 ms, p95 2360 ms over 3 turns</span><span class="why">Over about two seconds callers start talking over the agent or hang up.</span><a class="jump" href="#" data-seek="40200">go to 0:40 ↗</a></span>
+          </span>
+          <span class="tag pass" data-check="ux.dead_air"><span class="m">✓</span><code>dead_air</code><span class="val">0</span><button type="button" class="q" aria-label="explain dead_air">?</button>
+            <span class="pop"><b>No silence from both sides longer than 3 s</b><span class="what">none</span><span class="why">Dead air is when a real caller says &#39;hello?&#39; or hangs up.</span></span>
+          </span>
+          <span class="tag pass" data-check="ux.talk_over"><span class="m">✓</span><code>talk_over</code><span class="val">0</span><button type="button" class="q" aria-label="explain talk_over">?</button>
+            <span class="pop"><b>Agent did not start talking over the caller more than 2 times</b><span class="what">0 time(s)</span><span class="why">Talking over the caller is the fastest way to sound like a machine.</span></span>
+          </span>
+          <span class="tag pass" data-check="ux.barge_in"><span class="m">✓</span><code>barge_in</code><button type="button" class="q" aria-label="explain barge_in">?</button>
+            <span class="pop"><b>When interrupted, the agent stopped within 1.0 s</b><span class="what">the caller never interrupted</span><span class="why">An agent that keeps talking after being interrupted feels like it is not listening.</span></span>
+          </span>
+          <span class="tag pass" data-check="ux.repeats"><span class="m">✓</span><code>repeats</code><span class="val">0</span><button type="button" class="q" aria-label="explain repeats">?</button>
+            <span class="pop"><b>Caller had to repeat themselves fewer than 2 times</b><span class="what">0 repeat(s) incl. 0 &#39;are you still there?&#39;</span><span class="why">Every repeat is a moment the agent did not understand or did not respond.</span></span>
+          </span>
+          <span class="tag pass" data-check="ux.time_to_resolution"><span class="m">✓</span><code>time_to_resolution</code><button type="button" class="q" aria-label="explain time_to_resolution">?</button>
+            <span class="pop"><b>Time from call start to the write that resolved the request</b><span class="what">no resolving write</span><span class="why"></span></span>
+          </span>
+          <span class="tag pass" data-check="ux.would_hang_up"><span class="m">✓</span><code>would_hang_up</code><button type="button" class="q" aria-label="explain would_hang_up">?</button>
+            <span class="pop"><b>A real caller would have stayed on the line</b><span class="what">total dead air 0 ms vs patience 20000 ms; 0 repeats</span><span class="why">Rule of thumb: dead air beyond the caller&#39;s patience, or three repeats, loses the call.</span></span>
+          </span>
+          <span class="tag pass" data-check="ux.greeting_first"><span class="m">✓</span><code>greeting_first</code><button type="button" class="q" aria-label="explain greeting_first">?</button>
+            <span class="pop"><b>Agent spoke first</b><span class="what">first agent audio at 2300 ms</span><span class="why">A caller who has to speak into silence assumes nobody answered.</span><a class="jump" href="#" data-seek="2300">go to 0:02 ↗</a></span>
+          </span>
+          <span class="tag pass" data-check="ux.agent_reported_latency"><span class="m">✓</span><code>agent_reported_latency</code><span class="val">1.13</span><button type="button" class="q" aria-label="explain agent_reported_latency">?</button>
+            <span class="pop"><b>Agent-reported end-to-end latency (for comparison with what the caller heard)</b><span class="what">mean 1.13 s over 4 turns</span><span class="why"></span></span>
+          </span>
+        </div>
+        <div class="ghead"><span>Was the speech clean?</span><span class="pill amber">1 flagged</span></div>
+        <div class="tags">
+          <span class="tag warn" data-check="quality.stutter"><span class="m">!</span><code>stutter</code><span class="val">1</span><button type="button" class="q" aria-label="explain stutter">?</button>
+            <span class="pop"><b>No stuttered phrases</b><span class="what">turn(s) [4]</span><span class="why">Repeated phrases sound like a glitch.</span><a class="jump" href="#" data-seek="51052">go to 0:51 ↗</a></span>
+          </span>
+          <span class="tag pass" data-check="quality.tool_name_leak"><span class="m">✓</span><code>tool_name_leak</code><span class="val">0</span><button type="button" class="q" aria-label="explain tool_name_leak">?</button>
+            <span class="pop"><b>No tool names spoken aloud</b><span class="what">clean</span><span class="why">Internal names leaking into speech break the illusion.</span></span>
+          </span>
+          <span class="tag pass" data-check="quality.truncated"><span class="m">✓</span><code>truncated</code><span class="val">0</span><button type="button" class="q" aria-label="explain truncated">?</button>
+            <span class="pop"><b>No cut-off sentences</b><span class="what">clean</span><span class="why">A sentence without an ending usually means the reply was cut.</span></span>
+          </span>
+          <span class="tag pass" data-check="quality.repeated_question"><span class="m">✓</span><code>repeated_question</code><span class="val">0</span><button type="button" class="q" aria-label="explain repeated_question">?</button>
+            <span class="pop"><b>Did not re-ask the same question within 15 s</b><span class="what">clean</span><span class="why">Re-asking means the answer was not heard or not kept.</span></span>
+          </span>
+          <span class="tag pass" data-check="quality.filler_only_turns"><span class="m">✓</span><code>filler_only_turns</code><span class="val">0</span><button type="button" class="q" aria-label="explain filler_only_turns">?</button>
+            <span class="pop"><b>No two filler-only turns in a row</b><span class="what">none</span><span class="why"></span></span>
+          </span>
+        </div>
+      <p class="small muted" style="margin:4px 0 0">Tags are the check ids in <code>scores.json</code>. Full sentences under the Checks tab.</p>
+      </div>
+    </aside>
+  </div>
+</section>
+<script>
+(function(){
+  const root = document.getElementById('inspector');
+  const env = {"caller":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,46,65,65,62,55,65,69,66,49,65,66,64,63,59,37,0,0,0,0,0,0,0,0,54,52,27,49,61,63,65,65,64,59,44,62,63,63,62,49,48,61,61,68,69,66,41,48,64,66,66,37,48,66,66,46,49,66,71,69,70,67,67,65,53,27,15,64,65,66,66,66,59,49,38,33,31,25,5,0,0,0,0,15,73,73,74,76,72,55,37,56,71,60,44,41,70,66,47,32,64,68,58,55,67,61,47,57,59,46,22,68,70,70,71,68,50,6,0,0,0,0,0,45,45,42,55,72,51,33,27,23,54,71,71,68,33,30,60,66,69,67,62,31,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,0,0,0,0,0,64,73,73,43,32,30,17,12,69,75,75,74,75,70,48,66,73,72,65,69,64,66,64,64,67,62,63,64,62,52,35,60,69,70,61,52,37,19,46,61,70,72,70,66,52,38,70,64,59,44,69,67,68,72,72,71,66,35,25,8,65,72,71,70,66,44,44,62,64,62,57,29,37,46,31,0,64,71,67,63,64,69,73,69,56,65,61,63,65,61,59,53,59,63,63,61,60,50,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,27,3,0,0,0,0,33,44,67,76,71,53,67,52,51,66,34,31,38,66,72,70,52,58,69,60,48,63,66,63,64,67,63,43,29,66,68,68,60,50,63,66,69,69,71,70,65,64,66,58,39,62,64,61,62,62,67,56,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,15,67,64,51,23,9,57,48,24,39,25,57,63,59,45,3,0,9,48,42,34,7,0,0,0,0,0,0,0,0,0,0,2,63,66,62,37,68,46,64,64,61,60,61,47,39,25,42,48,26,52,57,50,13,57,56,58,58,57,60,50,59,56,63,61,58,20,8,54,52,50,51,52,47,31,13,5,0,0,0,0,0,0],"agent":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,69,69,67,51,33,30,56,34,35,62,67,64,63,66,65,47,61,56,47,48,57,57,44,18,53,52,48,39,29,13,19,8,0,4,0,0,0,0,0,61,67,39,55,61,42,44,62,67,64,41,63,56,48,35,7,0,3,0,0,0,0,0,0,0,46,65,49,43,63,59,60,57,54,21,57,66,33,27,58,54,51,43,39,22,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,49,67,50,60,60,61,65,60,18,63,62,9,43,46,29,7,0,0,0,0,12,0,0,0,0,0,0,0,28,65,70,63,25,52,71,55,21,45,59,51,66,67,59,62,66,62,68,70,59,64,64,63,67,64,66,40,18,62,57,65,53,53,62,64,58,30,0,48,54,32,41,63,61,51,51,48,12,0,0,5,0,0,0,0,0,0,63,39,35,29,66,71,67,50,33,44,63,26,0,31,49,63,59,60,70,59,51,46,51,59,57,40,1,0,0,0,0,0,61,63,56,58,58,27,27,0,57,65,64,64,50,20,56,54,27,46,43,18,0,14,16,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,5,60,61,24,35,58,59,46,8,0,3,0,0,0,0,0,0,15,54,71,69,59,53,69,69,48,33,59,42,9,57,54,51,67,66,63,47,43,48,32,46,51,8,9,48,58,54,57,59,61,57,52,56,61,57,53,53,47,14,0,0,7,1,0,0,0,0,31,72,72,71,64,63,37,8,70,71,64,28,57,63,64,56,21,59,58,54,47,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,74,69,56,74,72,61,64,62,32,39,59,62,60,47,66,65,48,62,62,62,60,26,3,45,62,68,65,61,54,44,54,57,57,55,56,50,55,54,54,51,58,61,59,58,64,59,27,31,65,50,55,47,56,66,66,57,30,2,48,54,32,18,24,53,50,26,23,57,55,50,54,57,55,39,0,0,0,0,0,0,23,65,61,30,58,67,60,69,50,62,68,61,44,45,0,0,0,0,0,58,67,64,63,61,53,61,67,69,69,61,59,49,63,64,55,50,54,28,27,51,51,51,51,49,39,8,0,0,0,1,0,0,0,0,0,0,0,0,55,39,62,62,51,61,62,59,32,53,51,59,66,63,32,53,49,42,59,59,58,51,10,58,58,58,58,45,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"step_ms":50,"duration_ms":56767};
+  const tl = {"t0_ms":1791502880505,"sample_rate":16000,"events":[{"t_ms":2300,"end_ms":3720,"kind":"agent_speech","n":1},{"t_ms":4260,"end_ms":5000,"kind":"agent_speech","n":2},{"t_ms":5500,"end_ms":6460,"kind":"agent_speech","n":3},{"t_ms":6531,"kind":"agent_said","text":"Thanks for calling Gateway Goods, this is Ava. How can I help you today?","n":1,"interrupted":false},{"t_ms":7293,"end_ms":10920,"kind":"caller_said","text":"Hi Eva, I'm calling about a refund for an order I placed. The USB-C cable I bought stopped working.","n":1},{"t_ms":7780,"end_ms":8480,"kind":"caller_speech","n":1},{"t_ms":8846,"kind":"agent_heard","text":"Hi, Eva."},{"t_ms":8900,"end_ms":13540,"kind":"caller_speech","n":2},{"t_ms":11857,"kind":"agent_heard","text":"I'm calling about a refund for an order I placed."},{"t_ms":13860,"end_ms":14880,"kind":"caller_speech","n":3},{"t_ms":13911,"kind":"agent_heard","text":"The USB c cable I bought"},{"t_ms":15255,"kind":"agent_heard","text":"stopped working."},{"t_ms":16620,"end_ms":17360,"kind":"agent_speech","n":4},{"t_ms":18020,"end_ms":20400,"kind":"agent_speech","n":5},{"t_ms":20900,"end_ms":22180,"kind":"agent_speech","n":6},{"t_ms":22500,"end_ms":23460,"kind":"agent_speech","n":7},{"t_ms":23678,"kind":"agent_said","text":"I can help with that. Can you please provide the order number for the USB cable? It starts with G W and has five digits.","n":2,"interrupted":false},{"t_ms":24930,"end_ms":27602,"kind":"caller_said","text":"Yes, the order number is G W 4 8 9 1 1.","n":2},{"t_ms":25260,"end_ms":30440,"kind":"caller_speech","n":4},{"t_ms":28225,"kind":"agent_heard","text":"Yes. The"},{"t_ms":30756,"kind":"agent_heard","text":"order number is g w four eight nine one one."},{"t_ms":31800,"end_ms":32140,"kind":"agent_speech","n":8},{"t_ms":32640,"end_ms":34660,"kind":"agent_speech","n":9},{"t_ms":35140,"end_ms":36160,"kind":"agent_speech","n":10},{"t_ms":36325,"kind":"agent_said","text":"Thank you. Can you also provide the zip code on the order? I need both to look it up.","n":3,"interrupted":false},{"t_ms":37002,"end_ms":38657,"kind":"caller_said","text":"Sure, the ZIP code is 9 4 1 1 0.","n":3},{"t_ms":37340,"end_ms":40200,"kind":"caller_speech","n":5},{"t_ms":40553,"kind":"agent_heard","text":"Sure. The zip code is nine four one one zero."},{"t_ms":41350,"end_ms":41350,"kind":"tool_call","tool":"lookup_order","args":{"order_id":"GW-48911","zip":"94110"},"status":200,"ok":true,"response":{"order_id":"GW-48911","customer_name":"Maria Lopez","status":"delivered","total":15.0,"items":[{"sku":"CBL-3","name":"USB-C cable","qty":1,"price":15.0}],"shipping_address":"742 Valencia St, San Francisco, CA 94110","refunded":true,"refund":null},"id":1},{"t_ms":42560,"end_ms":46240,"kind":"agent_speech","n":11},{"t_ms":46580,"end_ms":48800,"kind":"agent_speech","n":12},{"t_ms":49460,"end_ms":50840,"kind":"agent_speech","n":13},{"t_ms":51052,"kind":"agent_said","text":"The order G W 4 8 9 1 1 for the USB-C cable was delivered and has already been refunded. Is there anything else I can help you with?","n":4,"interrupted":false},{"t_ms":52086,"end_ms":55231,"kind":"caller_said","text":"Yes, that's correct. Thank you very much for confirming the refund. I appreciate your help. Goodbye!","n":4},{"t_ms":52640,"end_ms":53640,"kind":"caller_speech","n":6},{"t_ms":53998,"kind":"agent_heard","text":"Yes. That's correct."},{"t_ms":54260,"end_ms":56340,"kind":"caller_speech","n":7},{"t_ms":56806,"kind":"agent_heard","text":"Thank you very much for confirming the refund."},{"t_ms":58868,"kind":"agent_said","text":"You're welcome. If you","n":5,"interrupted":true}],"ux":{"duration_ms":56767,"greeting_first":true,"first_agent_audio_ms":2300,"caller_segments":7,"agent_segments":13,"responses":[{"caller_end_ms":8480,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":13540,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":14880,"agent_start_ms":16620,"latency_ms":1740},{"caller_end_ms":30440,"agent_start_ms":31800,"latency_ms":1360},{"caller_end_ms":40200,"agent_start_ms":42560,"latency_ms":2360},{"caller_end_ms":53640,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":56340,"agent_start_ms":null,"latency_ms":null}],"latency_ms":{"n":3,"p50":1740,"p95":2360,"max":2360},"dead_air":[],"dead_air_total_ms":0,"talk_over":[],"barge_in":[],"caller_speech_ms":17480,"agent_speech_ms":19140}};
+  const issues = [51052];
+  const interrupts = [];
+  const dur = (env && env.duration_ms) || 56767;
+  const audio = document.getElementById('insp-audio'), cv = document.getElementById('insp-lanes'), big = document.getElementById('insp-tl');
+  const playBtn = document.getElementById('insp-play'), cur = document.getElementById('insp-cur');
+  const C = {caller:'#2563eb', agent:'#7c3aed', tool:'#0f766e', bad:'#b91c1c', dead:'#fde68a', inter:'#f59e0b', grid:'#eef0f3', text:'#6b7280', play:'#111827'};
+  const PAD = 6;
+  function fmt(ms){ const s = Math.floor((ms||0)/1000); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+  function xOf(c, ms){ return PAD + (ms/dur) * (c.width - 2*PAD); }
+  function msOf(c, px){ return Math.max(0, Math.min(dur, (px-PAD)/(c.width-2*PAD)*dur)); }
+  function drawLanes(c, compact){
+    const W = c.clientWidth || 600; if (c.width !== W) c.width = W; const H = c.height;
+    const ctx = c.getContext('2d'); ctx.clearRect(0,0,W,H);
+    const laneH = compact ? 20 : 46, gap = compact ? 2 : 6, top = compact ? 4 : 14;
+    const lanes = [{name:'caller', y:top, color:C.caller}, {name:'agent', y:top+laneH+gap, color:C.agent}];
+    ctx.fillStyle = C.dead; (tl.ux && tl.ux.dead_air || []).forEach(d => ctx.fillRect(xOf(c,d.start_ms), top, Math.max(2, xOf(c,d.end_ms)-xOf(c,d.start_ms)), laneH*2+gap));
+    if (!compact){ ctx.font = '11px ' + getComputedStyle(document.body).fontFamily; ctx.textBaseline='middle'; ctx.fillStyle=C.text; ctx.textAlign='center';
+      for (let t=0; t<=dur; t+=10000){ const px=xOf(c,t); ctx.strokeStyle=C.grid; ctx.beginPath(); ctx.moveTo(px,top); ctx.lineTo(px,H-16); ctx.stroke(); ctx.fillText((t/1000|0)+'s', px, H-8); } }
+    lanes.forEach(l => {
+      const e = env && env[l.name] || []; const step = env && env.step_ms || 50; ctx.fillStyle = l.color;
+      if (e.length) {
+        for (let i=0;i<e.length;i++){ const v=e[i]/100; if (v<0.04) continue; const px=xOf(c,i*step), w=Math.max(1, xOf(c,step)-xOf(c,0)); const hh=Math.max(1, v*laneH); ctx.fillRect(px, l.y + (laneH-hh)/2, w, hh); }
+      } else {
+        // no recording (e.g. the LiveKit simulator keeps the audio): draw the turns from their timestamps
+        const kind = l.name === 'caller' ? 'caller_speech' : 'agent_speech';
+        ctx.globalAlpha = 0.55;
+        (tl.events||[]).filter(ev => ev.kind === kind).forEach(ev => { const px = xOf(c, ev.t_ms), w = Math.max(2, xOf(c, ev.end_ms || ev.t_ms + 1000) - px); ctx.fillRect(px, l.y + laneH*0.25, w, laneH*0.5); });
+        ctx.globalAlpha = 1;
+      }
+      if (!compact){ ctx.fillStyle = C.text; ctx.textAlign='left'; ctx.fillText(l.name, 4, l.y + laneH/2); }
+    });
+    const dotY = compact ? H-7 : H-24;
+    (tl.events||[]).filter(e => e.kind==='tool_call').forEach(e => { ctx.fillStyle = e.ok ? C.tool : C.bad; ctx.beginPath(); ctx.arc(xOf(c,e.t_ms), dotY, 3.5, 0, 7); ctx.fill(); });
+    issues.forEach(t => { ctx.fillStyle = C.bad; ctx.beginPath(); ctx.arc(xOf(c,t), dotY, 3, 0, 7); ctx.fill(); });
+    interrupts.forEach(t => { ctx.fillStyle = C.inter; ctx.beginPath(); ctx.arc(xOf(c,t), dotY, 3, 0, 7); ctx.fill(); });
+    if (audio && !isNaN(audio.currentTime)) { const px=xOf(c,audio.currentTime*1000); ctx.strokeStyle=C.play; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(px,0); ctx.lineTo(px,H); ctx.stroke(); ctx.lineWidth=1; }
+  }
+  function draw(){ drawLanes(cv, true); if (big && !big.closest('[data-pane]').hidden) drawLanes(big, false); }
+  function seek(ms, play){ if (!audio) return; audio.currentTime = Math.max(0, ms/1000); if (play !== false) audio.play().catch(()=>{}); }
+  function selectTool(id){
+    root.querySelectorAll('.tev').forEach(t => { t.hidden = t.dataset.tev !== id; });
+    root.querySelectorAll('.toolev').forEach(t => t.classList.toggle('sel', t.dataset.tool === id));
+  }
+  function nearestTool(ms){ let best=null; (tl.events||[]).filter(e => e.kind==='tool_call').forEach(e => { if (best===null || Math.abs(e.t_ms-ms) < Math.abs(best.t_ms-ms)) best=e; }); return best && Math.abs(best.t_ms-ms) < dur*0.03 ? best : null; }
+  [cv, big].forEach(c => { if (!c) return; c.addEventListener('click', e => { const ms = msOf(c, e.offsetX); const t = nearestTool(ms); if (t) selectTool(t.id); seek(ms); }); });
+  root.addEventListener('click', e => {
+    const q = e.target.closest('.tag .q');
+    if (q) { const tag = q.closest('.tag'); const was = tag.classList.contains('open'); root.querySelectorAll('.tag.open').forEach(t => t.classList.remove('open')); if (!was) tag.classList.add('open'); e.stopPropagation(); return; }
+    if (!e.target.closest('.tag .pop')) root.querySelectorAll('.tag.open').forEach(t => t.classList.remove('open'));
+  });
+  root.addEventListener('click', e => {
+    if (e.target.closest('a:not(.jump)') || e.target.closest('button') || e.target.closest('.tev') || e.target.closest('.sw')) return;
+    const j = e.target.closest('a.jump'); if (j) { e.preventDefault(); const ms=+j.dataset.seek; seek(ms); scrollToTime(ms); return; }
+    const t = e.target.closest('.toolev, .toolrow'); if (t) { selectTool(t.dataset.tool); seek(+t.dataset.t); return; }
+    const el = e.target.closest('.turn, .deadair, .tlrow, .latrow'); if (el && el.dataset.t) seek(+el.dataset.t);
+  });
+  function scrollToTime(ms){ const turns=[...root.querySelectorAll('#transcript .turn, #transcript .toolev')]; let best=null; turns.forEach(t => { const tt=+t.dataset.t; if (tt<=ms+300 && (!best || tt>+best.dataset.t)) best=t; }); if (best) best.scrollIntoView({behavior:'smooth', block:'center'}); }
+  function highlight(){ if (!audio) return; const ms=audio.currentTime*1000; root.querySelectorAll('#transcript .turn').forEach(t => { const s=+t.dataset.t, e=+t.dataset.end || s+4000; t.classList.toggle('current', ms>=s && ms<e); }); cur.textContent = fmt(ms); }
+  if (audio){
+    playBtn.addEventListener('click', () => { if (audio.paused) audio.play().catch(()=>{}); else audio.pause(); });
+    const setIcon = () => { playBtn.querySelector('.i-play').hidden = !audio.paused; playBtn.querySelector('.i-pause').hidden = audio.paused; };
+    audio.addEventListener('play', setIcon); audio.addEventListener('pause', setIcon);
+    audio.addEventListener('timeupdate', () => { draw(); highlight(); }); audio.addEventListener('seeked', () => { draw(); highlight(); });
+  }
+  root.addEventListener('click', e => { if (e.target.closest('[data-tab="timeline"]')) setTimeout(draw, 0); });
+  window.addEventListener('resize', draw);
+  draw();
+  const start = null;
+  const hashT = (location.hash.match(/t=(\d+)/) || [])[1];
+  const t0 = hashT !== undefined ? +hashT : start;
+  if (t0 !== null && t0 !== undefined && audio) { seek(t0, false); scrollToTime(t0); draw(); highlight(); if (hashT !== undefined) root.scrollIntoView({block:'start'}); }
+  window.gfInspector = { seek, selectTool, draw };
+})();
+</script><footer>gatewayfutures 0.1.0 · static report generated 2026-10-08 23:58 UTC</footer>
+</main>
+</div>
+<div id="player"><span class="lbl"></span><audio controls preload="none"></audio><button class="btn sm" onclick="gfPlayer.close()">✕</button></div>
+<script>
+window.gfPlayer = (function(){
+  const box = document.getElementById('player'), audio = box.querySelector('audio'), lbl = box.querySelector('.lbl');
+  let cur = null;
+  function fmt(s){ s = Math.floor(s||0); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+  function mark(btn, on){ if (!btn) return; btn.classList.toggle('on', on); btn.querySelector('.ic').textContent = on ? '❚❚' : '▶'; }
+  function toggle(btn){
+    const src = btn.dataset.src;
+    if (cur === btn) { if (audio.paused) audio.play(); else audio.pause(); mark(btn, !audio.paused); return; }
+    mark(cur, false); cur = btn; audio.src = src; lbl.textContent = btn.dataset.label || src; box.classList.add('on'); audio.play().catch(()=>{}); mark(btn, true);
+  }
+  audio.addEventListener('timeupdate', () => { if (cur) cur.querySelector('.t').textContent = fmt(audio.currentTime); });
+  audio.addEventListener('pause', () => mark(cur, false)); audio.addEventListener('play', () => mark(cur, true));
+  audio.addEventListener('ended', () => { mark(cur, false); });
+  document.addEventListener('click', e => { const b = e.target.closest('button.play'); if (b) { e.preventDefault(); e.stopPropagation(); toggle(b); } });
+  return { close(){ audio.pause(); box.classList.remove('on'); mark(cur, false); cur = null; }, current(){ return cur; } };
+})();
+// tabs: <div class="tabs" data-tabs="x"><button data-tab="a" class="on"> ... <div class="pane" data-pane="a">
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-tab]'); if (!b) return;
+  const root = b.closest('[data-tabs]'); const scope = document.getElementById(root.dataset.tabs) || root.parentNode;
+  root.querySelectorAll('[data-tab]').forEach(x => x.classList.toggle('on', x === b));
+  scope.querySelectorAll('[data-pane]').forEach(p => { p.hidden = p.dataset.pane !== b.dataset.tab; });
+});
+// switches: <label class="sw" data-toggle="heard-off" data-target="#id">
+document.addEventListener('click', e => {
+  const s = e.target.closest('.sw[data-toggle]'); if (!s) return;
+  const t = document.querySelector(s.dataset.target) || document.body;
+  s.classList.toggle('on'); t.classList.toggle(s.dataset.toggle, !s.classList.contains('on'));
+});
+// "Run evaluation" opens the start-run card when it is on this page
+document.addEventListener('click', e => {
+  const a = e.target.closest('#btn-run'); if (!a) return;
+  const d = document.getElementById('run'); if (d && d.tagName === 'DETAILS') { e.preventDefault(); d.open = true; d.scrollIntoView({behavior:'smooth', block:'start'}); }
+});
+if (location.hash === '#run') { const d = document.getElementById('run'); if (d) d.open = true; }
+</script>
+</body>
+</html>

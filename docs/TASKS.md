@@ -6,7 +6,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 
 ## End result (the deliverables)
 - [x] D1 A repository that runs with one command (`make up`: order system + agent worker + UI), README covers setup, CLI, adding a session, hosting — T7.3; clean clone: `uv sync` → 58 unit tests pass, `gf --help`, `docker compose config` lists backend/agent/ui, image builds
-- [x] D2 Sample report from real calls — `docs/sample-report/` (run `full-1`, 11 sessions × 2, 20/22, two caught failures: an address change confirmed but never written, a refund never issued), MP3 audio bundled
+- [x] D2 Sample report from real calls — `docs/sample-report/` (run `full-3`, 15 sessions × 3, 36/44 valid passed, 1 invalid, 2 flaky; caught: a refund never issued on an impatient caller, an over-limit refund never issued, plus two generated sessions whose expectations contradicted the agent's policy), MP3 audio bundled
 - [x] D3 `docs/design-note.md`: choices, findings from the first runs, next week, second provider
 
 ## Part 0 — Scaffold and environment
@@ -49,8 +49,17 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 - [~] Gate 4 — runner + record + timeline verified on real calls; generation pending
 - Persona: deterministic in-character check (facts-only numbers, no meta-talk) counts toward validity; an advisory LLM persona judge exists (`GF_PERSONA_JUDGE=1`), never gating
 
+- [ ] T6.20 Environment tags: `env-<hash>` (agent config + variant, models, engine, scoring method, library and Python versions) and `set-<hash>` (session files) on every run; stored in the manifest, `environment.json` and a registry under `runs/_environments/`; chips everywhere a run is named; Environments page; `gf env`
+
+## Bugs (filed 2026-10-08 evening, fixed the same night)
+- Finding from `full-3` (15 × 3, 36/44 valid passed, 82%, CI 68–90%, 1 invalid, 16.7 min): two generated sessions failed 0/3 because their expectations contradicted the agent's policy (retry after an injected 500 with escalation forbidden) or the fixture (a final-state assertion on a pre-existing refund, which the backend records as `orders[..].refunded`). Both were retired and the generator now rejects such proposals (`_check_against_agent_policy`, `_check_final_state`); the hand-written set covers both behaviours (`refund-backend-fault`, `refund-already-refunded`)
+- [x] B1 "Latest run" is chosen by folder name, not by start time, so `lk-audio-1` sorts above `full-3`; the overview, the run selector and "Issues to investigate" open on the wrong run. Fix: order runs by `started_at` from the manifest (fallback: folder mtime); the overview, selector and Runs page lead with the newest run.
+- [x] B2 KPI cards say "no comparable run" whenever the stamp differs, so the delta is almost never shown. Fix: always compare with the previous real run (kind `run`) and show the delta against it; when the stamp differs, keep the delta and add a muted "not like-for-like: sessions or agent changed" note instead of hiding it. Sparkline unchanged.
+- [x] B3 Practice-session accordion opens the first failing row by default (looks like it "always expands the 2nd session"). Fix: every row starts closed; the issues cards are the entry point.
+- [x] B4 The run log shows one "room session transport is closed" traceback per finished call (the library's session-event writer runs after the caller's session is closed). Fix: drain and close the caller's AgentSession before leaving the room; if the library still emits it, filter that message from the `livekit.agents` logger in the runner. Logs then only show real errors.
+
 ## Next up (in order)
-1. T5.9 per-session comparison → T6.10 remaining item (real tool schemas on the agent page) → T4.6 provider seam (LiveKit + Fake + Vapi/Pipecat skeletons) → T5.10 cost
+1. Bugs B1–B4 → T6.20 environment tags → T5.9 per-session comparison → T6.10 remaining item (real tool schemas on the agent page) → T4.6 provider seam (LiveKit + Fake + Vapi/Pipecat skeletons) → T5.10 cost
 2. Re-run the full matrix (`full-3`: 12 hand-written + regenerated sessions) and refresh `docs/sample-report`; prove `make up` in Docker end to end
 3. Gate 6 human review of the UI and the sample report (CI green on GitHub; Pages enabled)
 - T4.5 follow-up (2026-10-08): generated sessions are checked against the fixture (order exists, zip matches, refunds only on delivered and not-yet-refunded orders within the total, address changes only on processing orders and only with a `new_address` fact) and free-text arguments are never pinned; the first generated batch failed 0/8 in `full-2` for exactly these reasons, so that run was discarded and the sessions regenerated (3 written, 3 rejected with reasons)

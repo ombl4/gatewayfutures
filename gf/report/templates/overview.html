@@ -38,6 +38,7 @@
 
 {% if r %}
 {{ rb.kpis(r) }}
+{% if r.previous and not r.previous.like_for_like %}<p class="small muted" style="margin:-8px 0 12px">* compared with {{ r.previous.run_id }}, which used a different session set or agent configuration; treat the change as indicative.</p>{% endif %}
 <div class="work">
   {{ rb.sessions(r) }}
   {{ rb.issues(r, issue_link) }}

@@ -129,7 +129,17 @@ def list_runs() -> list[Path]:
     runs = settings().runs_dir
     if not runs.exists():
         return []
-    return sorted((p for p in runs.iterdir() if (p / "manifest.json").exists()), reverse=True)
+
+    def started(p: Path) -> str:
+        try:
+            man = json.loads((p / "manifest.json").read_text())
+            return man.get("started_at") or ""
+        except (OSError, ValueError):
+            return ""
+
+    cands = [p for p in runs.iterdir() if p.is_dir() and (p / "manifest.json").exists()]
+    # newest first: by start time from the manifest, then folder mtime, then name
+    return sorted(cands, key=lambda p: (started(p), p.stat().st_mtime, p.name), reverse=True)
 
 
 def environment_info() -> dict:

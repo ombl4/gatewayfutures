@@ -147,6 +147,8 @@ def write_proposals(
                 sess = Session.load(tmp)
             finally:
                 tmp.unlink(missing_ok=True)
+            _check_against_agent_policy(prop)
+            _check_final_state(prop)
             target.write_text(sess.dump())
             seen.add(title)
             written.append({"file": str(target), "id": sess.id, "title": sess.title})
@@ -170,6 +172,43 @@ def _sanitise(prop: dict[str, Any]) -> None:
     for call in tc.get("required") or []:
         if isinstance(call, dict) and isinstance(call.get("args"), dict):
             call["args"] = {k: v for k, v in call["args"].items() if k in DETERMINISTIC_ARGS}
+
+
+def _check_final_state(prop: dict[str, Any]) -> None:
+    """`refunds[ORDER].amount == X` only holds for a refund issued during the call: the
+    fixture marks pre-existing refunds as `orders[ORDER].refunded`, never in `refunds`."""
+    exp = prop.get("expected") or {}
+    required = {r.get("tool") for r in (exp.get("tool_calls") or {}).get("required") or []}
+    for expr in exp.get("final_state") or []:
+        m = re.match(r"\s*refunds\[([^\]]+)\]", str(expr))
+        if m and "issue_refund" not in required:
+            raise ValueError(
+                f"final_state asserts a refund for {m.group(1)} but the session never requires "
+                "issue_refund; a pre-existing refund shows as orders[...].refunded, not in refunds"
+            )
+
+
+def _check_against_agent_policy(prop: dict[str, Any]) -> None:
+    """The agent is specified to tell the truth after a tool error and offer escalation, never
+    to retry blindly. A proposal that injects error_500/timeout/reject on a tool and still
+    requires that tool to succeed (or forbids escalation) contradicts the agent's policy."""
+    faults = prop.get("faults") or []
+    failing = {f.get("tool") for f in faults if f.get("type") in ("error_500", "timeout", "reject")}
+    if not failing:
+        return
+    exp = (prop.get("expected") or {}).get("tool_calls") or {}
+    required = [r.get("tool") for r in exp.get("required") or []]
+    for tool in failing:
+        if required.count(tool) > 1:
+            raise ValueError(
+                f"requires {tool} twice after an injected {tool} failure: the agent does not retry "
+                "a failed write, it reports the failure and offers escalation"
+            )
+        if tool in required and "escalate_to_human" in (exp.get("forbidden") or []):
+            raise ValueError(
+                f"injects a failure on {tool} but forbids escalate_to_human: after a failed write "
+                "the agent offers escalation by design"
+            )
 
 
 def _check_against_fixture(prop: dict[str, Any]) -> None:

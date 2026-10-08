@@ -109,6 +109,10 @@ def test_run_page_content(env):
     r = env["client"].get("/runs/t1").text
     assert "Refund for a broken blender, clean line" in r
     assert "dot pending" in r  # repeat 2, one attempt per session on disk
+    assert '<details class="srow"' in r and 'class="srow" data-session' in r
+    assert (
+        " open>" not in r.split('id="sessions"')[1].split("</div>\n</div>")[0]
+    )  # all rows start closed
     assert "Every call" in r
     call = env["client"].get("/runs/t1/7c994c348001/1").text
     assert "lookup_order" in call and "issue_refund" in call

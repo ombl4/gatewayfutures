@@ -283,7 +283,7 @@ details.srow summary .ttl .chip{font-weight:400}
   <a class="row" href="agent.html#models"><span>Model</span><span>gpt-4.1-mini</span></a>
   <a class="row" href="backend.html"><span>Order system</span><span>mock</span></a>
   <a class="row" href="caller.html"><span>Simulated caller</span><span>gf-caller</span></a>
-  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-08 23:24 UTC</div>
+  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-08 23:58 UTC</div>
 </aside>
 <div class="wrap">
 <header class="top">
@@ -308,7 +308,11 @@ details.srow summary .ttl .chip{font-weight:400}
 <h2>Did the agent do the right thing?</h2>
 <div class="tablewrap"><table>
 <tr><th style="width:38%">check</th><th>why it matters</th><th>severity</th></tr>
-<tr><td>No writes to orders the caller did not ask about</td><td class="small">A write nobody asked for is the most expensive kind of mistake.</td><td><span class="chip">info</span></td></tr>
+<tr><td>Required tool calls with the expected arguments</td><td class="small">The outcome only counts if the backend actually received this request.</td><td><span class="chip">hard</span></td></tr>
+<tr><td>Order: lookup_order</td><td class="small">Verification must precede any write.</td><td><span class="chip">hard</span></td></tr>
+<tr><td>Forbidden tools were not called</td><td class="small">A forbidden action means the agent took a path the scenario rules out.</td><td><span class="chip">hard</span></td></tr>
+<tr><td>Final state assertions from the session</td><td class="small">The backend&#39;s end state is the ground truth for the outcome.</td><td><span class="chip">hard</span></td></tr>
+<tr><td>No writes to orders the caller did not ask about</td><td class="small">A write nobody asked for is the most expensive kind of mistake.</td><td><span class="chip">hard</span></td></tr>
 <tr><td>Extra successful calls beyond the scenario</td><td class="small"></td><td><span class="chip">info</span></td></tr>
 <tr><td>Arguments were well-formed</td><td class="small">Malformed arguments usually mean a misheard or invented value.</td><td><span class="chip">soft</span></td></tr>
 <tr><td>Backend rejections or errors during the call</td><td class="small"></td><td><span class="chip">info</span></td></tr>
@@ -347,11 +351,6 @@ details.srow summary .ttl .chip{font-weight:400}
 <tr><td>Did not re-ask the same question within 15 s</td><td class="small">Re-asking means the answer was not heard or not kept.</td><td><span class="chip">soft</span></td></tr>
 <tr><td>No two filler-only turns in a row</td><td class="small"></td><td><span class="chip">soft</span></td></tr>
 </table></div>
-<h2>What LiveKit&#39;s judge said</h2>
-<div class="tablewrap"><table>
-<tr><th style="width:38%">check</th><th>why it matters</th><th>severity</th></tr>
-<tr><td>LiveKit simulator judge</td><td class="small">An independent judge on the same call; where it disagrees with our checks is where to listen.</td><td><span class="chip">hard</span></td></tr>
-</table></div>
 </div>
 <div>
 <h2>Thresholds</h2>
@@ -377,7 +376,7 @@ details.srow summary .ttl .chip{font-weight:400}
 </div>
 </div>
 </div>
-<footer>gatewayfutures 0.1.0 · static report generated 2026-10-08 23:24 UTC</footer>
+<footer>gatewayfutures 0.1.0 · static report generated 2026-10-08 23:58 UTC</footer>
 </main>
 </div>
 <div id="player"><span class="lbl"></span><audio controls preload="none"></audio><button class="btn sm" onclick="gfPlayer.close()">✕</button></div>

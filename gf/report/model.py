@@ -222,6 +222,7 @@ def kpi_cards(
     series = [run_metrics(ps) for _, ps in upto]
     cur = run_metrics(summ)
     pm = run_metrics(prev) if prev else None
+    prev_like = bool(prev) and prev.get("stamp") == summ.get("stamp")
     o = summ.get("overall") or {}
     th = thresholds()
 
@@ -230,6 +231,8 @@ def kpi_cards(
         d = None
         if pm and pm.get(key) is not None and cur.get(key) is not None:
             d = cur[key] - pm[key]
+            if abs(d) < (50 if key == "p95_ms" else 0.005):
+                d = 0  # below display resolution: "no change", not "-0.0 s"
         return {
             "id": key,
             "label": label,
@@ -244,6 +247,8 @@ def kpi_cards(
             if d is not None
             else "none",
             "comparable": prev is not None,
+            "like_for_like": bool(prev_like),
+            "prev_id": prev.get("run_id") if prev else None,
             "cls": cls,
             "note": note,
         }
@@ -576,8 +581,10 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
     attempts = {(a["session_id"], a["attempt"]): a for a in summ["attempts"]}
     sessions = {s.id: s for s in load_all(settings().sessions_dir)}
 
-    # previous comparable run (same stamp) for the "vs previous" marks
+    # previous real run: the baseline for deltas; "comparable" (same stamp) decides whether
+    # fixed / regressed marks are shown with confidence
     prev = None
+    prev_like = False
     if man.get("kind", "run") == "run":
         for p in list_runs():
             if p.name == run_id:
@@ -586,12 +593,9 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
             if pm.get("kind", "run") != "run":
                 continue  # detector checks are never a baseline
             ps = _json(p / "summary.json")
-            if (
-                ps
-                and ps.get("stamp") == summ.get("stamp")
-                and ps.get("started_at", "") < summ.get("started_at", "")
-            ):
+            if ps and ps.get("started_at", "") < summ.get("started_at", ""):
                 prev = ps
+                prev_like = ps.get("stamp") == summ.get("stamp")
                 break
     prev_rows = {r["session_id"]: r for r in (prev or {}).get("sessions", [])}
 
@@ -698,7 +702,11 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
         "invalid": invalid,
         "flagged": flagged,
         "reference": reference,
-        "previous": {"run_id": prev.get("run_id"), "rate": prev["overall"].get("rate")}
+        "previous": {
+            "run_id": prev.get("run_id"),
+            "rate": prev["overall"].get("rate"),
+            "like_for_like": prev_like,
+        }
         if prev
         else None,
         "regressed": [r for r in rows if r["vs"] == "regressed"],

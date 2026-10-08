@@ -43,6 +43,24 @@ GREETING_WAIT_S = 15.0  # agent cold start + greeting; silence rules arm after t
 AGENT_RECORD_TIMEOUT_S = 20.0
 
 
+class _DropClosedTransportNoise(logging.Filter):
+    """livekit-agents logs a traceback when its session-event writer runs after the caller's
+    session was closed (one per finished call). The record is complete by then; drop it so
+    the run log only shows real errors."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        msg = record.getMessage()
+        return not (
+            "failed to send session event" in msg
+            or "room session transport is closed" in msg
+            or "metrics_collected is deprecated" in msg
+        )
+
+
+logging.getLogger("livekit.agents").addFilter(_DropClosedTransportNoise())
+logging.getLogger("livekit").addFilter(_DropClosedTransportNoise())
+
+
 async def run_call(
     session: Session,
     call_id: str,

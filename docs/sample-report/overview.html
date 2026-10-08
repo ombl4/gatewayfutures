@@ -283,11 +283,11 @@ details.srow summary .ttl .chip{font-weight:400}
   <a class="row" href="agent.html#models"><span>Model</span><span>gpt-4.1-mini</span></a>
   <a class="row" href="backend.html"><span>Order system</span><span>mock</span></a>
   <a class="row" href="caller.html"><span>Simulated caller</span><span>gf-caller</span></a>
-  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-08 23:24 UTC</div>
+  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-08 23:58 UTC</div>
 </aside>
 <div class="wrap">
 <header class="top">
-  <div class="crumbs"><a href="overview.html">Voice agent evaluation</a><i>›</i><b>Overview</b><i>›</i><span>run full-1</span></div>
+  <div class="crumbs"><a href="overview.html">Voice agent evaluation</a><i>›</i><b>Overview</b><i>›</i><span>run full-3</span></div>
   <div class="right">
     <span class="status-pill " title="livekit"><i></i>livekit</span>
   </div>
@@ -296,9 +296,9 @@ details.srow summary .ttl .chip{font-weight:400}
 <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
 <h1>Evaluation overview</h1>
 <label class="small muted" style="display:flex;align-items:center;gap:8px">Run
-<span class="chip">full-1</span></label>
+<span class="chip">full-3</span></label>
 </div>
-<p class="meta"><span>Run <a href="index.html">full-1</a></span><i>·</i><span>2026-10-08 20:26 UTC</span><i>·</i><span>11 practice sessions</span><i>·</i><span>22 calls (21 valid, 1 invalid)</span></p>
+<p class="meta"><span>Run <a href="index.html">full-3</a></span><i>·</i><span>2026-10-08 23:37 UTC</span><i>·</i><span>15 practice sessions</span><i>·</i><span>45 calls (44 valid, 1 invalid)</span></p>
 
 <div class="flow" id="flow" title="How a simulated call flows. Click a step to see how it is configured.">
   <span class="lbl">How a call flows</span>
@@ -311,50 +311,50 @@ details.srow summary .ttl .chip{font-weight:400}
 
 
 <div class="kpis" id="kpis">
-  <div class="kpi green" data-kpi="rate" title="A call passes when the backend shows the right actions and the agent told the truth.">
+  <div class="kpi amber" data-kpi="rate" title="A call passes when the backend shows the right actions and the agent told the truth.">
     <div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg></div>
     <div class="k">Task success</div>
-    <div class="v">95%</div>
-    <div class="d">20 / 21 valid calls · CI 77%–99%</div>
-    <div class="trend"><svg viewBox="0 0 72 28" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#15803d" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" points="2.0,26.0 36.0,4.0 70.0,6.1 "/></svg>
-<span class="vs none">no comparable run</span></div>
+    <div class="v">82%</div>
+    <div class="d">36 / 44 valid calls · CI 68%–90%</div>
+    <div class="trend"><svg viewBox="0 0 72 28" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#b45309" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" points="2.0,26.0 24.7,4.0 47.3,6.1 70.0,12.0 "/></svg>
+<span class="vs regressed" title="sessions or agent changed since full-1: not like-for-like">-13 pts vs full-1 *</span></div>
   </div>
-  <div class="kpi green" data-kpi="tool_rate" title="Judged on the order system&#39;s log, never on what the agent said.">
+  <div class="kpi amber" data-kpi="tool_rate" title="Judged on the order system&#39;s log, never on what the agent said.">
     <div class="ic"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.1-2.1z"/></svg></div>
     <div class="k">Tool correctness</div>
-    <div class="v">95%</div>
+    <div class="v">82%</div>
     <div class="d">of valid calls, from the backend log</div>
-    <div class="trend"><svg viewBox="0 0 72 28" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#15803d" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" points="2.0,4.0 36.0,4.0 70.0,26.0 "/></svg>
-<span class="vs none">no comparable run</span></div>
+    <div class="trend"><svg viewBox="0 0 72 28" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#b45309" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" points="2.0,4.0 24.7,4.0 47.3,9.8 70.0,26.0 "/></svg>
+<span class="vs regressed" title="sessions or agent changed since full-1: not like-for-like">-13 pts vs full-1 *</span></div>
   </div>
   <div class="kpi green" data-kpi="wer" title="What the caller said vs what the agent&#39;s speech recognition produced.">
     <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 12h2l2-6 3 12 3-9 2 5 2-2h4"/></svg></div>
     <div class="k">Speech WER</div>
-    <div class="v">3%</div>
+    <div class="v">7%</div>
     <div class="d">lower is better · caller&#39;s words vs agent&#39;s transcript</div>
-    <div class="trend"><svg viewBox="0 0 72 28" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#15803d" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" points="2.0,4.0 36.0,24.9 70.0,26.0 "/></svg>
-<span class="vs none">no comparable run</span></div>
+    <div class="trend"><svg viewBox="0 0 72 28" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#15803d" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" points="2.0,4.0 24.7,24.9 47.3,26.0 70.0,21.6 "/></svg>
+<span class="vs regressed" title="sessions or agent changed since full-1: not like-for-like">+4 pts vs full-1 *</span></div>
   </div>
   <div class="kpi amber" data-kpi="p95_ms" title="Measured from the recording: caller stops speaking → agent audio starts.">
     <div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
     <div class="k">p95 reply latency</div>
     <div class="v">2.6 s</div>
     <div class="d">median session · flag over 2 s</div>
-    <div class="trend"><svg viewBox="0 0 72 28" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#b45309" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" points="2.0,4.0 36.0,23.1 70.0,26.0 "/></svg>
-<span class="vs none">no comparable run</span></div>
+    <div class="trend"><svg viewBox="0 0 72 28" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#b45309" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" points="2.0,4.0 24.7,22.9 47.3,25.7 70.0,26.0 "/></svg>
+<span class="vs same" title="sessions or agent changed since full-1: not like-for-like">0.0 s vs full-1 *</span></div>
   </div>
 </div>
 
-<div class="work">
+<p class="small muted" style="margin:-8px 0 12px">* compared with full-1, which used a different session set or agent configuration; treat the change as indicative.</p><div class="work">
   <div class="acc" id="sessions">
-  <div class="hd"><h3>Practice sessions <span class="muted" style="font-weight:500">(11)</span></h3><span class="small muted">2 attempts each · click a row to expand</span></div>
+  <div class="hd"><h3>Practice sessions <span class="muted" style="font-weight:500">(15)</span></h3><span class="small muted">3 attempts each · click a row to expand</span></div>
   <details class="srow" data-session="915dd5186fa8" >
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
       <span class="ttl">Address change over a narrow phone line, calm British caller</span>
-      <span class="bar" title="2 pass · 0 fail · 0 invalid"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i><i class="x" style="width:0.0%"></i></span>
-      <span class="cnt"><b class="p">2/2</b> pass</span>
-      <span class="cnt"><span class="strip"><a class="dot pass" href="call-915dd5186fa8-1.html" title="attempt 1: pass"></a><a class="dot pass" href="call-915dd5186fa8-2.html" title="attempt 2: pass"></a></span>
+      <span class="bar" title="3 pass · 0 fail · 0 invalid"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i><i class="x" style="width:0.0%"></i></span>
+      <span class="cnt"><b class="p">3/3</b> pass</span>
+      <span class="cnt"><span class="strip"><a class="dot pass" href="call-915dd5186fa8-1.html" title="attempt 1: pass"></a><a class="dot pass" href="call-915dd5186fa8-2.html" title="attempt 2: pass"></a><a class="dot pass" href="call-915dd5186fa8-3.html" title="attempt 3: pass"></a></span>
 </span>
     </summary>
     <div class="sbody">
@@ -367,25 +367,31 @@ details.srow summary .ttl .chip{font-weight:400}
       <div class="att">
         <span class="pill pass">pass</span>
         <span><button class="play" data-src="audio/915dd5186fa8-1.mp3" data-label="Address change over a narrow phone line, calm British caller #1" title="replay the original recording"><span class="ic">▶</span><span class="t">1:16</span></button></span>
-        <span class="rs" title="dead air">#1 · 1:16 · p95 2.6 s · flagged: dead air</span>
+        <span class="rs" title="slow replies, dead air">#1 · 1:16 · p95 3.7 s · flagged: slow replies, dead air</span>
         <a href="call-915dd5186fa8-1.html">Open call →</a>
       </div>
       <div class="att">
         <span class="pill pass">pass</span>
-        <span><button class="play" data-src="audio/915dd5186fa8-2.mp3" data-label="Address change over a narrow phone line, calm British caller #2" title="replay the original recording"><span class="ic">▶</span><span class="t">1:30</span></button></span>
-        <span class="rs" title="slow replies, dead air">#2 · 1:30 · p95 3.7 s · flagged: slow replies, dead air</span>
+        <span><button class="play" data-src="audio/915dd5186fa8-2.mp3" data-label="Address change over a narrow phone line, calm British caller #2" title="replay the original recording"><span class="ic">▶</span><span class="t">1:19</span></button></span>
+        <span class="rs" title="slow replies, dead air">#2 · 1:19 · p95 3.8 s · flagged: slow replies, dead air</span>
         <a href="call-915dd5186fa8-2.html">Open call →</a>
       </div>
-      <div class="small" style="margin-top:8px"><a href="session-915dd5186fa8.html">Session definition and history →</a> <span class="muted">· worst p95 reply 3.7 s</span></div>
+      <div class="att">
+        <span class="pill pass">pass</span>
+        <span><button class="play" data-src="audio/915dd5186fa8-3.mp3" data-label="Address change over a narrow phone line, calm British caller #3" title="replay the original recording"><span class="ic">▶</span><span class="t">1:22</span></button></span>
+        <span class="rs" title="">#3 · 1:22 · p95 2.6 s · clean</span>
+        <a href="call-915dd5186fa8-3.html">Open call →</a>
+      </div>
+      <div class="small" style="margin-top:8px"><a href="session-915dd5186fa8.html">Session definition and history →</a> <span class="muted">· worst p95 reply 3.8 s</span></div>
     </div>
   </details>
-  <details class="srow" data-session="97338e726973" open>
+  <details class="srow" data-session="97338e726973" >
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
       <span class="ttl">Change the shipping address on an order that is still processing</span>
-      <span class="bar" title="1 pass · 0 fail · 1 invalid"><i class="p" style="width:50.0%"></i><i class="f" style="width:0.0%"></i><i class="x" style="width:50.0%"></i></span>
-      <span class="cnt"><b class="p">1/1</b> pass</span>
-      <span class="cnt"><span class="strip"><a class="dot pass" href="call-97338e726973-1.html" title="attempt 1: pass"></a><a class="dot invalid" href="call-97338e726973-2.html" title="attempt 2: invalid — invalid: simulator misheard the agent: agent said boston in turn 4, the caller heard austin and used it in its turn 5; simulator misheard the agent: agent said beacon in turn 6, the caller heard eakin and used it in its turn 7; simulator misheard the agent: agent said boston in turn 4, the caller heard austin and used it in its turn 5; simulator misheard the agent: agent said beacon in turn 6, the caller heard eakin and used it in its turn 7"></a></span>
+      <span class="bar" title="2 pass · 0 fail · 1 invalid"><i class="p" style="width:66.66666666666667%"></i><i class="f" style="width:0.0%"></i><i class="x" style="width:33.333333333333336%"></i></span>
+      <span class="cnt"><b class="p">2/2</b> pass</span>
+      <span class="cnt"><span class="strip"><a class="dot pass" href="call-97338e726973-1.html" title="attempt 1: pass"></a><a class="dot pass" href="call-97338e726973-2.html" title="attempt 2: pass"></a><a class="dot invalid" href="call-97338e726973-3.html" title="attempt 3: invalid — invalid: simulator misheard the agent: agent said beacon in turn 4, the caller heard eakin and used it in its turn 4; simulator misheard the agent: agent said apartment in turn 8, the caller heard department and used it in its turn 8; simulator misheard the agent: agent said beacon in turn 4, the caller heard eakin and used it in its turn 4; simulator misheard the agent: agent said apartment in turn 8, the caller heard department and used it in its turn 8"></a></span>
 </span>
     </summary>
     <div class="sbody">
@@ -397,26 +403,32 @@ details.srow summary .ttl .chip{font-weight:400}
       </div>
       <div class="att">
         <span class="pill pass">pass</span>
-        <span><button class="play" data-src="audio/97338e726973-1.mp3" data-label="Change the shipping address on an order that is still processing #1" title="replay the original recording"><span class="ic">▶</span><span class="t">1:25</span></button></span>
-        <span class="rs" title="">#1 · 1:25 · p95 2.7 s · clean</span>
+        <span><button class="play" data-src="audio/97338e726973-1.mp3" data-label="Change the shipping address on an order that is still processing #1" title="replay the original recording"><span class="ic">▶</span><span class="t">1:17</span></button></span>
+        <span class="rs" title="">#1 · 1:17 · p95 2.8 s · clean</span>
         <a href="call-97338e726973-1.html">Open call →</a>
       </div>
       <div class="att">
-        <span class="pill invalid">invalid</span>
-        <span><button class="play" data-src="audio/97338e726973-2.mp3" data-label="Change the shipping address on an order that is still processing #2" title="replay the original recording"><span class="ic">▶</span><span class="t">2:34</span></button></span>
-        <span class="rs" title="invalid: simulator misheard the agent: agent said boston in turn 4, the caller heard austin and used it in its turn 5; simulator misheard the agent: agent said beacon in turn 6, the caller heard eakin and used it in its turn 7; simulator misheard the agent: agent said boston in turn 4, the caller heard austin and used it in its turn 5; simulator misheard the agent: agent said beacon in turn 6, the caller heard eakin and used it in its turn 7">#2 · 2:34 · p95 4.3 s · invalid: simulator misheard the agent: agent said boston in turn 4, the caller heard austin and used it in its turn 5; simulator misheard the agent: agent said beacon in turn 6, the caller heard eakin and used it in its turn 7; simulator misheard the agent: agent said boston in turn 4, the caller heard austin and used it in its turn 5; simulator misheard the agent: agent said beacon in turn 6, the caller heard eakin and used it in its turn 7</span>
+        <span class="pill pass">pass</span>
+        <span><button class="play" data-src="audio/97338e726973-2.mp3" data-label="Change the shipping address on an order that is still processing #2" title="replay the original recording"><span class="ic">▶</span><span class="t">1:59</span></button></span>
+        <span class="rs" title="">#2 · 1:59 · p95 2.6 s · clean</span>
         <a href="call-97338e726973-2.html">Open call →</a>
       </div>
-      <div class="small" style="margin-top:8px"><a href="session-97338e726973.html">Session definition and history →</a> <span class="muted">· worst p95 reply 2.7 s</span></div>
+      <div class="att">
+        <span class="pill invalid">invalid</span>
+        <span><button class="play" data-src="audio/97338e726973-3.mp3" data-label="Change the shipping address on an order that is still processing #3" title="replay the original recording"><span class="ic">▶</span><span class="t">2:26</span></button></span>
+        <span class="rs" title="invalid: simulator misheard the agent: agent said beacon in turn 4, the caller heard eakin and used it in its turn 4; simulator misheard the agent: agent said apartment in turn 8, the caller heard department and used it in its turn 8; simulator misheard the agent: agent said beacon in turn 4, the caller heard eakin and used it in its turn 4; simulator misheard the agent: agent said apartment in turn 8, the caller heard department and used it in its turn 8">#3 · 2:26 · p95 3.7 s · invalid: simulator misheard the agent: agent said beacon in turn 4, the caller heard eakin and used it in its turn 4; simulator misheard the agent: agent said apartment in turn 8, the caller heard department and used it in its turn 8; simulator misheard the agent: agent said beacon in turn 4, the caller heard eakin and used it in its turn 4; simulator misheard the agent: agent said apartment in turn 8, the caller heard department and used it in its turn 8</span>
+        <a href="call-97338e726973-3.html">Open call →</a>
+      </div>
+      <div class="small" style="margin-top:8px"><a href="session-97338e726973.html">Session definition and history →</a> <span class="muted">· worst p95 reply 2.8 s</span></div>
     </div>
   </details>
   <details class="srow" data-session="ff2985a2b7ab" >
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
       <span class="ttl">Address change on an order that already shipped, caller asks for a person</span>
-      <span class="bar" title="2 pass · 0 fail · 0 invalid"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i><i class="x" style="width:0.0%"></i></span>
-      <span class="cnt"><b class="p">2/2</b> pass</span>
-      <span class="cnt"><span class="strip"><a class="dot pass" href="call-ff2985a2b7ab-1.html" title="attempt 1: pass"></a><a class="dot pass" href="call-ff2985a2b7ab-2.html" title="attempt 2: pass"></a></span>
+      <span class="bar" title="3 pass · 0 fail · 0 invalid"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i><i class="x" style="width:0.0%"></i></span>
+      <span class="cnt"><b class="p">3/3</b> pass</span>
+      <span class="cnt"><span class="strip"><a class="dot pass" href="call-ff2985a2b7ab-1.html" title="attempt 1: pass"></a><a class="dot pass" href="call-ff2985a2b7ab-2.html" title="attempt 2: pass"></a><a class="dot pass" href="call-ff2985a2b7ab-3.html" title="attempt 3: pass"></a></span>
 </span>
     </summary>
     <div class="sbody">
@@ -428,26 +440,32 @@ details.srow summary .ttl .chip{font-weight:400}
       </div>
       <div class="att">
         <span class="pill pass">pass</span>
-        <span><button class="play" data-src="audio/ff2985a2b7ab-1.mp3" data-label="Address change on an order that already shipped, caller asks for a person #1" title="replay the original recording"><span class="ic">▶</span><span class="t">1:05</span></button></span>
-        <span class="rs" title="stutter">#1 · 1:05 · p95 2.4 s · flagged: stutter</span>
+        <span><button class="play" data-src="audio/ff2985a2b7ab-1.mp3" data-label="Address change on an order that already shipped, caller asks for a person #1" title="replay the original recording"><span class="ic">▶</span><span class="t">0:49</span></button></span>
+        <span class="rs" title="stutter">#1 · 0:49 · p95 2.6 s · flagged: stutter</span>
         <a href="call-ff2985a2b7ab-1.html">Open call →</a>
       </div>
       <div class="att">
         <span class="pill pass">pass</span>
-        <span><button class="play" data-src="audio/ff2985a2b7ab-2.mp3" data-label="Address change on an order that already shipped, caller asks for a person #2" title="replay the original recording"><span class="ic">▶</span><span class="t">1:02</span></button></span>
-        <span class="rs" title="stutter">#2 · 1:02 · p95 2.4 s · flagged: stutter</span>
+        <span><button class="play" data-src="audio/ff2985a2b7ab-2.mp3" data-label="Address change on an order that already shipped, caller asks for a person #2" title="replay the original recording"><span class="ic">▶</span><span class="t">1:10</span></button></span>
+        <span class="rs" title="stutter">#2 · 1:10 · p95 2.5 s · flagged: stutter</span>
         <a href="call-ff2985a2b7ab-2.html">Open call →</a>
       </div>
-      <div class="small" style="margin-top:8px"><a href="session-ff2985a2b7ab.html">Session definition and history →</a> <span class="muted">· worst p95 reply 2.4 s</span></div>
+      <div class="att">
+        <span class="pill pass">pass</span>
+        <span><button class="play" data-src="audio/ff2985a2b7ab-3.mp3" data-label="Address change on an order that already shipped, caller asks for a person #3" title="replay the original recording"><span class="ic">▶</span><span class="t">1:15</span></button></span>
+        <span class="rs" title="dead air, stutter">#3 · 1:15 · p95 3.2 s · flagged: dead air, stutter</span>
+        <a href="call-ff2985a2b7ab-3.html">Open call →</a>
+      </div>
+      <div class="small" style="margin-top:8px"><a href="session-ff2985a2b7ab.html">Session definition and history →</a> <span class="muted">· worst p95 reply 3.2 s</span></div>
     </div>
   </details>
   <details class="srow" data-session="2e729ea48f97" >
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
       <span class="ttl">Refund request on an order that was already refunded</span>
-      <span class="bar" title="2 pass · 0 fail · 0 invalid"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i><i class="x" style="width:0.0%"></i></span>
-      <span class="cnt"><b class="p">2/2</b> pass</span>
-      <span class="cnt"><span class="strip"><a class="dot pass" href="call-2e729ea48f97-1.html" title="attempt 1: pass"></a><a class="dot pass" href="call-2e729ea48f97-2.html" title="attempt 2: pass"></a></span>
+      <span class="bar" title="3 pass · 0 fail · 0 invalid"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i><i class="x" style="width:0.0%"></i></span>
+      <span class="cnt"><b class="p">3/3</b> pass</span>
+      <span class="cnt"><span class="strip"><a class="dot pass" href="call-2e729ea48f97-1.html" title="attempt 1: pass"></a><a class="dot pass" href="call-2e729ea48f97-2.html" title="attempt 2: pass"></a><a class="dot pass" href="call-2e729ea48f97-3.html" title="attempt 3: pass"></a></span>
 </span>
     </summary>
     <div class="sbody">
@@ -460,14 +478,20 @@ details.srow summary .ttl .chip{font-weight:400}
       <div class="att">
         <span class="pill pass">pass</span>
         <span><button class="play" data-src="audio/2e729ea48f97-1.mp3" data-label="Refund request on an order that was already refunded #1" title="replay the original recording"><span class="ic">▶</span><span class="t">0:46</span></button></span>
-        <span class="rs" title="slow replies, dead air, stutter">#1 · 0:46 · p95 3.7 s · flagged: slow replies, dead air, stutter</span>
+        <span class="rs" title="stutter">#1 · 0:46 · p95 2.4 s · flagged: stutter</span>
         <a href="call-2e729ea48f97-1.html">Open call →</a>
       </div>
       <div class="att">
         <span class="pill pass">pass</span>
-        <span><button class="play" data-src="audio/2e729ea48f97-2.mp3" data-label="Refund request on an order that was already refunded #2" title="replay the original recording"><span class="ic">▶</span><span class="t">0:49</span></button></span>
-        <span class="rs" title="slow replies, dead air">#2 · 0:49 · p95 3.7 s · flagged: slow replies, dead air</span>
+        <span><button class="play" data-src="audio/2e729ea48f97-2.mp3" data-label="Refund request on an order that was already refunded #2" title="replay the original recording"><span class="ic">▶</span><span class="t">0:56</span></button></span>
+        <span class="rs" title="slow replies, dead air, stutter">#2 · 0:56 · p95 3.7 s · flagged: slow replies, dead air, stutter</span>
         <a href="call-2e729ea48f97-2.html">Open call →</a>
+      </div>
+      <div class="att">
+        <span class="pill pass">pass</span>
+        <span><button class="play" data-src="audio/2e729ea48f97-3.mp3" data-label="Refund request on an order that was already refunded #3" title="replay the original recording"><span class="ic">▶</span><span class="t">0:56</span></button></span>
+        <span class="rs" title="stutter">#3 · 0:56 · p95 2.4 s · flagged: stutter</span>
+        <a href="call-2e729ea48f97-3.html">Open call →</a>
       </div>
       <div class="small" style="margin-top:8px"><a href="session-2e729ea48f97.html">Session definition and history →</a> <span class="muted">· worst p95 reply 3.7 s</span></div>
     </div>
@@ -476,9 +500,9 @@ details.srow summary .ttl .chip{font-weight:400}
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
       <span class="ttl">Refund where the order system returns a 500 on the first attempt</span>
-      <span class="bar" title="2 pass · 0 fail · 0 invalid"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i><i class="x" style="width:0.0%"></i></span>
-      <span class="cnt"><b class="p">2/2</b> pass</span>
-      <span class="cnt"><span class="strip"><a class="dot pass" href="call-cf6cec4de0e0-1.html" title="attempt 1: pass"></a><a class="dot pass" href="call-cf6cec4de0e0-2.html" title="attempt 2: pass"></a></span>
+      <span class="bar" title="3 pass · 0 fail · 0 invalid"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i><i class="x" style="width:0.0%"></i></span>
+      <span class="cnt"><b class="p">3/3</b> pass</span>
+      <span class="cnt"><span class="strip"><a class="dot pass" href="call-cf6cec4de0e0-1.html" title="attempt 1: pass"></a><a class="dot pass" href="call-cf6cec4de0e0-2.html" title="attempt 2: pass"></a><a class="dot pass" href="call-cf6cec4de0e0-3.html" title="attempt 3: pass"></a></span>
 </span>
     </summary>
     <div class="sbody">
@@ -490,26 +514,32 @@ details.srow summary .ttl .chip{font-weight:400}
       </div>
       <div class="att">
         <span class="pill pass">pass</span>
-        <span><button class="play" data-src="audio/cf6cec4de0e0-1.mp3" data-label="Refund where the order system returns a 500 on the first attempt #1" title="replay the original recording"><span class="ic">▶</span><span class="t">1:20</span></button></span>
-        <span class="rs" title="">#1 · 1:20 · p95 2.4 s · clean</span>
+        <span><button class="play" data-src="audio/cf6cec4de0e0-1.mp3" data-label="Refund where the order system returns a 500 on the first attempt #1" title="replay the original recording"><span class="ic">▶</span><span class="t">1:09</span></button></span>
+        <span class="rs" title="a key fact was misheard">#1 · 1:09 · p95 2.7 s · flagged: a key fact was misheard</span>
         <a href="call-cf6cec4de0e0-1.html">Open call →</a>
       </div>
       <div class="att">
         <span class="pill pass">pass</span>
-        <span><button class="play" data-src="audio/cf6cec4de0e0-2.mp3" data-label="Refund where the order system returns a 500 on the first attempt #2" title="replay the original recording"><span class="ic">▶</span><span class="t">1:49</span></button></span>
-        <span class="rs" title="slow replies, dead air">#2 · 1:49 · p95 4.4 s · flagged: slow replies, dead air</span>
+        <span><button class="play" data-src="audio/cf6cec4de0e0-2.mp3" data-label="Refund where the order system returns a 500 on the first attempt #2" title="replay the original recording"><span class="ic">▶</span><span class="t">1:17</span></button></span>
+        <span class="rs" title="a key fact was misheard">#2 · 1:17 · p95 2.7 s · flagged: a key fact was misheard</span>
         <a href="call-cf6cec4de0e0-2.html">Open call →</a>
       </div>
-      <div class="small" style="margin-top:8px"><a href="session-cf6cec4de0e0.html">Session definition and history →</a> <span class="muted">· worst p95 reply 4.4 s</span></div>
+      <div class="att">
+        <span class="pill pass">pass</span>
+        <span><button class="play" data-src="audio/cf6cec4de0e0-3.mp3" data-label="Refund where the order system returns a 500 on the first attempt #3" title="replay the original recording"><span class="ic">▶</span><span class="t">1:23</span></button></span>
+        <span class="rs" title="slow replies, dead air">#3 · 1:23 · p95 4.3 s · flagged: slow replies, dead air</span>
+        <a href="call-cf6cec4de0e0-3.html">Open call →</a>
+      </div>
+      <div class="small" style="margin-top:8px"><a href="session-cf6cec4de0e0.html">Session definition and history →</a> <span class="muted">· worst p95 reply 4.3 s</span></div>
     </div>
   </details>
   <details class="srow" data-session="7c994c348001" >
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
       <span class="ttl">Refund for a broken blender, clean line</span>
-      <span class="bar" title="2 pass · 0 fail · 0 invalid"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i><i class="x" style="width:0.0%"></i></span>
-      <span class="cnt"><b class="p">2/2</b> pass</span>
-      <span class="cnt"><span class="strip"><a class="dot pass" href="call-7c994c348001-1.html" title="attempt 1: pass"></a><a class="dot pass" href="call-7c994c348001-2.html" title="attempt 2: pass"></a></span>
+      <span class="bar" title="3 pass · 0 fail · 0 invalid"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i><i class="x" style="width:0.0%"></i></span>
+      <span class="cnt"><b class="p">3/3</b> pass</span>
+      <span class="cnt"><span class="strip"><a class="dot pass" href="call-7c994c348001-1.html" title="attempt 1: pass"></a><a class="dot pass" href="call-7c994c348001-2.html" title="attempt 2: pass"></a><a class="dot pass" href="call-7c994c348001-3.html" title="attempt 3: pass"></a></span>
 </span>
     </summary>
     <div class="sbody">
@@ -521,26 +551,32 @@ details.srow summary .ttl .chip{font-weight:400}
       </div>
       <div class="att">
         <span class="pill pass">pass</span>
-        <span><button class="play" data-src="audio/7c994c348001-1.mp3" data-label="Refund for a broken blender, clean line #1" title="replay the original recording"><span class="ic">▶</span><span class="t">1:09</span></button></span>
-        <span class="rs" title="">#1 · 1:09 · p95 2.5 s · clean</span>
+        <span><button class="play" data-src="audio/7c994c348001-1.mp3" data-label="Refund for a broken blender, clean line #1" title="replay the original recording"><span class="ic">▶</span><span class="t">1:07</span></button></span>
+        <span class="rs" title="">#1 · 1:07 · p95 2.3 s · clean</span>
         <a href="call-7c994c348001-1.html">Open call →</a>
       </div>
       <div class="att">
         <span class="pill pass">pass</span>
-        <span><button class="play" data-src="audio/7c994c348001-2.mp3" data-label="Refund for a broken blender, clean line #2" title="replay the original recording"><span class="ic">▶</span><span class="t">1:12</span></button></span>
-        <span class="rs" title="">#2 · 1:12 · p95 2.6 s · clean</span>
+        <span><button class="play" data-src="audio/7c994c348001-2.mp3" data-label="Refund for a broken blender, clean line #2" title="replay the original recording"><span class="ic">▶</span><span class="t">1:04</span></button></span>
+        <span class="rs" title="">#2 · 1:04 · p95 2.4 s · clean</span>
         <a href="call-7c994c348001-2.html">Open call →</a>
       </div>
-      <div class="small" style="margin-top:8px"><a href="session-7c994c348001.html">Session definition and history →</a> <span class="muted">· worst p95 reply 2.6 s</span></div>
+      <div class="att">
+        <span class="pill pass">pass</span>
+        <span><button class="play" data-src="audio/7c994c348001-3.mp3" data-label="Refund for a broken blender, clean line #3" title="replay the original recording"><span class="ic">▶</span><span class="t">1:30</span></button></span>
+        <span class="rs" title="slow replies, dead air">#3 · 1:30 · p95 4.3 s · flagged: slow replies, dead air</span>
+        <a href="call-7c994c348001-3.html">Open call →</a>
+      </div>
+      <div class="small" style="margin-top:8px"><a href="session-7c994c348001.html">Session definition and history →</a> <span class="muted">· worst p95 reply 4.3 s</span></div>
     </div>
   </details>
   <details class="srow" data-session="a8d032bb2a4c" >
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Refund from a fast, impatient caller walking down a busy street</span>
-      <span class="bar" title="2 pass · 0 fail · 0 invalid"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i><i class="x" style="width:0.0%"></i></span>
-      <span class="cnt"><b class="p">2/2</b> pass</span>
-      <span class="cnt"><span class="strip"><a class="dot pass" href="call-a8d032bb2a4c-1.html" title="attempt 1: pass"></a><a class="dot pass" href="call-a8d032bb2a4c-2.html" title="attempt 2: pass"></a></span>
+      <span class="ttl">Refund from a fast, impatient caller walking down a busy street <span class="pill amber">flaky</span> <span class="vs regressed">⚠ regressed</span></span>
+      <span class="bar" title="2 pass · 1 fail · 0 invalid"><i class="p" style="width:66.66666666666667%"></i><i class="f" style="width:33.333333333333336%"></i><i class="x" style="width:0.0%"></i></span>
+      <span class="cnt"><b class="f">2/3</b> pass</span>
+      <span class="cnt"><span class="strip"><a class="dot pass" href="call-a8d032bb2a4c-1.html" title="attempt 1: pass"></a><a class="dot fail" href="call-a8d032bb2a4c-2.html" title="attempt 2: fail — issue_refund was never called"></a><a class="dot pass" href="call-a8d032bb2a4c-3.html" title="attempt 3: pass"></a></span>
 </span>
     </summary>
     <div class="sbody">
@@ -552,26 +588,69 @@ details.srow summary .ttl .chip{font-weight:400}
       </div>
       <div class="att">
         <span class="pill pass">pass</span>
-        <span><button class="play" data-src="audio/a8d032bb2a4c-1.mp3" data-label="Refund from a fast, impatient caller walking down a busy street #1" title="replay the original recording"><span class="ic">▶</span><span class="t">2:16</span></button></span>
-        <span class="rs" title="misheard value reached a tool, caller had to repeat, a real caller would hang up">#1 · 2:16 · p95 2.9 s · flagged: misheard value reached a tool, caller had to repeat, a real caller would hang up</span>
+        <span><button class="play" data-src="audio/a8d032bb2a4c-1.mp3" data-label="Refund from a fast, impatient caller walking down a busy street #1" title="replay the original recording"><span class="ic">▶</span><span class="t">2:35</span></button></span>
+        <span class="rs" title="dead air, caller had to repeat, a real caller would hang up, stutter">#1 · 2:35 · p95 2.5 s · flagged: dead air, caller had to repeat, a real caller would hang up, stutter</span>
         <a href="call-a8d032bb2a4c-1.html">Open call →</a>
       </div>
       <div class="att">
-        <span class="pill pass">pass</span>
-        <span><button class="play" data-src="audio/a8d032bb2a4c-2.mp3" data-label="Refund from a fast, impatient caller walking down a busy street #2" title="replay the original recording"><span class="ic">▶</span><span class="t">1:59</span></button></span>
-        <span class="rs" title="misheard value reached a tool, dead air, stutter">#2 · 1:59 · p95 2.6 s · flagged: misheard value reached a tool, dead air, stutter</span>
+        <span class="pill fail">fail</span>
+        <span><button class="play" data-src="audio/a8d032bb2a4c-2.mp3" data-label="Refund from a fast, impatient caller walking down a busy street #2" title="replay the original recording"><span class="ic">▶</span><span class="t">2:34</span></button></span>
+        <span class="rs" title="issue_refund was never called">#2 · 2:34 · p95 2.8 s · issue_refund was never called</span>
         <a href="call-a8d032bb2a4c-2.html">Open call →</a>
       </div>
-      <div class="small" style="margin-top:8px"><a href="session-a8d032bb2a4c.html">Session definition and history →</a> <span class="muted">· worst p95 reply 2.9 s</span></div>
+      <div class="att">
+        <span class="pill pass">pass</span>
+        <span><button class="play" data-src="audio/a8d032bb2a4c-3.mp3" data-label="Refund from a fast, impatient caller walking down a busy street #3" title="replay the original recording"><span class="ic">▶</span><span class="t">2:16</span></button></span>
+        <span class="rs" title="misheard value reached a tool, caller had to repeat, a real caller would hang up">#3 · 2:16 · p95 2.7 s · flagged: misheard value reached a tool, caller had to repeat, a real caller would hang up</span>
+        <a href="call-a8d032bb2a4c-3.html">Open call →</a>
+      </div>
+      <div class="small" style="margin-top:8px"><a href="session-a8d032bb2a4c.html">Session definition and history →</a> <span class="muted">· worst p95 reply 2.8 s</span></div>
+    </div>
+  </details>
+  <details class="srow" data-session="fee306a7275b" >
+    <summary>
+      <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+      <span class="ttl">Refund from an impatient caller who keeps interrupting the agent</span>
+      <span class="bar" title="3 pass · 0 fail · 0 invalid"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i><i class="x" style="width:0.0%"></i></span>
+      <span class="cnt"><b class="p">3/3</b> pass</span>
+      <span class="cnt"><span class="strip"><a class="dot pass" href="call-fee306a7275b-1.html" title="attempt 1: pass"></a><a class="dot pass" href="call-fee306a7275b-2.html" title="attempt 2: pass"></a><a class="dot pass" href="call-fee306a7275b-3.html" title="attempt 3: pass"></a></span>
+</span>
+    </summary>
+    <div class="sbody">
+      <div class="cols4" style="margin:8px 0 10px">
+        <div><div class="h">Persona</div><b>Maria Lopez</b><div class="muted">impatient · en-US</div></div>
+        <div><div class="h">Goal</div>Get a full refund of $89.99 for order GW-48213, which arrived broken. You are in a hurry and do not want long explanations.</div>
+        <div><div class="h">Conditions</div><span class="chip">interrupts 40%</span></div>
+        <div><div class="h">Expected</div><span class="chip">refunded</span><div class="muted mono" style="margin-top:3px">lookup_order → issue_refund</div></div>
+      </div>
+      <div class="att">
+        <span class="pill pass">pass</span>
+        <span><button class="play" data-src="audio/fee306a7275b-1.mp3" data-label="Refund from an impatient caller who keeps interrupting the agent #1" title="replay the original recording"><span class="ic">▶</span><span class="t">1:11</span></button></span>
+        <span class="rs" title="dead air">#1 · 1:11 · p95 2.4 s · flagged: dead air</span>
+        <a href="call-fee306a7275b-1.html">Open call →</a>
+      </div>
+      <div class="att">
+        <span class="pill pass">pass</span>
+        <span><button class="play" data-src="audio/fee306a7275b-2.mp3" data-label="Refund from an impatient caller who keeps interrupting the agent #2" title="replay the original recording"><span class="ic">▶</span><span class="t">1:09</span></button></span>
+        <span class="rs" title="dead air">#2 · 1:09 · p95 3.5 s · flagged: dead air</span>
+        <a href="call-fee306a7275b-2.html">Open call →</a>
+      </div>
+      <div class="att">
+        <span class="pill pass">pass</span>
+        <span><button class="play" data-src="audio/fee306a7275b-3.mp3" data-label="Refund from an impatient caller who keeps interrupting the agent #3" title="replay the original recording"><span class="ic">▶</span><span class="t">1:20</span></button></span>
+        <span class="rs" title="">#3 · 1:20 · p95 2.5 s · clean</span>
+        <a href="call-fee306a7275b-3.html">Open call →</a>
+      </div>
+      <div class="small" style="margin-top:8px"><a href="session-fee306a7275b.html">Session definition and history →</a> <span class="muted">· worst p95 reply 3.5 s</span></div>
     </div>
   </details>
   <details class="srow" data-session="ef113fc07616" >
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
       <span class="ttl">Refund for a broken blender, impatient caller in a cafe over a phone line</span>
-      <span class="bar" title="2 pass · 0 fail · 0 invalid"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i><i class="x" style="width:0.0%"></i></span>
-      <span class="cnt"><b class="p">2/2</b> pass</span>
-      <span class="cnt"><span class="strip"><a class="dot pass" href="call-ef113fc07616-1.html" title="attempt 1: pass"></a><a class="dot pass" href="call-ef113fc07616-2.html" title="attempt 2: pass"></a></span>
+      <span class="bar" title="3 pass · 0 fail · 0 invalid"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i><i class="x" style="width:0.0%"></i></span>
+      <span class="cnt"><b class="p">3/3</b> pass</span>
+      <span class="cnt"><span class="strip"><a class="dot pass" href="call-ef113fc07616-1.html" title="attempt 1: pass"></a><a class="dot pass" href="call-ef113fc07616-2.html" title="attempt 2: pass"></a><a class="dot pass" href="call-ef113fc07616-3.html" title="attempt 3: pass"></a></span>
 </span>
     </summary>
     <div class="sbody">
@@ -583,26 +662,32 @@ details.srow summary .ttl .chip{font-weight:400}
       </div>
       <div class="att">
         <span class="pill pass">pass</span>
-        <span><button class="play" data-src="audio/ef113fc07616-1.mp3" data-label="Refund for a broken blender, impatient caller in a cafe over a phone line #1" title="replay the original recording"><span class="ic">▶</span><span class="t">1:48</span></button></span>
-        <span class="rs" title="malformed tool arguments, dead air">#1 · 1:48 · p95 3.1 s · flagged: malformed tool arguments, dead air</span>
+        <span><button class="play" data-src="audio/ef113fc07616-1.mp3" data-label="Refund for a broken blender, impatient caller in a cafe over a phone line #1" title="replay the original recording"><span class="ic">▶</span><span class="t">1:42</span></button></span>
+        <span class="rs" title="malformed tool arguments, a key fact was misheard, dead air">#1 · 1:42 · p95 3.3 s · flagged: malformed tool arguments, a key fact was misheard, dead air</span>
         <a href="call-ef113fc07616-1.html">Open call →</a>
       </div>
       <div class="att">
         <span class="pill pass">pass</span>
-        <span><button class="play" data-src="audio/ef113fc07616-2.mp3" data-label="Refund for a broken blender, impatient caller in a cafe over a phone line #2" title="replay the original recording"><span class="ic">▶</span><span class="t">1:18</span></button></span>
-        <span class="rs" title="malformed tool arguments">#2 · 1:18 · p95 2.6 s · flagged: malformed tool arguments</span>
+        <span><button class="play" data-src="audio/ef113fc07616-2.mp3" data-label="Refund for a broken blender, impatient caller in a cafe over a phone line #2" title="replay the original recording"><span class="ic">▶</span><span class="t">2:17</span></button></span>
+        <span class="rs" title="misheard value reached a tool, slow replies, dead air, stutter">#2 · 2:17 · p95 3.8 s · flagged: misheard value reached a tool, slow replies, dead air, stutter</span>
         <a href="call-ef113fc07616-2.html">Open call →</a>
       </div>
-      <div class="small" style="margin-top:8px"><a href="session-ef113fc07616.html">Session definition and history →</a> <span class="muted">· worst p95 reply 3.1 s</span></div>
+      <div class="att">
+        <span class="pill pass">pass</span>
+        <span><button class="play" data-src="audio/ef113fc07616-3.mp3" data-label="Refund for a broken blender, impatient caller in a cafe over a phone line #3" title="replay the original recording"><span class="ic">▶</span><span class="t">1:19</span></button></span>
+        <span class="rs" title="dead air">#3 · 1:19 · p95 2.4 s · flagged: dead air</span>
+        <a href="call-ef113fc07616-3.html">Open call →</a>
+      </div>
+      <div class="small" style="margin-top:8px"><a href="session-ef113fc07616.html">Session definition and history →</a> <span class="muted">· worst p95 reply 3.8 s</span></div>
     </div>
   </details>
   <details class="srow" data-session="36ae7c490d4a" >
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
       <span class="ttl">Caller asks for more than the order total, should settle on the full amount <span class="pill amber">flaky</span></span>
-      <span class="bar" title="1 pass · 1 fail · 0 invalid"><i class="p" style="width:50.0%"></i><i class="f" style="width:50.0%"></i><i class="x" style="width:0.0%"></i></span>
-      <span class="cnt"><b class="f">1/2</b> pass</span>
-      <span class="cnt"><span class="strip"><a class="dot pass" href="call-36ae7c490d4a-1.html" title="attempt 1: pass"></a><a class="dot fail" href="call-36ae7c490d4a-2.html" title="attempt 2: fail — issue_refund was never called"></a></span>
+      <span class="bar" title="2 pass · 1 fail · 0 invalid"><i class="p" style="width:66.66666666666667%"></i><i class="f" style="width:33.333333333333336%"></i><i class="x" style="width:0.0%"></i></span>
+      <span class="cnt"><b class="f">2/3</b> pass</span>
+      <span class="cnt"><span class="strip"><a class="dot pass" href="call-36ae7c490d4a-1.html" title="attempt 1: pass"></a><a class="dot fail" href="call-36ae7c490d4a-2.html" title="attempt 2: fail — issue_refund was never called"></a><a class="dot pass" href="call-36ae7c490d4a-3.html" title="attempt 3: pass"></a></span>
 </span>
     </summary>
     <div class="sbody">
@@ -614,26 +699,32 @@ details.srow summary .ttl .chip{font-weight:400}
       </div>
       <div class="att">
         <span class="pill pass">pass</span>
-        <span><button class="play" data-src="audio/36ae7c490d4a-1.mp3" data-label="Caller asks for more than the order total, should settle on the full amount #1" title="replay the original recording"><span class="ic">▶</span><span class="t">1:33</span></button></span>
-        <span class="rs" title="dead air">#1 · 1:33 · p95 3.3 s · flagged: dead air</span>
+        <span><button class="play" data-src="audio/36ae7c490d4a-1.mp3" data-label="Caller asks for more than the order total, should settle on the full amount #1" title="replay the original recording"><span class="ic">▶</span><span class="t">2:34</span></button></span>
+        <span class="rs" title="slow replies, dead air">#1 · 2:34 · p95 4.4 s · flagged: slow replies, dead air</span>
         <a href="call-36ae7c490d4a-1.html">Open call →</a>
       </div>
       <div class="att">
         <span class="pill fail">fail</span>
-        <span><button class="play" data-src="audio/36ae7c490d4a-2.mp3" data-label="Caller asks for more than the order total, should settle on the full amount #2" title="replay the original recording"><span class="ic">▶</span><span class="t">1:12</span></button></span>
-        <span class="rs" title="issue_refund was never called">#2 · 1:12 · p95 2.2 s · issue_refund was never called</span>
+        <span><button class="play" data-src="audio/36ae7c490d4a-2.mp3" data-label="Caller asks for more than the order total, should settle on the full amount #2" title="replay the original recording"><span class="ic">▶</span><span class="t">1:00</span></button></span>
+        <span class="rs" title="issue_refund was never called">#2 · 1:00 · p95 2.8 s · issue_refund was never called</span>
         <a href="call-36ae7c490d4a-2.html">Open call →</a>
       </div>
-      <div class="small" style="margin-top:8px"><a href="session-36ae7c490d4a.html">Session definition and history →</a> <span class="muted">· worst p95 reply 3.3 s</span></div>
+      <div class="att">
+        <span class="pill pass">pass</span>
+        <span><button class="play" data-src="audio/36ae7c490d4a-3.mp3" data-label="Caller asks for more than the order total, should settle on the full amount #3" title="replay the original recording"><span class="ic">▶</span><span class="t">1:41</span></button></span>
+        <span class="rs" title="a key fact was misheard, slow replies, dead air, caller had to repeat">#3 · 1:41 · p95 4.1 s · flagged: a key fact was misheard, slow replies, dead air, caller had to repeat</span>
+        <a href="call-36ae7c490d4a-3.html">Open call →</a>
+      </div>
+      <div class="small" style="margin-top:8px"><a href="session-36ae7c490d4a.html">Session definition and history →</a> <span class="muted">· worst p95 reply 4.4 s</span></div>
     </div>
   </details>
   <details class="srow" data-session="c1de86f32b16" >
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
       <span class="ttl">Partial refund of $40, older caller speaking slowly on a poor microphone</span>
-      <span class="bar" title="2 pass · 0 fail · 0 invalid"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i><i class="x" style="width:0.0%"></i></span>
-      <span class="cnt"><b class="p">2/2</b> pass</span>
-      <span class="cnt"><span class="strip"><a class="dot pass" href="call-c1de86f32b16-1.html" title="attempt 1: pass"></a><a class="dot pass" href="call-c1de86f32b16-2.html" title="attempt 2: pass"></a></span>
+      <span class="bar" title="3 pass · 0 fail · 0 invalid"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i><i class="x" style="width:0.0%"></i></span>
+      <span class="cnt"><b class="p">3/3</b> pass</span>
+      <span class="cnt"><span class="strip"><a class="dot pass" href="call-c1de86f32b16-1.html" title="attempt 1: pass"></a><a class="dot pass" href="call-c1de86f32b16-2.html" title="attempt 2: pass"></a><a class="dot pass" href="call-c1de86f32b16-3.html" title="attempt 3: pass"></a></span>
 </span>
     </summary>
     <div class="sbody">
@@ -645,26 +736,32 @@ details.srow summary .ttl .chip{font-weight:400}
       </div>
       <div class="att">
         <span class="pill pass">pass</span>
-        <span><button class="play" data-src="audio/c1de86f32b16-1.mp3" data-label="Partial refund of $40, older caller speaking slowly on a poor microphone #1" title="replay the original recording"><span class="ic">▶</span><span class="t">1:18</span></button></span>
-        <span class="rs" title="dead air">#1 · 1:18 · p95 2.6 s · flagged: dead air</span>
+        <span><button class="play" data-src="audio/c1de86f32b16-1.mp3" data-label="Partial refund of $40, older caller speaking slowly on a poor microphone #1" title="replay the original recording"><span class="ic">▶</span><span class="t">1:44</span></button></span>
+        <span class="rs" title="slow replies, dead air">#1 · 1:44 · p95 4.3 s · flagged: slow replies, dead air</span>
         <a href="call-c1de86f32b16-1.html">Open call →</a>
       </div>
       <div class="att">
         <span class="pill pass">pass</span>
-        <span><button class="play" data-src="audio/c1de86f32b16-2.mp3" data-label="Partial refund of $40, older caller speaking slowly on a poor microphone #2" title="replay the original recording"><span class="ic">▶</span><span class="t">1:11</span></button></span>
-        <span class="rs" title="dead air">#2 · 1:11 · p95 2.8 s · flagged: dead air</span>
+        <span><button class="play" data-src="audio/c1de86f32b16-2.mp3" data-label="Partial refund of $40, older caller speaking slowly on a poor microphone #2" title="replay the original recording"><span class="ic">▶</span><span class="t">2:01</span></button></span>
+        <span class="rs" title="">#2 · 2:01 · p95 2.5 s · clean</span>
         <a href="call-c1de86f32b16-2.html">Open call →</a>
       </div>
-      <div class="small" style="margin-top:8px"><a href="session-c1de86f32b16.html">Session definition and history →</a> <span class="muted">· worst p95 reply 2.8 s</span></div>
+      <div class="att">
+        <span class="pill pass">pass</span>
+        <span><button class="play" data-src="audio/c1de86f32b16-3.mp3" data-label="Partial refund of $40, older caller speaking slowly on a poor microphone #3" title="replay the original recording"><span class="ic">▶</span><span class="t">1:28</span></button></span>
+        <span class="rs" title="">#3 · 1:28 · p95 2.3 s · clean</span>
+        <a href="call-c1de86f32b16-3.html">Open call →</a>
+      </div>
+      <div class="small" style="margin-top:8px"><a href="session-c1de86f32b16.html">Session definition and history →</a> <span class="muted">· worst p95 reply 4.3 s</span></div>
     </div>
   </details>
   <details class="srow" data-session="608471aea60f" >
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
       <span class="ttl">Caller demands a human from the first sentence</span>
-      <span class="bar" title="2 pass · 0 fail · 0 invalid"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i><i class="x" style="width:0.0%"></i></span>
-      <span class="cnt"><b class="p">2/2</b> pass</span>
-      <span class="cnt"><span class="strip"><a class="dot pass" href="call-608471aea60f-1.html" title="attempt 1: pass"></a><a class="dot pass" href="call-608471aea60f-2.html" title="attempt 2: pass"></a></span>
+      <span class="bar" title="3 pass · 0 fail · 0 invalid"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i><i class="x" style="width:0.0%"></i></span>
+      <span class="cnt"><b class="p">3/3</b> pass</span>
+      <span class="cnt"><span class="strip"><a class="dot pass" href="call-608471aea60f-1.html" title="attempt 1: pass"></a><a class="dot pass" href="call-608471aea60f-2.html" title="attempt 2: pass"></a><a class="dot pass" href="call-608471aea60f-3.html" title="attempt 3: pass"></a></span>
 </span>
     </summary>
     <div class="sbody">
@@ -677,46 +774,163 @@ details.srow summary .ttl .chip{font-weight:400}
       <div class="att">
         <span class="pill pass">pass</span>
         <span><button class="play" data-src="audio/608471aea60f-1.mp3" data-label="Caller demands a human from the first sentence #1" title="replay the original recording"><span class="ic">▶</span><span class="t">0:20</span></button></span>
-        <span class="rs" title="">#1 · 0:20 · p95 2.4 s · clean</span>
+        <span class="rs" title="">#1 · 0:20 · p95 2.5 s · clean</span>
         <a href="call-608471aea60f-1.html">Open call →</a>
       </div>
       <div class="att">
         <span class="pill pass">pass</span>
-        <span><button class="play" data-src="audio/608471aea60f-2.mp3" data-label="Caller demands a human from the first sentence #2" title="replay the original recording"><span class="ic">▶</span><span class="t">0:19</span></button></span>
-        <span class="rs" title="">#2 · 0:19 · p95 1.8 s · clean</span>
+        <span><button class="play" data-src="audio/608471aea60f-2.mp3" data-label="Caller demands a human from the first sentence #2" title="replay the original recording"><span class="ic">▶</span><span class="t">0:20</span></button></span>
+        <span class="rs" title="">#2 · 0:20 · p95 1.8 s · clean</span>
         <a href="call-608471aea60f-2.html">Open call →</a>
       </div>
-      <div class="small" style="margin-top:8px"><a href="session-608471aea60f.html">Session definition and history →</a> <span class="muted">· worst p95 reply 2.4 s</span></div>
+      <div class="att">
+        <span class="pill pass">pass</span>
+        <span><button class="play" data-src="audio/608471aea60f-3.mp3" data-label="Caller demands a human from the first sentence #3" title="replay the original recording"><span class="ic">▶</span><span class="t">0:20</span></button></span>
+        <span class="rs" title="">#3 · 0:20 · p95 1.7 s · clean</span>
+        <a href="call-608471aea60f-3.html">Open call →</a>
+      </div>
+      <div class="small" style="margin-top:8px"><a href="session-608471aea60f.html">Session definition and history →</a> <span class="muted">· worst p95 reply 2.5 s</span></div>
+    </div>
+  </details>
+  <details class="srow" data-session="da8e474dc8e5" >
+    <summary>
+      <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+      <span class="ttl">Address change denied on shipped order, caller escalates</span>
+      <span class="bar" title="3 pass · 0 fail · 0 invalid"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i><i class="x" style="width:0.0%"></i></span>
+      <span class="cnt"><b class="p">3/3</b> pass</span>
+      <span class="cnt"><span class="strip"><a class="dot pass" href="call-da8e474dc8e5-1.html" title="attempt 1: pass"></a><a class="dot pass" href="call-da8e474dc8e5-2.html" title="attempt 2: pass"></a><a class="dot pass" href="call-da8e474dc8e5-3.html" title="attempt 3: pass"></a></span>
+</span>
+    </summary>
+    <div class="sbody">
+      <div class="cols4" style="margin:8px 0 10px">
+        <div><div class="h">Persona</div><b>Priya Natarajan</b><div class="muted">impatient · en-GB</div></div>
+        <div><div class="h">Goal</div>Change the shipping address on order GW-48377, but escalate when told it is too late.</div>
+        <div><div class="h">Conditions</div><span class="chip">noise street@10dB</span><span class="chip">phone line</span><span class="chip">packet loss 1%</span></div>
+        <div><div class="h">Expected</div><span class="chip">escalated</span><div class="muted mono" style="margin-top:3px">lookup_order → escalate_to_human</div></div>
+      </div>
+      <div class="att">
+        <span class="pill pass">pass</span>
+        <span><button class="play" data-src="audio/da8e474dc8e5-1.mp3" data-label="Address change denied on shipped order, caller escalates #1" title="replay the original recording"><span class="ic">▶</span><span class="t">0:43</span></button></span>
+        <span class="rs" title="stutter">#1 · 0:43 · p95 2.2 s · flagged: stutter</span>
+        <a href="call-da8e474dc8e5-1.html">Open call →</a>
+      </div>
+      <div class="att">
+        <span class="pill pass">pass</span>
+        <span><button class="play" data-src="audio/da8e474dc8e5-2.mp3" data-label="Address change denied on shipped order, caller escalates #2" title="replay the original recording"><span class="ic">▶</span><span class="t">0:49</span></button></span>
+        <span class="rs" title="stutter">#2 · 0:49 · p95 1.9 s · flagged: stutter</span>
+        <a href="call-da8e474dc8e5-2.html">Open call →</a>
+      </div>
+      <div class="att">
+        <span class="pill pass">pass</span>
+        <span><button class="play" data-src="audio/da8e474dc8e5-3.mp3" data-label="Address change denied on shipped order, caller escalates #3" title="replay the original recording"><span class="ic">▶</span><span class="t">0:46</span></button></span>
+        <span class="rs" title="stutter">#3 · 0:46 · p95 2.2 s · flagged: stutter</span>
+        <a href="call-da8e474dc8e5-3.html">Open call →</a>
+      </div>
+      <div class="small" style="margin-top:8px"><a href="session-da8e474dc8e5.html">Session definition and history →</a> <span class="muted">· worst p95 reply 2.2 s</span></div>
+    </div>
+  </details>
+  <details class="srow" data-session="ed0bca0e0d0d" >
+    <summary>
+      <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+      <span class="ttl">Refund request fails first attempt due to backend error, then succeeds</span>
+      <span class="bar" title="0 pass · 3 fail · 0 invalid"><i class="p" style="width:0.0%"></i><i class="f" style="width:100.0%"></i><i class="x" style="width:0.0%"></i></span>
+      <span class="cnt"><b class="f">0/3</b> pass</span>
+      <span class="cnt"><span class="strip"><a class="dot fail" href="call-ed0bca0e0d0d-1.html" title="attempt 1: fail — issue_refund was called but not as expected: it returned HTTP 500 (internal_error)"></a><a class="dot fail" href="call-ed0bca0e0d0d-2.html" title="attempt 2: fail — issue_refund was called but not as expected: it returned HTTP 500 (internal_error)"></a><a class="dot fail" href="call-ed0bca0e0d0d-3.html" title="attempt 3: fail — issue_refund was called but not as expected: it returned HTTP 500 (internal_error)"></a></span>
+</span>
+    </summary>
+    <div class="sbody">
+      <div class="cols4" style="margin:8px 0 10px">
+        <div><div class="h">Persona</div><span class="muted">from the engine's scenario</span></div>
+        <div><div class="h">Goal</div></div>
+        <div><div class="h">Conditions</div><span class="chip">clean line</span></div>
+        <div><div class="h">Expected</div><span class="chip">refunded</span><div class="muted mono" style="margin-top:3px"></div></div>
+      </div>
+      <div class="att">
+        <span class="pill fail">fail</span>
+        <span><button class="play" data-src="audio/ed0bca0e0d0d-1.mp3" data-label="Refund request fails first attempt due to backend error, then succeeds #1" title="replay the original recording"><span class="ic">▶</span><span class="t">1:01</span></button></span>
+        <span class="rs" title="issue_refund was called but not as expected: it returned HTTP 500 (internal_error)">#1 · 1:01 · p95 2.4 s · issue_refund was called but not as expected: it returned HTTP 500 (internal_error)</span>
+        <a href="call-ed0bca0e0d0d-1.html">Open call →</a>
+      </div>
+      <div class="att">
+        <span class="pill fail">fail</span>
+        <span><button class="play" data-src="audio/ed0bca0e0d0d-2.mp3" data-label="Refund request fails first attempt due to backend error, then succeeds #2" title="replay the original recording"><span class="ic">▶</span><span class="t">1:04</span></button></span>
+        <span class="rs" title="issue_refund was called but not as expected: it returned HTTP 500 (internal_error)">#2 · 1:04 · p95 2.5 s · issue_refund was called but not as expected: it returned HTTP 500 (internal_error)</span>
+        <a href="call-ed0bca0e0d0d-2.html">Open call →</a>
+      </div>
+      <div class="att">
+        <span class="pill fail">fail</span>
+        <span><button class="play" data-src="audio/ed0bca0e0d0d-3.mp3" data-label="Refund request fails first attempt due to backend error, then succeeds #3" title="replay the original recording"><span class="ic">▶</span><span class="t">1:03</span></button></span>
+        <span class="rs" title="issue_refund was called but not as expected: it returned HTTP 500 (internal_error)">#3 · 1:03 · p95 2.5 s · issue_refund was called but not as expected: it returned HTTP 500 (internal_error)</span>
+        <a href="call-ed0bca0e0d0d-3.html">Open call →</a>
+      </div>
+      <div class="small" style="margin-top:8px"><a href="session-ed0bca0e0d0d.html">Session definition and history →</a> <span class="muted">· worst p95 reply 2.5 s</span></div>
+    </div>
+  </details>
+  <details class="srow" data-session="a0e4e5e8d324" >
+    <summary>
+      <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+      <span class="ttl">Refund request on already refunded order, agent denies refund</span>
+      <span class="bar" title="0 pass · 3 fail · 0 invalid"><i class="p" style="width:0.0%"></i><i class="f" style="width:100.0%"></i><i class="x" style="width:0.0%"></i></span>
+      <span class="cnt"><b class="f">0/3</b> pass</span>
+      <span class="cnt"><span class="strip"><a class="dot fail" href="call-a0e4e5e8d324-1.html" title="attempt 1: fail — actual value: None"></a><a class="dot fail" href="call-a0e4e5e8d324-2.html" title="attempt 2: fail — actual value: None"></a><a class="dot fail" href="call-a0e4e5e8d324-3.html" title="attempt 3: fail — actual value: None"></a></span>
+</span>
+    </summary>
+    <div class="sbody">
+      <div class="cols4" style="margin:8px 0 10px">
+        <div><div class="h">Persona</div><span class="muted">from the engine's scenario</span></div>
+        <div><div class="h">Goal</div></div>
+        <div><div class="h">Conditions</div><span class="chip">clean line</span></div>
+        <div><div class="h">Expected</div><span class="chip">refund_denied_already_refunded</span><div class="muted mono" style="margin-top:3px"></div></div>
+      </div>
+      <div class="att">
+        <span class="pill fail">fail</span>
+        <span><button class="play" data-src="audio/a0e4e5e8d324-1.mp3" data-label="Refund request on already refunded order, agent denies refund #1" title="replay the original recording"><span class="ic">▶</span><span class="t">0:42</span></button></span>
+        <span class="rs" title="actual value: None">#1 · 0:42 · p95 2.6 s · actual value: None</span>
+        <a href="call-a0e4e5e8d324-1.html">Open call →</a>
+      </div>
+      <div class="att">
+        <span class="pill fail">fail</span>
+        <span><button class="play" data-src="audio/a0e4e5e8d324-2.mp3" data-label="Refund request on already refunded order, agent denies refund #2" title="replay the original recording"><span class="ic">▶</span><span class="t">0:43</span></button></span>
+        <span class="rs" title="actual value: None">#2 · 0:43 · p95 2.3 s · actual value: None</span>
+        <a href="call-a0e4e5e8d324-2.html">Open call →</a>
+      </div>
+      <div class="att">
+        <span class="pill fail">fail</span>
+        <span><button class="play" data-src="audio/a0e4e5e8d324-3.mp3" data-label="Refund request on already refunded order, agent denies refund #3" title="replay the original recording"><span class="ic">▶</span><span class="t">0:41</span></button></span>
+        <span class="rs" title="actual value: None">#3 · 0:41 · p95 2.7 s · actual value: None</span>
+        <a href="call-a0e4e5e8d324-3.html">Open call →</a>
+      </div>
+      <div class="small" style="margin-top:8px"><a href="session-a0e4e5e8d324.html">Session definition and history →</a> <span class="muted">· worst p95 reply 2.7 s</span></div>
     </div>
   </details>
 </div>
 
   <div id="issues">
-  <div style="display:flex;justify-content:space-between;align-items:baseline;margin:0 0 8px"><h3 style="margin:0">Issues to investigate <span class="muted" style="font-weight:500">(16)</span></h3><a class="small" href="index.html#every-call">View all</a></div>
+  <div style="display:flex;justify-content:space-between;align-items:baseline;margin:0 0 8px"><h3 style="margin:0">Issues to investigate <span class="muted" style="font-weight:500">(34)</span></h3><a class="small" href="index.html#every-call">View all</a></div>
   <div class="issues">
     <a class="issue high" href="call-36ae7c490d4a-2.html#t=0" data-issue="36ae7c490d4a/2" data-t="">
       <div class="t"><span>issue_refund was never called</span><span class="sev high">high</span></div>
       <div class="m">Caller asks for more than the order total, should settle on the full amount · attempt 2</div>
     </a>
-    <a class="issue medium" href="call-2e729ea48f97-1.html#t=13240" data-issue="2e729ea48f97/1" data-t="13240">
-      <div class="t"><span>Slow replies, dead air, stutter</span><span class="sev medium">flagged</span></div>
-      <div class="m">Refund request on an order that was already refunded · attempt 1 · at <span class="mono">0:13</span></div>
+    <a class="issue high" href="call-a0e4e5e8d324-1.html#t=18500" data-issue="a0e4e5e8d324/1" data-t="18500">
+      <div class="t"><span>Actual value: None</span><span class="sev high">high</span></div>
+      <div class="m">Refund request on already refunded order, agent denies refund · attempt 1 · at <span class="mono">0:18</span></div>
     </a>
-    <a class="issue medium" href="call-2e729ea48f97-2.html#t=12660" data-issue="2e729ea48f97/2" data-t="12660">
-      <div class="t"><span>Slow replies, dead air</span><span class="sev medium">flagged</span></div>
-      <div class="m">Refund request on an order that was already refunded · attempt 2 · at <span class="mono">0:12</span></div>
+    <a class="issue high" href="call-a0e4e5e8d324-2.html#t=18780" data-issue="a0e4e5e8d324/2" data-t="18780">
+      <div class="t"><span>Actual value: None</span><span class="sev high">high</span></div>
+      <div class="m">Refund request on already refunded order, agent denies refund · attempt 2 · at <span class="mono">0:18</span></div>
     </a>
-    <a class="issue medium" href="call-36ae7c490d4a-1.html#t=76040" data-issue="36ae7c490d4a/1" data-t="76040">
-      <div class="t"><span>Dead air</span><span class="sev medium">flagged</span></div>
-      <div class="m">Caller asks for more than the order total, should settle on the full amount · attempt 1 · at <span class="mono">1:16</span></div>
+    <a class="issue high" href="call-a0e4e5e8d324-3.html#t=35487" data-issue="a0e4e5e8d324/3" data-t="35487">
+      <div class="t"><span>Actual value: None</span><span class="sev high">high</span></div>
+      <div class="m">Refund request on already refunded order, agent denies refund · attempt 3 · at <span class="mono">0:35</span></div>
     </a>
-    <a class="issue medium" href="call-915dd5186fa8-1.html#t=16800" data-issue="915dd5186fa8/1" data-t="16800">
-      <div class="t"><span>Dead air</span><span class="sev medium">flagged</span></div>
-      <div class="m">Address change over a narrow phone line, calm British caller · attempt 1 · at <span class="mono">0:16</span></div>
+    <a class="issue high" href="call-a8d032bb2a4c-2.html#t=0" data-issue="a8d032bb2a4c/2" data-t="">
+      <div class="t"><span>issue_refund was never called</span><span class="sev high">high</span></div>
+      <div class="m">Refund from a fast, impatient caller walking down a busy street · attempt 2</div>
     </a>
-    <a class="issue medium" href="call-915dd5186fa8-2.html#t=11000" data-issue="915dd5186fa8/2" data-t="11000">
-      <div class="t"><span>Slow replies, dead air</span><span class="sev medium">flagged</span></div>
-      <div class="m">Address change over a narrow phone line, calm British caller · attempt 2 · at <span class="mono">0:11</span></div>
+    <a class="issue high" href="call-ed0bca0e0d0d-1.html#t=45329" data-issue="ed0bca0e0d0d/1" data-t="45329">
+      <div class="t"><span>issue_refund was called but not as expected: it returned HTTP 500…</span><span class="sev high">high</span></div>
+      <div class="m">Refund request fails first attempt due to backend error, then succeeds · attempt 1 · at <span class="mono">0:45</span></div>
     </a>
   </div>
 </div>
@@ -725,16 +939,16 @@ details.srow summary .ttl .chip{font-weight:400}
 <section class="insp" id="inspector" data-call="36ae7c490d4a/2">
   <div class="hd">
     <h2>Call inspector</h2>
-    <div class="meta"><span class="ttl" title="Caller asks for more than the order total, should settle on the full amount">Caller asks for more than the order total, should settle on the full amount</span><i>·</i><span class="pill fail">Failed</span><i>·</i><span>1:12</span></div>
+    <div class="meta"><span class="ttl" title="Caller asks for more than the order total, should settle on the full amount">Caller asks for more than the order total, should settle on the full amount</span><i>·</i><span class="pill fail">Failed</span><i>·</i><span>1:00</span></div>
     <div class="nav">
       <span class="small muted">ended by caller</span>
-<a class="btn sm" href="call-36ae7c490d4a-1.html" id="insp-prev" title="previous attempt">‹</a>      <span class="small">attempt 2 of 2</span>
-<span class="btn sm" style="opacity:.4">›</span><a class="btn sm" href="index.html">← Run full-1</a>    </div>
+<a class="btn sm" href="call-36ae7c490d4a-1.html" id="insp-prev" title="previous attempt">‹</a>      <span class="small">attempt 2 of 3</span>
+<a class="btn sm" href="call-36ae7c490d4a-3.html" id="insp-next" title="next attempt">›</a><a class="btn sm" href="index.html">← Run full-3</a>    </div>
   </div>
 
   <div class="abar">
     <button class="pb" id="insp-play" type="button" title="play / pause" ><svg viewBox="0 0 24 24" class="i-play"><path d="M7 4l13 8-13 8z"/></svg><svg viewBox="0 0 24 24" class="i-pause" hidden><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg></button>
-    <span class="tm"><span id="insp-cur">0:00</span> / 1:12</span>
+    <span class="tm"><span id="insp-cur">0:00</span> / 1:00</span>
     <canvas class="lanes" id="insp-lanes" height="64"></canvas>
 <audio id="insp-audio" preload="metadata" src="audio/36ae7c490d4a-2.mp3"></audio>  </div>
   <div class="legend"><span><i style="background:var(--caller)"></i>caller</span><span><i style="background:var(--agent)"></i>agent</span><span><i style="background:var(--tool)"></i>tool call</span><span><i style="background:var(--red)"></i>issue</span><span><i style="background:#f59e0b"></i>interruption</span><span><i style="background:#fde68a"></i>dead air</span><span class="muted">click the lanes to seek</span></div>
@@ -743,69 +957,57 @@ details.srow summary .ttl .chip{font-weight:400}
     <button type="button" data-tab="transcript" class="on">Transcript</button>
     <button type="button" data-tab="tools">Tool calls<b>1</b></button>
     <button type="button" data-tab="timeline">Timeline</button>
-    <button type="button" data-tab="latency">Latency<b>p95 2.2 s</b></button>
+    <button type="button" data-tab="latency">Latency<b>p95 2.8 s</b></button>
     <button type="button" data-tab="checks">Checks<b style="background:var(--red-bg);color:var(--red)">3 failed</b></button>
 <button type="button" data-tab="details">Details</button><label class="sw on" data-toggle="heard-off" data-target="#inspector" id="insp-heard"><span class="tg"></span>Show what the agent heard</label>  </div>
 
   <div class="panes">
     <div>
       <div class="pane" data-pane="transcript" id="transcript">
-        <div class="turn agent" data-t="1516" data-end="5957">
+        <div class="turn agent" data-t="1833" data-end="6395">
           <div class="t">0:01</div><div class="av">A</div>
           <div><div class="who">Agent</div>
             <div>Thanks for calling Gateway Goods, this is Ava. How can I help you today?</div>
           </div>
         </div>
-        <div class="turn caller" data-t="6700" data-end="11479">
-          <div class="t">0:06</div><div class="av">C</div>
+        <div class="turn caller" data-t="7325" data-end="14699">
+          <div class="t">0:07</div><div class="av">C</div>
           <div><div class="who">Maria Lopez</div>
             <div>Hi Eva, I&#39;m calling about a refund for my order G W 4 8 2 1 3. The countertop blender I bought was broken and it ended up ruining a $30 bag of groceries. I&#39;m asking for a refund of one hundred twenty dollars.</div>
-<div class="heard" title="what the agent's speech recognition produced">agent heard: “Hi, Eva. I&#39;m calling about a refund for my order. <mark>GW</mark> <mark>four</mark>”</div>          </div>
+<div class="heard" title="what the agent's speech recognition produced">agent heard: “Hi, Eva. I&#39;m calling about a refund for my order <mark>GW</mark> <mark>four</mark> <mark>eight</mark> <mark>two</mark> <mark>one</mark> <mark>three.</mark> The countertop blender I bought was broken,”</div>          </div>
         </div>
-        <div class="turn agent" data-t="24511" data-end="29233">
+        <div class="turn agent" data-t="24493" data-end="28135">
           <div class="t">0:24</div><div class="av">A</div>
           <div><div class="who">Agent<span class="pill amber lat" title="caller stopped → agent audio started">2.1 s</span></div>
-            <div>Thanks for the order number. Could you please provide the 5-digit zip code on the order?</div>
+            <div>Could you please provide the zip code on the order so I can look it up?</div>
           </div>
         </div>
-        <div class="turn caller" data-t="29936" data-end="31365">
-          <div class="t">0:29</div><div class="av">C</div>
+        <div class="turn caller" data-t="28769" data-end="30420">
+          <div class="t">0:28</div><div class="av">C</div>
           <div><div class="who">Maria Lopez</div>
-            <div>Yes, the zip code is nine four one one zero.</div>
-<div class="heard" title="what the agent's speech recognition produced">agent heard: “Yes.”</div>          </div>
+            <div>Sure, the ZIP code is 9 4 1 1 0.</div>
+<div class="heard" title="what the agent's speech recognition produced">agent heard: “Sure. The zip code is <mark>nine</mark> <mark>four</mark> <mark>one</mark> <mark>one</mark> <mark>zero.</mark>”</div>          </div>
         </div>
-        <div class="toolev " data-tool="1" data-t="35279">
-          <span class="muted mono" style="font-size:11px">0:35</span><span class="name">lookup_order()</span><span class="args">order_id: "GW-48213", zip: "94110"</span>
+        <div class="toolev " data-tool="1" data-t="33542">
+          <span class="muted mono" style="font-size:11px">0:33</span><span class="name">lookup_order()</span><span class="args">order_id: "GW-48213", zip: "94110"</span>
           <span class="pill green">200</span><span class="muted small">0 ms</span><span class="small">→ status=delivered, total=89.99, items=[{&#39;sku&#39;: &#39;BLND-200&#39;, &#39;name&#39;: &#39;Countertop blender&#39;, &#39;qty&#39;: 1, &#39;price&#39;: 89.99}], shipping_address=742 Valencia St, San Franci</span>
         </div>
-        <div class="turn agent" data-t="36168" data-end="47569">
-          <div class="t">0:36</div><div class="av">A</div>
-          <div><div class="who">Agent<span class="pill amber lat" title="caller stopped → agent audio started">2.2 s</span></div>
-            <div>Your order GW 4 8 2 1 3 with the countertop blender was delivered and the total was eighty-nine dollars and ninety-nine cents. You want a refund for one hundred twenty dollars, is that correct?</div>
+        <div class="turn agent" data-t="34448" data-end="54450">
+          <div class="t">0:34</div><div class="av">A</div>
+          <div><div class="who">Agent<span class="pill amber lat" title="caller stopped → agent audio started">2.8 s</span></div>
+            <div>Your order G W 4 8 2 1 3 was delivered and the total was $89.99. You want a refund of $120 for the broken blender and groceries. The refund can only be up to the order total of $89.99. Should I proceed with a refund of $89.99?</div>
           </div>
         </div>
-        <div class="turn caller" data-t="48691" data-end="51436">
-          <div class="t">0:48</div><div class="av">C</div>
-          <div><div class="who">Maria Lopez</div>
-            <div>Yes, that&#39;s correct. The blender was broken and it ruined a $30 bag of groceries, so I&#39;m asking for a refund of one hundred twenty dollars.</div>
-<div class="heard" title="what the agent's speech recognition produced">agent heard: “Yes. That&#39;s correct. The blender was broken.”</div>          </div>
-        </div>
-        <div class="turn agent" data-t="59297" data-end="66748">
-          <div class="t">0:59</div><div class="av">A</div>
-          <div><div class="who">Agent<span class="pill green lat" title="caller stopped → agent audio started">1.9 s</span></div>
-            <div>The refund can only be up to the order total of eighty-nine dollars and ninety-nine cents. Should I proceed with a refund for that amount?</div>
-          </div>
-        </div>
-        <div class="turn caller" data-t="67596" data-end="70408">
-          <div class="t">1:07</div><div class="av">C</div>
+        <div class="turn caller" data-t="55527" data-end="58228">
+          <div class="t">0:55</div><div class="av">C</div>
           <div><div class="who">Maria Lopez</div>
             <div>Yes, please proceed with the refund of eighty nine dollars and ninety nine cents.</div>
-<div class="heard" title="what the agent's speech recognition produced">agent heard: “Yes. Please proceed with the refund of eighty nine dollars and nine”</div>          </div>
+<div class="heard" title="what the agent's speech recognition produced">agent heard: “Yes. Please proceed with the refund of eighty nine dollars and ninety”</div>          </div>
         </div>
-        <div class="turn agent" data-t="73513" data-end="74242">
-          <div class="t">1:13</div><div class="av">A</div>
+        <div class="turn agent" data-t="61319" data-end="62141">
+          <div class="t">1:01</div><div class="av">A</div>
           <div><div class="who">Agent<span class="chip">interrupted</span></div>
-            <div>You said</div>
+            <div>To</div>
           </div>
         </div>
       </div>
@@ -813,7 +1015,7 @@ details.srow summary .ttl .chip{font-weight:400}
       <div class="pane" data-pane="tools" hidden>
         <div class="tablewrap"><table>
         <tr><th>time</th><th>tool</th><th>arguments</th><th>status</th><th>took</th><th>response</th></tr>
-        <tr class="toolrow" data-tool="1" data-t="35279" style="cursor:pointer"><td class="mono">0:35</td><td class="mono"><b>lookup_order</b></td><td class="mono small">{"order_id":"GW-48213","zip":"94110"}</td><td><span class="pill green">200</span></td><td>0 ms</td><td class="small">status=delivered, total=89.99, items=[{&#39;sku&#39;: &#39;BLND-200&#39;, &#39;name&#39;: &#39;Countertop blender&#39;, &#39;qty&#39;: 1, &#39;price&#39;: 89.99}], shipping_address=742 Valencia St, San Franci</td></tr>
+        <tr class="toolrow" data-tool="1" data-t="33542" style="cursor:pointer"><td class="mono">0:33</td><td class="mono"><b>lookup_order</b></td><td class="mono small">{"order_id":"GW-48213","zip":"94110"}</td><td><span class="pill green">200</span></td><td>0 ms</td><td class="small">status=delivered, total=89.99, items=[{&#39;sku&#39;: &#39;BLND-200&#39;, &#39;name&#39;: &#39;Countertop blender&#39;, &#39;qty&#39;: 1, &#39;price&#39;: 89.99}], shipping_address=742 Valencia St, San Franci</td></tr>
         </table></div>
         <p class="small muted">Read from the order system's request log, never from the transcript.</p>
       </div>
@@ -822,49 +1024,38 @@ details.srow summary .ttl .chip{font-weight:400}
         <canvas id="insp-tl" class="tl" height="150"></canvas>
         <div class="tablewrap" style="margin-top:10px"><table>
         <tr><th>time</th><th>event</th><th>detail</th></tr>
-        <tr class="tlrow" data-t="2080" style="cursor:pointer"><td class="mono">0:02</td><td>agent speech</td><td class="small">1.3 s</td></tr>
-        <tr class="tlrow" data-t="3760" style="cursor:pointer"><td class="mono">0:03</td><td>agent speech</td><td class="small">0.6 s</td></tr>
-        <tr class="tlrow" data-t="4960" style="cursor:pointer"><td class="mono">0:04</td><td>agent speech</td><td class="small">0.9 s</td></tr>
-        <tr class="tlrow" data-t="5958" style="cursor:pointer"><td class="mono">0:05</td><td>agent said</td><td class="small">Thanks for calling Gateway Goods, this is Ava. How can I help you today?</td></tr>
-        <tr class="tlrow" data-t="6700" style="cursor:pointer"><td class="mono">0:06</td><td>caller said</td><td class="small">Hi Eva, I&#39;m calling about a refund for my order G W 4 8 2 1 3. The countertop blender I bought was broken and it ended up ruining a $30 bag </td></tr>
-        <tr class="tlrow" data-t="7120" style="cursor:pointer"><td class="mono">0:07</td><td>caller speech</td><td class="small">0.7 s</td></tr>
-        <tr class="tlrow" data-t="8220" style="cursor:pointer"><td class="mono">0:08</td><td>caller speech</td><td class="small">2.0 s</td></tr>
-        <tr class="tlrow" data-t="8314" style="cursor:pointer"><td class="mono">0:08</td><td>agent heard</td><td class="small">Hi, Eva.</td></tr>
-        <tr class="tlrow" data-t="10631" style="cursor:pointer"><td class="mono">0:10</td><td>agent heard</td><td class="small">I&#39;m calling about a refund for my order.</td></tr>
-        <tr class="tlrow" data-t="10820" style="cursor:pointer"><td class="mono">0:10</td><td>caller speech</td><td class="small">1.3 s</td></tr>
-        <tr class="tlrow" data-t="12440" style="cursor:pointer"><td class="mono">0:12</td><td>caller speech</td><td class="small">7.1 s</td></tr>
-        <tr class="tlrow" data-t="12528" style="cursor:pointer"><td class="mono">0:12</td><td>agent heard</td><td class="small">GW four</td></tr>
-        <tr class="tlrow" data-t="16669" style="cursor:pointer"><td class="mono">0:16</td><td>agent heard</td><td class="small">eight two one three. The countertop blender I bought was broken.</td></tr>
-        <tr class="tlrow" data-t="19920" style="cursor:pointer"><td class="mono">0:19</td><td>caller speech</td><td class="small">3.0 s</td></tr>
-        <tr class="tlrow" data-t="19950" style="cursor:pointer"><td class="mono">0:19</td><td>agent heard</td><td class="small">And it ended up ruining a thirty dollar bag of groceries.</td></tr>
-        <tr class="tlrow" data-t="23408" style="cursor:pointer"><td class="mono">0:23</td><td>agent heard</td><td class="small">I&#39;m asking for a refund of one hundred twenty dollars.</td></tr>
-        <tr class="tlrow" data-t="25020" style="cursor:pointer"><td class="mono">0:25</td><td>agent speech</td><td class="small">1.1 s</td></tr>
-        <tr class="tlrow" data-t="26600" style="cursor:pointer"><td class="mono">0:26</td><td>agent speech</td><td class="small">2.5 s</td></tr>
-        <tr class="tlrow" data-t="29233" style="cursor:pointer"><td class="mono">0:29</td><td>agent said</td><td class="small">Thanks for the order number. Could you please provide the 5-digit zip code on the order?</td></tr>
-        <tr class="tlrow" data-t="29936" style="cursor:pointer"><td class="mono">0:29</td><td>caller said</td><td class="small">Yes, the zip code is nine four one one zero.</td></tr>
-        <tr class="tlrow" data-t="30500" style="cursor:pointer"><td class="mono">0:30</td><td>caller speech</td><td class="small">0.4 s</td></tr>
-        <tr class="tlrow" data-t="31300" style="cursor:pointer"><td class="mono">0:31</td><td>caller speech</td><td class="small">3.0 s</td></tr>
-        <tr class="tlrow" data-t="32603" style="cursor:pointer"><td class="mono">0:32</td><td>agent heard</td><td class="small">Yes.</td></tr>
-        <tr class="tlrow" data-t="34683" style="cursor:pointer"><td class="mono">0:34</td><td>agent heard</td><td class="small">The ZIP code is nine four one one zero.</td></tr>
-        <tr class="tlrow" data-t="35279" style="cursor:pointer"><td class="mono">0:35</td><td>tool call</td><td class="small"><span class="mono">lookup_order</span> ok · 0 ms</td></tr>
-        <tr class="tlrow" data-t="36560" style="cursor:pointer"><td class="mono">0:36</td><td>agent speech</td><td class="small">7.4 s</td></tr>
-        <tr class="tlrow" data-t="44600" style="cursor:pointer"><td class="mono">0:44</td><td>agent speech</td><td class="small">2.8 s</td></tr>
-        <tr class="tlrow" data-t="47569" style="cursor:pointer"><td class="mono">0:47</td><td>agent said</td><td class="small">Your order GW 4 8 2 1 3 with the countertop blender was delivered and the total was eighty-nine dollars and ninety-nine cents. You want a re</td></tr>
-        <tr class="tlrow" data-t="48691" style="cursor:pointer"><td class="mono">0:48</td><td>caller said</td><td class="small">Yes, that&#39;s correct. The blender was broken and it ruined a $30 bag of groceries, so I&#39;m asking for a refund of one hundred twenty dollars.</td></tr>
-        <tr class="tlrow" data-t="49080" style="cursor:pointer"><td class="mono">0:49</td><td>caller speech</td><td class="small">5.2 s</td></tr>
-        <tr class="tlrow" data-t="52817" style="cursor:pointer"><td class="mono">0:52</td><td>agent heard</td><td class="small">Yes. That&#39;s correct. The blender was broken.</td></tr>
-        <tr class="tlrow" data-t="54820" style="cursor:pointer"><td class="mono">0:54</td><td>caller speech</td><td class="small">3.1 s</td></tr>
-        <tr class="tlrow" data-t="57067" style="cursor:pointer"><td class="mono">0:57</td><td>agent heard</td><td class="small">And it ruined a thirty dollar bag of groceries. So</td></tr>
-        <tr class="tlrow" data-t="58378" style="cursor:pointer"><td class="mono">0:58</td><td>agent heard</td><td class="small">I&#39;m asking for a refund of one hundred twenty dollars.</td></tr>
-        <tr class="tlrow" data-t="59800" style="cursor:pointer"><td class="mono">0:59</td><td>agent speech</td><td class="small">4.2 s</td></tr>
-        <tr class="tlrow" data-t="64700" style="cursor:pointer"><td class="mono">1:04</td><td>agent speech</td><td class="small">1.9 s</td></tr>
-        <tr class="tlrow" data-t="66748" style="cursor:pointer"><td class="mono">1:06</td><td>agent said</td><td class="small">The refund can only be up to the order total of eighty-nine dollars and ninety-nine cents. Should I proceed with a refund for that amount?</td></tr>
-        <tr class="tlrow" data-t="67596" style="cursor:pointer"><td class="mono">1:07</td><td>caller said</td><td class="small">Yes, please proceed with the refund of eighty nine dollars and ninety nine cents.</td></tr>
-        <tr class="tlrow" data-t="68600" style="cursor:pointer"><td class="mono">1:08</td><td>caller speech</td><td class="small">0.5 s</td></tr>
-        <tr class="tlrow" data-t="69420" style="cursor:pointer"><td class="mono">1:09</td><td>caller speech</td><td class="small">2.8 s</td></tr>
-        <tr class="tlrow" data-t="69516" style="cursor:pointer"><td class="mono">1:09</td><td>agent heard</td><td class="small">Yes.</td></tr>
-        <tr class="tlrow" data-t="72749" style="cursor:pointer"><td class="mono">1:12</td><td>agent heard</td><td class="small">Please proceed with the refund of eighty nine dollars and nine</td></tr>
-        <tr class="tlrow" data-t="74243" style="cursor:pointer"><td class="mono">1:14</td><td>agent said</td><td class="small">You said</td></tr>
+        <tr class="tlrow" data-t="2420" style="cursor:pointer"><td class="mono">0:02</td><td>agent speech</td><td class="small">1.2 s</td></tr>
+        <tr class="tlrow" data-t="4420" style="cursor:pointer"><td class="mono">0:04</td><td>agent speech</td><td class="small">0.7 s</td></tr>
+        <tr class="tlrow" data-t="5720" style="cursor:pointer"><td class="mono">0:05</td><td>agent speech</td><td class="small">0.9 s</td></tr>
+        <tr class="tlrow" data-t="6395" style="cursor:pointer"><td class="mono">0:06</td><td>agent said</td><td class="small">Thanks for calling Gateway Goods, this is Ava. How can I help you today?</td></tr>
+        <tr class="tlrow" data-t="7325" style="cursor:pointer"><td class="mono">0:07</td><td>caller said</td><td class="small">Hi Eva, I&#39;m calling about a refund for my order G W 4 8 2 1 3. The countertop blender I bought was broken and it ended up ruining a $30 bag </td></tr>
+        <tr class="tlrow" data-t="7600" style="cursor:pointer"><td class="mono">0:07</td><td>caller speech</td><td class="small">0.8 s</td></tr>
+        <tr class="tlrow" data-t="8760" style="cursor:pointer"><td class="mono">0:08</td><td>caller speech</td><td class="small">7.3 s</td></tr>
+        <tr class="tlrow" data-t="9058" style="cursor:pointer"><td class="mono">0:09</td><td>agent heard</td><td class="small">Hi, Eva.</td></tr>
+        <tr class="tlrow" data-t="14075" style="cursor:pointer"><td class="mono">0:14</td><td>agent heard</td><td class="small">I&#39;m calling about a refund for my order GW</td></tr>
+        <tr class="tlrow" data-t="16380" style="cursor:pointer"><td class="mono">0:16</td><td>caller speech</td><td class="small">6.5 s</td></tr>
+        <tr class="tlrow" data-t="17089" style="cursor:pointer"><td class="mono">0:17</td><td>agent heard</td><td class="small">four eight two one three. The countertop blender I bought was broken,</td></tr>
+        <tr class="tlrow" data-t="21434" style="cursor:pointer"><td class="mono">0:21</td><td>agent heard</td><td class="small">and it ended up ruining a thirty dollar bag of groceries.</td></tr>
+        <tr class="tlrow" data-t="23375" style="cursor:pointer"><td class="mono">0:23</td><td>agent heard</td><td class="small">I&#39;m asking for a refund of one hundred twenty dollars.</td></tr>
+        <tr class="tlrow" data-t="25000" style="cursor:pointer"><td class="mono">0:25</td><td>agent speech</td><td class="small">3.0 s</td></tr>
+        <tr class="tlrow" data-t="28135" style="cursor:pointer"><td class="mono">0:28</td><td>agent said</td><td class="small">Could you please provide the zip code on the order so I can look it up?</td></tr>
+        <tr class="tlrow" data-t="28769" style="cursor:pointer"><td class="mono">0:28</td><td>caller said</td><td class="small">Sure, the ZIP code is 9 4 1 1 0.</td></tr>
+        <tr class="tlrow" data-t="29100" style="cursor:pointer"><td class="mono">0:29</td><td>caller speech</td><td class="small">0.4 s</td></tr>
+        <tr class="tlrow" data-t="29860" style="cursor:pointer"><td class="mono">0:29</td><td>caller speech</td><td class="small">2.3 s</td></tr>
+        <tr class="tlrow" data-t="32570" style="cursor:pointer"><td class="mono">0:32</td><td>agent heard</td><td class="small">Sure. The zip code is nine four one one zero.</td></tr>
+        <tr class="tlrow" data-t="33542" style="cursor:pointer"><td class="mono">0:33</td><td>tool call</td><td class="small"><span class="mono">lookup_order</span> ok · 0 ms</td></tr>
+        <tr class="tlrow" data-t="34960" style="cursor:pointer"><td class="mono">0:34</td><td>agent speech</td><td class="small">1.1 s</td></tr>
+        <tr class="tlrow" data-t="36420" style="cursor:pointer"><td class="mono">0:36</td><td>agent speech</td><td class="small">2.3 s</td></tr>
+        <tr class="tlrow" data-t="39100" style="cursor:pointer"><td class="mono">0:39</td><td>agent speech</td><td class="small">2.5 s</td></tr>
+        <tr class="tlrow" data-t="42340" style="cursor:pointer"><td class="mono">0:42</td><td>agent speech</td><td class="small">3.6 s</td></tr>
+        <tr class="tlrow" data-t="46600" style="cursor:pointer"><td class="mono">0:46</td><td>agent speech</td><td class="small">3.9 s</td></tr>
+        <tr class="tlrow" data-t="51140" style="cursor:pointer"><td class="mono">0:51</td><td>agent speech</td><td class="small">3.1 s</td></tr>
+        <tr class="tlrow" data-t="54450" style="cursor:pointer"><td class="mono">0:54</td><td>agent said</td><td class="small">Your order G W 4 8 2 1 3 was delivered and the total was $89.99. You want a refund of $120 for the broken blender and groceries. The refund </td></tr>
+        <tr class="tlrow" data-t="55527" style="cursor:pointer"><td class="mono">0:55</td><td>caller said</td><td class="small">Yes, please proceed with the refund of eighty nine dollars and ninety nine cents.</td></tr>
+        <tr class="tlrow" data-t="56340" style="cursor:pointer"><td class="mono">0:56</td><td>caller speech</td><td class="small">0.4 s</td></tr>
+        <tr class="tlrow" data-t="57060" style="cursor:pointer"><td class="mono">0:57</td><td>caller speech</td><td class="small">3.0 s</td></tr>
+        <tr class="tlrow" data-t="60464" style="cursor:pointer"><td class="mono">1:00</td><td>agent heard</td><td class="small">Yes. Please proceed with the refund of eighty nine dollars and ninety</td></tr>
+        <tr class="tlrow" data-t="62142" style="cursor:pointer"><td class="mono">1:02</td><td>agent said</td><td class="small">To</td></tr>
         </table></div>
       </div>
 
@@ -873,64 +1064,53 @@ details.srow summary .ttl .chip{font-weight:400}
         <div class="legend" style="padding:0 0 8px"><span><i style="background:#94a3b8;border-radius:2px"></i>End-of-turn detection</span><span><i style="background:#60a5fa;border-radius:2px"></i>Transcription</span><span><i style="background:#a78bfa;border-radius:2px"></i>LLM first token</span><span><i style="background:#34d399;border-radius:2px"></i>TTS first byte</span><span><i style="background:#fbbf24;border-radius:2px"></i>Playback</span><span><i style="background:#e5e7eb;border-radius:2px;border:1px solid #d1d5db"></i>Unaccounted</span><span><i style="background:transparent;border-left:2px solid var(--ink);border-radius:0;width:0"></i>heard</span></div>
         <div class="tablewrap"><table class="small" id="latency-table">
         <tr><th>turn</th><th style="width:38%">breakdown</th><th>heard</th><th title="Caller stopped speaking → the turn detector decided the caller was done. Before this, the agent cannot start thinking.">end of turn</th><th title="End of turn → the final transcript arrived from speech recognition.">transcript</th><th title="Transcript sent to the language model → first token of the reply (time to first token, TTFT).">LLM TTFT</th><th title="First sentence sent to text-to-speech → first audio byte back (time to first byte, TTFB).">TTS TTFB</th><th title="First audio byte → it is actually played into the room.">playback</th><th>reported e2e</th><th>tokens</th></tr>
-        <tr class="latrow" data-t="1516" style="cursor:pointer">
+        <tr class="latrow" data-t="1833" style="cursor:pointer">
           <td class="mono">0:01 <span class="muted">#1</span> <span class="chip">greeting</span></td>
           <td>
             <div style="position:relative;height:14px;background:#f8fafc;border-radius:3px;overflow:hidden">
-              <div style="display:flex;height:100%"><i title="TTS first byte: 116 ms" style="display:block;height:100%;width:5.23%;background:#34d399"></i><i title="Playback: 9 ms" style="display:block;height:100%;width:0.41%;background:#fbbf24"></i></div>
+              <div style="display:flex;height:100%"><i title="TTS first byte: 105 ms" style="display:block;height:100%;width:3.8%;background:#34d399"></i><i title="Playback: 88 ms" style="display:block;height:100%;width:3.19%;background:#fbbf24"></i></div>
             </div>
           </td>
           <td><span class="muted">–</span></td>
-<td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">116 ms</td><td class="num">9 ms</td>          <td class="num">–</td>
+<td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">105 ms</td><td class="num">88 ms</td>          <td class="num">–</td>
           <td class="num muted">–</td>
         </tr>
-        <tr class="latrow" data-t="24511" style="cursor:pointer">
+        <tr class="latrow" data-t="24493" style="cursor:pointer">
           <td class="mono">0:24 <span class="muted">#2</span></td>
           <td>
             <div style="position:relative;height:14px;background:#f8fafc;border-radius:3px;overflow:hidden">
-              <div style="display:flex;height:100%"><i title="End-of-turn detection: 577 ms" style="display:block;height:100%;width:25.99%;background:#94a3b8"></i><i title="Transcription: 309 ms" style="display:block;height:100%;width:13.92%;background:#60a5fa"></i><i title="LLM first token: 669 ms" style="display:block;height:100%;width:30.14%;background:#a78bfa"></i><i title="TTS first byte: 142 ms" style="display:block;height:100%;width:6.4%;background:#34d399"></i><i title="Playback: 11 ms" style="display:block;height:100%;width:0.5%;background:#fbbf24"></i><i title="Unaccounted: 392 ms" style="display:block;height:100%;width:17.66%;background:#e5e7eb"></i></div>
-<b title="heard: 2100 ms" style="position:absolute;top:0;bottom:0;left:94.59%;width:2px;background:var(--ink)"></b>            </div>
+              <div style="display:flex;height:100%"><i title="End-of-turn detection: 577 ms" style="display:block;height:100%;width:20.91%;background:#94a3b8"></i><i title="Transcription: 217 ms" style="display:block;height:100%;width:7.86%;background:#60a5fa"></i><i title="LLM first token: 505 ms" style="display:block;height:100%;width:18.3%;background:#a78bfa"></i><i title="TTS first byte: 216 ms" style="display:block;height:100%;width:7.83%;background:#34d399"></i><i title="Playback: 19 ms" style="display:block;height:100%;width:0.69%;background:#fbbf24"></i><i title="Unaccounted: 566 ms" style="display:block;height:100%;width:20.51%;background:#e5e7eb"></i></div>
+<b title="heard: 2100 ms" style="position:absolute;top:0;bottom:0;left:76.09%;width:2px;background:var(--ink)"></b>            </div>
           </td>
           <td><span class="pill amber">2.1 s</span></td>
-<td class="num">577 ms</td><td class="num">309 ms</td><td class="num">669 ms</td><td class="num">142 ms</td><td class="num">11 ms</td>          <td class="num">1412 ms</td>
-          <td class="num muted">847 → 21</td>
+<td class="num">577 ms</td><td class="num">217 ms</td><td class="num">505 ms</td><td class="num">216 ms</td><td class="num">19 ms</td>          <td class="num">1334 ms</td>
+          <td class="num muted">846 → 18</td>
         </tr>
-        <tr class="latrow" data-t="36168" style="cursor:pointer">
-          <td class="mono">0:36 <span class="muted">#3</span></td>
+        <tr class="latrow" data-t="34448" style="cursor:pointer">
+          <td class="mono">0:34 <span class="muted">#3</span></td>
           <td>
             <div style="position:relative;height:14px;background:#f8fafc;border-radius:3px;overflow:hidden">
-              <div style="display:flex;height:100%"><i title="End-of-turn detection: 577 ms" style="display:block;height:100%;width:25.99%;background:#94a3b8"></i><i title="Transcription: 234 ms" style="display:block;height:100%;width:10.54%;background:#60a5fa"></i><i title="LLM first token: 539 ms" style="display:block;height:100%;width:24.28%;background:#a78bfa"></i><i title="TTS first byte: 319 ms" style="display:block;height:100%;width:14.37%;background:#34d399"></i><i title="Playback: 9 ms" style="display:block;height:100%;width:0.41%;background:#fbbf24"></i><i title="Unaccounted: 542 ms" style="display:block;height:100%;width:24.41%;background:#e5e7eb"></i></div>
-<b title="heard: 2220 ms" style="position:absolute;top:0;bottom:0;left:100.0%;width:2px;background:var(--ink)"></b>            </div>
+              <div style="display:flex;height:100%"><i title="End-of-turn detection: 577 ms" style="display:block;height:100%;width:20.91%;background:#94a3b8"></i><i title="Transcription: 161 ms" style="display:block;height:100%;width:5.83%;background:#60a5fa"></i><i title="LLM first token: 498 ms" style="display:block;height:100%;width:18.04%;background:#a78bfa"></i><i title="TTS first byte: 342 ms" style="display:block;height:100%;width:12.39%;background:#34d399"></i><i title="Playback: 20 ms" style="display:block;height:100%;width:0.72%;background:#fbbf24"></i><i title="Unaccounted: 1162 ms" style="display:block;height:100%;width:42.1%;background:#e5e7eb"></i></div>
+<b title="heard: 2760 ms" style="position:absolute;top:0;bottom:0;left:100.0%;width:2px;background:var(--ink)"></b>            </div>
           </td>
-          <td><span class="pill amber">2.2 s</span></td>
-<td class="num">577 ms</td><td class="num">234 ms</td><td class="num">539 ms</td><td class="num">319 ms</td><td class="num">9 ms</td>          <td class="num">1718 ms</td>
-          <td class="num muted">1015 → 46</td>
+          <td><span class="pill amber">2.8 s</span></td>
+<td class="num">577 ms</td><td class="num">161 ms</td><td class="num">498 ms</td><td class="num">342 ms</td><td class="num">20 ms</td>          <td class="num">2039 ms</td>
+          <td class="num muted">1011 → 68</td>
         </tr>
-        <tr class="latrow" data-t="59297" style="cursor:pointer">
-          <td class="mono">0:59 <span class="muted">#4</span></td>
+        <tr class="latrow" data-t="61319" style="cursor:pointer">
+          <td class="mono">1:01 <span class="muted">#4</span> <span class="chip">interrupted</span></td>
           <td>
             <div style="position:relative;height:14px;background:#f8fafc;border-radius:3px;overflow:hidden">
-              <div style="display:flex;height:100%"><i title="End-of-turn detection: 577 ms" style="display:block;height:100%;width:25.99%;background:#94a3b8"></i><i title="Transcription: 280 ms" style="display:block;height:100%;width:12.61%;background:#60a5fa"></i><i title="LLM first token: 563 ms" style="display:block;height:100%;width:25.36%;background:#a78bfa"></i><i title="TTS first byte: 330 ms" style="display:block;height:100%;width:14.86%;background:#34d399"></i><i title="Playback: 12 ms" style="display:block;height:100%;width:0.54%;background:#fbbf24"></i><i title="Unaccounted: 138 ms" style="display:block;height:100%;width:6.22%;background:#e5e7eb"></i></div>
-<b title="heard: 1900 ms" style="position:absolute;top:0;bottom:0;left:85.59%;width:2px;background:var(--ink)"></b>            </div>
-          </td>
-          <td><span class="pill green">1.9 s</span></td>
-<td class="num">577 ms</td><td class="num">280 ms</td><td class="num">563 ms</td><td class="num">330 ms</td><td class="num">12 ms</td>          <td class="num">1199 ms</td>
-          <td class="num muted">1100 → 30</td>
-        </tr>
-        <tr class="latrow" data-t="73513" style="cursor:pointer">
-          <td class="mono">1:13 <span class="muted">#5</span> <span class="chip">interrupted</span></td>
-          <td>
-            <div style="position:relative;height:14px;background:#f8fafc;border-radius:3px;overflow:hidden">
-              <div style="display:flex;height:100%"><i title="End-of-turn detection: 577 ms" style="display:block;height:100%;width:25.99%;background:#94a3b8"></i><i title="Transcription: 350 ms" style="display:block;height:100%;width:15.77%;background:#60a5fa"></i><i title="LLM first token: 508 ms" style="display:block;height:100%;width:22.88%;background:#a78bfa"></i><i title="TTS first byte: 231 ms" style="display:block;height:100%;width:10.41%;background:#34d399"></i><i title="Playback: 13 ms" style="display:block;height:100%;width:0.59%;background:#fbbf24"></i></div>
+              <div style="display:flex;height:100%"><i title="End-of-turn detection: 577 ms" style="display:block;height:100%;width:20.91%;background:#94a3b8"></i><i title="Transcription: 154 ms" style="display:block;height:100%;width:5.58%;background:#60a5fa"></i><i title="LLM first token: 426 ms" style="display:block;height:100%;width:15.43%;background:#a78bfa"></i><i title="TTS first byte: 394 ms" style="display:block;height:100%;width:14.28%;background:#34d399"></i><i title="Playback: 16 ms" style="display:block;height:100%;width:0.58%;background:#fbbf24"></i></div>
             </div>
           </td>
           <td><span class="muted">–</span></td>
-<td class="num">577 ms</td><td class="num">350 ms</td><td class="num">508 ms</td><td class="num">231 ms</td><td class="num">13 ms</td>          <td class="num">1114 ms</td>
-          <td class="num muted">1150 → 46</td>
+<td class="num">577 ms</td><td class="num">154 ms</td><td class="num">426 ms</td><td class="num">394 ms</td><td class="num">16 ms</td>          <td class="num">1009 ms</td>
+          <td class="num muted">1099 → 33</td>
         </tr>
-        <tr style="font-weight:600"><td>p50 / p95</td><td class="small muted" style="font-weight:400">over 3 replies with a measured wait</td>
-          <td>2.1 s / 2.2 s</td>
-<td class="num">577 / 577</td><td class="num">309 / 350</td><td class="num">563 / 669</td><td class="num">231 / 330</td><td class="num">11 / 13</td>          <td class="num">1412 / 1718</td><td></td></tr>
+        <tr style="font-weight:600"><td>p50 / p95</td><td class="small muted" style="font-weight:400">over 2 replies with a measured wait</td>
+          <td>2.8 s / 2.8 s</td>
+<td class="num">577 / 577</td><td class="num">161 / 217</td><td class="num">498 / 505</td><td class="num">342 / 394</td><td class="num">20 / 88</td>          <td class="num">1334 / 2039</td><td></td></tr>
         </table></div>
         <details style="margin-top:10px"><summary>What each latency means</summary>
           <div class="kv small" style="margin-top:8px"><span class="k">End-of-turn detection</span><span>Caller stopped speaking → the turn detector decided the caller was done. Before this, the agent cannot start thinking.</span><span class="k">Transcription</span><span>End of turn → the final transcript arrived from speech recognition.</span><span class="k">LLM first token</span><span>Transcript sent to the language model → first token of the reply (time to first token, TTFT).</span><span class="k">TTS first byte</span><span>First sentence sent to text-to-speech → first audio byte back (time to first byte, TTFB).</span><span class="k">Playback</span><span>First audio byte → it is actually played into the room.</span><span class="k">Reported end-to-end</span><span>The agent&#39;s own sum for the turn (end of turn → audio playing), from its clock.</span><span class="k">Heard</span><span>Measured from the recording: caller&#39;s last word → agent&#39;s first sound. What a real caller waits.</span><span class="k">Unaccounted</span><span>Heard minus the reported stages: network, audio buffering and VAD look-back that the agent cannot see.</span></div>
@@ -950,13 +1130,13 @@ details.srow summary .ttl .chip{font-weight:400}
 <span></span>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
-          <div><div>The simulated caller heard the agent correctly <span class="muted mono">0.019</span></div><div class="what">caller-side WER 0.02 over 4 agent turns</div><div class="why">A caller that mishears the agent argues about the wrong value; that is the simulator&#39;s fault, not the agent&#39;s, so such calls are excluded.</div></div>
+          <div><div>The simulated caller heard the agent correctly <span class="muted mono">0.215</span></div><div class="what">caller-side WER 0.21 over 3 agent turns</div><div class="why">A caller that mishears the agent argues about the wrong value; that is the simulator&#39;s fault, not the agent&#39;s, so such calls are excluded.</div></div>
 <span></span>        </div>
         <h3 style="margin:10px 0 4px">Did the agent do the right thing? <span class="pill red">3 failed</span></h3>
         <div class="check pass open">
           <span class="ic">✓</span>
           <div><div>Required: lookup_order with {&#39;order_id&#39;: &#39;GW-48213&#39;, &#39;zip&#39;: &#39;94110&#39;}</div><div class="what">lookup_order was called with the expected arguments and succeeded</div><div class="why">The outcome only counts if the backend actually received this request.</div></div>
-<a class="jump" href="#" data-seek="35279">0:35 ↗</a>        </div>
+<a class="jump" href="#" data-seek="33542">0:33 ↗</a>        </div>
         <div class="check fail open">
           <span class="ic">✗</span>
           <div><div>Required: issue_refund with {&#39;order_id&#39;: &#39;GW-48213&#39;, &#39;amount&#39;: 89.99}</div><div class="what">issue_refund was never called</div><div class="why">The outcome only counts if the backend actually received this request.</div></div>
@@ -1001,7 +1181,7 @@ details.srow summary .ttl .chip{font-weight:400}
         <h3 style="margin:10px 0 4px">Did the agent hear the caller? <span class="pill green">ok</span></h3>
         <div class="check pass open">
           <span class="ic">✓</span>
-          <div><div>Word error rate, caller&#39;s words vs what the agent heard <span class="muted mono">0.07</span></div><div class="what">WER 0.07 over 114 reference words</div><div class="why">High WER explains wrong tool arguments and repeats downstream.</div></div>
+          <div><div>Word error rate, caller&#39;s words vs what the agent heard <span class="muted mono">0.062</span></div><div class="what">WER 0.06 over 80 reference words</div><div class="why">High WER explains wrong tool arguments and repeats downstream.</div></div>
 <span></span>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
@@ -1014,8 +1194,8 @@ details.srow summary .ttl .chip{font-weight:400}
         <h3 style="margin:10px 0 4px">How did the call feel? <span class="pill green">ok</span></h3>
         <div class="check pass open">
           <span class="ic">✓</span>
-          <div><div>Response latency p95 (caller stops → agent audio) under 2.0 s <span class="muted mono">2220</span></div><div class="what">p50 2100 ms, p95 2220 ms over 3 turns</div><div class="why">Over about two seconds callers start talking over the agent or hang up.</div></div>
-<a class="jump" href="#" data-seek="34340">0:34 ↗</a>        </div>
+          <div><div>Response latency p95 (caller stops → agent audio) under 2.0 s <span class="muted mono">2760</span></div><div class="what">p50 2100 ms, p95 2760 ms over 2 turns</div><div class="why">Over about two seconds callers start talking over the agent or hang up.</div></div>
+<a class="jump" href="#" data-seek="32200">0:32 ↗</a>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
           <div><div>No silence from both sides longer than 3 s <span class="muted mono">0</span></div><div class="what">none</div><div class="why">Dead air is when a real caller says &#39;hello?&#39; or hangs up.</div></div>
@@ -1042,11 +1222,11 @@ details.srow summary .ttl .chip{font-weight:400}
 <span></span>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
-          <div><div>Agent spoke first</div><div class="what">first agent audio at 2080 ms</div><div class="why">A caller who has to speak into silence assumes nobody answered.</div></div>
-<a class="jump" href="#" data-seek="2080">0:02 ↗</a>        </div>
+          <div><div>Agent spoke first</div><div class="what">first agent audio at 2420 ms</div><div class="why">A caller who has to speak into silence assumes nobody answered.</div></div>
+<a class="jump" href="#" data-seek="2420">0:02 ↗</a>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
-          <div><div>Agent-reported end-to-end latency (for comparison with what the caller heard) <span class="muted mono">1.361</span></div><div class="what">mean 1.36 s over 4 turns</div><div class="why"></div></div>
+          <div><div>Agent-reported end-to-end latency (for comparison with what the caller heard) <span class="muted mono">1.461</span></div><div class="what">mean 1.46 s over 3 turns</div><div class="why"></div></div>
 <span></span>        </div>
         <h3 style="margin:10px 0 4px">Was the speech clean? <span class="pill green">ok</span></h3>
         <div class="check pass open">
@@ -1081,19 +1261,19 @@ details.srow summary .ttl .chip{font-weight:400}
               <span class="k">voice</span><span>aura-2-cordelia-en at pace 1.0</span>
               <span class="k">brain</span><span>gpt-4.1-mini t=0.0 seed 207</span>
               <span class="k">line</span><span><span class="chip">clean line</span></span>
-<span class="k">measured</span><span class="mono">{"noise":null,"phone_line":false,"packet_loss":0.0,"low_quality_mic":false,"frames":186,"dropped_frames":0,"measured_snr_db":null}</span><span class="k">not applied</span><span>conditions.interruptions (unsupported by this engine)</span>              <span class="k">caller's view</span><span>goal met · Refund of eighty nine dollars and ninety nine cents confirmed.</span>
-              <span class="k">ended</span><span>caller: Refund of eighty nine dollars and ninety nine cents confirmed.</span>
+<span class="k">measured</span><span class="mono">{"noise":null,"phone_line":false,"packet_loss":0.0,"low_quality_mic":false,"frames":129,"dropped_frames":0,"measured_snr_db":null}</span>              <span class="k">caller's view</span><span>goal met · Refund of eighty nine dollars and ninety nine cents confirmed for order G W 4 8 2 1 3.</span>
+              <span class="k">ended</span><span>caller: Refund of eighty nine dollars and ninety nine cents confirmed for order G W 4 8 2 1 3.</span>
             </div>
           </div>
           <div class="card"><h3>Agent <span class="mono muted">config a7c6a425319d</span></h3>
             <div class="kv small">
-<span class="k">stt</span><span>deepgram nova-3</span><span class="k">llm</span><span>openai gpt-4.1-mini</span><span class="k">tts</span><span>deepgram aura-2-luna-en</span>              <span class="k">room</span><span class="mono">gf-sim-36ae7c490d4a-2-b611a1</span>
-              <span class="k">heard correctly</span><span>93% of words</span>
+<span class="k">stt</span><span>deepgram nova-3</span><span class="k">llm</span><span>openai gpt-4.1-mini</span><span class="k">tts</span><span>deepgram aura-2-luna-en</span>              <span class="k">room</span><span class="mono">gf-sim-36ae7c490d4a-2-bb6179</span>
+              <span class="k">heard correctly</span><span>94% of words</span>
               <span class="k">dead air</span><span>0.0 s · 0 talk-overs · 0 interruptions</span>
             </div>
             <div class="tablewrap" style="margin-top:8px"><table class="small">
             <tr><th>turn</th><th>end-of-turn</th><th>transcription</th><th>LLM first token</th><th>TTS first byte</th><th>end to end</th></tr>
-<tr><td>1</td><td>–</td><td>–</td><td>–</td><td>0.12 s</td><td>–</td></tr><tr><td>2</td><td>–</td><td>–</td><td>0.67 s</td><td>0.14 s</td><td>1.41 s</td></tr><tr><td>3</td><td>–</td><td>–</td><td>0.54 s</td><td>0.32 s</td><td>1.72 s</td></tr><tr><td>4</td><td>–</td><td>–</td><td>0.56 s</td><td>0.33 s</td><td>1.20 s</td></tr><tr><td>5</td><td>–</td><td>–</td><td>0.51 s</td><td>0.23 s</td><td>1.11 s</td></tr>            </table></div>
+<tr><td>1</td><td>–</td><td>–</td><td>–</td><td>0.10 s</td><td>–</td></tr><tr><td>2</td><td>–</td><td>–</td><td>0.50 s</td><td>0.22 s</td><td>1.33 s</td></tr><tr><td>3</td><td>–</td><td>–</td><td>0.50 s</td><td>0.34 s</td><td>2.04 s</td></tr><tr><td>4</td><td>–</td><td>–</td><td>0.43 s</td><td>0.39 s</td><td>1.01 s</td></tr>            </table></div>
             <p class="small muted">Agent-reported timings; the latency badges in the transcript are what the caller actually heard.</p>
           </div>
           <div class="card"><h3>Order system: final state</h3><pre>{
@@ -1240,7 +1420,7 @@ details.srow summary .ttl .chip{font-weight:400}
     &#34;ended&#34;: false
   }
 }</pre></div>
-          <div class="card"><h3>Files</h3><div class="small mono">runs/full-1/36ae7c490d4a/2<br>agent_events.jsonl · agent_session_report.json · audio.json · audio.wav · backend_log.json · backend_state.json · caller.json · caller_events.jsonl · meta.json · scores.json · timeline.json</div></div>
+          <div class="card"><h3>Files</h3><div class="small mono">runs/full-3/36ae7c490d4a/2<br>agent_events.jsonl · agent_session_report.json · audio.json · audio.wav · backend_log.json · backend_state.json · caller.json · caller_events.jsonl · meta.json · scores.json · timeline.json</div></div>
         </div>
       </div>
     </div>
@@ -1251,7 +1431,7 @@ issue_refund was never called      </div>
       <h3 style="margin-bottom:6px">Tool event</h3>
       <div id="insp-tools">
       <div class="tev" data-tev="1" >
-        <div class="h"><span class="name">lookup_order()</span><span class="pill green">ok 200</span><span class="ms">0:35 · 0 ms</span></div>
+        <div class="h"><span class="name">lookup_order()</span><span class="pill green">ok 200</span><span class="ms">0:33 · 0 ms</span></div>
         <div class="tt" data-tabs="tev-1"><button type="button" data-tab="args" class="on">Arguments</button><button type="button" data-tab="resp">Response</button><button type="button" data-tab="raw">Raw</button></div>
         <div id="tev-1">
           <pre data-pane="args">{
@@ -1316,14 +1496,14 @@ issue_refund was never called      </div>
           <span class="tag pass" data-check="validity.persona_judge"><span class="m">✓</span><code>persona_judge</code><button type="button" class="q" aria-label="explain persona_judge">?</button>
             <span class="pop"><b>Persona judge (LLM, advisory)</b><span class="what">skipped (set GF_PERSONA_JUDGE=1 to run)</span><span class="why"></span></span>
           </span>
-          <span class="tag pass" data-check="speech.caller_hearing"><span class="m">✓</span><code>caller_hearing</code><span class="val">0.02</span><button type="button" class="q" aria-label="explain caller_hearing">?</button>
-            <span class="pop"><b>The simulated caller heard the agent correctly</b><span class="what">caller-side WER 0.02 over 4 agent turns</span><span class="why">A caller that mishears the agent argues about the wrong value; that is the simulator&#39;s fault, not the agent&#39;s, so such calls are excluded.</span></span>
+          <span class="tag pass" data-check="speech.caller_hearing"><span class="m">✓</span><code>caller_hearing</code><span class="val">0.21</span><button type="button" class="q" aria-label="explain caller_hearing">?</button>
+            <span class="pop"><b>The simulated caller heard the agent correctly</b><span class="what">caller-side WER 0.21 over 3 agent turns</span><span class="why">A caller that mishears the agent argues about the wrong value; that is the simulator&#39;s fault, not the agent&#39;s, so such calls are excluded.</span></span>
           </span>
         </div>
         <div class="ghead"><span>Did the agent do the right thing?</span><span class="pill red">3 failed</span></div>
         <div class="tags">
           <span class="tag pass" data-check="tools.required.lookup_order"><span class="m">✓</span><code>required:lookup_order</code><button type="button" class="q" aria-label="explain required:lookup_order">?</button>
-            <span class="pop"><b>Required: lookup_order with {&#39;order_id&#39;: &#39;GW-48213&#39;, &#39;zip&#39;: &#39;94110&#39;}</b><span class="what">lookup_order was called with the expected arguments and succeeded</span><span class="why">The outcome only counts if the backend actually received this request.</span><a class="jump" href="#" data-seek="35279">go to 0:35 ↗</a></span>
+            <span class="pop"><b>Required: lookup_order with {&#39;order_id&#39;: &#39;GW-48213&#39;, &#39;zip&#39;: &#39;94110&#39;}</b><span class="what">lookup_order was called with the expected arguments and succeeded</span><span class="why">The outcome only counts if the backend actually received this request.</span><a class="jump" href="#" data-seek="33542">go to 0:33 ↗</a></span>
           </span>
           <span class="tag fail" data-check="tools.required.issue_refund"><span class="m">✗</span><code>required:issue_refund</code><button type="button" class="q" aria-label="explain required:issue_refund">?</button>
             <span class="pop"><b>Required: issue_refund with {&#39;order_id&#39;: &#39;GW-48213&#39;, &#39;amount&#39;: 89.99}</b><span class="what">issue_refund was never called</span><span class="why">The outcome only counts if the backend actually received this request.</span></span>
@@ -1361,8 +1541,8 @@ issue_refund was never called      </div>
         </div>
         <div class="ghead"><span>Did the agent hear the caller?</span><span class="pill green">ok</span></div>
         <div class="tags">
-          <span class="tag pass" data-check="speech.wer"><span class="m">✓</span><code>wer</code><span class="val">7%</span><button type="button" class="q" aria-label="explain wer">?</button>
-            <span class="pop"><b>Word error rate, caller&#39;s words vs what the agent heard</b><span class="what">WER 0.07 over 114 reference words</span><span class="why">High WER explains wrong tool arguments and repeats downstream.</span></span>
+          <span class="tag pass" data-check="speech.wer"><span class="m">✓</span><code>wer</code><span class="val">6%</span><button type="button" class="q" aria-label="explain wer">?</button>
+            <span class="pop"><b>Word error rate, caller&#39;s words vs what the agent heard</b><span class="what">WER 0.06 over 80 reference words</span><span class="why">High WER explains wrong tool arguments and repeats downstream.</span></span>
           </span>
           <span class="tag pass" data-check="speech.entities"><span class="m">✓</span><code>entities</code><span class="val">0</span><button type="button" class="q" aria-label="explain entities">?</button>
             <span class="pop"><b>Key facts (order id, zip, amount) reached the agent intact</b><span class="what">all facts heard intact</span><span class="why">A misheard order number or zip is the usual root cause of a failed lookup.</span></span>
@@ -1373,8 +1553,8 @@ issue_refund was never called      </div>
         </div>
         <div class="ghead"><span>How did the call feel?</span><span class="pill green">ok</span></div>
         <div class="tags">
-          <span class="tag pass" data-check="ux.latency_p95"><span class="m">✓</span><code>latency_p95</code><span class="val">2.2 s</span><button type="button" class="q" aria-label="explain latency_p95">?</button>
-            <span class="pop"><b>Response latency p95 (caller stops → agent audio) under 2.0 s</b><span class="what">p50 2100 ms, p95 2220 ms over 3 turns</span><span class="why">Over about two seconds callers start talking over the agent or hang up.</span><a class="jump" href="#" data-seek="34340">go to 0:34 ↗</a></span>
+          <span class="tag pass" data-check="ux.latency_p95"><span class="m">✓</span><code>latency_p95</code><span class="val">2.8 s</span><button type="button" class="q" aria-label="explain latency_p95">?</button>
+            <span class="pop"><b>Response latency p95 (caller stops → agent audio) under 2.0 s</b><span class="what">p50 2100 ms, p95 2760 ms over 2 turns</span><span class="why">Over about two seconds callers start talking over the agent or hang up.</span><a class="jump" href="#" data-seek="32200">go to 0:32 ↗</a></span>
           </span>
           <span class="tag pass" data-check="ux.dead_air"><span class="m">✓</span><code>dead_air</code><span class="val">0</span><button type="button" class="q" aria-label="explain dead_air">?</button>
             <span class="pop"><b>No silence from both sides longer than 3 s</b><span class="what">none</span><span class="why">Dead air is when a real caller says &#39;hello?&#39; or hangs up.</span></span>
@@ -1395,10 +1575,10 @@ issue_refund was never called      </div>
             <span class="pop"><b>A real caller would have stayed on the line</b><span class="what">total dead air 0 ms vs patience 20000 ms; 0 repeats</span><span class="why">Rule of thumb: dead air beyond the caller&#39;s patience, or three repeats, loses the call.</span></span>
           </span>
           <span class="tag pass" data-check="ux.greeting_first"><span class="m">✓</span><code>greeting_first</code><button type="button" class="q" aria-label="explain greeting_first">?</button>
-            <span class="pop"><b>Agent spoke first</b><span class="what">first agent audio at 2080 ms</span><span class="why">A caller who has to speak into silence assumes nobody answered.</span><a class="jump" href="#" data-seek="2080">go to 0:02 ↗</a></span>
+            <span class="pop"><b>Agent spoke first</b><span class="what">first agent audio at 2420 ms</span><span class="why">A caller who has to speak into silence assumes nobody answered.</span><a class="jump" href="#" data-seek="2420">go to 0:02 ↗</a></span>
           </span>
-          <span class="tag pass" data-check="ux.agent_reported_latency"><span class="m">✓</span><code>agent_reported_latency</code><span class="val">1.36</span><button type="button" class="q" aria-label="explain agent_reported_latency">?</button>
-            <span class="pop"><b>Agent-reported end-to-end latency (for comparison with what the caller heard)</b><span class="what">mean 1.36 s over 4 turns</span><span class="why"></span></span>
+          <span class="tag pass" data-check="ux.agent_reported_latency"><span class="m">✓</span><code>agent_reported_latency</code><span class="val">1.46</span><button type="button" class="q" aria-label="explain agent_reported_latency">?</button>
+            <span class="pop"><b>Agent-reported end-to-end latency (for comparison with what the caller heard)</b><span class="what">mean 1.46 s over 3 turns</span><span class="why"></span></span>
           </span>
         </div>
         <div class="ghead"><span>Was the speech clean?</span><span class="pill green">ok</span></div>
@@ -1427,11 +1607,11 @@ issue_refund was never called      </div>
 <script>
 (function(){
   const root = document.getElementById('inspector');
-  const env = {"caller":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,29,64,77,77,64,41,57,69,70,68,51,70,70,65,50,0,0,2,0,0,0,0,62,76,73,68,45,47,67,74,72,69,65,67,52,74,73,70,69,67,57,68,67,59,3,62,66,63,55,20,61,63,68,67,56,51,70,72,67,63,61,55,33,1,1,0,0,0,0,0,1,0,0,0,42,43,52,65,69,69,69,59,33,72,73,56,65,67,69,70,56,7,0,58,70,73,75,68,62,44,0,0,0,0,0,0,52,69,69,54,12,6,42,38,63,68,68,64,56,51,67,68,63,61,54,32,57,60,63,55,37,13,0,3,0,0,66,51,39,55,74,77,71,71,60,42,61,74,73,32,37,69,75,72,74,66,75,79,78,77,60,39,68,76,76,73,43,46,66,62,39,14,38,4,63,77,81,60,23,55,60,55,52,42,0,4,0,0,56,68,69,70,58,35,68,74,74,70,70,79,65,8,54,70,75,74,72,69,69,70,71,67,8,0,56,75,72,71,73,64,66,74,75,73,73,69,45,61,71,71,71,60,55,57,42,21,62,74,70,49,48,45,64,63,55,47,30,32,17,0,1,0,0,0,0,0,59,67,68,70,74,70,45,34,55,66,65,49,18,72,73,75,72,60,69,72,69,16,50,70,68,63,58,37,42,65,55,45,53,65,68,66,65,54,64,62,63,69,47,0,38,24,63,62,60,59,58,68,68,66,60,55,49,37,25,30,24,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,47,66,70,69,61,48,34,30,18,0,1,7,1,0,0,12,64,65,48,54,76,65,1,7,49,70,74,70,64,56,67,59,32,67,66,65,66,68,66,68,59,9,18,67,70,74,69,68,62,48,41,39,68,69,65,63,65,62,51,47,62,65,64,58,58,61,59,40,29,61,67,67,65,63,54,49,42,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,33,51,66,70,68,57,39,38,33,22,0,31,64,77,75,56,40,28,40,62,72,71,59,32,0,0,26,2,0,0,0,60,59,42,74,79,77,70,65,74,63,72,63,45,0,63,78,78,63,36,62,60,54,49,7,0,0,0,61,70,71,64,44,51,63,78,79,76,74,67,71,53,0,31,70,74,70,67,66,66,72,70,71,72,64,36,59,71,73,71,56,57,53,9,27,68,77,71,46,43,50,62,61,57,36,19,0,0,0,1,2,3,4,0,0,32,50,70,68,66,63,49,61,74,73,59,40,29,59,69,68,52,46,70,72,71,58,65,69,68,40,9,65,67,63,59,43,39,58,49,40,59,67,71,69,65,66,62,60,64,42,38,31,60,65,65,64,55,61,69,67,65,56,50,44,23,30,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,50,68,70,67,48,24,35,36,41,28,1,0,0,0,0,0,26,27,67,68,59,41,7,59,64,43,38,57,66,65,50,55,67,25,62,64,59,67,66,52,12,61,63,62,56,60,31,27,57,65,65,59,62,70,68,69,66,67,63,62,68,68,65,65,64,54,37,34,52,67,67,65],"agent":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,21,64,68,43,31,58,46,35,60,63,65,68,62,62,58,60,65,57,32,68,65,65,64,52,33,21,19,2,5,0,0,0,0,0,62,62,40,62,53,71,66,68,49,63,67,63,50,16,0,0,0,0,0,0,0,0,0,10,59,65,37,60,61,61,56,58,54,12,68,64,32,58,54,54,48,37,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,61,69,62,34,26,46,58,59,59,62,73,69,60,63,55,54,51,47,59,53,43,23,0,0,12,0,0,0,0,0,0,7,59,64,55,71,64,25,66,73,66,35,9,61,55,64,69,69,64,48,52,18,41,63,64,66,47,47,62,34,61,52,37,34,63,28,2,25,59,67,61,63,56,53,49,45,55,60,53,55,64,57,33,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,0,0,0,0,0,43,63,75,62,64,74,73,56,60,60,60,51,45,59,66,48,69,67,53,64,65,64,62,33,8,39,64,69,63,66,58,37,0,41,43,64,64,54,58,57,54,52,21,33,60,58,59,61,49,58,49,24,53,26,28,51,55,51,57,45,35,57,59,45,12,63,63,64,55,59,59,54,19,0,0,0,0,0,54,70,49,21,64,64,64,72,60,57,70,67,58,52,30,0,51,65,66,64,32,33,52,63,67,70,64,60,67,67,29,18,0,46,61,59,61,59,58,59,62,66,59,65,61,62,64,64,68,57,32,40,50,59,53,50,53,52,50,59,56,53,54,50,33,21,46,50,45,40,2,8,11,7,0,0,0,0,0,0,0,0,0,60,64,70,69,68,69,61,62,66,61,30,49,62,61,63,34,19,66,63,55,62,60,64,62,63,56,63,40,29,48,57,51,54,51,60,59,60,66,63,62,52,25,25,25,43,42,31,62,48,27,21,49,58,55,53,14,0,3,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,7,65,53,59,66,66,36,43,60,58,61,29,55,66,44,43,63,65,68,64,60,49,59,55,53,63,51,13,46,53,51,55,51,60,63,60,65,58,29,42,63,66,60,63,54,46,13,55,46,39,37,58,59,56,60,63,62,61,64,60,61,59,61,63,60,58,34,38,50,56,48,49,49,52,44,48,49,48,49,49,40,19,39,44,37,37,11,10,15,13,1,0,4,0,0,0,0,0,11,32,56,59,71,61,25,48,64,43,21,53,62,57,44,52,45,55,57,52,55,54,31,47,63,64,51,25,54,52,58,62,57,52,49,50,51,56,49,21,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"step_ms":50,"duration_ms":72200};
-  const tl = {"t0_ms":1791491553288,"sample_rate":16000,"events":[{"t_ms":2080,"end_ms":3360,"kind":"agent_speech","n":1},{"t_ms":3760,"end_ms":4400,"kind":"agent_speech","n":2},{"t_ms":4960,"end_ms":5840,"kind":"agent_speech","n":3},{"t_ms":5958,"kind":"agent_said","text":"Thanks for calling Gateway Goods, this is Ava. How can I help you today?","n":1,"interrupted":false},{"t_ms":6700,"end_ms":11479,"kind":"caller_said","text":"Hi Eva, I'm calling about a refund for my order G W 4 8 2 1 3. The countertop blender I bought was broken and it ended up ruining a $30 bag of groceries. I'm asking for a refund of one hundred twenty dollars.","n":1},{"t_ms":7120,"end_ms":7840,"kind":"caller_speech","n":1},{"t_ms":8220,"end_ms":10220,"kind":"caller_speech","n":2},{"t_ms":8314,"kind":"agent_heard","text":"Hi, Eva."},{"t_ms":10631,"kind":"agent_heard","text":"I'm calling about a refund for my order."},{"t_ms":10820,"end_ms":12080,"kind":"caller_speech","n":3},{"t_ms":12440,"end_ms":19500,"kind":"caller_speech","n":4},{"t_ms":12528,"kind":"agent_heard","text":"GW four"},{"t_ms":16669,"kind":"agent_heard","text":"eight two one three. The countertop blender I bought was broken."},{"t_ms":19920,"end_ms":22920,"kind":"caller_speech","n":5},{"t_ms":19950,"kind":"agent_heard","text":"And it ended up ruining a thirty dollar bag of groceries."},{"t_ms":23408,"kind":"agent_heard","text":"I'm asking for a refund of one hundred twenty dollars."},{"t_ms":25020,"end_ms":26080,"kind":"agent_speech","n":4},{"t_ms":26600,"end_ms":29140,"kind":"agent_speech","n":5},{"t_ms":29233,"kind":"agent_said","text":"Thanks for the order number. Could you please provide the 5-digit zip code on the order?","n":2,"interrupted":false},{"t_ms":29936,"end_ms":31365,"kind":"caller_said","text":"Yes, the zip code is nine four one one zero.","n":2},{"t_ms":30500,"end_ms":30900,"kind":"caller_speech","n":6},{"t_ms":31300,"end_ms":34340,"kind":"caller_speech","n":7},{"t_ms":32603,"kind":"agent_heard","text":"Yes."},{"t_ms":34683,"kind":"agent_heard","text":"The ZIP code is nine four one one zero."},{"t_ms":35279,"end_ms":35279,"kind":"tool_call","tool":"lookup_order","args":{"order_id":"GW-48213","zip":"94110"},"status":200,"ok":true,"response":{"order_id":"GW-48213","customer_name":"Maria Lopez","status":"delivered","total":89.99,"items":[{"sku":"BLND-200","name":"Countertop blender","qty":1,"price":89.99}],"shipping_address":"742 Valencia St, San Francisco, CA 94110","refunded":false,"refund":null},"id":1},{"t_ms":36560,"end_ms":43940,"kind":"agent_speech","n":6},{"t_ms":44600,"end_ms":47360,"kind":"agent_speech","n":7},{"t_ms":47569,"kind":"agent_said","text":"Your order GW 4 8 2 1 3 with the countertop blender was delivered and the total was eighty-nine dollars and ninety-nine cents. You want a refund for one hundred twenty dollars, is that correct?","n":3,"interrupted":false},{"t_ms":48691,"end_ms":51436,"kind":"caller_said","text":"Yes, that's correct. The blender was broken and it ruined a $30 bag of groceries, so I'm asking for a refund of one hundred twenty dollars.","n":3},{"t_ms":49080,"end_ms":54300,"kind":"caller_speech","n":8},{"t_ms":52817,"kind":"agent_heard","text":"Yes. That's correct. The blender was broken."},{"t_ms":54820,"end_ms":57900,"kind":"caller_speech","n":9},{"t_ms":57067,"kind":"agent_heard","text":"And it ruined a thirty dollar bag of groceries. So"},{"t_ms":58378,"kind":"agent_heard","text":"I'm asking for a refund of one hundred twenty dollars."},{"t_ms":59800,"end_ms":64040,"kind":"agent_speech","n":8},{"t_ms":64700,"end_ms":66620,"kind":"agent_speech","n":9},{"t_ms":66748,"kind":"agent_said","text":"The refund can only be up to the order total of eighty-nine dollars and ninety-nine cents. Should I proceed with a refund for that amount?","n":4,"interrupted":false},{"t_ms":67596,"end_ms":70408,"kind":"caller_said","text":"Yes, please proceed with the refund of eighty nine dollars and ninety nine cents.","n":4},{"t_ms":68600,"end_ms":69080,"kind":"caller_speech","n":10},{"t_ms":69420,"end_ms":72200,"kind":"caller_speech","n":11},{"t_ms":69516,"kind":"agent_heard","text":"Yes."},{"t_ms":72749,"kind":"agent_heard","text":"Please proceed with the refund of eighty nine dollars and nine"},{"t_ms":74243,"kind":"agent_said","text":"You said","n":5,"interrupted":true}],"ux":{"duration_ms":72200,"greeting_first":true,"first_agent_audio_ms":2080,"caller_segments":11,"agent_segments":9,"responses":[{"caller_end_ms":7840,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":10220,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":12080,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":19500,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":22920,"agent_start_ms":25020,"latency_ms":2100},{"caller_end_ms":30900,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":34340,"agent_start_ms":36560,"latency_ms":2220},{"caller_end_ms":54300,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":57900,"agent_start_ms":59800,"latency_ms":1900},{"caller_end_ms":69080,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":72200,"agent_start_ms":null,"latency_ms":null}],"latency_ms":{"n":3,"p50":2100,"p95":2220,"max":2220},"dead_air":[],"dead_air_total_ms":0,"talk_over":[],"barge_in":[],"caller_speech_ms":29040,"agent_speech_ms":22700}};
+  const env = {"caller":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,12,15,43,62,80,79,71,65,54,41,69,72,69,45,67,66,58,46,13,0,0,0,0,0,0,71,72,66,64,35,46,55,73,72,69,69,71,67,45,70,71,70,66,62,52,69,70,62,11,25,64,61,58,53,5,12,61,65,68,69,65,48,65,71,71,60,65,66,51,32,30,47,60,65,64,46,67,72,70,49,65,63,65,65,57,21,0,0,46,74,74,75,70,51,46,65,64,61,45,0,0,22,47,46,67,68,63,54,61,69,66,61,61,51,19,49,57,62,60,50,32,0,47,62,32,47,61,73,73,74,74,52,50,64,74,72,55,47,70,77,73,74,67,77,78,77,77,70,54,20,75,74,74,70,47,26,55,70,63,51,0,50,77,82,77,35,48,64,57,55,48,1,2,11,14,14,6,47,73,79,79,57,36,63,72,74,73,77,71,79,74,20,37,64,75,79,75,73,71,71,67,61,58,65,25,0,55,75,77,71,74,68,57,76,74,75,74,73,69,49,59,74,73,75,67,57,63,40,25,66,77,78,63,47,44,57,62,59,46,39,29,15,0,32,70,70,55,41,64,71,66,45,39,57,70,70,62,20,68,74,75,72,60,62,72,76,68,7,57,74,70,64,61,44,17,58,64,50,55,62,74,77,73,65,64,70,68,54,70,68,49,42,25,65,66,65,65,53,69,73,73,71,65,58,51,35,31,28,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,38,50,54,58,75,76,66,55,33,2,6,6,0,0,0,65,67,42,70,79,39,8,39,69,77,74,71,69,49,71,72,74,75,73,74,69,17,39,74,77,75,63,60,74,74,68,65,64,50,65,73,69,70,67,49,64,69,68,66,57,46,42,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,53,70,75,71,51,38,26,24,15,0,6,4,0,12,31,64,74,70,45,8,56,71,49,51,65,72,72,57,60,60,57,73,61,65,72,72,57,14,68,72,72,68,65,32,15,48,72,73,66,71,71,72,73,72,73,72,67,74,75,75,73,73,68,40,44,66,75,73,72,69,68,68,68,67],"agent":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,62,68,59,33,57,51,29,62,68,66,66,46,61,63,54,52,60,59,35,43,64,57,53,29,8,18,12,0,0,0,0,0,1,0,7,0,0,0,0,0,59,66,39,53,64,52,55,59,72,70,56,53,59,47,36,0,0,5,0,0,0,0,0,0,0,0,51,69,55,56,63,64,63,65,60,25,59,60,26,39,46,49,42,35,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,37,62,45,61,67,32,20,65,75,62,22,42,63,52,63,65,66,58,54,64,51,37,58,54,13,25,48,66,69,58,52,55,57,53,52,49,47,61,65,60,61,63,64,46,32,48,61,62,58,31,49,55,47,52,43,29,56,53,55,57,44,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,58,71,54,68,75,68,65,67,57,34,53,66,61,58,65,46,59,66,66,61,57,49,12,0,0,0,0,0,12,52,73,73,69,60,53,26,13,40,55,68,67,67,61,45,4,0,0,0,22,59,63,64,57,26,27,60,63,59,60,56,34,0,0,0,58,60,28,26,64,63,66,62,42,57,51,33,13,0,0,0,0,0,0,55,69,66,54,30,24,64,69,70,70,63,70,48,42,56,63,64,61,58,59,58,61,64,51,62,60,60,59,60,58,44,35,12,53,60,53,51,52,55,57,56,55,51,49,51,19,13,48,49,41,34,0,8,9,4,0,0,0,0,0,0,0,0,0,35,61,67,68,71,60,60,58,59,62,60,27,54,61,61,57,56,63,42,43,59,63,64,63,65,51,56,32,30,44,68,66,64,57,63,59,55,58,62,54,34,26,15,52,57,50,19,58,66,58,27,55,62,62,49,58,54,56,52,57,53,44,49,55,37,59,58,45,27,30,46,46,44,30,17,19,4,0,5,1,0,0,0,0,0,0,64,60,63,69,53,48,55,53,29,39,61,55,55,66,66,66,62,55,57,53,51,63,50,13,40,62,57,60,53,59,72,61,57,63,41,32,57,63,59,62,63,49,62,54,44,47,62,59,56,62,64,61,60,63,55,62,59,59,61,61,47,54,58,47,51,51,50,53,49,51,52,51,48,19,22,47,45,41,32,0,14,17,6,0,0,0,0,0,0,0,24,40,63,64,73,69,38,18,60,53,36,34,62,64,59,54,59,32,65,59,56,62,56,23,60,63,68,61,45,34,36,62,60,56,61,61,56,54,59,54,59,59,60,64,64,63,39,52,58,52,51,53,53,54,51,49,47,45,18,49,52,61,58,26,14,16,15,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"step_ms":50,"duration_ms":60054};
+  const tl = {"t0_ms":1791503289217,"sample_rate":16000,"events":[{"t_ms":2420,"end_ms":3580,"kind":"agent_speech","n":1},{"t_ms":4420,"end_ms":5140,"kind":"agent_speech","n":2},{"t_ms":5720,"end_ms":6580,"kind":"agent_speech","n":3},{"t_ms":6395,"kind":"agent_said","text":"Thanks for calling Gateway Goods, this is Ava. How can I help you today?","n":1,"interrupted":false},{"t_ms":7325,"end_ms":14699,"kind":"caller_said","text":"Hi Eva, I'm calling about a refund for my order G W 4 8 2 1 3. The countertop blender I bought was broken and it ended up ruining a $30 bag of groceries. I'm asking for a refund of one hundred twenty dollars.","n":1},{"t_ms":7600,"end_ms":8400,"kind":"caller_speech","n":1},{"t_ms":8760,"end_ms":16040,"kind":"caller_speech","n":2},{"t_ms":9058,"kind":"agent_heard","text":"Hi, Eva."},{"t_ms":14075,"kind":"agent_heard","text":"I'm calling about a refund for my order GW"},{"t_ms":16380,"end_ms":22900,"kind":"caller_speech","n":3},{"t_ms":17089,"kind":"agent_heard","text":"four eight two one three. The countertop blender I bought was broken,"},{"t_ms":21434,"kind":"agent_heard","text":"and it ended up ruining a thirty dollar bag of groceries."},{"t_ms":23375,"kind":"agent_heard","text":"I'm asking for a refund of one hundred twenty dollars."},{"t_ms":25000,"end_ms":28040,"kind":"agent_speech","n":4},{"t_ms":28135,"kind":"agent_said","text":"Could you please provide the zip code on the order so I can look it up?","n":2,"interrupted":false},{"t_ms":28769,"end_ms":30420,"kind":"caller_said","text":"Sure, the ZIP code is 9 4 1 1 0.","n":2},{"t_ms":29100,"end_ms":29520,"kind":"caller_speech","n":4},{"t_ms":29860,"end_ms":32200,"kind":"caller_speech","n":5},{"t_ms":32570,"kind":"agent_heard","text":"Sure. The zip code is nine four one one zero."},{"t_ms":33542,"end_ms":33542,"kind":"tool_call","tool":"lookup_order","args":{"order_id":"GW-48213","zip":"94110"},"status":200,"ok":true,"response":{"order_id":"GW-48213","customer_name":"Maria Lopez","status":"delivered","total":89.99,"items":[{"sku":"BLND-200","name":"Countertop blender","qty":1,"price":89.99}],"shipping_address":"742 Valencia St, San Francisco, CA 94110","refunded":false,"refund":null},"id":1},{"t_ms":34960,"end_ms":36060,"kind":"agent_speech","n":5},{"t_ms":36420,"end_ms":38740,"kind":"agent_speech","n":6},{"t_ms":39100,"end_ms":41620,"kind":"agent_speech","n":7},{"t_ms":42340,"end_ms":45980,"kind":"agent_speech","n":8},{"t_ms":46600,"end_ms":50520,"kind":"agent_speech","n":9},{"t_ms":51140,"end_ms":54260,"kind":"agent_speech","n":10},{"t_ms":54450,"kind":"agent_said","text":"Your order G W 4 8 2 1 3 was delivered and the total was $89.99. You want a refund of $120 for the broken blender and groceries. The refund can only be up to the order total of $89.99. Should I proceed with a refund of $89.99?","n":3,"interrupted":false},{"t_ms":55527,"end_ms":58228,"kind":"caller_said","text":"Yes, please proceed with the refund of eighty nine dollars and ninety nine cents.","n":3},{"t_ms":56340,"end_ms":56740,"kind":"caller_speech","n":6},{"t_ms":57060,"end_ms":60040,"kind":"caller_speech","n":7},{"t_ms":60464,"kind":"agent_heard","text":"Yes. Please proceed with the refund of eighty nine dollars and ninety"},{"t_ms":62142,"kind":"agent_said","text":"To","n":4,"interrupted":true}],"ux":{"duration_ms":60054,"greeting_first":true,"first_agent_audio_ms":2420,"caller_segments":7,"agent_segments":10,"responses":[{"caller_end_ms":8400,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":16040,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":22900,"agent_start_ms":25000,"latency_ms":2100},{"caller_end_ms":29520,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":32200,"agent_start_ms":34960,"latency_ms":2760},{"caller_end_ms":56740,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":60040,"agent_start_ms":null,"latency_ms":null}],"latency_ms":{"n":2,"p50":2100,"p95":2760,"max":2760},"dead_air":[],"dead_air_total_ms":0,"talk_over":[],"barge_in":[],"caller_speech_ms":20740,"agent_speech_ms":22400}};
   const issues = [];
   const interrupts = [];
-  const dur = (env && env.duration_ms) || 72200;
+  const dur = (env && env.duration_ms) || 60054;
   const audio = document.getElementById('insp-audio'), cv = document.getElementById('insp-lanes'), big = document.getElementById('insp-tl');
   const playBtn = document.getElementById('insp-play'), cur = document.getElementById('insp-cur');
   const C = {caller:'#2563eb', agent:'#7c3aed', tool:'#0f766e', bad:'#b91c1c', dead:'#fde68a', inter:'#f59e0b', grid:'#eef0f3', text:'#6b7280', play:'#111827'};
@@ -1505,20 +1685,20 @@ issue_refund was never called      </div>
 </script>
 
 <h2>Recent runs</h2>
-<p class="small muted">Detector checks (deliberately wrong agent, never compared with real runs): <a href="index.html">check-dishonest-20261008-232200</a> · <a href="index.html">check-dishonest-20261008-215200</a> · <a href="index.html">check-dishonest-2</a> · <a href="index.html">check-dishonest-1</a></p>
+<p class="small muted">Detector checks (deliberately wrong agent, never compared with real runs): <a href="index.html">check-dishonest-20261008-232200</a> · <a href="index.html">check-dishonest-2</a> · <a href="index.html">check-dishonest-20261008-215200</a> · <a href="index.html">check-dishonest-1</a></p>
 <div class="tablewrap"><table>
   <tr><th>run</th><th>started</th><th>sessions × repeat</th><th>calls</th><th>passed</th><th>95% interval</th><th>invalid</th><th>flaky</th><th>p95 latency</th><th>stamp</th></tr>
   <tr>
-    <td><a href="index.html">lk-audio-1</a></td>
-    <td class="small">2026-10-08 19:47 UTC</td>
-    <td>2 × 1</td>
+    <td><a href="index.html">full-3</a></td>
+    <td class="small">2026-10-08 23:37 UTC</td>
+    <td>15 × 3</td>
+    <td>45</td>
+    <td><span class="pill amber">36/44</span></td>
+    <td>68%–90%</td>
+    <td>1</td>
     <td>2</td>
-    <td><span class="pill red">1/2</span></td>
-    <td>9%–91%</td>
-    <td>0</td>
-    <td>0</td>
-    <td>4.1 s</td>
-    <td class="mono muted">a7c6a425319d+lk-SR_T5jF7HfqQRP8+score-v1+claims-regex-v1+th-73c54200</td>
+    <td>2.6 s</td>
+    <td class="mono muted">a7c6a425319d+4d233ef82a00+score-v1+claims-regex-v1+th-73c54200</td>
   </tr>
   <tr>
     <td><a href="index.html">full-1</a></td>
@@ -1544,8 +1724,20 @@ issue_refund was never called      </div>
     <td>2.8 s</td>
     <td class="mono muted">a7c6a425319d+ab0f005b10e4+score-v1+claims-regex-v1+th-73c54200</td>
   </tr>
+  <tr>
+    <td><a href="index.html">lk-audio-1</a></td>
+    <td class="small">2026-10-08 19:47 UTC</td>
+    <td>2 × 1</td>
+    <td>2</td>
+    <td><span class="pill red">1/2</span></td>
+    <td>9%–91%</td>
+    <td>0</td>
+    <td>0</td>
+    <td>4.1 s</td>
+    <td class="mono muted">a7c6a425319d+lk-SR_T5jF7HfqQRP8+score-v1+claims-regex-v1+th-73c54200</td>
+  </tr>
 </table></div>
-<footer>gatewayfutures 0.1.0 · static report generated 2026-10-08 23:24 UTC</footer>
+<footer>gatewayfutures 0.1.0 · static report generated 2026-10-08 23:58 UTC</footer>
 </main>
 </div>
 <div id="player"><span class="lbl"></span><audio controls preload="none"></audio><button class="btn sm" onclick="gfPlayer.close()">✕</button></div>

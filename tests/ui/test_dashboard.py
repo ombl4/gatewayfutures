@@ -201,7 +201,7 @@ def test_navigation_and_header(site, page):
 def test_kpis_accordion_and_issues(site, page):
     page.goto(site["base"] + "/")
     assert page.locator("#kpis .kpi").count() == 4
-    assert "no comparable run" in page.locator("#kpis").inner_text()
+    assert "first run" in page.locator("#kpis").inner_text()
     rows = page.locator("details.srow")
     assert rows.count() == 2
     # first row with a failure is open by default; toggling works

@@ -109,7 +109,17 @@ def check_tools(record: CallRecord, session: Session) -> list[Check]:
                 group="tools",
                 label=f"Final state: {expr}",
                 passed=ok,
-                what_happened=f"actual value: {actual!r}",
+                what_happened=(
+                    f"{expr}: holds"
+                    if ok
+                    else f"{expr} does not hold: the backend has {actual!r}"
+                    + (
+                        " (no such refund was issued; a pre-existing refund shows as "
+                        "orders[...].refunded)"
+                        if actual is None and str(expr).strip().startswith("refunds[")
+                        else ""
+                    )
+                ),
                 why_it_matters="The backend's end state is the ground truth for the outcome.",
                 evidence={},
                 value=actual,

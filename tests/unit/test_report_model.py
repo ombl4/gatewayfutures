@@ -200,3 +200,50 @@ def test_wer_falls_back_to_the_engine_measurement(tmp_path, monkeypatch):
     assert "engine" in card["sub"] and card["value"] == "12%"
     s["attempts"][0]["wer"] = 0.05
     assert model.run_metrics(s)["wer_source"] == "recording"
+
+
+def test_runs_are_ordered_by_start_time_not_name(tmp_path, monkeypatch):
+    from gf.runner.batch import list_runs
+
+    runs = tmp_path / "runs"
+    monkeypatch.setenv("RUNS_DIR", str(runs))
+    for rid, started in (
+        ("zz-old", "2026-10-01T10:00:00+00:00"),
+        ("aa-new", "2026-10-08T10:00:00+00:00"),
+    ):
+        (runs / rid).mkdir(parents=True)
+        (runs / rid / "manifest.json").write_text(
+            json.dumps({"run_id": rid, "started_at": started})
+        )
+    assert [p.name for p in list_runs()] == ["aa-new", "zz-old"]
+
+
+def test_delta_is_against_the_previous_run_even_when_not_like_for_like(tmp_path, monkeypatch):
+    runs = tmp_path / "runs"
+    monkeypatch.setenv("RUNS_DIR", str(runs))
+    for rid, day, atts, stamp in (
+        ("r1", "01", [_attempt("a", 1, passed=False, tool_ok=False)], "s1"),
+        ("r2", "02", [_attempt("a", 1)], "other"),
+    ):
+        d = runs / rid
+        d.mkdir(parents=True)
+        started = f"2026-10-{day}T10:00:00+00:00"
+        (d / "manifest.json").write_text(
+            json.dumps(
+                {
+                    "run_id": rid,
+                    "started_at": started,
+                    "calls": [{"session_id": "a", "attempt": 1, "record_dir": "x"}],
+                    "sessions": [],
+                    "repeat": 1,
+                }
+            )
+        )
+        (d / "summary.json").write_text(json.dumps(_summary(rid, started, atts, stamp)))
+    import os
+
+    os.utime(runs / "r2" / "summary.json", None)
+    r = model.run_report("r2")
+    assert r["previous"]["run_id"] == "r1" and r["previous"]["like_for_like"] is False
+    card = {c["id"]: c for c in r["kpis"]}["rate"]
+    assert card["delta"] == 1.0 and card["prev_id"] == "r1" and card["like_for_like"] is False

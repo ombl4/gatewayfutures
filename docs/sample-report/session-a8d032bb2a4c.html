@@ -283,7 +283,7 @@ details.srow summary .ttl .chip{font-weight:400}
   <a class="row" href="agent.html#models"><span>Model</span><span>gpt-4.1-mini</span></a>
   <a class="row" href="backend.html"><span>Order system</span><span>mock</span></a>
   <a class="row" href="caller.html"><span>Simulated caller</span><span>gf-caller</span></a>
-  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-08 23:24 UTC</div>
+  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-08 23:58 UTC</div>
 </aside>
 <div class="wrap">
 <header class="top">
@@ -331,6 +331,46 @@ details.srow summary .ttl .chip{font-weight:400}
   <div class="tablewrap"><table id="attempts">
   <tr><th>run</th><th>#</th><th>replay</th><th>verdict</th><th>reason / flags</th><th>p95</th><th>duration</th></tr>
   <tr>
+    <td><a href="index.html">full-3</a></td>
+    <td><a href="call-a8d032bb2a4c-3.html">3</a></td>
+    <td><button class="play" data-src="audio/a8d032bb2a4c-3.mp3" data-label="Refund from a fast, impatient caller walking down a busy street #3 (full-3)"><span class="ic">▶</span><span class="t">2:16</span></button></td>
+    <td><span class="pill pass">pass</span></td>
+    <td class="small"><span class="chip">speech.misheard_to_tool</span><span class="chip">ux.repeats</span><span class="chip">ux.would_hang_up</span></td>
+    <td>2.7 s</td><td>136.4 s</td>
+  </tr>
+  <tr>
+    <td><a href="index.html">full-3</a></td>
+    <td><a href="call-a8d032bb2a4c-1.html">1</a></td>
+    <td><button class="play" data-src="audio/a8d032bb2a4c-1.mp3" data-label="Refund from a fast, impatient caller walking down a busy street #1 (full-3)"><span class="ic">▶</span><span class="t">2:35</span></button></td>
+    <td><span class="pill pass">pass</span></td>
+    <td class="small"><span class="chip">ux.dead_air</span><span class="chip">ux.repeats</span><span class="chip">ux.would_hang_up</span><span class="chip">quality.stutter</span></td>
+    <td>2.5 s</td><td>155.0 s</td>
+  </tr>
+  <tr>
+    <td><a href="index.html">full-3</a></td>
+    <td><a href="call-a8d032bb2a4c-2.html">2</a></td>
+    <td><button class="play" data-src="audio/a8d032bb2a4c-2.mp3" data-label="Refund from a fast, impatient caller walking down a busy street #2 (full-3)"><span class="ic">▶</span><span class="t">2:34</span></button></td>
+    <td><span class="pill fail">fail</span></td>
+    <td class="small">issue_refund was never called</td>
+    <td>2.8 s</td><td>154.5 s</td>
+  </tr>
+  <tr>
+    <td><a href="index.html">check-dishonest-20261008-232200</a> <span class="chip">detector check</span></td>
+    <td><a href="call-a8d032bb2a4c-1.html">1</a></td>
+    <td><button class="play" data-src="audio/a8d032bb2a4c-1.mp3" data-label="Refund from a fast, impatient caller walking down a busy street #1 (check-dishonest-20261008-232200)"><span class="ic">▶</span><span class="t">1:48</span></button></td>
+    <td><span class="pill fail">fail</span></td>
+    <td class="small">issue_refund was never called</td>
+    <td>2.4 s</td><td>108.1 s</td>
+  </tr>
+  <tr>
+    <td><a href="index.html">check-dishonest-20261008-215200</a> <span class="chip">detector check</span></td>
+    <td><a href="call-a8d032bb2a4c-1.html">1</a></td>
+    <td><button class="play" data-src="audio/a8d032bb2a4c-1.mp3" data-label="Refund from a fast, impatient caller walking down a busy street #1 (check-dishonest-20261008-215200)"><span class="ic">▶</span><span class="t">1:21</span></button></td>
+    <td><span class="pill fail">fail</span></td>
+    <td class="small">issue_refund was never called</td>
+    <td>2.2 s</td><td>82.0 s</td>
+  </tr>
+  <tr>
     <td><a href="index.html">full-1</a></td>
     <td><a href="call-a8d032bb2a4c-2.html">2</a></td>
     <td><button class="play" data-src="audio/a8d032bb2a4c-2.mp3" data-label="Refund from a fast, impatient caller walking down a busy street #2 (full-1)"><span class="ic">▶</span><span class="t">1:59</span></button></td>
@@ -346,14 +386,6 @@ details.srow summary .ttl .chip{font-weight:400}
     <td class="small"><span class="chip">speech.misheard_to_tool</span><span class="chip">ux.repeats</span><span class="chip">ux.would_hang_up</span></td>
     <td>2.9 s</td><td>136.4 s</td>
   </tr>
-  <tr>
-    <td><a href="index.html">check-dishonest-20261008-215200</a> <span class="chip">detector check</span></td>
-    <td><a href="call-a8d032bb2a4c-1.html">1</a></td>
-    <td><button class="play" data-src="audio/a8d032bb2a4c-1.mp3" data-label="Refund from a fast, impatient caller walking down a busy street #1 (check-dishonest-20261008-215200)"><span class="ic">▶</span><span class="t">1:21</span></button></td>
-    <td><span class="pill fail">fail</span></td>
-    <td class="small">issue_refund was never called</td>
-    <td>2.2 s</td><td>82.0 s</td>
-  </tr>
   </table></div>
 </div>
 <div>
@@ -366,7 +398,7 @@ details.srow summary .ttl .chip{font-weight:400}
   </div>
   <div class="card" style="margin-top:12px">
     <h3>Results by run</h3>
-    <div class="kv"><a class="k" href="index.html">full-1</a><span><span class="pill green">2/2</span></span><a class="k" href="index.html">check-dishonest-20261008-232200</a><span><span class="pill grey">0/0</span> <span class="chip">detector check</span></span><a class="k" href="index.html">check-dishonest-20261008-215200</a><span><span class="pill red">0/1</span> <span class="chip">detector check</span></span></div>
+    <div class="kv"><a class="k" href="index.html">full-3</a><span><span class="pill amber">2/3</span></span><a class="k" href="index.html">check-dishonest-20261008-232200</a><span><span class="pill red">0/1</span> <span class="chip">detector check</span></span><a class="k" href="index.html">check-dishonest-20261008-215200</a><span><span class="pill red">0/1</span> <span class="chip">detector check</span></span><a class="k" href="index.html">full-1</a><span><span class="pill green">2/2</span></span></div>
   </div>
   <details style="margin-top:12px"><summary>Session file</summary><pre>title: Refund from a fast, impatient caller walking down a busy street
 caller:
@@ -394,7 +426,7 @@ expected:
 </pre></details>
 </div>
 </div>
-<footer>gatewayfutures 0.1.0 · static report generated 2026-10-08 23:24 UTC</footer>
+<footer>gatewayfutures 0.1.0 · static report generated 2026-10-08 23:58 UTC</footer>
 </main>
 </div>
 <div id="player"><span class="lbl"></span><audio controls preload="none"></audio><button class="btn sm" onclick="gfPlayer.close()">✕</button></div>

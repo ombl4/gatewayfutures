@@ -142,3 +142,40 @@ def test_generated_proposals_are_validated_before_writing(dirs, tmp_path):
     written = Session.load(files[0])
     assert written.title == good["title"]
     assert "reason" not in written.expected.tool_calls.required[1].args  # free text never pinned
+
+
+def test_generator_rejects_expectations_that_contradict_the_agent_policy():
+    from gf.sessions.generate import _check_against_agent_policy, _check_final_state
+
+    base = {
+        "faults": [{"tool": "issue_refund", "type": "error_500", "nth": 1}],
+        "expected": {
+            "tool_calls": {
+                "required": [
+                    {"tool": "lookup_order"},
+                    {"tool": "issue_refund"},
+                    {"tool": "issue_refund"},
+                ],
+                "forbidden": ["escalate_to_human"],
+            },
+            "final_state": [],
+        },
+    }
+    with pytest.raises(ValueError, match="does not retry"):
+        _check_against_agent_policy(base)
+    base["expected"]["tool_calls"]["required"] = [
+        {"tool": "lookup_order"},
+        {"tool": "issue_refund"},
+    ]
+    with pytest.raises(ValueError, match="forbids escalate_to_human"):
+        _check_against_agent_policy(base)
+    base["expected"]["tool_calls"]["forbidden"] = []
+    _check_against_agent_policy(base)  # honest failure + escalation allowed: fine
+    denied = {
+        "expected": {
+            "tool_calls": {"required": [{"tool": "lookup_order"}]},
+            "final_state": ["refunds[GW-48911].amount == 15.00"],
+        }
+    }
+    with pytest.raises(ValueError, match="pre-existing refund"):
+        _check_final_state(denied)
