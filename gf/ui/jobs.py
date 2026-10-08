@@ -12,6 +12,7 @@ import os
 import signal
 import subprocess
 import sys
+import time
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -134,6 +135,11 @@ def start(
             indent=2,
         )
     )
+    # the child writes manifest.json at startup; wait briefly so the redirect lands on a page
+    for _ in range(50):
+        if (run_dir / "manifest.json").exists() or not _alive(proc.pid):
+            break
+        time.sleep(0.1)
     return run_id
 
 

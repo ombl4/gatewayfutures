@@ -248,6 +248,16 @@ def test_inspector_controls(site, page):
     rows.nth(1).click()
     assert page.evaluate("document.getElementById('insp-audio').currentTime") > 0
     page.click('#inspector [data-tab="transcript"]')
+    # compact check tags: ? opens one popover at a time with the full explanation
+    tags = insp.locator("#insp-checks .tag")
+    assert tags.count() >= 10
+    tags.nth(0).locator(".q").click()
+    assert tags.nth(0).locator(".pop").is_visible()
+    assert len(tags.nth(0).locator(".pop .why").inner_text()) > 20
+    tags.nth(1).locator(".q").click()
+    assert not tags.nth(0).locator(".pop").is_visible() and tags.nth(1).locator(".pop").is_visible()
+    page.click("#insp-root")
+    assert page.locator("#insp-checks .tag.open").count() == 0
     # heard switch
     heard = insp.locator("#transcript .heard").first
     assert heard.is_visible()
@@ -269,9 +279,11 @@ def test_inspector_controls(site, page):
     t = int(insp.locator("#transcript .turn").nth(2).get_attribute("data-t"))
     insp.locator("#transcript .turn").nth(2).click()
     assert abs(page.evaluate("document.getElementById('insp-audio').currentTime") - t / 1000) < 0.3
-    jump = insp.locator("a.jump:visible").first
+    page.click('#inspector [data-tab="checks"]')
+    jump = insp.locator('[data-pane="checks"] a.jump').first
     jump_ms = int(jump.get_attribute("data-seek"))
     jump.click()
+    page.click('#inspector [data-tab="transcript"]')
     assert (
         abs(page.evaluate("document.getElementById('insp-audio').currentTime") - jump_ms / 1000)
         < 0.3

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% set page='run' %}
+{% block title %}Run {{ run_id }} · starting{% endblock %}
+{% block crumbs %}<a href="{{ links.runs() }}">Runs</a><i>›</i><b>{{ run_id }}</b>{% endblock %}
+{% block content %}
+<h1>Run {{ run_id }}</h1>
+{% if job.state == 'running' %}
+<div class="banner"><b>Starting</b> <span class="progress"><i style="width:4%"></i></span> <span class="small">the runner is setting up (rooms, order system seeding); this page refreshes every 5 s</span></div>
+{% else %}
+<div class="banner warn"><b>Did not start</b> <span class="small">the runner exited before writing a manifest; see the log below</span></div>
+{% endif %}
+{% if log_tail %}<details open><summary>Run log</summary><pre>{{ log_tail }}</pre></details>{% else %}<p class="muted small">No log output yet.</p>{% endif %}
+{% endblock %}
+{% block scripts %}{% if job.state == 'running' %}<script>setTimeout(function(){ location.reload(); }, 5000);</script>{% endif %}{% endblock %}

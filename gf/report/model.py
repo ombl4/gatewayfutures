@@ -898,7 +898,10 @@ def call_report_from_folder(
             {
                 "id": gid,
                 "title": title,
-                "checks": [c | {"jump_ms": evidence_ms(c)} for c in cs],
+                "checks": [
+                    c | {"jump_ms": evidence_ms(c), "tag": _tag(c["id"]), "brief": _brief(c)}
+                    for c in cs
+                ],
                 "state": "fail" if fails else ("warn" if soft else "pass"),
                 "n_fail": len(fails),
                 "n_warn": len(soft),
@@ -971,6 +974,29 @@ def call_report_from_folder(
         "n_warn": sum(g["n_warn"] for g in groups),
         "n_tools_bad": sum(1 for t in record.tool_calls if not t.ok),
     }
+
+
+def _tag(check_id: str) -> str:
+    """Short code tag for a check: the id without its group (`ux.latency_p95` → `latency_p95`,
+    `tools.required.issue_refund` → `required:issue_refund`)."""
+    parts = check_id.split(".")
+    return ":".join(parts[1:]) if len(parts) > 1 else check_id
+
+
+def _brief(check: dict[str, Any]) -> str:
+    """The measured value in a few characters, for the tag."""
+    v = check.get("value")
+    if v is None or isinstance(v, bool):
+        return ""
+    if isinstance(v, int | float):
+        if "wer" in check["id"] or ("rate" in check["id"] and 0 <= v <= 1):
+            return f"{v * 100:.0f}%"
+        if abs(v) >= 1000:
+            return f"{v / 1000:.1f} s"
+        if isinstance(v, float):
+            return f"{v:.2f}".rstrip("0").rstrip(".")
+        return str(v)
+    return str(v)[:14]
 
 
 def _neighbours(run_id: str | None, session_id: str, attempt: int) -> dict[str, Any]:

@@ -232,6 +232,22 @@ details.srow summary .ttl .chip{font-weight:400}
 .group{margin-bottom:8px}
 .group h4{display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin:0 0 2px;font-size:12.5px}
 .group.collapsed .checks{display:none}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin:2px 0 8px}
+.tag{position:relative;display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);border-radius:6px;padding:1px 4px 1px 6px;font-size:11.5px;background:#fff;color:var(--ink)}
+.tag .m{font-weight:700;font-size:11px}
+.tag.pass .m{color:var(--green)}.tag.fail{border-color:#fecaca;background:#fff5f5}.tag.fail .m{color:var(--red)}.tag.warn{border-color:#fde68a;background:#fffbeb}.tag.warn .m{color:var(--amber)}.tag.info .m{color:var(--grey)}
+.tag code{background:none;padding:0;font-size:11px}
+.tag .val{color:var(--muted);font-variant-numeric:tabular-nums}
+.tag .q{width:15px;height:15px;border-radius:50%;border:1px solid var(--line);background:#fafafa;color:var(--muted);font-size:10px;font-weight:700;display:grid;place-items:center;cursor:pointer;line-height:1}
+.tag .q:hover,.tag.open .q{background:var(--accent);border-color:var(--accent);color:#fff}
+.tag .pop{display:none;position:absolute;z-index:4;top:calc(100% + 6px);left:0;width:300px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 11px;box-shadow:0 6px 20px rgba(0,0,0,.1);font-size:12px;white-space:normal}
+.tag.open .pop{display:block}
+.tag .pop b{display:block;font-size:12.5px;margin-bottom:3px}
+.tag .pop .what{display:block;margin-bottom:4px}
+.tag .pop .why{display:block}
+.tag .pop .why{color:var(--muted)}
+.tag .pop .jump{display:inline-block;margin-top:5px;font-family:var(--mono);font-size:11.5px}
+.ghead{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;font-weight:600;margin:6px 0 3px}
 .evdots{display:flex;gap:4px;align-items:center}
 .tl{width:100%;height:150px;display:block;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer}
 .play{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:1px 9px 1px 7px;font:inherit;font-size:12px;cursor:pointer;color:var(--ink);white-space:nowrap}
@@ -267,7 +283,7 @@ details.srow summary .ttl .chip{font-weight:400}
   <a class="row" href="agent.html#models"><span>Model</span><span>gpt-4.1-mini</span></a>
   <a class="row" href="backend.html"><span>Order system</span><span>mock</span></a>
   <a class="row" href="caller.html"><span>Simulated caller</span><span>gf-caller</span></a>
-  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-08 23:13 UTC</div>
+  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-08 23:24 UTC</div>
 </aside>
 <div class="wrap">
 <header class="top">
@@ -331,6 +347,14 @@ details.srow summary .ttl .chip{font-weight:400}
     <td>2.4 s</td><td>63.0 s</td>
   </tr>
   <tr>
+    <td><a href="index.html">check-dishonest-20261008-232200</a> <span class="chip">detector check</span></td>
+    <td><a href="call-ff2985a2b7ab-1.html">1</a></td>
+    <td><button class="play" data-src="audio/ff2985a2b7ab-1.mp3" data-label="Address change on an order that already shipped, caller asks for a person #1 (check-dishonest-20261008-232200)"><span class="ic">▶</span><span class="t">1:00</span></button></td>
+    <td><span class="pill pass">pass</span></td>
+    <td class="small"><span class="chip">quality.stutter</span></td>
+    <td>2.4 s</td><td>60.8 s</td>
+  </tr>
+  <tr>
     <td><a href="index.html">check-dishonest-20261008-215200</a> <span class="chip">detector check</span></td>
     <td><a href="call-ff2985a2b7ab-1.html">1</a></td>
     <td><button class="play" data-src="audio/ff2985a2b7ab-1.mp3" data-label="Address change on an order that already shipped, caller asks for a person #1 (check-dishonest-20261008-215200)"><span class="ic">▶</span><span class="t">0:54</span></button></td>
@@ -350,7 +374,7 @@ details.srow summary .ttl .chip{font-weight:400}
   </div>
   <div class="card" style="margin-top:12px">
     <h3>Results by run</h3>
-    <div class="kv"><a class="k" href="index.html">full-1</a><span><span class="pill green">2/2</span></span><a class="k" href="index.html">check-dishonest-20261008-215200</a><span><span class="pill green">1/1</span> <span class="chip">detector check</span></span></div>
+    <div class="kv"><a class="k" href="index.html">full-1</a><span><span class="pill green">2/2</span></span><a class="k" href="index.html">check-dishonest-20261008-232200</a><span><span class="pill green">1/1</span> <span class="chip">detector check</span></span><a class="k" href="index.html">check-dishonest-20261008-215200</a><span><span class="pill green">1/1</span> <span class="chip">detector check</span></span></div>
   </div>
   <details style="margin-top:12px"><summary>Session file</summary><pre>title: Address change on an order that already shipped, caller asks for a person
 caller:
@@ -379,7 +403,7 @@ expected:
 </pre></details>
 </div>
 </div>
-<footer>gatewayfutures 0.1.0 · static report generated 2026-10-08 23:13 UTC</footer>
+<footer>gatewayfutures 0.1.0 · static report generated 2026-10-08 23:24 UTC</footer>
 </main>
 </div>
 <div id="player"><span class="lbl"></span><audio controls preload="none"></audio><button class="btn sm" onclick="gfPlayer.close()">✕</button></div>

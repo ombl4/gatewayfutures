@@ -316,6 +316,10 @@ def run_rescore(run_id: str):
 
 @app.get("/runs/{run_id}", response_class=HTMLResponse)
 def run(run_id: str, call: str = ""):
+    run_dir = settings().runs_dir / run_id
+    if not (run_dir / "manifest.json").exists() and (run_dir / "job.json").exists():
+        st = jobs.job_status(run_id)
+        return page("run_starting.html", run_id=run_id, job=st, log_tail=jobs.tail_log(run_id))
     _require_run(run_id)
     ctx = _inspector_ctx(run_id, call)
     st = ctx["job"]

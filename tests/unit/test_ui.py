@@ -114,6 +114,8 @@ def test_run_page_content(env):
     assert "lookup_order" in call and "issue_refund" in call
     assert "Checks" in call and 'data-tab="transcript"' in call
     assert 'data-tab="latency"' in call and "What each latency means" in call
+    assert call.count('class="tag ') >= 10 and 'data-check="ux.latency_p95"' in call
+    assert 'aria-label="explain latency_p95"' in call
     assert 'id="time-breakdown"' in r
     home = env["client"].get("/?run=t1").text
     assert 'id="run-select"' in home and 'value="t1" selected' in home
@@ -170,6 +172,17 @@ def test_start_refused_while_running(env):
     r = env["client"].post("/runs/start", data={"all": "1", "repeat": "1"})
     assert r.status_code == 400 and "already in progress" in r.text
     assert "Run in progress" in env["client"].get("/").text
+
+
+def test_starting_run_renders_instead_of_404(env):
+    run = env["runs"] / "t4"
+    run.mkdir()
+    (run / "job.json").write_text(json.dumps({"pid": os.getpid(), "started_from": "ui"}))
+    r = env["client"].get("/runs/t4")
+    assert r.status_code == 200 and "Starting" in r.text
+    (run / "job.json").write_text(json.dumps({"pid": 2**22 + 12345, "started_from": "ui"}))
+    r = env["client"].get("/runs/t4")
+    assert r.status_code == 200 and "Did not start" in r.text
 
 
 def test_dead_job_reads_as_failed_and_stop_is_safe(env):

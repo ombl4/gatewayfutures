@@ -209,20 +209,17 @@
       <h3 style="margin-bottom:4px">Checks</h3>
       <div id="insp-checks">
       {% for g in c.groups %}
-        <div class="group {{ 'collapsed' if g.state == 'pass' else '' }}">
-          <h4 onclick="this.parentNode.classList.toggle('collapsed')"><span>{{ g.title }}</span><span class="pill {{ {'fail':'red','warn':'amber','pass':'green'}[g.state] }}">{{ {'fail': g.n_fail ~ ' failed', 'warn': g.n_warn ~ ' flagged', 'pass': 'ok'}[g.state] }}</span></h4>
-          <div class="checks">
-          {% for ch in g.checks %}
-            {% set st = 'pass' if ch.passed else ('fail' if ch.severity=='hard' else ('warn' if ch.severity=='soft' else 'info')) %}
-            <div class="check {{ st }}" onclick="this.classList.toggle('open')">
-              <span class="ic">{{ {'pass':'✓','fail':'✗','warn':'!','info':'·'}[st] }}</span>
-              <div><div>{{ ch.label }}</div><div class="what">{{ ch.what_happened }}</div><div class="why">{{ ch.why_it_matters }}</div></div>
-              {% if ch.jump_ms is not none %}<a class="jump" href="#" data-seek="{{ ch.jump_ms }}">{{ ch.jump_ms|clock }} ↗</a>{% else %}<span></span>{% endif %}
-            </div>
-          {% endfor %}
-          </div>
+        <div class="ghead"><span>{{ g.title }}</span><span class="pill {{ {'fail':'red','warn':'amber','pass':'green'}[g.state] }}">{{ {'fail': g.n_fail ~ ' failed', 'warn': g.n_warn ~ ' flagged', 'pass': 'ok'}[g.state] }}</span></div>
+        <div class="tags">
+        {% for ch in g.checks %}
+          {% set st = 'pass' if ch.passed else ('fail' if ch.severity=='hard' else ('warn' if ch.severity=='soft' else 'info')) %}
+          <span class="tag {{ st }}" data-check="{{ ch.id }}"><span class="m">{{ {'pass':'✓','fail':'✗','warn':'!','info':'·'}[st] }}</span><code>{{ ch.tag }}</code>{% if ch.brief %}<span class="val">{{ ch.brief }}</span>{% endif %}<button type="button" class="q" aria-label="explain {{ ch.tag }}">?</button>
+            <span class="pop"><b>{{ ch.label }}</b><span class="what">{{ ch.what_happened }}</span><span class="why">{{ ch.why_it_matters }}</span>{% if ch.jump_ms is not none %}<a class="jump" href="#" data-seek="{{ ch.jump_ms }}">go to {{ ch.jump_ms|clock }} ↗</a>{% endif %}</span>
+          </span>
+        {% endfor %}
         </div>
       {% endfor %}
+      <p class="small muted" style="margin:4px 0 0">Tags are the check ids in <code>scores.json</code>. Full sentences under the Checks tab.</p>
       </div>
     </aside>
   </div>
@@ -277,6 +274,11 @@
   }
   function nearestTool(ms){ let best=null; (tl.events||[]).filter(e => e.kind==='tool_call').forEach(e => { if (best===null || Math.abs(e.t_ms-ms) < Math.abs(best.t_ms-ms)) best=e; }); return best && Math.abs(best.t_ms-ms) < dur*0.03 ? best : null; }
   [cv, big].forEach(c => { if (!c) return; c.addEventListener('click', e => { const ms = msOf(c, e.offsetX); const t = nearestTool(ms); if (t) selectTool(t.id); seek(ms); }); });
+  root.addEventListener('click', e => {
+    const q = e.target.closest('.tag .q');
+    if (q) { const tag = q.closest('.tag'); const was = tag.classList.contains('open'); root.querySelectorAll('.tag.open').forEach(t => t.classList.remove('open')); if (!was) tag.classList.add('open'); e.stopPropagation(); return; }
+    if (!e.target.closest('.tag .pop')) root.querySelectorAll('.tag.open').forEach(t => t.classList.remove('open'));
+  });
   root.addEventListener('click', e => {
     if (e.target.closest('a:not(.jump)') || e.target.closest('button') || e.target.closest('.tev') || e.target.closest('.sw')) return;
     const j = e.target.closest('a.jump'); if (j) { e.preventDefault(); const ms=+j.dataset.seek; seek(ms); scrollToTime(ms); return; }

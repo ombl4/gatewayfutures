@@ -274,6 +274,9 @@ Verify: unit test pairs the fixture record's metric events to agent turns (every
 **T6.18 Run selector and engine-reported WER (added 2026-10-08).** The overview shows a run picker (a dropdown of every real run, newest first, detector checks listed separately) and renders the chosen run's cards, sessions, issues and inspector (`/?run=<id>`); the static report lists its single run. The Speech WER card uses our recording-based WER when a call has one and otherwise the engine's own measurement (LiveKit's judge reports a WER per call), and says which source it used.
 Verify: route test — `/?run=<older run>` renders that run's id in the meta line and the select marks it; a summary whose attempts carry only `livekit.wer` yields a WER card with the engine label; browser test picks a run from the dropdown and sees the page change.
 
+**T6.19 Compact checks (added 2026-10-08).** In the inspector's side column every check is a tag: its code id as used in `scores.json` (`latency_p95`, `dead_air`, `claimed_without_acting`), a status mark (✓ passed, ✗ failed, ! flagged, · info), the measured value when there is one, and a "?" that opens a popover with the plain-language label, what happened, why it matters and the jump link. Groups stay as short headers with their pill. The Checks tab keeps the full sentences.
+Verify: route test finds a tag per check with a `?` control; browser test opens a popover and reads the "why it matters" text, and only one popover is open at a time.
+
 Gate 6: a non-technical reviewer can open the published report, read the summary in a minute, drill into one failed call and see the exact moment; a teammate can start a run from the UI and watch it finish.
 
 ---
