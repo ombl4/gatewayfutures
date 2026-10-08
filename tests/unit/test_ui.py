@@ -115,6 +115,9 @@ def test_run_page_content(env):
     assert "Checks" in call and 'data-tab="transcript"' in call
     assert 'data-tab="latency"' in call and "What each latency means" in call
     assert 'id="time-breakdown"' in r
+    home = env["client"].get("/?run=t1").text
+    assert 'id="run-select"' in home and 'value="t1" selected' in home
+    assert env["client"].get("/?run=nope").status_code == 200  # unknown run falls back to latest
     assert "Not ready" in env["client"].get("/").text
 
 

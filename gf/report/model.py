@@ -187,12 +187,19 @@ def run_metrics(summ: dict[str, Any]) -> dict[str, float | None]:
     valid = [a for a in summ.get("attempts", []) if a.get("valid")]
     tool_known = [a for a in valid if "tool_ok" in a]
     wers = [a["wer"] for a in valid if a.get("wer") is not None]
+    wer_source = "recording"
+    if not wers:
+        wers = [
+            a["livekit"]["wer"] for a in valid if (a.get("livekit") or {}).get("wer") is not None
+        ]
+        wer_source = "engine" if wers else "none"
     return {
         "rate": o.get("rate") if o.get("n") else None,
         "tool_rate": (sum(1 for a in tool_known if a["tool_ok"]) / len(tool_known))
         if tool_known
         else None,
         "wer": (sum(wers) / len(wers)) if wers else None,
+        "wer_source": wer_source,
         "p95_ms": (summ.get("latency_p95_ms") or {}).get("median"),
     }
 
@@ -267,7 +274,11 @@ def kpi_cards(
             "wer",
             "Speech WER",
             lambda v: _pct(v),
-            "lower is better · mean per call",
+            {
+                "recording": "lower is better · caller's words vs agent's transcript",
+                "engine": "lower is better · as measured by the engine's judge",
+                "none": "not measured for this engine",
+            }[cur["wer_source"]],
             higher_is_better=False,
             cls="green"
             if cur["wer"] is not None and cur["wer"] <= 0.1

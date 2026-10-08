@@ -171,6 +171,12 @@ def test_navigation_and_header(site, page):
     assert page.url.endswith("/agent#tools") and page.locator("#tools").is_visible()
     page.click("aside.nav a.row:has-text('Order system')")
     assert urlparse(page.url).path == "/backend"
+    # run selector reflects the chosen run
+    page.goto(site["base"] + "/")
+    assert page.locator("#run-select").input_value() == "t1"
+    page.select_option("#run-select", "t1")
+    page.wait_for_url("**/?run=t1")
+    assert "t1" in page.locator(".meta").first.inner_text()
     # header buttons
     page.click("#btn-new-session")
     assert urlparse(page.url).path == "/sessions/new"

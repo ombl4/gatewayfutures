@@ -83,7 +83,8 @@ def _inspector_ctx(run_id: str, call: str = "") -> dict[str, Any]:
 def _issue_link(base: str):
     def link(i: dict[str, Any]) -> str:
         t = i["t_ms"] if i.get("t_ms") is not None else 0
-        return f"{base}?call={i['session_id']}/{i['attempt']}#t={t}"
+        sep = "" if base.endswith("&") else "?"
+        return f"{base}{sep}call={i['session_id']}/{i['attempt']}#t={t}"
 
     return link
 
@@ -140,11 +141,13 @@ async def _any_error(request: Request, exc: Exception):
 
 
 @app.get("/", response_class=HTMLResponse)
-async def overview(call: str = ""):
+async def overview(call: str = "", run: str = ""):
     o = model.overview()
     ctx: dict[str, Any] = {"r": None, "c": None, "start_ms": None}
-    if o["latest"]:
-        ctx = _inspector_ctx(o["latest"]["run_id"], call)
+    known = {x["run_id"] for x in o["runs"]} | {x["run_id"] for x in o["checks"]}
+    chosen = run if run in known else (o["latest"]["run_id"] if o["latest"] else "")
+    if chosen:
+        ctx = _inspector_ctx(chosen, call)
         ctx.pop("job", None)
     return page(
         "overview.html",
@@ -152,7 +155,7 @@ async def overview(call: str = ""):
         st=await status.status(),
         job=jobs.current(),
         sessions=model.sessions_page()["sessions"],
-        issue_link=_issue_link("/"),
+        issue_link=_issue_link(f"/?run={chosen}&") if chosen else _issue_link("/"),
         **ctx,
     )
 

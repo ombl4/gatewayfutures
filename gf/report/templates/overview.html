@@ -4,7 +4,19 @@
 {% block title %}Overview · Call simulator{% endblock %}
 {% block crumbs %}<b>Overview</b>{% if r %}<i>›</i><span>run {{ r.run_id }}</span>{% endif %}{% endblock %}
 {% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
 <h1>Evaluation overview</h1>
+{% if r %}
+<label class="small muted" style="display:flex;align-items:center;gap:8px">Run
+  {% if mode == 'live' %}
+  <select id="run-select" class="input" style="width:auto;margin:0;min-width:200px" onchange="location.href='/?run=' + encodeURIComponent(this.value)">
+    {% for x in o.runs %}<option value="{{ x.run_id }}" {% if x.run_id == r.run_id %}selected{% endif %}>{{ x.run_id }} · {{ x.started_at|dt }}{% if x.scored %} · {{ x.passed }}/{{ x.n }}{% endif %}</option>{% endfor %}
+    {% if o.checks %}<optgroup label="Detector checks">{% for x in o.checks %}<option value="{{ x.run_id }}" {% if x.run_id == r.run_id %}selected{% endif %}>{{ x.run_id }}</option>{% endfor %}</optgroup>{% endif %}
+  </select>
+  {% else %}<span class="chip">{{ r.run_id }}</span>{% endif %}
+</label>
+{% endif %}
+</div>
 {% if r %}
 <p class="meta"><span>Run <a href="{{ links.run(r.run_id) }}">{{ r.run_id }}</a></span><i>·</i><span>{{ r.started_at|dt }}</span><i>·</i><span>{{ r.sessions|length }} practice sessions</span><i>·</i><span>{{ r.summary.calls }} calls ({{ r.valid_count }} valid, {{ r.invalid_count }} invalid)</span></p>
 {% else %}

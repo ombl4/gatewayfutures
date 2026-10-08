@@ -188,3 +188,14 @@ def test_time_breakdown_is_median_of_call_medians():
     rows = {r["key"]: r for r in model.time_breakdown(s)}
     assert rows["eou_ms"]["p50"] == 700 and rows["eou_ms"]["n"] == 2
     assert rows["heard_ms"]["p50"] == 2000 and rows["stt_ms"]["p50"] is None
+
+
+def test_wer_falls_back_to_the_engine_measurement():
+    s = _summary("r", "2026-10-08T10:00:00+00:00", [_attempt("a", 1, wer=None)])
+    s["attempts"][0]["livekit"] = {"wer": 0.12}
+    m = model.run_metrics(s)
+    assert m["wer"] == pytest.approx(0.12) and m["wer_source"] == "engine"
+    card = {c["id"]: c for c in model.kpi_cards("r", s, None)}["wer"]
+    assert "engine" in card["sub"] and card["value"] == "12%"
+    s["attempts"][0]["wer"] = 0.05
+    assert model.run_metrics(s)["wer_source"] == "recording"
