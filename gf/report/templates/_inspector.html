@@ -2,7 +2,6 @@
 {% set nb = c.neighbours or {} %}
 <section class="insp" id="inspector" data-call="{{ c.session_id }}/{{ c.attempt }}">
   <div class="hd">
-    <h2>Call inspector</h2>
     <div class="meta"><span class="ttl" title="{{ c.title }}">{{ c.title }}</span><i>·</i><span class="pill {{ {'ok':'green','flagged':'amber','broken':'grey'}[c.caller_score.state] }}" id="caller-pill" title="{{ c.caller_score.text }}">Caller: {{ {'ok':'in character','flagged':'flagged','broken':'broke'}[c.caller_score.state] }}</span><i>·</i><span class="pill {{ c.verdict }}" id="agent-pill">Agent: {{ {'pass':'passed','fail':'failed','invalid':'not counted'}[c.verdict] }}</span><i>·</i><span>{{ c.duration_ms|clock }}</span>{% if c.started_at %}<i>·</i><span>{{ c.started_at|dt }}</span>{% endif %}</div>
     <div class="nav">
       <span class="small muted">ended by {{ c.ended_by }}{% if c.engine != 'gf-caller' %} · {{ c.engine }}{% endif %}</span>
