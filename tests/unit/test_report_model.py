@@ -159,6 +159,10 @@ def test_heard_marks_highlight_only_the_misheard_words():
     bad = [m["w"] for m in marks if m["bad"]]
     assert bad == ["48218"]
     assert all(not m["bad"] for m in model._heard_marks("yes please", "Yes, please."))
+    assert all(
+        not m["bad"]
+        for m in model._heard_marks("order G W 4 8 2 1 3", "order g w four eight two one three")
+    )
 
 
 def test_turn_latency_pairs_metrics_to_turns():
@@ -319,3 +323,7 @@ def test_call_flow_groups_a_record_into_exchanges(tmp_path, monkeypatch):
         for card in e["lanes"]["tools"]:
             assert card["t_ms"] >= e["start_ms"]
     assert all(e["state"] in ("pass", "warn", "fail") for e in flow["exchanges"])
+    for e in flow["exchanges"]:
+        decisions = e["lanes"]["decision"]
+        for card in e["lanes"]["tools"]:
+            assert any(d["num"] < card["num"] for d in decisions)  # the decision precedes its tool

@@ -1556,6 +1556,7 @@ def call_flow(turns: list[dict[str, Any]], lat_turns: dict[str, Any]) -> dict[st
 
     cur = new(0, 0, "Greeting")
     pending_tools: list[str] = []
+    pending_first_t = 0
     for it in sorted(turns, key=lambda e: (e["t_ms"] or 0, 0 if e["kind"] == "tool" else 1)):
         t = it["t_ms"] or 0
         if it["kind"] == "caller" and not it.get("interruption"):
@@ -1595,6 +1596,8 @@ def call_flow(turns: list[dict[str, Any]], lat_turns: dict[str, Any]) -> dict[st
                     }
                 )
         elif it["kind"] == "tool":
+            if not pending_tools:
+                pending_first_t = t
             pending_tools.append(it["tool"])
             cur["cards"].append(
                 {
@@ -1616,7 +1619,7 @@ def call_flow(turns: list[dict[str, Any]], lat_turns: dict[str, Any]) -> dict[st
             cur["cards"].append(
                 {
                     "lane": "decision",
-                    "t_ms": t - 1,
+                    "t_ms": (pending_first_t - 1) if pending_tools else (t - 1),
                     "title": "Decides to " + decided,
                     "text": (
                         f"LLM first token {lat['llm_ttft_ms']} ms" if lat.get("llm_ttft_ms") else ""
@@ -1813,8 +1816,10 @@ def _heard_marks(said: str, heard: str) -> list[dict[str, Any]]:
     import re
     from difflib import SequenceMatcher
 
+    from gf.scoring.speech import normalize
+
     def key(w: str) -> str:
-        return re.sub(r"[^a-z0-9]", "", w.lower())
+        return normalize(w).replace(" ", "") or re.sub(r"[^a-z0-9]", "", w.lower())
 
     a_words, b_words = said.split(), heard.split()
     a, b = [key(w) for w in a_words], [key(w) for w in b_words]
