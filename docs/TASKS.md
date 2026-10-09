@@ -71,6 +71,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 - [x] B4 The run log shows one "room session transport is closed" traceback per finished call (the library's session-event writer runs after the caller's session is closed). Fix: drain and close the caller's AgentSession before leaving the room; if the library still emits it, filter that message from the `livekit.agents` logger in the runner. Logs then only show real errors.
 
 ## Next up (in order)
+-1. Part 9 (agents under test and sandbox systems), T9.1 → T9.6 in order, then Gate 9.
 0. After the design fixes: T5.12 strict fail bars (warn + fail per metric in `thresholds.yaml`, fail bars honoured as hard failures) with B7 (honesty check accepts restrictive phrasing) and B8 (hearing rule invalidates only when the caller adopts the wrong value; wrong read-back flag), then rescore `base-1` and run `base-2`/`base-3` like-for-like
 1. T5.9 per-session comparison → T6.10 remaining item (real tool schemas on the agent page) → T4.6 provider seam (LiveKit + Fake + Vapi/Pipecat skeletons) → T5.10 cost
 2. Re-run the full matrix (`full-3`: 12 hand-written + regenerated sessions) and refresh `docs/sample-report`; prove `make up` in Docker end to end
@@ -139,6 +140,16 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 - [x] T7.5 Persona library (2026-10-09) — `personas/*.yaml`, 12 in three even groups (`standard`, `hard-line`, `difficult`); `caller.persona_ref` fills unset fields and is covered by the content hash (existing ids unchanged, tested); `gf run --persona a,b` / `--persona-group g|all` derives session × persona variants with their own ids under `runs/<id>/sessions/`; run page grid with per-persona totals; picker in the start-run form; `gf personas`; 3 unit tests. Not yet run on real calls
 
 - [x] T5.12 Scorer v2 and adaptive re-prompt (2026-10-09, from the first run of the 28 new sessions): `claims.honest_about_failure` accepts "rejected / declined / denied / refused / blocked" as telling the caller plainly; the hand-off claim needs a present-tense "I'm transferring you" and ignores "before connecting you"; the hearing check compares number words as digit runs only and counts a misheard digit run as acted on only when the caller says the wrong number as a whole number without the right one. `METHOD_VERSION` is `score-v2+claims-regex-v2` (older runs rescore for free). Runner: the mutual-silence re-prompt and abort scale with the agent's measured median reply latency (1.5× / 2.5×, session values as floors), because a fixed 4 s re-prompt landing as a 4.6 s agent starts to speak made both sides cut each other and calls loop on fragments (195 of 456 agent turns interrupted in that run)
+
+## Part 9 — Agents under test and sandbox systems (PRD revised 2026-10-09)
+- [ ] T9.1 Target model and store (`gf/targets.py`, `targets/<id>.yaml`, secrets outside the repo, `gf targets`)
+- [ ] T9.2 Runner per target (`gf run --target`, manifest target block, tag components)
+- [ ] T9.3 Connection test (`gf targets test`, UI button)
+- [ ] T9.4 Agents under test in the UI (list, add, test, activate; header pill; start-run dropdown; providers folded in)
+- [ ] T9.5 Sandbox systems in the product's words (labels, "Run stamps", `docs/sandboxes.md`)
+- [ ] T9.6 Hooking a customer's tools to the sandbox (README + example)
+- [ ] T9.7 Phone-number targets (filed, not built) · T9.8 Real-backend hooks (filed, not built)
+- [ ] Gate 9 — reference agent registered as a target runs the core suite, stamped and comparable
 
 ## Part 8 — Second engine: LiveKit's own simulator
 - [x] T8.1 `gf import-simulate` — export JSON → run folder (records from the worker's own events + backend log, timeline from message timestamps), LiveKit verdict + metrics on the run and call pages; engine-aware scoring (recording-based checks "not measured"); fixture `fixtures/livekit/export-audio.json` + 2 tests

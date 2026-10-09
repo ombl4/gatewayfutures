@@ -4,7 +4,7 @@
 
 2026-10-08 · Artem Ustimenko
 
-We will build a small platform that runs simulated phone calls against a LiveKit support agent, then scores every call on what actually happened in the backend and on the audio, and shows it in a simple web UI.
+We will build a platform that tests voice agents on sandbox systems we own. A customer registers an agent under test; the platform runs practice sessions against it over real audio, with the agent's tools pointed at a seeded sandbox of the relevant system of record (an e-commerce order system first), and scores every call on what actually happened in the sandbox and on the audio. The reference agent in this repository is the first agent under test and the one negative controls run against. (Revised 2026-10-09: the agent under test is the customer's, the sandbox is ours.)
 
 Implementation spec: `docs/spec.md` in the repository (parts, tasks, verification steps and gates). Status: decisions finalised 2026-10-08; build starts with the mock backend and the LiveKit support agent.
 
@@ -14,18 +14,19 @@ The primary success criterion for v1 is that every score reflects what actually 
 
 **In scope**
 
-1. A sample support agent on LiveKit Agents with 4 tools, backed by a mock order backend.
+1. A sandbox order system (seeded per call, request log, fault injection) and a reference support agent on LiveKit Agents with 4 tools that call it.
 2. An LLM-driven simulated caller that joins the same LiveKit room and speaks over real audio.
 3. Practice sessions (persona + goal + caller conditions + expected outcome), generated from a short agent description or written by hand, each run N times.
 4. A call record per call: stereo recording, both transcripts, every tool call with arguments, result and timing, and turn timings.
 5. Scores for tool calls, speech accuracy (WER), user experience and validity, with pass rates over repeated runs and a timestamp behind every score.
 6. A web UI showing the agent config, sessions, runs, a one-minute report and a per-call timeline.
 7. One command to run it all, a README, a sample report with at least one real caught failure, and a short design note.
+8. Agents under test: a customer's LiveKit agent registered by credentials (server URL, API key, secret, agent name, dispatch metadata), connection-tested from the UI, selectable per run, and stamped into every result. The customer points a test deployment of the agent's tools at the sandbox.
 
 **Out of scope for v1**
 
 - Real PSTN/SIP calls. Calls run as WebRTC in a LiveKit room, with telephony conditions simulated (8 kHz resample, codec loss, noise).
-- A second provider. We design the seam for it but do not build it.
+- Phone-number targets (the simulated caller dialling a Vapi, Retell or Bland agent through a SIP trunk) and real-backend hooks (seed/reset and tool-call webhooks against a customer's staging backend). Both are designed and filed, not built.
 - Auth, multi-user, a database server, cloud deploy, CI gating, prompt optimisation.
 - Editing the agent from the UI. The agent is configured in a file and shown read-only.
 
@@ -34,11 +35,13 @@ The primary success criterion for v1 is that every score reflects what actually 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
 | Provider | LiveKit Agents (Python, 1.x) on LiveKit Cloud | Open-source agent framework with direct access to audio tracks and pipeline events. Hosted rooms remove the need to operate a media server; a local `livekit-server --dev` supports offline development. |
-| Isolation | A dedicated LiveKit Cloud project with its own API credentials | The platform shares no project, credentials, rooms or agent dispatch with any other LiveKit workload. See isolation requirements below. |
+| Agent under test | A registered target: the customer's LiveKit project credentials, agent name and dispatch metadata, kept outside the repository; our simulated caller joins the room created in the customer's project | The same connection model Hamming and Cekura use for LiveKit agents; no phone number or SIP needed; the reference agent is just the first target |
+| Sandbox systems | The platform owns the system of record the agent's tools call during test runs; outcomes are verified from the sandbox's log and state | The model RL-environment vendors use: verifiable outcomes, per-call isolation, safe parallel runs, no production data |
+| Isolation | A dedicated LiveKit Cloud project with its own API credentials for the reference agent and the caller's own rooms | The platform shares no project, credentials, rooms or agent dispatch with any other LiveKit workload. See isolation requirements below. |
 | Speech | Deepgram for both STT (Nova-3) and TTS (Aura-2), for the agent and the simulated caller | One vendor and one key for all speech; Nova-3 supports keyterm boosting for order ids. |
 | LLM | OpenAI only. Agent and caller share one model; the judge runs a different model at temperature 0 with a versioned prompt | One key; judge independence comes from model choice and prompt versioning. |
 | Caller transport | The simulated caller is a second LiveKit participant (its own agent worker) in the same room | Real audio in both directions through the provider, with no SIP dependency. The caller's own utterance text provides the WER reference. |
-| Tools | Agent tools are thin HTTP calls to a separate mock backend | Grading reads the backend request log and final state, not the agent's statements. The same backend serves any future provider via webhooks. |
+| Tools | Agent tools are HTTP calls to the sandbox system, with the call id in a header | Grading reads the sandbox's request log and final state, not the agent's statements. A customer's agent points its tools at the same endpoints for test runs. |
 | Timing source of truth | Measured from the stereo recording (VAD per channel), not from agent self-reported metrics | Latency, dead air and overlap must reflect what the caller heard. Agent pipeline metrics are retained as a breakdown (STT / LLM / TTS). |
 | Repeats | 3 attempts per session by default, configurable per run | Enough to expose flakiness at acceptable cost. |
 | Sessions | Immutable: a session's id is the hash of its content; the UI creates new sessions and never edits existing ones | Results stay attributable to exactly one definition. |
@@ -72,13 +75,17 @@ flowchart TB
 
 The runner creates one LiveKit room per call and dispatches two workers into it: the simulated caller and the support agent, which exchange real audio. The agent's tools hit the mock backend over HTTP. The caller's audio and transcripts, the agent's events and the backend's log are merged into one call record, which is the only input to the scorer and the UI.
 
-## Sample support agent and mock backend
+## Agents under test, sandbox systems and the reference agent
 
-The reference agent is a representative e-commerce support line ("Gateway Goods"). It is defined in one file, `agent/config.yaml` (prompt, voice, STT/LLM/TTS models, tools), which the UI shows read-only.
+**Agents under test.** An agent under test is a registered target. v1 supports one kind, a LiveKit agent reached by credentials: the customer's LiveKit server URL, API key and secret, the agent name to dispatch, an optional dispatch-metadata template (the call id and the sandbox URL are filled in per call) and a version label the customer maintains. The platform creates a room in the customer's project, dispatches the agent by name, and the simulated caller joins that room; the recording, transcripts and audio metrics work unchanged. A connection test (create a room, dispatch, wait for the agent's greeting) is run from the UI before the first run. Secrets live in a local secrets file referenced by target id, never in the repository and never printed. Every run and every result is stamped with the target id and version, so like-for-like comparison is per agent. Phone-number targets (the caller dialling any agent through a SIP trunk) and room-handed-to-us targets are the next kinds.
+
+**Sandbox systems.** A sandbox system is a seeded, stateful replica of the system of record an agent works against: for v1, an e-commerce order system (customers, orders, refunds, tickets). It is seeded per call from the session's fixtures, logs every request with the call id, injects faults the session asks for, and exposes the log and final state for grading. A customer's agent reaches it by pointing a test deployment of its tools at the sandbox's endpoints with the call id in the `X-GF-Call-Id` header (the dispatch metadata carries both). The sandbox is what makes a score verifiable: outcome checks read the sandbox, never the transcript. Further sandboxes (bookings, billing, appointments) follow the same contract. Real-backend hooks (seed/reset and a tool-call webhook against a customer's staging system) are filed as a later option; without a sandbox or hooks, outcome checks fall back to judged transcript checks and the report says so.
+
+**Reference agent.** The repository's agent is a representative e-commerce support line ("Gateway Goods") on LiveKit Agents, registered as the first target. It proves every session is passable, is the target of negative controls (its deliberately broken variants), and is defined in one file, `agent/config.yaml` (prompt, voice, STT/LLM/TTS models, tools), which the UI shows read-only.
 
 **Pipeline:** Deepgram STT → OpenAI LLM → Deepgram TTS (Aura-2), Silero VAD and LiveKit turn detection. Exact models are listed in config and in each call record.
 
-**Tools** (each one is an HTTP call to the mock backend):
+**Tools** (each one is an HTTP call to the sandbox order system):
 
 | Tool | Arguments | Backend effect | Rules the agent must follow |
 | --- | --- | --- | --- |
@@ -87,7 +94,7 @@ The reference agent is a representative e-commerce support line ("Gateway Goods"
 | `escalate_to_human` | `reason`, `summary` | Creates a ticket and ends the call | Use when policy blocks the request or the caller asks for a person |
 | `update_shipping_address` | `order_id`, `address` | Writes the address | Only for orders not yet shipped |
 
-**Mock backend** (FastAPI, in its own container):
+**Sandbox order system** (FastAPI, in its own container; the first sandbox system):
 
 - Seeded per call from the session's `fixtures` (customers, orders), so every call starts from a known state and calls never share data.
 - Logs every request with timestamp, arguments, response, status and latency. This log, plus the final state, is what grading reads.
@@ -310,7 +317,7 @@ gatewayfutures/
   Makefile, docker-compose.yml, pyproject.toml, README.md
 ```
 
-**Provider seam.** `providers/base.py` defines `start_call(session) -> CallHandle`, `collect(handle) -> CallRecord` and `agent_config() -> AgentConfig`. Everything in `scoring/`, `sessions/` and `ui/` consumes `CallRecord` only. A second provider (for example Vapi or Retell) would implement these three methods, drive the call via that provider's API, point its tools at the same mock backend, and reuse the caller's persona prompt and audio conditions where the provider allows caller audio injection.
+**Targets and the provider seam.** The target kind is the seam. `targets/` holds one record per agent under test (kind, connection settings without secrets, version label); the runner reaches a target through its kind's connector: `livekit` creates the room in the target's project and dispatches by name. A `phone` kind (SIP trunk dial-out) and a `room` kind (the customer supplies a room URL and token) implement the same two operations, start a call and collect its events. Everything in `scoring/`, `sessions/` and `ui/` consumes `CallRecord` only.
 
 ## Milestones
 
@@ -325,6 +332,7 @@ Each milestone has an exit criterion that can be demonstrated, not described.
 | M5 | Sessions and repeats | `gf sessions generate` produces 10 reviewed sessions; `gf run --all --repeat 5` reports pass rates with intervals and flaky flags |
 | M6 | UI | Overview, Agent, Sessions, Session detail and Call detail pages; clicking a failed check seeks the audio to the evidence |
 | M7 | Deliverables | `make up` runs everything from a clean clone; README with setup and adding a session; committed sample report with a real caught failure; design note |
+| M8 | Agent under test | A LiveKit agent registered from the UI with its own credentials passes the connection test; the core suite runs against it and every result is stamped with the target; our reference agent registered this way reproduces its baseline within noise |
 
 ## Risks and open questions
 
