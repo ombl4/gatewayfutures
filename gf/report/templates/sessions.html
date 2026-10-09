@@ -35,17 +35,14 @@ function gfFilter(btn){
 }
 </script>
 <div class="acc" id="sessions">
-  <div class="hd"><h3><span id="sessions-title">All sessions</span> <span class="muted" id="sessions-count" style="font-weight:500">({{ p.sessions|length }})</span></h3><span class="small muted">history: pass count per run, oldest → newest</span></div>
+  <div class="hd"><h3><span id="sessions-title">All sessions</span> <span class="muted" id="sessions-count" style="font-weight:500">({{ p.sessions|length }})</span></h3><span class="small muted">click a row for who calls, what they want and what passing looks like</span></div>
   {% for s in p.sessions %}
   {% set done = s.history|selectattr('n')|list %}
   {% set last = done|last if done else None %}
-  <details class="srow" data-session="{{ s.id }}" data-tags="{% for a in s.areas %}area:{{ a }}|{% endfor %}{% for su in s.suites %}suite:{{ su }}|{% endfor %}">
+  <details class="srow plain" data-session="{{ s.id }}" data-tags="{% for a in s.areas %}area:{{ a }}|{% endfor %}{% for su in s.suites %}suite:{{ su }}|{% endfor %}">
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
       <span class="ttl">{{ s.title }} {% for a in s.areas %}<span class="chip">{{ a }}</span>{% endfor %}{% for su in s.suites %}<span class="pill indigo" style="font-size:10.5px">{{ su }}</span> {% endfor %}{% if s.generated %}<span class="chip">generated</span>{% endif %}</span>
-      <span class="bar" title="{{ 'last run: ' ~ last.passed ~ '/' ~ last.n if last else 'not run yet' }}">{% if last and last.n %}<i class="p" style="width:{{ 100 * last.passed / last.n }}%"></i><i class="f" style="width:{{ 100 * (last.n - last.passed) / last.n }}%"></i>{% endif %}</span>
-      <span class="cnt">{% if last and last.n %}<b class="{{ 'p' if last.passed == last.n else 'f' }}">{{ last.passed }}/{{ last.n }}</b> last{% else %}<span class="muted">not run</span>{% endif %}</span>
-      <span class="cnt">{% for h in s.history if h.kind == 'run' %}<a href="{{ links.run(h.run_id) }}" class="pill {{ 'green' if h.n and h.passed==h.n else ('red' if h.n and h.passed==0 else ('amber' if h.n else 'grey')) }}" title="{{ h.run_id }}{% if not h.n %} (in progress or no valid calls){% endif %}">{% if h.n %}{{ h.passed }}/{{ h.n }}{% else %}…{% endif %}</a> {% endfor %}</span>
     </summary>
     <div class="sbody">
       <div class="cols4" style="margin:8px 0 10px">
