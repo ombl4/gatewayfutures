@@ -1,0 +1,19 @@
+{# Negative controls (T6.31): make the agent misbehave on purpose and watch the check fire. #}
+<div class="card" id="selftest" style="border-color:#c7d2fe;margin:16px 0 0">
+  <div class="hd"><h3><span class="ic warn">⚠</span>Negative controls: prove the checks fire</h3><span class="small muted">a deliberately broken agent, stamped so it never mixes with real runs</span></div>
+  <p class="small" style="margin:0 0 10px">If you doubt a check, run a session against an agent variant that is built to fail it and watch the check catch it. The result is a detector-check run with a clear verdict: <b>caught</b> or <b>missed</b>.</p>
+  <form method="post" action="/checks/run" style="display:flex;gap:10px;align-items:end;flex-wrap:wrap" id="selftest-form">
+    <label class="small" style="flex:1;min-width:220px">Variant<br><select name="variant" class="input">{% for v in variants %}<option value="{{ v.name }}">{{ v.title }}</option>{% endfor %}</select></label>
+    <label class="small" style="min-width:220px;flex:2">Session<br><select name="session_id" class="input">{% for x in sessions %}<option value="{{ x.id }}" {% if x.id == '7c994c348001' %}selected{% endif %}>{{ x.title }}</option>{% endfor %}</select></label>
+    <button class="btn primary" type="submit" {% if job %}disabled title="a run is in progress"{% endif %} style="margin-bottom:6px">Run the control</button>
+  </form>
+  {% for v in variants %}<p class="small muted" style="margin:8px 0 0"><b>{{ v.name }}</b>: {{ v.purpose }} Expected to fail: <code>{{ v.expected_check }}</code>.</p>{% endfor %}
+  {% if checks %}
+  <div class="tablewrap" style="margin-top:12px"><table class="small">
+    <tr><th>control run</th><th>variant</th><th>started</th><th>verdict</th></tr>
+    {% for c in checks %}
+    <tr><td><a href="{{ links.run(c.run_id) }}">{{ c.run_id }}</a></td><td>{{ c.variant or '' }}</td><td>{{ c.started_at|dt }}</td><td>{% if c.verdict == 'caught' %}<span class="pill green">caught</span>{% elif c.verdict == 'missed' %}<span class="pill red">missed</span>{% elif c.verdict %}<span class="pill amber">{{ c.verdict }}</span>{% else %}<span class="muted">not scored</span>{% endif %}</td></tr>
+    {% endfor %}
+  </table></div>
+  {% endif %}
+</div>

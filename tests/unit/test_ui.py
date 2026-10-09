@@ -472,3 +472,16 @@ def test_issue_breakdown_rows(env):
     frag = env["client"].get("/runs/t1/sessions")
     assert frag.status_code == 200 and 'class="srow"' in frag.text and "<title>" not in frag.text
     assert env["client"].get("/runs/zzz/sessions").status_code == 404
+
+
+def test_negative_controls_live_on_the_runs_page(env):
+    """T6.31: the detector-check form sits at the bottom of Runs with a jump button; the
+    Scoring page only points there."""
+    c = env["client"]
+    runs = c.get("/runs").text
+    assert (
+        'id="selftest"' in runs and 'id="btn-selftest"' in runs and 'action="/checks/run"' in runs
+    )
+    assert "Negative controls" in runs
+    scoring = c.get("/scoring").text
+    assert 'action="/checks/run"' not in scoring and "#selftest" in scoring

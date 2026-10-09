@@ -186,9 +186,6 @@ def scoring():
     return page(
         "scoring.html",
         s=model.scoring_page(),
-        sessions=model.sessions_page()["sessions"],
-        checks=model.overview()["checks"],
-        job=jobs.current(),
     )
 
 
@@ -304,13 +301,28 @@ def session_suite(session_id: str, suite: str = Form(...), action: str = Form("a
 @app.get("/runs", response_class=HTMLResponse)
 async def runs():
     sp = model.sessions_page()
+    o = model.overview()
+    controls = []
+    for c in o["checks"][:8]:  # the latest detector-check runs with their verdict
+        try:
+            d = model.run_report(c["run_id"]).get("detector") or {}
+        except Exception:  # noqa: BLE001 - a broken control run must not sink the page
+            d = {}
+        verdict = (
+            "caught"
+            if d.get("caught")
+            else ("missed" if d.get("missed") else ("inconclusive" if d else ""))
+        )
+        controls.append(c | {"verdict": verdict, "variant": c.get("variant") or d.get("variant")})
     return page(
         "runs.html",
-        o=model.overview(),
+        o=o,
         job=jobs.current(),
         st=await status.status(),
         sessions=sp["sessions"],
         suites=sp["suites"],
+        variants=model.variants_page(),
+        checks=controls,
     )
 
 

@@ -504,6 +504,16 @@ def test_run_page_actions_present(site, page):
     assert page.locator("#issues").count() == 0 and page.locator("#by-area").count() == 0
     # Runs list (T6.30): the latest run is expanded to its sessions; Details loads the inspector
     page.goto(site["base"] + "/runs")
+    # negative controls (T6.31): the jump button lands on the form at the bottom
+    assert page.locator("#selftest").count() == 1
+    page.click("#btn-selftest")
+    page.wait_for_timeout(200)
+    assert page.locator("#selftest-form select[name=variant]").is_visible()
+    assert page.url.endswith("#selftest")
+    box = page.evaluate("document.getElementById('selftest').getBoundingClientRect().toJSON()")
+    assert (
+        0 <= box["top"] < page.viewport_size["height"]
+    )  # scrolled into view (a short page cannot scroll it to the top)
     row = page.locator("tr.runrow").first
     assert row.get_attribute("data-open") == "1"
     page.wait_for_selector("tr.runbody:not([hidden]) details.srow")
