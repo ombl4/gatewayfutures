@@ -433,13 +433,16 @@ def kpi_cards(
     return [
         card(
             "rate",
-            "Task success",
+            "Calls passed",
             lambda v: _pct(v),
             f"{o.get('passed', 0)} / {n_valid} valid calls · CI {_pct(o.get('ci_low'))}–{_pct(o.get('ci_high'))}"
             if n_valid
             else "no valid calls yet",
             cls=rate_class(cur["rate"]),
-            note="A call passes when the backend shows the right actions and the agent told the truth.",
+            note=(
+                "A call passes when the backend shows the right actions, the agent told the "
+                "truth, and no experience bar was crossed (reply latency, dead air)."
+            ),
         ),
         card(
             "tool_rate",
