@@ -5,7 +5,7 @@
 {% block content %}
 <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
 <h1>Runs</h1>
-{% if mode == 'live' %}<a class="btn sm" href="#selftest" id="btn-selftest" title="run a deliberately broken agent and watch a check catch it">Self-test the checks ↓</a>{% endif %}
+{% if mode == 'live' %}<a class="btn sm danger" href="#selftest" id="btn-selftest" title="run a deliberately broken agent and watch a check catch it">Negative control ↓</a>{% endif %}
 </div>
 <p class="sub">Each run is the whole session set, repeated. Runs with the same stamp (agent config + sessions + scoring method) are comparable.</p>
 {% set expandable = (mode == 'live') %}
