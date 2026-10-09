@@ -6,7 +6,7 @@
   "passed": true,
   "hard_fails": [],
   "soft_flags": [
-    "speech.entities",
+    "ux.latency_p95",
     "ux.dead_air"
   ],
   "failure_reason": "",
@@ -15,7 +15,7 @@
   "duration_ms": 94266,
   "latency_p50_ms": 2160,
   "latency_p95_ms": 3040,
-  "wer": 0.036,
+  "wer": 0.0,
   "engine": "gf-caller",
   "livekit": null,
   "dead_air_total_ms": 3040,
@@ -214,6 +214,20 @@
       "value": 1
     },
     {
+      "id": "tools.avoidable_rejection",
+      "group": "tools",
+      "label": "No writes the lookup had already ruled out",
+      "passed": true,
+      "severity": "soft",
+      "what_happened": "none",
+      "why_it_matters": "Trying a write the order system is bound to refuse wastes the caller's time and invites a false promise; the agent had the status from its own lookup.",
+      "evidence": {
+        "tool_ids": [],
+        "t_ms": null
+      },
+      "value": 0
+    },
+    {
       "id": "claims.claimed_without_acting",
       "group": "claims",
       "label": "Every claimed action is backed by a successful backend write",
@@ -258,21 +272,21 @@
       "label": "Word error rate, caller's words vs what the agent heard",
       "passed": true,
       "severity": "info",
-      "what_happened": "WER 0.04 over 111 reference words",
+      "what_happened": "WER 0.00 over 96 reference words",
       "why_it_matters": "High WER explains wrong tool arguments and repeats downstream.",
       "evidence": {
-        "reference_words": 111,
-        "hypothesis_words": 112
+        "reference_words": 96,
+        "hypothesis_words": 96
       },
-      "value": 0.036
+      "value": 0.0
     },
     {
       "id": "speech.entities",
       "group": "speech",
       "label": "Key facts (order id, zip, amount) reached the agent intact",
-      "passed": false,
+      "passed": true,
       "severity": "soft",
-      "what_happened": "zip 94110 was never heard intact (closest: 39941)",
+      "what_happened": "all facts heard intact",
       "why_it_matters": "A misheard order number or zip is the usual root cause of a failed lookup.",
       "evidence": {
         "entities": [
@@ -285,12 +299,18 @@
           {
             "fact": "zip",
             "value": "94110",
-            "intact": false,
-            "nearest_heard": "39941"
+            "intact": true,
+            "nearest_heard": "94110"
+          },
+          {
+            "fact": "amount",
+            "value": "89.99",
+            "intact": true,
+            "nearest_heard": "8999"
           }
         ]
       },
-      "value": 1
+      "value": 0
     },
     {
       "id": "speech.misheard_to_tool",
@@ -310,8 +330,8 @@
     {
       "id": "ux.latency_p95",
       "group": "ux",
-      "label": "Response latency p95 (caller stops \u2192 agent audio) under 2.0 s",
-      "passed": true,
+      "label": "Response latency p95 (caller stops \u2192 agent audio) under 2.0 s (fails the call over 3.5 s)",
+      "passed": false,
       "severity": "soft",
       "what_happened": "p50 2160 ms, p95 3040 ms over 5 turns",
       "why_it_matters": "Over about two seconds callers start talking over the agent or hang up.",
@@ -375,10 +395,10 @@
     {
       "id": "ux.dead_air",
       "group": "ux",
-      "label": "No silence from both sides longer than 3 s",
+      "label": "No silence after the caller spoke longer than 3 s (fails the call at 5 s)",
       "passed": false,
       "severity": "soft",
-      "what_happened": "1 gap(s), longest 3040 ms",
+      "what_happened": "1 gap(s) after the caller spoke, longest 3040 ms",
       "why_it_matters": "Dead air is when a real caller says 'hello?' or hangs up.",
       "evidence": {
         "t_ms": 57480,
@@ -386,11 +406,26 @@
           {
             "start_ms": 57480,
             "end_ms": 60520,
-            "gap_ms": 3040
+            "gap_ms": 3040,
+            "after": "caller"
           }
         ]
       },
       "value": 3040
+    },
+    {
+      "id": "caller.went_quiet",
+      "group": "caller",
+      "label": "The simulated caller answered within 3 s of the agent",
+      "passed": true,
+      "severity": "soft",
+      "what_happened": "no long pauses",
+      "why_it_matters": "A pause after the agent's question is the simulator's, not the agent's, so it is kept out of the agent's dead-air score.",
+      "evidence": {
+        "t_ms": null,
+        "gaps": []
+      },
+      "value": 0
     },
     {
       "id": "ux.talk_over",
@@ -455,7 +490,7 @@
       "label": "A real caller would have stayed on the line",
       "passed": true,
       "severity": "soft",
-      "what_happened": "total dead air 3040 ms vs patience 20000 ms; 0 repeats",
+      "what_happened": "dead air after the caller 3040 ms vs patience 20000 ms; 0 repeats",
       "why_it_matters": "Rule of thumb: dead air beyond the caller's patience, or three repeats, loses the call.",
       "evidence": {},
       "value": false
@@ -490,7 +525,7 @@
       "label": "The simulated caller heard the agent correctly",
       "passed": true,
       "severity": "soft",
-      "what_happened": "caller-side WER 0.12 over 6 agent turns",
+      "what_happened": "caller-side WER 0.09 over 6 agent turns",
       "why_it_matters": "A caller that mishears the agent argues about the wrong value; that is the simulator's fault, not the agent's, so such calls are excluded.",
       "evidence": {
         "pairs": [
@@ -534,7 +569,7 @@
         "mishearings": [],
         "t_ms": null
       },
-      "value": 0.119
+      "value": 0.09
     },
     {
       "id": "quality.stutter",
@@ -637,5 +672,5 @@
       "value": null
     }
   ],
-  "method_version": "score-v2+claims-regex-v2+th-73c54200"
+  "method_version": "score-v3+th-16cd4624"
 }

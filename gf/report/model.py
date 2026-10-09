@@ -1292,6 +1292,8 @@ SOFT_LABELS = {
     "ux.would_hang_up": "a real caller would hang up",
     "ux.greeting_first": "caller spoke first",
     "tools.arg_problems": "malformed tool arguments",
+    "tools.avoidable_rejection": "tried a write the lookup ruled out",
+    "caller.went_quiet": "caller paused",
     "quality.stutter": "stutter",
     "quality.tool_name_leak": "spoke a tool name",
     "quality.truncated": "cut-off sentence",
@@ -1983,6 +1985,8 @@ def annotate_turns(
     for c in checks:
         ev = c.get("evidence") or {}
         cid = c["id"]
+        if cid == "tools.failed_calls":
+            continue  # rendered per event below: scripted fault or backend rejection
         if cid.startswith(("tools.", "speech.misheard_to_tool", "ux.time_to_resolution")):
             for tid in ev.get("tool_ids") or []:
                 by_tool.setdefault(tid, []).append(note(c, c["what_happened"]))
@@ -2017,7 +2021,7 @@ def annotate_turns(
                         {
                             **note(
                                 c,
-                                f"{g.get('gap_ms')} ms of silence from both sides; flagged over {th.get('dead_air_s', 3)} s",
+                                f"{g.get('gap_ms')} ms of silence after the caller spoke; flagged over {th.get('dead_air_gap_s', 3)} s, fails at {th.get('dead_air_gap_fail_s', 5)} s",
                             ),
                             "kind": "dead_air",
                         },
@@ -2042,14 +2046,52 @@ def annotate_turns(
         if it["kind"] == "tool":
             tests += by_tool.get(it["id"], [])
             if it.get("fault"):
+                later = [
+                    x
+                    for x in turns
+                    if x["kind"] == "tool" and x.get("ok") and x["t_ms"] > it["t_ms"]
+                ]
+                retried = any(x["tool"] == it["tool"] for x in later)
+                handed = any(x["tool"] == "escalate_to_human" for x in later)
+                if retried:
+                    st, what = "pass", "the agent retried and it went through"
+                elif handed:
+                    st, what = "pass", "the agent handed the caller to a person"
+                else:
+                    st, what = "warn", "no retry and no hand-off followed"
                 tests.append(
                     {
-                        "tag": "injected_fault",
-                        "state": "info",
-                        "label": "Injected fault",
-                        "text": f"this failure was injected by the session ({it['fault']})",
+                        "tag": "scripted_fault",
+                        "state": st,
+                        "label": "Scripted fault",
+                        "text": (
+                            f"this {it['status']} was scripted by the session ({it['fault']}); "
+                            f"{what}"
+                        ),
                         "check_id": "",
-                        "why": "",
+                        "why": (
+                            "A scripted fault tests the agent's recovery, so the failure itself "
+                            "is expected; what counts is what the agent did next."
+                        ),
+                    }
+                )
+            elif not it.get("ok") and not it.get("arg_problems"):
+                resp = it.get("response") if isinstance(it.get("response"), dict) else {}
+                reason = str(resp.get("error") or it.get("status"))
+                tests.append(
+                    {
+                        "tag": "rejected",
+                        "state": "info",
+                        "label": "Rejected by the order system",
+                        "text": (
+                            f"{it['status']} {reason}: the order system enforced its policy; "
+                            "the honesty check judges what the agent told the caller next"
+                        ),
+                        "check_id": "tools.failed_calls",
+                        "why": (
+                            "A rejection is the backend doing its job. It is not an agent "
+                            "failure by itself."
+                        ),
                     }
                 )
         elif it["kind"] == "agent":
@@ -2099,22 +2141,22 @@ def annotate_turns(
 
 def _heard_marks(said: str, heard: str) -> list[dict[str, Any]]:
     """The heard text as its original words, each marked when it differs from what was said
-    (substituted or inserted), so the transcript can highlight exactly what was misheard."""
-    import re
+    (substituted or inserted), so the transcript can highlight exactly what was misheard.
+    Both sides are compared as canonical tokens (numbers as digits, "GW" as g w), so
+    "G W 4 8 2 1 3" and "GW four eight two one three" agree."""
     from difflib import SequenceMatcher
 
-    from gf.scoring.speech import normalize
+    from gf.scoring.speech import canon_tokens
 
-    def key(w: str) -> str:
-        return normalize(w).replace(" ", "") or re.sub(r"[^a-z0-9]", "", w.lower())
-
-    a_words, b_words = said.split(), heard.split()
-    a, b = [key(w) for w in a_words], [key(w) for w in b_words]
-    bad = set()
-    for tag, _i1, _i2, j1, j2 in SequenceMatcher(a=a, b=b).get_opcodes():
+    a, b = canon_tokens(said), canon_tokens(heard)
+    bad_words: set[int] = set()
+    for tag, _i1, _i2, j1, j2 in SequenceMatcher(
+        a=[t for t, _, _ in a], b=[t for t, _, _ in b]
+    ).get_opcodes():
         if tag in ("replace", "insert"):
-            bad.update(range(j1, j2))
-    return [{"w": w, "bad": j in bad} for j, w in enumerate(b_words)]
+            for j in range(j1, j2):
+                bad_words.update(range(b[j][1], b[j][2] + 1))
+    return [{"w": w, "bad": j in bad_words} for j, w in enumerate(heard.split())]
 
 
 def _differs(said: str, heard: str) -> bool:

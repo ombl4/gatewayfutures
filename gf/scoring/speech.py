@@ -16,28 +16,111 @@ DIGITS = {
     "0": "zero", "1": "one", "2": "two", "3": "three", "4": "four",
     "5": "five", "6": "six", "7": "seven", "8": "eight", "9": "nine",
 }  # fmt: skip
+UNITS = {v: int(k) for k, v in DIGITS.items()} | {"oh": 0, "o": 0}
+TEENS = {
+    "ten": 10, "eleven": 11, "twelve": 12, "thirteen": 13, "fourteen": 14, "fifteen": 15,
+    "sixteen": 16, "seventeen": 17, "eighteen": 18, "nineteen": 19,
+}  # fmt: skip
+TENS = {
+    "twenty": 20, "thirty": 30, "forty": 40, "fifty": 50, "sixty": 60, "seventy": 70,
+    "eighty": 80, "ninety": 90,
+}  # fmt: skip
+SCALES = {"hundred": 100, "thousand": 1000}
+NUMBER_WORDS = set(UNITS) | set(TEENS) | set(TENS) | set(SCALES)
 WORD2DIGIT = {v: k for k, v in DIGITS.items()} | {"oh": "0", "o": "0"}
+LETTER_GROUPS = {"gw"}  # spoken letter by letter whatever the case: the order-id prefix
+# words that carry no information about what was heard
+DROP = {"dollars", "dollar", "cents", "cent", "bucks", "point", "usd"}
+
+
+def canon_tokens(text: str) -> list[tuple[str, int, int]]:
+    """Canonical tokens of spoken text with the span of source words each came from.
+
+    Numbers are parsed before anything is compared: "eighty nine ninety nine", "$89.99" and
+    "eight nine nine nine" all become the digits 8 9 9 9; "five hundred" becomes 5 0 0;
+    "one hundred and twenty" 1 2 0. Short upper-case letter groups ("GW") split into letters,
+    so "G W" and "GW" agree. Currency words are dropped. Everything else is lower-cased with
+    punctuation removed."""
+    words = text.split()
+    out: list[tuple[str, int, int]] = []
+    val: int | None = None
+    total = 0
+    p0 = p1 = -1
+    last = ""
+
+    def flush() -> None:
+        nonlocal val, total, p0, p1, last
+        if p0 >= 0:
+            for d in str(total + (val or 0)):
+                out.append((d, p0, p1))
+        val, total, p0, p1, last = None, 0, -1, -1, ""
+
+    def start(i: int) -> None:
+        nonlocal p0, p1
+        if p0 < 0:
+            p0 = i
+        p1 = i
+
+    for i, w in enumerate(words):
+        raw = w.replace("$", "")
+        for sub in re.split(r"[-/]", raw):
+            acronym = bool(re.fullmatch(r"[A-Z]{2,3}[.,;:!?]*", sub))
+            lw = re.sub(r"[^a-z0-9.,']", "", sub.lower()).strip(".,")
+            if not lw:
+                continue
+            if re.fullmatch(r"\d[\d.,]*", lw):
+                flush()
+                for d in re.sub(r"[^0-9]", "", lw):
+                    out.append((d, i, i))
+                continue
+            if lw in UNITS or lw in TEENS or lw in TENS:
+                v = UNITS.get(lw, TEENS.get(lw, TENS.get(lw)))
+                kind = "unit" if lw in UNITS else ("teen" if lw in TEENS else "tens")
+                joins = (kind == "unit" and last == "tens" and v != 0) or last in (
+                    "hundred",
+                    "thousand",
+                )
+                if joins and val is not None or (joins and last == "thousand"):
+                    val = (val or 0) + v
+                else:
+                    flush()
+                    val = v
+                start(i)
+                last = kind
+                continue
+            if lw in SCALES:
+                if lw == "hundred":
+                    val = (val if val is not None else 1) * 100
+                else:
+                    total += (val if val is not None else 1) * 1000
+                    val = None
+                start(i)
+                last = lw
+                continue
+            if lw == "and" and last in ("hundred", "thousand"):
+                continue
+            flush()
+            if lw in DROP:
+                continue
+            lw = re.sub(r"[^a-z0-9']", "", lw)
+            if (acronym or lw in LETTER_GROUPS) and lw.isalpha() and len(lw) <= 3:
+                for ch in lw:
+                    out.append((ch, i, i))
+            elif lw:
+                out.append((lw, i, i))
+    flush()
+    return out
 
 
 def normalize(text: str) -> str:
-    """Lower-case, strip punctuation, spell every digit out, split letter groups ("GW" → "g w")."""
-    t = text.lower().replace("$", " dollars ")
-    t = re.sub(r"(\d)[,.](\d)", r"\1 point \2", t)
-    t = re.sub(r"\d", lambda m: f" {DIGITS[m.group(0)]} ", t)
-    t = re.sub(r"\b([a-z])([a-z])\b", r"\1 \2", t)  # "gw" -> "g w"
-    t = re.sub(r"[^a-z\s]", " ", t)
-    return re.sub(r"\s+", " ", t).strip()
+    """Canonical text: numbers as digits, acronyms as letters, lower-case, no punctuation."""
+    return " ".join(t for t, _, _ in canon_tokens(text))
 
 
 def digits_of(text: str) -> str:
-    """Digit string from spoken or written numbers: "G W four eight 2 1 3" -> "48213"."""
-    out = []
-    for tok in re.findall(r"[a-z]+|\d", text.lower()):
-        if tok.isdigit():
-            out.append(tok)
-        elif tok in WORD2DIGIT:
-            out.append(WORD2DIGIT[tok])
-    return "".join(out)
+    """Digit string from spoken or written numbers: "G W four eight 2 1 3" -> "48213",
+    "eighty nine ninety nine" -> "8999"."""
+    return "".join(t for t, _, _ in canon_tokens(text) if t.isdigit())
 
 
 def check_speech(record: CallRecord, session: Session) -> list[Check]:
@@ -74,8 +157,8 @@ def check_speech(record: CallRecord, session: Session) -> list[Check]:
     )
 
     # entities: did each fact reach the agent intact?
-    # Only numeric facts the caller actually spoke digit by digit are checked (an amount said
-    # as "eighty-nine ninety-nine" or an item name has no exact form to be heard intact).
+    # Numeric facts the caller actually spoke are checked on their digits, however they were
+    # said ("eighty-nine ninety-nine" and "8 9 9 9" are the same number).
     heard_digits_all = digits_of(heard)
     said_digits_all = digits_of(said)
     entity_rows = []

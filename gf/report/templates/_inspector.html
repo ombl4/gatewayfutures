@@ -52,9 +52,9 @@
           </div>
         </div>
         {% elif it.kind == 'tool' %}
-        <div class="toolev {{ '' if it.ok else 'bad' }}" data-tool="{{ it.id }}" data-t="{{ it.t_ms }}">
+        <div class="toolev {{ 'fault' if it.fault else ('' if it.ok else 'bad') }}" data-tool="{{ it.id }}" data-t="{{ it.t_ms }}">
           <span class="muted mono" style="font-size:11px">{{ it.t_ms|clock }}</span><span class="name">{{ it.tool }}()</span><span class="args">{% for k, v in it.args.items() %}{{ k }}: {{ v|tojson_compact }}{% if not loop.last %}, {% endif %}{% endfor %}</span>
-          <span class="pill {{ 'green' if it.ok else 'red' }}">{{ it.status }}</span><span class="muted small">{{ it.duration_ms }} ms{% if it.fault %} · injected fault: {{ it.fault }}{% endif %}</span><span class="small">→ {{ it.response_short }}</span>
+          {% if it.fault %}<span class="pill amber" title="this failure was scripted by the session">{{ it.status }} · scripted</span>{% else %}<span class="pill {{ 'green' if it.ok else 'red' }}">{{ it.status }}</span>{% endif %}<span class="muted small">{{ it.duration_ms }} ms{% if it.fault %} · scripted fault: {{ it.fault }}{% endif %}</span><span class="small">→ {{ it.response_short }}</span>
           {{ tested(it.tests) }}
         </div>
         {% elif it.kind == 'dead_air' %}

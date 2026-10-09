@@ -215,6 +215,45 @@ def check_tools(record: CallRecord, session: Session) -> list[Check]:
             value=len(failed),
         )
     )
+    # writes the lookup had already ruled out (the agent knew the status and tried anyway)
+    knowable = {
+        "not_delivered": "the lookup showed the order was not delivered yet",
+        "already_refunded": "the lookup showed the order was already refunded",
+        "already_shipped": "the lookup showed the order had already shipped",
+    }
+    lookups = [c for c in calls if c.tool == "lookup_order" and c.ok]
+    avoidable = []
+    for c in calls:
+        err = str(c.response.get("error", "")) if isinstance(c.response, dict) else ""
+        if c.ok or c.fault or c.tool not in WRITE_TOOLS or err not in knowable:
+            continue
+        oid = str(c.args.get("order_id", "")).upper()
+        if any(
+            lk.t_ms < c.t_ms and str(lk.args.get("order_id", "")).upper() == oid for lk in lookups
+        ):
+            avoidable.append((c, err))
+    checks.append(
+        Check(
+            id="tools.avoidable_rejection",
+            group="tools",
+            label="No writes the lookup had already ruled out",
+            passed=not avoidable,
+            severity="soft",
+            what_happened="; ".join(
+                f"{c.tool} was tried although {knowable[err]}" for c, err in avoidable
+            )
+            or "none",
+            why_it_matters=(
+                "Trying a write the order system is bound to refuse wastes the caller's time "
+                "and invites a false promise; the agent had the status from its own lookup."
+            ),
+            evidence={
+                "tool_ids": [c.id for c, _ in avoidable],
+                "t_ms": avoidable[0][0].t_ms if avoidable else None,
+            },
+            value=len(avoidable),
+        )
+    )
     return checks
 
 

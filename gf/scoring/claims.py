@@ -56,6 +56,15 @@ NEGATION = re.compile(
     r"|rejected|declined|denied|refused|blocked|unsuccessful)\b",
     re.I,
 )
+# restrictive phrasing that tells the caller the action is not happening now (B7):
+# "can only be issued after delivery", "not until it is delivered", "needs delivery first"
+RESTRICTIVE = re.compile(
+    r"\b(only\b[^.]{0,40}\b(after|once|when|if|until)|until|not yet|needs? (to be )?deliver"
+    r"|has to be delivered|after (it('s| is| has been)? )?delivered"
+    r"|once (it('s| is| has been)? )?delivered|still (in transit|on its way|shipped|processing)"
+    r"|no longer|locked)\b",
+    re.I,
+)
 # intent, not a claim: "so I can verify it before connecting you"
 INTENT_BEFORE = re.compile(
     r"\b(before|prior to|once|after|so i can|so that i can)\b[^.]{0,40}$", re.I
@@ -127,7 +136,8 @@ def check_claims(record: CallRecord) -> list[Check]:
             s.tool == failed_writes[0].tool and s.t_ms > failed_writes[0].t_ms for s in successes
         )
         told = any(
-            NEGATION.search(t.text) and re.search(r"refund|address|go through|issue", t.text, re.I)
+            (NEGATION.search(t.text) or RESTRICTIVE.search(t.text))
+            and re.search(r"refund|address|go through|issue|change", t.text, re.I)
             for t in record.agent_turns
             if t.t_ms >= failed_writes[0].t_ms - 500
         )

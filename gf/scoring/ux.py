@@ -9,6 +9,7 @@ from typing import Any
 from gf.config import Thresholds
 from gf.record.model import CallRecord
 from gf.scoring.checks import Check
+from gf.scoring.speech import NUMBER_WORDS
 from gf.sessions.schema import Session
 
 REPROMPT = "are you still there"
@@ -16,6 +17,40 @@ STUTTER = re.compile(r"\b(\w+(?:\s+\w+){0,3})\s+\1\b", re.I)
 FILLERS = re.compile(
     r"^(one moment|just a moment|let me check|bear with me|hold on|please hold)[.!, ]*$", re.I
 )
+
+
+def stutters_in(text: str) -> list[str]:
+    """Repeated short phrases, ignoring repeated digits, number words and single letters:
+    "GW 4 8 3 7 7" and "nine four one one zero" are read-backs, not stutters."""
+    out = []
+    for m in STUTTER.finditer(text):
+        toks = m.group(1).lower().split()
+        if all(t.isdigit() or t in NUMBER_WORDS or len(t) == 1 for t in toks):
+            continue
+        out.append(m.group(0))
+    return out
+
+
+def attribute_gaps(timeline: dict[str, Any]) -> list[dict[str, Any]]:
+    """Each dead-air gap with `after`: who spoke last before it ("caller" → the agent went
+    quiet; "agent" → the simulated caller did). Uses the timeline's speech events, so old
+    timelines get it too."""
+    ux = timeline.get("ux") or {}
+    gaps = [dict(g) for g in ux.get("dead_air") or []]
+    ends = sorted(
+        (int(e["end_ms"]), "caller" if e["kind"] == "caller_speech" else "agent")
+        for e in timeline.get("events") or []
+        if e.get("kind") in ("caller_speech", "agent_speech") and e.get("end_ms") is not None
+    )
+    for g in gaps:
+        if g.get("after"):
+            continue
+        last = None
+        for end, who in ends:
+            if end <= g["start_ms"] + 1:
+                last = who
+        g["after"] = last
+    return gaps
 
 
 def check_ux(
@@ -29,9 +64,12 @@ def check_ux(
         Check(
             id="ux.latency_p95",
             group="ux",
-            label=f"Response latency p95 (caller stops → agent audio) under {th.latency_p95_warn_s:.1f} s",
-            passed=p95 is None or p95 <= th.latency_p95_fail_s * 1000,
-            severity="soft",
+            label=(
+                f"Response latency p95 (caller stops → agent audio) under "
+                f"{th.latency_p95_warn_s:.1f} s (fails the call over {th.latency_p95_fail_s:.1f} s)"
+            ),
+            passed=p95 is None or p95 <= th.latency_p95_warn_s * 1000,
+            severity="hard" if p95 is not None and p95 > th.latency_p95_fail_s * 1000 else "soft",
             what_happened=f"p50 {lat.get('p50')} ms, p95 {p95} ms over {lat.get('n', 0)} turns"
             if p95 is not None
             else "no answered turns",
@@ -40,20 +78,50 @@ def check_ux(
             value=p95,
         )
     )
-    dead = ux.get("dead_air") or []
+    gaps = attribute_gaps(timeline)
+    dead = [g for g in gaps if g.get("after") != "agent"]  # silence after the caller spoke
+    caller_gaps = [g for g in gaps if g.get("after") == "agent"]  # the caller's own pause
+    longest = max((d["gap_ms"] for d in dead), default=0)
     checks.append(
         Check(
             id="ux.dead_air",
             group="ux",
-            label=f"No silence from both sides longer than {th.dead_air_gap_s:.0f} s",
+            label=(
+                f"No silence after the caller spoke longer than {th.dead_air_gap_s:.0f} s "
+                f"(fails the call at {th.dead_air_gap_fail_s:.0f} s)"
+            ),
             passed=not dead,
-            severity="soft",
-            what_happened=f"{len(dead)} gap(s), longest {max(d['gap_ms'] for d in dead)} ms"
+            severity="hard" if longest >= th.dead_air_gap_fail_s * 1000 else "soft",
+            what_happened=f"{len(dead)} gap(s) after the caller spoke, longest {longest} ms"
             if dead
             else "none",
             why_it_matters="Dead air is when a real caller says 'hello?' or hangs up.",
             evidence={"t_ms": dead[0]["start_ms"] if dead else None, "gaps": dead},
-            value=ux.get("dead_air_total_ms", 0),
+            value=sum(d["gap_ms"] for d in dead),
+        )
+    )
+    checks.append(
+        Check(
+            id="caller.went_quiet",
+            group="caller",
+            label=f"The simulated caller answered within {th.dead_air_gap_s:.0f} s of the agent",
+            passed=not caller_gaps,
+            severity="soft",
+            what_happened=(
+                f"{len(caller_gaps)} pause(s) after the agent spoke, longest "
+                f"{max(g['gap_ms'] for g in caller_gaps)} ms"
+            )
+            if caller_gaps
+            else "no long pauses",
+            why_it_matters=(
+                "A pause after the agent's question is the simulator's, not the agent's, so it "
+                "is kept out of the agent's dead-air score."
+            ),
+            evidence={
+                "t_ms": caller_gaps[0]["start_ms"] if caller_gaps else None,
+                "gaps": caller_gaps,
+            },
+            value=sum(g["gap_ms"] for g in caller_gaps),
         )
     )
     talk = ux.get("talk_over") or []
@@ -133,7 +201,7 @@ def check_ux(
         )
     )
     patience_ms = session.caller.conditions.patience_s * 1000
-    would_hang_up = ux.get("dead_air_total_ms", 0) > patience_ms or repeats >= 3
+    would_hang_up = sum(d["gap_ms"] for d in dead) > patience_ms or repeats >= 3
     checks.append(
         Check(
             id="ux.would_hang_up",
@@ -142,7 +210,7 @@ def check_ux(
             passed=not would_hang_up,
             severity="soft",
             what_happened=(
-                f"total dead air {ux.get('dead_air_total_ms', 0)} ms vs patience {int(patience_ms)} ms; {repeats} repeats"
+                f"dead air after the caller {sum(d['gap_ms'] for d in dead)} ms vs patience {int(patience_ms)} ms; {repeats} repeats"
             ),
             why_it_matters="Rule of thumb: dead air beyond the caller's patience, or three repeats, loses the call.",
             evidence={},
@@ -198,7 +266,7 @@ def check_quality(record: CallRecord, th: Thresholds) -> list[Check]:
     checks: list[Check] = []
     turns = record.agent_turns
     tools_called = {c.tool for c in record.tool_calls}
-    stutters = [t.n for t in turns if STUTTER.search(t.text)]
+    stutters = [t.n for t in turns if stutters_in(t.text)]
     leaks = [
         t.n
         for t in turns

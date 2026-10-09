@@ -79,11 +79,14 @@ def build_timeline(record: CallRecord, *, dead_air_ms: int = 3000) -> dict[str, 
             responses.append({"caller_end_ms": ce, "agent_start_ms": None, "latency_ms": None})
 
     # dead air: nobody speaking for >= dead_air_ms, after the first speech
-    busy = sorted(caller_seg + agent_seg)
+    busy = sorted(
+        [(s_, e, "caller") for s_, e in caller_seg] + [(s_, e, "agent") for s_, e in agent_seg]
+    )
     dead = []
-    for (_, e1), (s2, _) in zip(busy, busy[1:], strict=False):
+    for (_, e1, who), (s2, _, _) in zip(busy, busy[1:], strict=False):
         if s2 - e1 >= dead_air_ms:
-            dead.append({"start_ms": e1, "end_ms": s2, "gap_ms": s2 - e1})
+            # `after`: who spoke last before the gap (the other side went quiet)
+            dead.append({"start_ms": e1, "end_ms": s2, "gap_ms": s2 - e1, "after": who})
 
     # talk-over: agent starts while the caller is speaking; barge-in: caller starts while the
     # agent is speaking, and how long the agent kept talking after that

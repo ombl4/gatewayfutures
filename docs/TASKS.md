@@ -74,7 +74,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 
 ## Next up (in order)
 -1. Part 9 (agents under test and sandbox systems), T9.1 → T9.6 in order, then Gate 9.
-0. After the design fixes: T5.12 strict fail bars (warn + fail per metric in `thresholds.yaml`, fail bars honoured as hard failures) with B7 (honesty check accepts restrictive phrasing) and B8 (hearing rule invalidates only when the caller adopts the wrong value; wrong read-back flag), then rescore `base-1` and run `base-2`/`base-3` like-for-like
+0. Done as T5.13 (strict fail bars, B7; B8 was already the v2 rule). Next: run `base-002`/`base-003` like-for-like via Re-run, then B6 (caller STT keyterms)
 1. T5.9 per-session comparison → T6.10 remaining item (real tool schemas on the agent page) → T4.6 provider seam (LiveKit + Fake + Vapi/Pipecat skeletons) → T5.10 cost
 2. Re-run the full matrix (`full-3`: 12 hand-written + regenerated sessions) and refresh `docs/sample-report`; prove `make up` in Docker end to end
 3. Gate 6 human review of the UI and the sample report (CI green on GitHub; Pages enabled)
@@ -91,6 +91,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 - [x] T5.5 Statistics — Wilson 95%, pass^k / pass@k, flaky, interval overlap (`stats.py`), unit-tested against known values
 - [x] T5.6 `gf score <run_id>` — scores.json per call, summary.json per run with the comparability stamp; batch-test-1 scored 6/6 (CI 61–100%)
 - [x] T5.8 Simulator hearing check — `gf/scoring/hearing.py`: agent turn ↔ caller transcript pairing, digit entities (tens-aware) and word substitutions, invalid when the caller acted on the wrong value; the `full-1` Austin/Boston call is now invalid for that reason (boston→austin, beacon→eakin); 5 unit tests
+- [x] T5.13 Scorer v3 (2026-10-09) — spoken-number canon for WER, entities, hearing and the heard highlight; stutter gate ignores digits; dead air attributed to the side that went quiet (`caller.went_quiet`); latency and dead-air fail bars honoured as hard failures (`dead_air_gap_fail_s` 5 s); scripted faults shown as scripted with the agent's reaction, backend rejections labelled as such; `tools.avoidable_rejection`; honesty accepts restrictive phrasing (B7); `score-v3`; `base-001` rescored
 - [x] T5.11 Caller (persona) score separate from the agent score (`gf/scoring/caller.py`: goal stated early, ended for a reason; persona judge on by default, off in tests; caller flags kept apart from agent flags; `caller_ok` per attempt; header pills; simulation-quality line on runs): in character, heard the agent, goal stated early, legitimate ending, persona judge on by default (advisory); both pills on the call header; simulation quality on the run page
 - [x] T6.22 Annotated timeline (`annotate_turns` in the report model: tool events ↔ requirement checks, agent turns ↔ claims, latency, quality gates, caller turns ↔ hearing and repeats, dead air ↔ its check; Timeline tab 'judged by' column): every transcript/timeline event tagged with the check that judged it and the result, with ? popovers; 'judged by' column in the Timeline tab
 - [x] T6.21 Grading walkthrough per call: numbered steps (simulation sound → did what the session asks → honest → good to be on → verdict rule) as a Grading tab in the inspector; session page shows what passing looks like

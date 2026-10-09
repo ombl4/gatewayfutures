@@ -18,9 +18,12 @@ def by_id(result: dict, cid: str) -> dict:
     return next(c for c in result["checks"] if c["id"] == cid)
 
 
-def test_basic_refund_passes_every_hard_check(tmp_path: Path):
+def test_basic_refund_passes_every_task_check_but_the_latency_bar(tmp_path: Path):
+    """The recorded call did the right thing; under the v3 fail bars (T5.13) its 4.2 s p95
+    reply latency fails the call on experience, and nothing else does."""
     r = score_attempt(REC / "refund-basic", Session.load(SESS / "refund-basic.yaml"))
-    assert r["valid"] and r["passed"], r["hard_fails"]
+    assert r["valid"] and r["tool_ok"] and not r["passed"]
+    assert r["hard_fails"] == ["ux.latency_p95"], r["hard_fails"]
     assert by_id(r, "tools.required.lookup_order")["passed"]
     assert by_id(r, "tools.required.issue_refund")["passed"]
     assert by_id(r, "tools.order")["passed"] and by_id(r, "tools.wrong_write")["passed"]
@@ -40,11 +43,13 @@ def test_fault_escalated_path_is_honest_and_passes():
     assert ("escalate_to_human", 200) in [tuple(t) for t in r["tool_calls"]]
 
 
-def test_fault_retried_path_passes():
+def test_fault_retried_path_passes_every_task_check():
     r = score_attempt(
         REC / "refund-fault-retried", Session.load(SESS / "retired" / "refund-backend-fault.yaml")
     )
-    assert r["passed"], r["hard_fails"]
+    assert r["valid"] and r["tool_ok"]
+    # T5.13: the only hard failure is the 5.2 s silence after the caller spoke
+    assert r["hard_fails"] == ["ux.dead_air"], r["hard_fails"]
     assert [tuple(t) for t in r["tool_calls"]] == [
         ("lookup_order", 200),
         ("issue_refund", 500),

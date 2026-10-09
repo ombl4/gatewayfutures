@@ -46,6 +46,7 @@ class Thresholds(BaseModel):
     latency_p95_warn_s: float = 2.0
     latency_p95_fail_s: float = 3.5
     dead_air_gap_s: float = 3.0
+    dead_air_gap_fail_s: float = 5.0
     talk_over_max: int = 2
     barge_in_stop_s: float = 1.0
     repeats_max: int = 2

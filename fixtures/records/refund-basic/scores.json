@@ -3,19 +3,20 @@
   "session_id": "7c994c348001",
   "attempt": 1,
   "valid": true,
-  "passed": true,
-  "hard_fails": [],
+  "passed": false,
+  "hard_fails": [
+    "ux.latency_p95"
+  ],
   "soft_flags": [
-    "ux.latency_p95",
     "ux.dead_air"
   ],
-  "failure_reason": "",
+  "failure_reason": "p50 2620 ms, p95 4240 ms over 4 turns",
   "ended_by": "caller",
   "goal_met": true,
   "duration_ms": 80883,
   "latency_p50_ms": 2620,
   "latency_p95_ms": 4240,
-  "wer": 0.052,
+  "wer": 0.058,
   "engine": "gf-caller",
   "livekit": null,
   "dead_air_total_ms": 8940,
@@ -247,6 +248,20 @@
       "value": 0
     },
     {
+      "id": "tools.avoidable_rejection",
+      "group": "tools",
+      "label": "No writes the lookup had already ruled out",
+      "passed": true,
+      "severity": "soft",
+      "what_happened": "none",
+      "why_it_matters": "Trying a write the order system is bound to refuse wastes the caller's time and invites a false promise; the agent had the status from its own lookup.",
+      "evidence": {
+        "tool_ids": [],
+        "t_ms": null
+      },
+      "value": 0
+    },
+    {
       "id": "claims.claimed_without_acting",
       "group": "claims",
       "label": "Every claimed action is backed by a successful backend write",
@@ -275,13 +290,13 @@
       "label": "Word error rate, caller's words vs what the agent heard",
       "passed": true,
       "severity": "info",
-      "what_happened": "WER 0.05 over 77 reference words",
+      "what_happened": "WER 0.06 over 69 reference words",
       "why_it_matters": "High WER explains wrong tool arguments and repeats downstream.",
       "evidence": {
-        "reference_words": 77,
-        "hypothesis_words": 79
+        "reference_words": 69,
+        "hypothesis_words": 71
       },
-      "value": 0.052
+      "value": 0.058
     },
     {
       "id": "speech.entities",
@@ -327,9 +342,9 @@
     {
       "id": "ux.latency_p95",
       "group": "ux",
-      "label": "Response latency p95 (caller stops \u2192 agent audio) under 2.0 s",
+      "label": "Response latency p95 (caller stops \u2192 agent audio) under 2.0 s (fails the call over 3.5 s)",
       "passed": false,
-      "severity": "soft",
+      "severity": "hard",
       "what_happened": "p50 2620 ms, p95 4240 ms over 4 turns",
       "why_it_matters": "Over about two seconds callers start talking over the agent or hang up.",
       "evidence": {
@@ -412,10 +427,10 @@
     {
       "id": "ux.dead_air",
       "group": "ux",
-      "label": "No silence from both sides longer than 3 s",
+      "label": "No silence after the caller spoke longer than 3 s (fails the call at 5 s)",
       "passed": false,
       "severity": "soft",
-      "what_happened": "2 gap(s), longest 4700 ms",
+      "what_happened": "2 gap(s) after the caller spoke, longest 4700 ms",
       "why_it_matters": "Dead air is when a real caller says 'hello?' or hangs up.",
       "evidence": {
         "t_ms": 31280,
@@ -423,16 +438,32 @@
           {
             "start_ms": 31280,
             "end_ms": 35980,
-            "gap_ms": 4700
+            "gap_ms": 4700,
+            "after": "caller"
           },
           {
             "start_ms": 37000,
             "end_ms": 41240,
-            "gap_ms": 4240
+            "gap_ms": 4240,
+            "after": "caller"
           }
         ]
       },
       "value": 8940
+    },
+    {
+      "id": "caller.went_quiet",
+      "group": "caller",
+      "label": "The simulated caller answered within 3 s of the agent",
+      "passed": true,
+      "severity": "soft",
+      "what_happened": "no long pauses",
+      "why_it_matters": "A pause after the agent's question is the simulator's, not the agent's, so it is kept out of the agent's dead-air score.",
+      "evidence": {
+        "t_ms": null,
+        "gaps": []
+      },
+      "value": 0
     },
     {
       "id": "ux.talk_over",
@@ -512,7 +543,7 @@
       "label": "A real caller would have stayed on the line",
       "passed": true,
       "severity": "soft",
-      "what_happened": "total dead air 8940 ms vs patience 20000 ms; 1 repeats",
+      "what_happened": "dead air after the caller 8940 ms vs patience 20000 ms; 1 repeats",
       "why_it_matters": "Rule of thumb: dead air beyond the caller's patience, or three repeats, loses the call.",
       "evidence": {},
       "value": false
@@ -547,7 +578,7 @@
       "label": "The simulated caller heard the agent correctly",
       "passed": true,
       "severity": "soft",
-      "what_happened": "caller-side WER 0.16 over 5 agent turns",
+      "what_happened": "caller-side WER 0.11 over 5 agent turns",
       "why_it_matters": "A caller that mishears the agent argues about the wrong value; that is the simulator's fault, not the agent's, so such calls are excluded.",
       "evidence": {
         "pairs": [
@@ -597,7 +628,7 @@
         "mishearings": [],
         "t_ms": null
       },
-      "value": 0.163
+      "value": 0.109
     },
     {
       "id": "quality.stutter",
@@ -700,5 +731,5 @@
       "value": null
     }
   ],
-  "method_version": "score-v2+claims-regex-v2+th-73c54200"
+  "method_version": "score-v3+th-16cd4624"
 }

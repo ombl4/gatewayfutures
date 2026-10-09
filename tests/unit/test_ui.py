@@ -429,7 +429,8 @@ def test_area_pills_carry_their_sessions_issues(env):
         assert (x["session_id"], x["attempt"]) in seen
     html = env["client"].get("/").text
     assert 'class="area"' in html and "itile" in html and 'id="issues"' not in html
-    assert 'class="itile ok"' in html and "Every valid call" not in html
+    assert "Every valid call" not in html
+    assert ('class="itile ok"' in html) == bool(r["clean"])
 
 
 def test_rename_run_rewrites_every_reference(env):
