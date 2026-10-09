@@ -79,8 +79,8 @@ def health() -> dict:
 
 
 class ToolError(Exception):
-    def __init__(self, status: int, error: str, message: str):
-        self.status, self.error, self.message = status, error, message
+    def __init__(self, status: int, error: str, message: str, fault: str | None = None):
+        self.status, self.error, self.message, self.fault = status, error, message, fault
 
 
 def _validate(tool: str, args: dict[str, Any]) -> list[str]:
@@ -120,9 +120,13 @@ async def _apply_fault(state: CallState, tool: str) -> str | None:
                 await asyncio.sleep(f.value or 20)
                 return "timeout"
             if f.type == "error_500":
-                raise ToolError(500, "internal_error", "Order system unavailable")
+                raise ToolError(
+                    500, "internal_error", "Order system unavailable", fault="error_500"
+                )
             if f.type == "reject":
-                raise ToolError(409, "rejected_by_policy", "Request rejected by order system")
+                raise ToolError(
+                    409, "rejected_by_policy", "Request rejected by order system", fault="reject"
+                )
     return None
 
 
@@ -221,6 +225,7 @@ async def call_tool(
         body = TOOLS[tool](state, args)
     except ToolError as e:
         status, body = e.status, {"error": e.error, "message": e.message}
+        fault_tag = e.fault or fault_tag  # a failing injected fault is logged as the evidence
     finished = now_ms()
     state.log.append(
         LogEntry(

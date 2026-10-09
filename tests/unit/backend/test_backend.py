@@ -156,3 +156,16 @@ def test_fault_latency_is_logged(client):
     assert r.status_code == 200
     entry = client.get("/calls/c/log").json()[0]
     assert entry["fault"] == "latency_ms:50" and entry["duration_ms"] >= 50
+
+
+def test_failing_injected_fault_is_logged_as_the_fault(client):
+    faults = [{"tool": "issue_refund", "type": "error_500", "nth": 1}]
+    client.post("/calls/f/seed", json={"faults": faults})
+    r = client.post(
+        "/tools/issue_refund",
+        json={"order_id": "GW-48213", "amount": 89.99, "reason": "broken"},
+        headers={"X-GF-Call-Id": "f"},
+    )
+    assert r.status_code == 500
+    log = client.get("/calls/f/log").json()
+    assert log[-1]["status"] == 500 and log[-1]["fault"] == "error_500"

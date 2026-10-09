@@ -188,10 +188,8 @@ def test_navigation_and_header(site, page):
     page.click("#btn-new-session")
     assert urlparse(page.url).path == "/sessions/new"
     page.click("#btn-run")
-    assert (
-        urlparse(page.url).path == "/"
-        and page.locator("details#run").get_attribute("open") is not None
-    )
+    page.wait_for_url("**/runs#run")
+    assert page.locator("details#run").get_attribute("open") is not None
     assert page.locator("#btn-start").is_disabled()  # status says not ready
     _no_errors(page)
 
@@ -332,7 +330,7 @@ def test_add_session_to_regression_suite_from_the_ui(site, page):
     assert (
         "7c994c348001" in ids and visible.count() < page.locator("#sessions details.srow").count()
     )
-    page.goto(site["base"] + "/")
+    page.goto(site["base"] + "/runs")
     assert page.locator('input[name=pick][value="suite:regression"]').count() == 1
     _no_errors(page)
 

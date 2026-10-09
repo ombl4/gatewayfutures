@@ -298,7 +298,7 @@ details.srow summary .ttl .chip{font-weight:400}
     <span class="status-pill {{ provider_state or '' }}" title="{{ provider_detail or shell.provider }}"><i></i>{{ shell.provider }}{% if provider_state == 'ok' %} · connected{% elif provider_state == 'bad' %} · unreachable{% endif %}</span>
     {% if mode == 'live' %}
     <a class="btn" href="/sessions/new" id="btn-new-session">+ New session</a>
-    <a class="btn primary" href="/#run" id="btn-run">▶ Run evaluation</a>
+    <a class="btn primary" href="/runs#run" id="btn-run">▶ Run evaluation</a>
     {% endif %}
   </div>
 </header>

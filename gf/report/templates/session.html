@@ -9,6 +9,7 @@
 {% if mode == 'live' %}<a class="btn" href="/sessions/new?copy={{ s.id }}">Create a variant of this session</a>{% endif %}
 </div>
 <p class="meta"><span class="mono">{{ s.id }}</span><i>·</i><span>engine {{ s.engine }}</span>{% if s.generated %}<i>·</i><span class="chip">generated</span>{% endif %}{% if s.retired %}<i>·</i><span class="pill grey">retired: no longer run, kept for earlier runs</span>{% endif %}</p>
+{% if s.retired %}<div class="root invalid" style="margin:0 0 14px"><b>Why it was retired</b>{{ s.retired_reason }}</div>{% endif %}
 
 <div class="two">
 <div>

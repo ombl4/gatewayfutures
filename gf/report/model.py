@@ -24,7 +24,7 @@ from gf.record.model import CallRecord
 from gf.runner.batch import list_runs
 from gf.scoring.checks import evidence_ms
 from gf.scoring.stats import wilson
-from gf.sessions.schema import Session, is_retired, load_all
+from gf.sessions.schema import Session, is_retired, load_all, retired_reason
 from gf.sessions.taxonomy import areas_of, load_suites, session_file, suites_of
 
 GROUPS = [
@@ -129,6 +129,7 @@ def session_card(s: Session) -> dict[str, Any]:
         "path": s.source_path,
         "generated": "/generated/" in (s.source_path or "").replace("\\", "/"),
         "retired": is_retired(s),
+        "retired_reason": retired_reason(s),
         "areas": areas_of(s),
         "file": session_file(s),
     }
@@ -421,6 +422,7 @@ def issues_for(r: dict[str, Any], limit: int = 6) -> dict[str, Any]:
 def _issue(r, a, severity, text) -> dict[str, Any]:
     text = text.removeprefix("invalid: ")
     head = text.split(";")[0].strip()
+    row = next((x for x in r.get("sessions", []) if x["session_id"] == a["session_id"]), {})
     return {
         "severity": severity,
         "title": _clip(head if "_" in head.split(" ")[0] else head[:1].upper() + head[1:], 72),
@@ -432,6 +434,8 @@ def _issue(r, a, severity, text) -> dict[str, Any]:
         "t_ms": a.get("issue_t_ms"),
         "has_audio": a.get("has_audio", True),
         "duration_ms": a.get("duration_ms"),
+        "retired": row.get("retired", False),
+        "retired_reason": row.get("retired_reason", ""),
     }
 
 
@@ -733,6 +737,8 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
                 else [],
                 "facts": sess.caller.facts if sess else {},
                 "areas": areas_of(sess) if sess else [],
+                "retired": is_retired(sess) if sess else False,
+                "retired_reason": retired_reason(sess) if sess else "",
             }
         )
 

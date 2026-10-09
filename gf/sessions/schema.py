@@ -134,9 +134,22 @@ def load_all(folder: Path, include_retired: bool = True) -> list[Session]:
     paths = sorted(folder.glob("*.yaml")) + sorted((folder / "generated").glob("*.yaml"))
     if include_retired:
         paths += sorted((folder / "retired").glob("*.yaml"))
-    return [
-        Session.load(p) for p in paths if p.name != "suites.yaml"
-    ]  # suites.yaml is not a session
+    skip = {"suites.yaml", "REASONS.yaml"}  # bookkeeping files that live beside the sessions
+    return [Session.load(p) for p in paths if p.name not in skip]
+
+
+def retired_reason(session: Session) -> str:
+    """Why a retired session was retired, from sessions/retired/REASONS.yaml ("" if unknown)."""
+    if not is_retired(session):
+        return ""
+    import yaml
+
+    folder = Path(session.source_path).parent
+    p = folder / "REASONS.yaml"
+    if not p.exists():
+        return "retired; no reason recorded"
+    data = yaml.safe_load(p.read_text()) or {}
+    return str(data.get(Path(session.source_path).stem) or "retired; no reason recorded").strip()
 
 
 def is_retired(session: Session) -> bool:

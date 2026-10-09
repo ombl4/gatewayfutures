@@ -1,0 +1,12 @@
+# Why each retired session was taken out of the active set (by file name, without .yaml).
+# Retired sessions still load so earlier runs open and rescore; they are never run again.
+refund-request-fails-first-attempt-due-to-backend-error-then: >-
+  Generated expectation contradicts the agent's policy: it demands a second issue_refund after
+  the session's own injected 500 and forbids escalation, but the agent is specified to report a
+  failed write truthfully and offer escalation, which it did. Replaced by refund-backend-error-retry (expects the retry the policy
+  prescribes; the agent's instructions now make that retry explicit).
+refund-request-on-already-refunded-order-agent-denies-refund: >-
+  Generated final-state assertion is impossible: it expects refunds[GW-48911].amount for a
+  refund that predates the call; the fixture records that as orders[GW-48911].refunded. The
+  agent behaved correctly (lookup only, refund denied). Replaced by refund-already-refunded-declined (asserts refunds[GW-48911]
+  not exists and orders[GW-48911].refunded == true).

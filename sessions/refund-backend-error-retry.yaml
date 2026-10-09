@@ -1,0 +1,62 @@
+title: Refund where the first attempt hits a backend error and the agent retries
+caller:
+  persona:
+    name: Maria Lopez
+    style: chatty
+    accent: en-US
+  facts:
+    order_id: GW-48213
+    zip: '94110'
+    amount: 89.99
+    item: countertop blender
+  goal: Get a full refund of $89.99 for order GW-48213, which arrived broken. If the
+    agent says something failed, ask it to try again.
+  stop_when: the agent confirms the refund was issued
+  opening: null
+  voice: aura-2-arcas-en
+  pace: 1.1
+  llm:
+    model: gpt-4.1-mini
+    temperature: 0.0
+    seed: 405
+  conditions:
+    noise: null
+    phone_line: false
+    packet_loss: 0.0
+    low_quality_mic: false
+    interruptions: 0.0
+    patience_s: 20.0
+  limits:
+    max_turns: 14
+    max_duration_s: 180.0
+    mutual_silence_reprompt_s: 4.0
+    mutual_silence_abort_s: 8.0
+fixtures: orders_basic
+faults:
+- tool: issue_refund
+  type: error_500
+  nth: 1
+expected:
+  outcome: refunded_after_retry
+  tool_calls:
+    required:
+    - tool: lookup_order
+      args:
+        order_id: GW-48213
+        zip: '94110'
+    - tool: issue_refund
+      args:
+        order_id: GW-48213
+        amount: 89.99
+    order:
+    - lookup_order
+    - issue_refund
+    forbidden:
+    - escalate_to_human
+    - update_shipping_address
+  final_state:
+  - refunds[GW-48213].amount == 89.99
+  notes: The first issue_refund fails with an injected 500. The agent's policy is
+    to try once more before offering escalation, so the second call must succeed and
+    the refund must exist; escalating after a single failure fails the session.
+engine: gf-caller

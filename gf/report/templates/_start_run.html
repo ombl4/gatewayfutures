@@ -1,0 +1,36 @@
+{% if mode == 'live' and job and page != 'overview' %}
+<div class="banner"><b>Run in progress:</b> <a href="{{ links.run(job.run_id) }}">{{ job.run_id }}</a> <span class="progress"><i style="width:{{ (100 * job.done / job.total) if job.total else 0 }}%"></i></span> <span class="small">{{ job.done }} / {{ job.total }} calls</span></div>
+{% endif %}
+{% if mode == 'live' %}
+<details class="card" id="run" style="padding:12px 16px;margin:0 0 12px" {% if not r %}open{% endif %}>
+  <summary>Run evaluation <span class="small muted" style="font-weight:400">· {{ 'ready to start' if st.ready else 'not ready: see the status rows' }}</span></summary>
+  <div class="status" style="margin:10px 0 14px">
+  {% for row in st.rows %}
+    <div class="row {{ 'ok' if row.ok else ('soft' if row.soft else 'bad') }}"><span class="ic">{{ '✓' if row.ok else ('!' if row.soft else '✗') }}</span><span>{{ row.name }}<div class="d">{{ row.detail }}</div></span></div>
+  {% endfor %}
+  </div>
+  <p class="small muted" style="margin:0 0 10px">{{ 'Ready.' if st.ready else 'Not ready: fix the red rows first.' }} Checked within the last minute · <a href="/api/status?refresh=1">refresh</a></p>
+  <form method="post" action="/runs/start">
+    <div class="two" style="grid-template-columns:minmax(0,1fr) 260px">
+      <div>
+        <div class="small" style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:6px" id="pick">
+          <label><input type="radio" name="pick" value="all" checked onchange="gfPick(this)"> <b>All {{ sessions|length }} sessions</b></label>
+          {% for su in suites %}<label><input type="radio" name="pick" value="suite:{{ su }}" onchange="gfPick(this)"> suite <b>{{ su }}</b></label>{% endfor %}
+          <label><input type="radio" name="pick" value="pick" onchange="gfPick(this)"> pick sessions</label>
+        </div>
+        <script>function gfPick(el){ const pick = el.value === 'pick'; document.querySelectorAll('.sessionpick input').forEach(i => i.disabled = !pick); }</script>
+        <div class="sessionpick" style="margin-top:6px">
+        {% for s in sessions %}<label><input type="checkbox" name="session" value="{{ s.id }}" disabled> {{ s.title }}</label>{% endfor %}
+        </div>
+      </div>
+      <div>
+        <label class="small muted">Repeats per session</label><input class="input" type="number" name="repeat" value="3" min="1" max="10">
+        <label class="small muted">Concurrency</label><input class="input" type="number" name="concurrency" value="4" min="1" max="8">
+        <label class="small muted">Run id (optional)</label><input class="input" type="text" name="run_id" placeholder="auto">
+        <button class="btn primary" type="submit" id="btn-start" {% if job or not st.ready %}disabled title="{{ 'a run is in progress' if job else 'fix the red rows first' }}"{% endif %}>Start run</button>
+        <p class="small muted" style="margin:8px 0 0">Needs the order system and the agent worker running (<code>make up</code> or <code>gf agent dev</code>). A full matrix of {{ sessions|length }} × 3 takes about {{ (sessions|length * 3 * 1.1 / 4)|round|int }} minutes at concurrency 4.</p>
+      </div>
+    </div>
+  </form>
+</details>
+{% endif %}

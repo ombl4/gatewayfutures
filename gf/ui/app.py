@@ -284,8 +284,16 @@ def session_suite(session_id: str, suite: str = Form(...), action: str = Form("a
 
 
 @app.get("/runs", response_class=HTMLResponse)
-def runs():
-    return page("runs.html", o=model.overview(), job=jobs.current())
+async def runs():
+    sp = model.sessions_page()
+    return page(
+        "runs.html",
+        o=model.overview(),
+        job=jobs.current(),
+        st=await status.status(),
+        sessions=sp["sessions"],
+        suites=sp["suites"],
+    )
 
 
 @app.post("/runs/start")

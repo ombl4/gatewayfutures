@@ -50,12 +50,13 @@
   <details class="srow" data-session="{{ row.session_id }}" {% if should_open %}open{% endif %}>
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">{{ row.title }}{% if row.flaky %} <span class="pill amber">flaky</span>{% endif %}{% if r.previous and row.vs in ('regressed','fixed') %} <span class="vs {{ row.vs }}">{{ {'regressed':'⚠ regressed','fixed':'✓ fixed'}[row.vs] }}</span>{% endif %}</span>
+      <span class="ttl">{{ row.title }}{% if row.retired %} <span class="pill grey" title="{{ row.retired_reason }}">retired session</span>{% endif %}{% if row.flaky %} <span class="pill amber">flaky</span>{% endif %}{% if r.previous and row.vs in ('regressed','fixed') %} <span class="vs {{ row.vs }}">{{ {'regressed':'⚠ regressed','fixed':'✓ fixed'}[row.vs] }}</span>{% endif %}</span>
       <span class="bar" title="{{ row.passed }} pass · {{ row.n_fail }} fail · {{ row.n_invalid }} invalid"><i class="p" style="width:{{ 100 * row.passed / total }}%"></i><i class="f" style="width:{{ 100 * row.n_fail / total }}%"></i><i class="x" style="width:{{ 100 * row.n_invalid / total }}%"></i></span>
       <span class="cnt">{% if row.n %}<b class="{{ 'p' if row.passed == row.n else 'f' }}">{{ row.passed }}/{{ row.n }}</b> pass{% else %}<span class="muted">no valid</span>{% endif %}</span>
       <span class="cnt">{{ strip(r.run_id, row) }}</span>
     </summary>
     <div class="sbody">
+      {% if row.retired %}<div class="root invalid" style="margin:8px 0 10px"><b>Retired session</b>{{ row.retired_reason }}</div>{% endif %}
       <div class="cols4" style="margin:8px 0 10px">
         <div><div class="h">Persona</div>{% if row.persona.name %}<b>{{ row.persona.name }}</b><div class="muted">{{ row.persona.style }} · {{ row.persona.accent }}</div>{% else %}<span class="muted">from the engine's scenario</span>{% endif %}</div>
         <div><div class="h">Goal</div>{{ row.goal }}</div>
@@ -85,7 +86,7 @@
   {% for i in r.issues['items'] %}
     <a class="issue {{ i.severity }}" href="{{ call_link(i) }}" data-issue="{{ i.session_id }}/{{ i.attempt }}" data-t="{{ i.t_ms if i.t_ms is not none else '' }}">
       <div class="t"><span>{{ i.title }}</span><span class="sev {{ i.severity }}">{{ {'critical':'critical','high':'high','medium':'flagged','simulation':'invalid sim'}[i.severity] }}</span></div>
-      <div class="m">{{ i.session_title }} · attempt {{ i.attempt }}{% if i.t_ms is not none %} · at <span class="mono">{{ i.t_ms|clock }}</span>{% endif %}</div>
+      <div class="m">{{ i.session_title }} · attempt {{ i.attempt }}{% if i.t_ms is not none %} · at <span class="mono">{{ i.t_ms|clock }}</span>{% endif %}{% if i.retired %} · <span class="pill grey" title="{{ i.retired_reason }}">retired session</span>{% endif %}</div>
     </a>
   {% else %}
     <div class="card small muted">Nothing to investigate: every valid call passed cleanly.</div>

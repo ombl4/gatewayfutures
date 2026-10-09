@@ -110,3 +110,15 @@ def test_wilson_and_flaky():
     s = pass_summary([True, False, True])
     assert s["flaky"] and not s["pass_all"] and s["pass_any"] and s["rate"] == 0.6667
     assert pass_summary([])["n"] == 0
+
+
+def test_required_call_message_names_an_injected_fault():
+    from pathlib import Path
+
+    from gf.scoring.tools import _injected_fault
+    from gf.sessions.schema import Session
+
+    root = Path(__file__).resolve().parents[2]
+    sess = Session.load(root / "sessions" / "refund-backend-error-retry.yaml")
+    assert _injected_fault(sess, "issue_refund", 1) == "error_500 on call #1 of issue_refund"
+    assert _injected_fault(sess, "lookup_order", 1) is None

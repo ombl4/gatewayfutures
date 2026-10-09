@@ -5,5 +5,7 @@
 {% block content %}
 <h1>Runs</h1>
 <p class="sub">Each run is the whole session set, repeated. Runs with the same stamp (agent config + sessions + scoring method) are comparable.</p>
+{% include "_start_run.html" %}
+<h2>All runs</h2>
 {% include "_runs_table.html" %}
 {% endblock %}

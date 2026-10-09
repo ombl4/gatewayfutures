@@ -122,8 +122,8 @@ def test_run_page_content(env):
     assert 'aria-label="explain latency_p95"' in call
     assert 'id="time-breakdown"' in r
     assert 'id="by-area"' in r and "refund" in r
-    home = env["client"].get("/").text
-    assert 'value="suite:regression"' in home or 'name="pick"' in home
+    runs_page = env["client"].get("/runs").text
+    assert 'value="suite:regression"' in runs_page and 'name="pick"' in runs_page
     sessions = env["client"].get("/sessions").text
     assert 'data-filter="area:refund"' in sessions
     sp = env["client"].get("/sessions/7c994c348001").text
@@ -147,7 +147,7 @@ def test_run_page_content(env):
     home = env["client"].get("/?run=t1").text
     assert 'id="run-select"' in home and 'value="t1" selected' in home
     assert env["client"].get("/?run=nope").status_code == 200  # unknown run falls back to latest
-    assert "Not ready" in env["client"].get("/").text
+    assert "Not ready" in env["client"].get("/runs").text
 
 
 def test_api(env):
@@ -199,6 +199,7 @@ def test_start_refused_while_running(env):
     r = env["client"].post("/runs/start", data={"all": "1", "repeat": "1"})
     assert r.status_code == 400 and "already in progress" in r.text
     assert "Run in progress" in env["client"].get("/").text
+    assert "Run in progress" in env["client"].get("/runs").text
 
 
 def test_starting_run_renders_instead_of_404(env):

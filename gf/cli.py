@@ -307,7 +307,8 @@ def sessions(ctx: typer.Context) -> None:
 
     bad = 0
     folder = Path("sessions")
-    for p in sorted(folder.glob("*.yaml")) + sorted((folder / "generated").glob("*.yaml")):
+    paths = sorted(folder.glob("*.yaml")) + sorted((folder / "generated").glob("*.yaml"))
+    for p in [x for x in paths if x.name not in ("suites.yaml", "REASONS.yaml")]:
         try:
             s = Session.load(p)
             name = f"generated/{p.name}" if p.parent.name == "generated" else p.name

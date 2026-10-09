@@ -25,6 +25,15 @@ def _matches(call: ToolCall, tool: str, args: dict[str, Any]) -> bool:
     )
 
 
+def _injected_fault(session: Session, tool: str, nth_call: int) -> str | None:
+    """The fault the session injects on the nth call of a tool, if any (also covers records
+    made before the backend logged the fault tag on failing calls)."""
+    for f in session.faults:
+        if f.get("tool") == tool and int(f.get("nth", 1)) <= nth_call:
+            return f"{f.get('type')} on call #{f.get('nth', 1)} of {tool}"
+    return None
+
+
 def check_tools(record: CallRecord, session: Session) -> list[Check]:
     checks: list[Check] = []
     calls = record.tool_calls
@@ -43,11 +52,19 @@ def check_tools(record: CallRecord, session: Session) -> list[Check]:
                 for k, v in req.args.items()
                 if not _arg_match(v, near[-1].args.get(k))
             }
-            what = f"{req.tool} was called but not as expected: " + (
-                f"wrong arguments {diffs}"
-                if diffs
-                else f"it returned HTTP {near[-1].status} ({near[-1].response.get('error')})"
-            )
+            last = near[-1]
+            injected = last.fault or _injected_fault(session, req.tool, len(near))
+            if diffs:
+                detail = f"wrong arguments {diffs}"
+            elif injected:
+                detail = (
+                    f"it returned HTTP {last.status} ({last.response.get('error')}): an injected "
+                    f"fault from this session ({injected}), not a real backend error; the agent "
+                    "did not retry it"
+                )
+            else:
+                detail = f"it returned HTTP {last.status} ({last.response.get('error')})"
+            what = f"{req.tool} was called but not as expected: {detail}"
         else:
             what = f"{req.tool} was never called"
         checks.append(
