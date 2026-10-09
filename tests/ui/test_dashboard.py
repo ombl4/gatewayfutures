@@ -239,6 +239,7 @@ def test_kpis_accordion_and_issues(site, page):
 
 def test_inspector_controls(site, page):
     page.goto(site["base"] + "/runs/t1/7c994c348001/1")
+    assert page.locator('#inspector [data-pane="flow"]').is_visible()  # default on the call page
     insp = page.locator("#inspector")
     assert insp.locator("#insp-root").count() == 1
     # tabs
@@ -269,6 +270,20 @@ def test_inspector_controls(site, page):
     assert not tags.nth(0).locator(".pop").is_visible() and tags.nth(1).locator(".pop").is_visible()
     page.click("#insp-root")
     assert page.locator("#insp-checks .tag.open").count() == 0
+    # call flow (default tab on the call page): cards, connectors, zoom, click selects + seeks
+    page.click('#inspector [data-tab="flow"]')
+    assert page.locator('#inspector [data-pane="flow"]').is_visible()
+    assert page.locator("#flowgrid .fcard").count() >= 6
+    assert len(page.locator("#flowlinks path").get_attribute("d") or "") > 20
+    tool_card = page.locator("#flowgrid .fcard.lane-tools").first
+    tool_card.click()
+    assert page.locator(f'.tev[data-tev="{tool_card.get_attribute("data-tool")}"]').is_visible()
+    assert page.evaluate("document.getElementById('insp-audio').currentTime") > 0
+    page.click("#flow-in")
+    assert page.locator("#flow-zoom").inner_text() == "110%"
+    page.click("#flow-expand")
+    assert page.locator("#flowgrid").evaluate("g => g.classList.contains('expanded')")
+    page.click('#inspector [data-tab="transcript"]')
     # transcript annotations: a tool event is tagged with the requirement it met; ? explains it
     tagged = insp.locator("#transcript .toolev .tags.tested .tag").first
     tagged.locator(".q").click()

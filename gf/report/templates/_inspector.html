@@ -22,7 +22,9 @@
   <div class="legend"><span><i style="background:var(--caller)"></i>caller</span><span><i style="background:var(--agent)"></i>agent</span><span><i style="background:var(--tool)"></i>tool call</span><span><i style="background:var(--red)"></i>issue</span><span><i style="background:#f59e0b"></i>interruption</span><span><i style="background:#fde68a"></i>dead air</span>{% if not c.audio_href %}<span class="muted">no recording for this call</span>{% else %}<span class="muted">click the lanes to seek</span>{% endif %}</div>
 
   <div class="tabs" data-tabs="inspector">
-    <button type="button" data-tab="transcript" class="on">Transcript</button>
+    {% set first = 'transcript' if embedded else 'flow' %}
+    <button type="button" data-tab="flow" {% if first == 'flow' %}class="on"{% endif %}>Call flow</button>
+    <button type="button" data-tab="transcript" {% if first == 'transcript' %}class="on"{% endif %}>Transcript</button>
     <button type="button" data-tab="grading">Grading</button>
     <button type="button" data-tab="tools">Tool calls<b>{{ c.tool_calls|length }}</b></button>
     <button type="button" data-tab="timeline">Timeline</button>
@@ -35,7 +37,43 @@
   <div class="panes">
     <div>
       {% macro tested(tests) %}{% if tests %}<div class="tags tested">{% for t in tests %}<span class="tag {{ t.state }}" data-check="{{ t.check_id }}"><span class="m">{{ {'pass':'✓','fail':'✗','warn':'!','info':'·'}[t.state] }}</span><code>{{ t.tag }}</code><button type="button" class="q" aria-label="explain {{ t.tag }}">?</button><span class="pop"><b>{{ t.label }}</b><span class="what">{{ t.text }}</span>{% if t.why %}<span class="why">{{ t.why }}</span>{% endif %}</span></span>{% endfor %}</div>{% endif %}{% endmacro %}
-      <div class="pane" data-pane="transcript" id="transcript">
+      <div class="pane" data-pane="flow" id="flow" {% if first != 'flow' %}hidden{% endif %}>
+        {% set F = c.flow %}
+        <div class="flowbar"><span>{{ F.exchanges|length }} exchanges · {{ F.cards }} steps · columns are coloured by the evaluator's verdict for that exchange</span><span style="margin-left:auto"></span><button type="button" class="btn sm" id="flow-out">−</button><span id="flow-zoom">100%</span><button type="button" class="btn sm" id="flow-in">+</button><button type="button" class="btn sm" id="flow-expand">Expand all</button></div>
+        <div class="flowwrap" id="flowwrap">
+        <div class="flowgrid" id="flowgrid" style="grid-template-columns:130px repeat({{ F.exchanges|length }}, 250px)">
+          <div class="lanehd" style="border:0"></div>
+          {% for e in F.exchanges %}<div class="exhd {{ e.state }}">{{ e.title }}<span class="rng">{{ e.start_ms|clock }} – {{ e.end_ms|clock }}</span></div>{% endfor %}
+          {% for lane, label in F.lanes %}
+          <div class="lanehd"><i style="background:{{ {'caller':'var(--caller)','heard':'#60a5fa','decision':'var(--agent)','tools':'var(--tool)','response':'#7c3aed','evaluator':'var(--green)'}[lane] }}"></i>{{ label }}</div>
+          {% for e in F.exchanges %}
+          <div class="cell">
+            {% if lane == 'evaluator' %}
+              {% if e.findings %}
+              <div class="fcard lane-evaluator {{ e.state }}" data-t="{{ e.start_ms }}">
+                <div class="ttl">{{ {'fail':'✗ failed','warn':'! flagged','pass':'✓ ok'}[e.state] }}</div>
+                <div class="txt">{% for f in e.findings[:4] %}<div><code>{{ f.tag }}</code> {{ {'pass':'✓','fail':'✗','warn':'!','info':'·'}[f.state] }} <span class="muted">{{ f.text[:70] }}</span></div>{% endfor %}{% if e.findings|length > 4 %}<div class="muted">+{{ e.findings|length - 4 }} more</div>{% endif %}</div>
+              </div>
+              {% endif %}
+            {% else %}
+              {% for card in e.lanes[lane] %}
+              <div class="fcard lane-{{ lane }} {{ 'bad' if card.bad or card.ok is sameas false else '' }}" data-num="{{ card.num }}" data-t="{{ card.t_ms }}" {% if card.tool_id is defined %}data-tool="{{ card.tool_id }}"{% endif %}>
+                <span class="num">{{ card.num }}</span>
+                <div class="ttl">{{ card.title }}{% if card.latency_ms is defined and card.latency_ms is not none %}<span class="pill {{ card.latency_class }}">{{ card.latency_ms|ms }}</span>{% endif %}{% if card.status is defined %}<span class="pill {{ 'green' if card.ok else 'red' }}">{{ card.status }}</span>{% endif %}</div>
+                <div class="txt">{% if card.marks is defined and card.marks %}{% for m in card.marks %}{% if m.bad %}<mark>{{ m.w }}</mark>{% else %}{{ m.w }}{% endif %} {% endfor %}{% else %}{{ card.text }}{% endif %}{% if card.response_short is defined and card.response_short %}<div class="muted">→ {{ card.response_short[:80] }}</div>{% endif %}</div>
+                <div class="ft"><span>{{ card.t_ms|clock }}</span><span>{% if card.dur_ms is defined and card.dur_ms %}{{ card.dur_ms }} ms{% endif %}</span></div>
+              </div>
+              {% endfor %}
+            {% endif %}
+          </div>
+          {% endfor %}
+          {% endfor %}
+          <svg class="links" id="flowlinks"></svg>
+        </div>
+        </div>
+      </div>
+
+      <div class="pane" data-pane="transcript" id="transcript" {% if first != 'transcript' %}hidden{% endif %}>
       {% for it in c.turns %}
         {% if it.kind == 'caller' %}
         <div class="turn caller" data-t="{{ it.t_ms }}" data-end="{{ it.end_ms }}">
@@ -327,6 +365,35 @@
   const hashT = (location.hash.match(/t=(\d+)/) || [])[1];
   const t0 = hashT !== undefined ? +hashT : start;
   if (t0 !== null && t0 !== undefined && audio) { seek(t0, false); draw(); highlight(); if (hashT !== undefined) { root.scrollIntoView({block:'start'}); scrollToTime(t0); } }
+  // call flow: connectors between numbered cards, zoom, expand, click to seek / select
+  (function(){
+    const grid = document.getElementById('flowgrid'), svg = document.getElementById('flowlinks'), wrap = document.getElementById('flowwrap');
+    if (!grid) return;
+    let zoom = 1;
+    function links(){
+      const cards = [...grid.querySelectorAll('.fcard[data-num]')].sort((a,b) => +a.dataset.num - +b.dataset.num);
+      const g = grid.getBoundingClientRect();
+      svg.setAttribute('width', grid.scrollWidth); svg.setAttribute('height', grid.scrollHeight);
+      let d = '';
+      for (let i = 1; i < cards.length; i++) {
+        const a = cards[i-1].getBoundingClientRect(), b = cards[i].getBoundingClientRect();
+        const ax = (a.right - g.left) / zoom, ay = (a.top + a.height/2 - g.top) / zoom;
+        const bx = (b.left - g.left) / zoom, by = (b.top + b.height/2 - g.top) / zoom;
+        if (bx > ax + 4) { const mx = (ax + bx) / 2; d += `M${ax},${ay} C${mx},${ay} ${mx},${by} ${bx},${by} `; }
+        else { const sx = (a.left + a.width/2 - g.left) / zoom, sy = (a.bottom - g.top) / zoom, tx = (b.left + b.width/2 - g.left) / zoom, ty = (b.top - g.top) / zoom; d += `M${sx},${sy} C${sx},${(sy+ty)/2} ${tx},${(sy+ty)/2} ${tx},${ty} `; }
+      }
+      svg.innerHTML = `<path d="${d}"/>`;
+    }
+    function setZoom(z){ zoom = Math.max(0.5, Math.min(1.5, z)); grid.style.transform = `scale(${zoom})`; document.getElementById('flow-zoom').textContent = Math.round(zoom*100) + '%'; wrap.style.height = ''; requestAnimationFrame(links); }
+    document.getElementById('flow-in').addEventListener('click', () => setZoom(zoom + 0.1));
+    document.getElementById('flow-out').addEventListener('click', () => setZoom(zoom - 0.1));
+    document.getElementById('flow-expand').addEventListener('click', e => { grid.classList.toggle('expanded'); e.target.textContent = grid.classList.contains('expanded') ? 'Collapse' : 'Expand all'; requestAnimationFrame(links); });
+    grid.addEventListener('click', e => { const card = e.target.closest('.fcard'); if (!card) return; grid.querySelectorAll('.fcard.sel').forEach(c => c.classList.remove('sel')); card.classList.add('sel'); if (card.dataset.tool) selectTool(card.dataset.tool); if (card.dataset.t) seek(+card.dataset.t); });
+    root.addEventListener('click', e => { if (e.target.closest('[data-tab="flow"]')) setTimeout(links, 0); });
+    window.addEventListener('resize', links);
+    if (!document.getElementById('flow').hidden) requestAnimationFrame(links);
+    window.gfFlow = { links, setZoom };
+  })();
   window.gfInspector = { seek, selectTool, draw };
 })();
 </script>

@@ -294,3 +294,28 @@ def test_backfill_reads_library_versions_from_the_lockfile_history():
     assert "uv.lock" in hist["backfilled"]["from"]
     # same recorded libraries as a live manifest, so the tag can match a live run's
     assert set(E.RECORDED_LIBS) <= set(hist)
+
+
+def test_call_flow_groups_a_record_into_exchanges(tmp_path, monkeypatch):
+    import shutil
+
+    runs = tmp_path / "runs"
+    (runs / "r" / "7c994c348001").mkdir(parents=True)
+    shutil.copytree(
+        ROOT / "fixtures" / "records" / "refund-basic", runs / "r" / "7c994c348001" / "1"
+    )
+    monkeypatch.setenv("RUNS_DIR", str(runs))
+    c = model.call_report("r", "7c994c348001", 1)
+    flow = c["flow"]
+    callers = [t for t in c["turns"] if t["kind"] == "caller" and not t.get("interruption")]
+    assert flow["exchanges"][0]["title"] == "Greeting"
+    assert len(flow["exchanges"]) == len(callers) + 1
+    tools_in_flow = [card for e in flow["exchanges"] for card in e["lanes"]["tools"]]
+    assert len(tools_in_flow) == len(c["tool_calls"])
+    nums = [card["num"] for e in flow["exchanges"] for card in e["cards"]]
+    assert sorted(nums) == list(range(1, len(nums) + 1))
+    # a tool call lands in the exchange of the caller turn that triggered it
+    for e in flow["exchanges"]:
+        for card in e["lanes"]["tools"]:
+            assert card["t_ms"] >= e["start_ms"]
+    assert all(e["state"] in ("pass", "warn", "fail") for e in flow["exchanges"])

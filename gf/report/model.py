@@ -1099,6 +1099,8 @@ def call_report_from_folder(
     ux = timeline.get("ux", {})
     turns = _merge_turns(record, timeline)
     annotate_turns(turns, checks, thresholds().model_dump())
+    lat_turns = turn_latency(record, timeline)
+    flow = call_flow(turns, lat_turns)
     env = envelopes(record.audio_path) if record.audio_path else None
     meta = record.meta
     caller = meta.get("caller", {})
@@ -1155,7 +1157,8 @@ def call_report_from_folder(
         "files": sorted(p.name for p in Path(folder).iterdir()),
         "folder": str(folder),
         "thresholds": thresholds().model_dump(),
-        "latency_turns": turn_latency(record, timeline),
+        "latency_turns": lat_turns,
+        "flow": flow,
         "neighbours": _neighbours(run_id, record.session_id, record.attempt),
         "started_at": meta.get("started_at"),
         "n_fail": sum(g["n_fail"] for g in groups),
@@ -1523,6 +1526,145 @@ def _response_short(resp: dict[str, Any], ok: bool) -> str:
     if keys:
         return ", ".join(f"{k}={resp[k]}" for k in keys)[:160]
     return json.dumps(resp)[:160]
+
+
+LANES = [
+    ("caller", "Caller"),
+    ("heard", "Agent heard"),
+    ("decision", "Agent decision"),
+    ("tools", "Tools"),
+    ("response", "Agent response"),
+    ("evaluator", "Evaluator"),
+]
+
+
+def call_flow(turns: list[dict[str, Any]], lat_turns: dict[str, Any]) -> dict[str, Any]:
+    """Swimlane view (T6.23): exchanges (one caller turn and the agent's response to it; the
+    greeting is exchange 0) × lanes, with numbered cards in time order."""
+    lat_by_n = {t["n"]: t for t in lat_turns.get("turns", [])}
+    exchanges: list[dict[str, Any]] = []
+
+    def new(n: int, start: int, title: str) -> dict[str, Any]:
+        return {
+            "n": n,
+            "title": title,
+            "start_ms": start,
+            "end_ms": start,
+            "cards": [],
+            "findings": [],
+        }
+
+    cur = new(0, 0, "Greeting")
+    pending_tools: list[str] = []
+    for it in sorted(turns, key=lambda e: (e["t_ms"] or 0, 0 if e["kind"] == "tool" else 1)):
+        t = it["t_ms"] or 0
+        if it["kind"] == "caller" and not it.get("interruption"):
+            if cur["cards"] or cur["n"] == 0 and exchanges == [] and False:
+                exchanges.append(cur)
+            elif cur["n"] == 0:
+                exchanges.append(cur)  # an empty greeting column still marks the start
+            cur = new(len(exchanges), t, f"Exchange {len(exchanges)}")
+            pending_tools = []
+        if it["kind"] == "caller":
+            cur["cards"].append(
+                {
+                    "lane": "caller",
+                    "t_ms": t,
+                    "end_ms": it.get("end_ms"),
+                    "title": "interrupts" if it.get("interruption") else "Speaks",
+                    "text": it["text"],
+                    "dur_ms": (it.get("end_ms") or t) - t,
+                    "tests": it.get("tests", []),
+                    "n": it["n"],
+                }
+            )
+            if it.get("heard"):
+                cur["cards"].append(
+                    {
+                        "lane": "heard",
+                        "t_ms": t + 1,
+                        "title": "Transcript" + (" (misheard)" if it.get("heard_differs") else ""),
+                        "text": it["heard"],
+                        "marks": it.get("heard_marks", []),
+                        "bad": bool(it.get("heard_differs")),
+                        "tests": [
+                            x
+                            for x in it.get("tests", [])
+                            if x.get("check_id", "").startswith("speech.")
+                        ],
+                    }
+                )
+        elif it["kind"] == "tool":
+            pending_tools.append(it["tool"])
+            cur["cards"].append(
+                {
+                    "lane": "tools",
+                    "t_ms": t,
+                    "title": f"{it['tool']}()",
+                    "text": ", ".join(f"{k}={v}" for k, v in (it.get("args") or {}).items()),
+                    "ok": it.get("ok"),
+                    "status": it.get("status"),
+                    "dur_ms": it.get("duration_ms"),
+                    "tool_id": it.get("id"),
+                    "tests": it.get("tests", []),
+                    "response_short": it.get("response_short", ""),
+                }
+            )
+        elif it["kind"] == "agent":
+            lat = lat_by_n.get(it["n"]) or {}
+            decided = f"call {', '.join(pending_tools)}" if pending_tools else "reply directly"
+            cur["cards"].append(
+                {
+                    "lane": "decision",
+                    "t_ms": t - 1,
+                    "title": "Decides to " + decided,
+                    "text": (
+                        f"LLM first token {lat['llm_ttft_ms']} ms" if lat.get("llm_ttft_ms") else ""
+                    )
+                    + (f" · end of turn {lat['eou_ms']} ms" if lat.get("eou_ms") else ""),
+                    "tests": [],
+                }
+            )
+            pending_tools = []
+            cur["cards"].append(
+                {
+                    "lane": "response",
+                    "t_ms": t,
+                    "end_ms": it.get("end_ms"),
+                    "title": "Replies" + (" (interrupted)" if it.get("interrupted") else ""),
+                    "text": it["text"],
+                    "latency_ms": it.get("latency_ms"),
+                    "latency_class": it.get("latency_class"),
+                    "dur_ms": ((it.get("end_ms") or t) - t),
+                    "tests": it.get("tests", []),
+                    "n": it["n"],
+                }
+            )
+        elif it["kind"] == "dead_air":
+            cur["findings"] += it.get("tests", [])
+        cur["end_ms"] = max(cur["end_ms"], it.get("end_ms") or t)
+    exchanges.append(cur)
+    exchanges = [e for e in exchanges if e["cards"] or e["n"] == 0]
+    num = 0
+    for e in exchanges:
+        seen = set()
+        findings = list(e["findings"])
+        for c in sorted(e["cards"], key=lambda c: c["t_ms"]):
+            num += 1
+            c["num"] = num
+            for x in c.get("tests", []):
+                key = (x["tag"], x["state"], x["text"])
+                if key not in seen:
+                    seen.add(key)
+                    findings.append(x)
+        e["findings"] = findings
+        states = {f["state"] for f in findings}
+        e["state"] = "fail" if "fail" in states else ("warn" if "warn" in states else "pass")
+        e["lanes"] = {
+            lane: [c for c in sorted(e["cards"], key=lambda c: c["t_ms"]) if c["lane"] == lane]
+            for lane, _ in LANES
+        }
+    return {"exchanges": exchanges, "lanes": LANES, "cards": num}
 
 
 def annotate_turns(
