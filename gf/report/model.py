@@ -309,8 +309,10 @@ def run_metrics(summ: dict[str, Any]) -> dict[str, float | None]:
             a["livekit"]["wer"] for a in valid if (a.get("livekit") or {}).get("wer") is not None
         ]
         wer_source = "engine" if wers else "none"
+    e = summ.get("experience") or {}
     return {
         "rate": o.get("rate") if o.get("n") else None,
+        "experience_rate": e.get("rate") if e.get("n") else None,
         "tool_rate": (sum(1 for a in tool_known if a["tool_ok"]) / len(tool_known))
         if tool_known
         else None,
@@ -334,7 +336,13 @@ def _run_history(run_id: str, summ: dict[str, Any], last: int = 8) -> list[tuple
     return [h for h in history if h[0] <= (summ.get("started_at") or "\uffff")][-last:]
 
 
-BREAKDOWN_STATUS = {"failed": "high", "invalid": "medium", "hearing": "medium", "judge": "low"}
+BREAKDOWN_STATUS = {
+    "failed": "high",
+    "experience": "high",
+    "invalid": "medium",
+    "hearing": "medium",
+    "judge": "low",
+}
 
 
 def _breakdown_counts(summ: dict[str, Any]) -> dict[str, int]:
@@ -342,6 +350,7 @@ def _breakdown_counts(summ: dict[str, Any]) -> dict[str, int]:
     valid = [a for a in atts if a.get("valid")]
     counts: dict[str, int] = {
         "failed": sum(1 for a in valid if not a.get("passed")),
+        "experience": sum(1 for a in valid if a.get("experience_ok") is False),
         "invalid": sum(1 for a in atts if not a.get("valid")),
         "hearing": sum(1 for a in atts if a.get("hearing_fault")),
         "judge": sum(1 for a in atts if "validity.persona_judge" in (a.get("caller_flags") or [])),
@@ -357,7 +366,8 @@ def issue_breakdown(run_id: str, summ: dict[str, Any]) -> dict[str, Any]:
     (failed calls are high; invalid simulations and hearing faults medium; flags low) and the
     count over the last runs as a trend (T6.29)."""
     labels = {
-        "failed": "Failed calls",
+        "failed": "Failed the task",
+        "experience": "Failed the experience bars",
         "invalid": "Invalid simulations",
         "hearing": "Hearing faults (simulator)",
         "judge": "Persona-judge disagreements",
@@ -430,18 +440,36 @@ def kpi_cards(
         }
 
     n_valid = o.get("n") or 0
+    e = summ.get("experience") or {}
     return [
         card(
             "rate",
-            "Calls passed",
+            "Task success",
             lambda v: _pct(v),
             f"{o.get('passed', 0)} / {n_valid} valid calls · CI {_pct(o.get('ci_low'))}–{_pct(o.get('ci_high'))}"
             if n_valid
             else "no valid calls yet",
             cls=rate_class(cur["rate"]),
             note=(
-                "A call passes when the backend shows the right actions, the agent told the "
-                "truth, and no experience bar was crossed (reply latency, dead air)."
+                "The task verdict: the order system shows the right actions and the agent told "
+                "the truth. Latency and dead air are the experience verdict, next to it."
+            ),
+        ),
+        card(
+            "experience_rate",
+            "Experience",
+            lambda v: _pct(v),
+            (
+                f"{e.get('passed', 0)} / {e.get('n', 0)} valid calls within the bars · CI "
+                f"{_pct(e.get('ci_low'))}–{_pct(e.get('ci_high'))}"
+            )
+            if e.get("n")
+            else "rescore this run to measure",
+            cls=rate_class(cur["experience_rate"]),
+            note=(
+                f"The experience verdict: p95 reply latency under {th.latency_p95_fail_s:g} s, no "
+                f"silence after the caller of {th.dead_air_gap_fail_s:g} s or more, and the "
+                "agent's own words intelligible."
             ),
         ),
         card(
@@ -591,7 +619,12 @@ def by_area(
             entry["n_fail"] = sum(
                 len(i.get("attempts") or [1])
                 for i in entry["issues"]
-                if i["severity"] != "simulation"
+                if i["severity"] not in ("simulation", "experience")
+            )
+            entry["n_experience"] = sum(
+                len(i.get("attempts") or [1])
+                for i in entry["issues"]
+                if i["severity"] == "experience"
             )
             entry["n_invalid"] = sum(
                 len(i.get("attempts") or [1])
@@ -636,7 +669,7 @@ def _delta_text(key: str, d: float) -> str:
     return f"{'+' if d > 0 else ''}{d * 100:.0f} pts"
 
 
-SEVERITY_ORDER = {"critical": 0, "high": 1, "medium": 2, "simulation": 3}
+SEVERITY_ORDER = {"critical": 0, "high": 1, "experience": 2, "medium": 3, "simulation": 4}
 
 
 def issues_for(r: dict[str, Any], limit: int = 6) -> dict[str, Any]:
@@ -648,6 +681,10 @@ def issues_for(r: dict[str, Any], limit: int = 6) -> dict[str, Any]:
         crit = any(i.startswith("claims.") or i == "tools.wrong_write" for i in ids)
         out.append(
             _issue(r, a, "critical" if crit else "high", a.get("failure_reason") or "failed")
+        )
+    for a in r.get("experience_failing", []):
+        out.append(
+            _issue(r, a, "experience", a.get("experience_reason") or "experience bar crossed")
         )
     for a in r["invalid"]:
         out.append(_issue(r, a, "simulation", a.get("failure_reason") or "invalid simulation"))
@@ -950,6 +987,11 @@ def run_row(run_id: str) -> dict[str, Any]:
         "n": o.get("n"),
         "passed": o.get("passed"),
         "rate": o.get("rate"),
+        "experience_passed": ((summ or {}).get("experience") or {}).get("passed"),
+        "experience_rate": ((summ or {}).get("experience") or {}).get("rate"),
+        "experience_class": rate_class(((summ or {}).get("experience") or {}).get("rate"))
+        if (summ or {}).get("experience")
+        else "grey",
         "ci_low": o.get("ci_low"),
         "ci_high": o.get("ci_high"),
         "invalid": (summ or {}).get("invalid"),
@@ -1096,9 +1138,26 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
         return out
 
     failing = _attempt_rows(lambda a: a["valid"] and not a["passed"])
+    experience_failing = _attempt_rows(
+        lambda a: a["valid"] and a["passed"] and a.get("experience_ok") is False
+    )
     invalid = _attempt_rows(lambda a: not a["valid"])
-    flagged = _attempt_rows(lambda a: a["valid"] and a["passed"] and a.get("soft_flags"))
-    clean = _attempt_rows(lambda a: a["valid"] and a["passed"] and not a.get("soft_flags"))
+    flagged = _attempt_rows(
+        lambda a: (
+            a["valid"]
+            and a["passed"]
+            and a.get("experience_ok") is not False
+            and a.get("soft_flags")
+        )
+    )
+    clean = _attempt_rows(
+        lambda a: (
+            a["valid"]
+            and a["passed"]
+            and a.get("experience_ok") is not False
+            and not a.get("soft_flags")
+        )
+    )
     reference = next(
         (a for a in summ["attempts"] if a["valid"] and a["passed"] and not a.get("soft_flags")),
         None,
@@ -1124,6 +1183,7 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
         "flaky": summ.get("flaky_sessions", []),
         "sessions": rows,
         "failing": failing,
+        "experience_failing": experience_failing,
         "invalid": invalid,
         "flagged": flagged,
         "clean": clean,
@@ -1378,6 +1438,11 @@ def call_report_from_folder(
     verdict = (
         "invalid" if not scores.get("valid", True) else ("pass" if scores.get("passed") else "fail")
     )
+    experience = (
+        "invalid"
+        if not scores.get("valid", True)
+        else ("fail" if scores.get("experience_ok") is False else "pass")
+    )
     ux = timeline.get("ux", {})
     turns = _merge_turns(record, timeline)
     annotate_turns(turns, checks, thresholds().model_dump())
@@ -1402,6 +1467,8 @@ def call_report_from_folder(
         "attempt": record.attempt,
         "title": meta.get("session_title") or (session.title if session else record.session_id),
         "verdict": verdict,
+        "experience": experience,
+        "experience_reason": scores.get("experience_reason", ""),
         "failure_reason": scores.get("failure_reason", ""),
         "soft_flags": [SOFT_LABELS.get(f, f) for f in scores.get("soft_flags", [])],
         "duration_ms": ux.get("duration_ms") or int(record.audio_duration_s * 1000),
@@ -1811,26 +1878,36 @@ def grading_steps(
         )
     soft_checks = [c for gid in SOFT_GROUPS for c in (by_id.get(gid) or {}).get("checks", [])]
     soft_fails = [c for c in soft_checks if not c["passed"] and c["severity"] == "soft"]
+    exp_fails = [c for c in soft_checks if not c["passed"] and c["severity"] == "hard"]
     steps.append(
         {
             "num": "4",
-            "title": "Was the call good to be on?",
-            "rule": "Hearing, reply latency, dead air, interruptions, repeats and speech quality. These flag a call but never fail it.",
-            "state": "warn" if soft_fails else ("pass" if soft_checks else "none"),
+            "title": "Was the call good to be on? (experience verdict)",
+            "rule": (
+                "Reply latency, dead air, the agent's own intelligibility, interruptions, repeats "
+                "and speech quality. Crossing a fail bar (latency, dead air, intelligibility) "
+                "fails the experience verdict, never the task; the rest only flag the call."
+            ),
+            "state": "fail"
+            if exp_fails
+            else ("warn" if soft_fails else ("pass" if soft_checks else "none")),
             "checks": soft_checks,
             "requirements": [],
-            "fails": soft_fails,
+            "fails": exp_fails or soft_fails,
         }
     )
     valid = scores.get("valid", True)
     passed = scores.get("passed", False)
+    exp_note = (
+        f"; experience failed: {exp_fails[0]['what_happened']}"
+        if exp_fails
+        else (f"; flagged on {len(soft_fails)} soft check(s) in step 4" if soft_fails else "")
+    )
     if not valid:
         verdict, why = "invalid", "step 1 failed, so this call is excluded from the agent's results"
     elif passed:
         verdict = "pass"
-        why = "every hard check in steps 1–3 passed" + (
-            f"; flagged on {len(soft_fails)} soft check(s) in step 4" if soft_fails else ""
-        )
+        why = "task passed: every hard check in steps 2–3 passed" + exp_note
     else:
         first = next((st for st in steps[1:3] if st["state"] == "fail"), None)
         why = (
@@ -1843,12 +1920,13 @@ def grading_steps(
         {
             "num": "5",
             "title": "Verdict",
-            "rule": "A call passes when every hard check in steps 1–3 passes. Soft checks (step 4) flag it. A failed step 1 makes it invalid.",
+            "rule": "Two verdicts. Task: every hard check in steps 2–3 passes. Experience: no fail bar in step 4 crossed. A failed step 1 makes the call invalid.",
             "state": {"pass": "pass", "fail": "fail", "invalid": "invalid"}[verdict],
             "checks": [],
             "requirements": [],
             "fails": [],
             "verdict": verdict,
+            "experience": "invalid" if not valid else ("fail" if exp_fails else "pass"),
             "why": why,
         }
     )

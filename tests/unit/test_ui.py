@@ -421,6 +421,7 @@ def test_area_pills_carry_their_sessions_issues(env):
             assert i["session_id"] in in_area and i["severity"] in (
                 "critical",
                 "high",
+                "experience",
                 "simulation",
             )
             assert "attempt" in i and "t_ms" in i
@@ -430,7 +431,7 @@ def test_area_pills_carry_their_sessions_issues(env):
         for c in a["passes"]:
             assert c["session_id"] in in_area and c["attempt"]
         assert a["issues"] or a["flagged"] or a["passes"], a["area"]
-        assert a["n_fail"] + a["n_invalid"] == sum(
+        assert a["n_fail"] + a["n_experience"] + a["n_invalid"] == sum(
             len(i.get("attempts") or [1]) for i in a["issues"]
         )
     assert all(
@@ -444,7 +445,7 @@ def test_area_pills_carry_their_sessions_issues(env):
         for i in a["issues"]
         for n in (i.get("attempts") or [i["attempt"]])
     }
-    for x in r["failing"] + r["invalid"]:
+    for x in r["failing"] + r["experience_failing"] + r["invalid"]:
         assert (x["session_id"], x["attempt"]) in seen
     html = env["client"].get("/").text
     assert 'class="area"' in html and "itile" in html and 'id="issues"' not in html

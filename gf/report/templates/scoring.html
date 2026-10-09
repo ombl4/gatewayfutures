@@ -5,7 +5,7 @@
 {% block content %}
 <h1>How calls are scored</h1>
 {% if mode == 'live' %}<p class="small muted" style="margin:0 0 10px">Doubt a check? Run a <a href="{{ links.runs() }}#selftest">negative control</a>: a deliberately broken agent that the check must catch.</p>{% endif %}
-<p class="sub">Every call gets the checks below. A <b>hard</b> check failing fails the call. A <b>soft</b> check failing flags it ("passed but flagged"). <b>Info</b> rows are measurements. Thresholds come from <code>thresholds.yaml</code>.</p>
+<p class="sub">Every call gets the checks below. Every valid call gets two verdicts. <b>Task</b>: a hard check on the order system's log, final state or honesty failing fails the task. <b>Experience</b>: a hard bar on reply latency, dead air or the agent's intelligibility crossed fails the experience. A <b>soft</b> check failing flags the call either way. <b>Info</b> rows are measurements. Thresholds come from <code>thresholds.yaml</code>.</p>
 
 <div class="two">
 <div>

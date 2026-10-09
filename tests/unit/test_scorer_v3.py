@@ -223,3 +223,54 @@ def test_fixture_timelines_still_score(tmp_path: Path):
     assert {"tools.avoidable_rejection", "caller.went_quiet", "ux.dead_air"} <= ids
     assert r["method_version"].startswith("score-v3")
     json.dumps(r)
+
+
+def test_run_summary_carries_both_verdicts(tmp_path: Path, monkeypatch):
+    """T5.15: the run summary has a task rate (overall) and an experience rate, each with
+    its own interval, and the per-session rows carry both counts."""
+    import shutil
+
+    from gf.config import settings
+    from gf.scoring.score import score_run
+
+    runs = tmp_path / "runs"
+    (runs / "t").mkdir(parents=True)
+    for i, rec in enumerate(("refund-basic", "refund-basic"), 1):
+        shutil.copytree(REC / rec, runs / "t" / "7c994c348001" / str(i))
+    sess_dir = tmp_path / "sessions"
+    sess_dir.mkdir()
+    shutil.copy(SESS / "refund-basic.yaml", sess_dir / "refund-basic.yaml")
+    (runs / "t" / "manifest.json").write_text(
+        json.dumps(
+            {
+                "run_id": "t",
+                "sessions": [
+                    {
+                        "id": "7c994c348001",
+                        "title": "x",
+                        "path": str(sess_dir / "refund-basic.yaml"),
+                    }
+                ],
+                "repeat": 2,
+                "started_at": "2026-10-09T00:00:00+00:00",
+                "calls": [
+                    {
+                        "session_id": "7c994c348001",
+                        "attempt": i,
+                        "record_dir": str(runs / "t" / "7c994c348001" / str(i)),
+                    }
+                    for i in (1, 2)
+                ],
+            }
+        )
+    )
+    monkeypatch.setenv("RUNS_DIR", str(runs))
+    monkeypatch.setenv("SESSIONS_DIR", str(sess_dir))
+    monkeypatch.setenv("GF_SECOND_OPINION", "0")
+    assert settings().runs_dir == runs
+    s = score_run("t")
+    assert s["overall"]["n"] == 2 and s["overall"]["passed"] == 2
+    assert s["experience"]["n"] == 2 and s["experience"]["passed"] == 0
+    assert 0 <= s["experience"]["ci_low"] <= s["experience"]["ci_high"] <= 1
+    row = s["sessions"][0]
+    assert row["passed"] == 2 and row["experience_passed"] == 0

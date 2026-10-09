@@ -88,7 +88,7 @@
   <td><a href="{{ links.call(r.run_id, a.session_id, a.attempt) }}">{{ title }}</a></td>
   <td>{{ a.attempt }}</td>
   <td>{{ rb.replay(r.run_id, a, title) }}</td>
-  <td><span class="pill {{ 'invalid' if not a.valid else ('pass' if a.passed else 'fail') }}">{{ 'invalid' if not a.valid else ('pass' if a.passed else 'fail') }}</span></td>
+  <td><span class="pill {{ 'invalid' if not a.valid else ('pass' if a.passed else 'fail') }}">{{ 'invalid' if not a.valid else ('pass' if a.passed else 'fail') }}</span>{% if a.valid and a.experience_ok is defined and a.experience_ok == false %} <span class="pill amber exp" title="{{ a.experience_reason }}">experience</span>{% endif %}</td>
   {% if r.engine == 'livekit-simulate' %}<td>{% if a.livekit %}<span class="pill {{ 'green' if a.livekit.passed else 'red' }}">{{ 'passed' if a.livekit.passed else 'failed' }}</span> <span class="small muted">WER {{ '%.0f%%'|format(a.livekit.wer * 100) if a.livekit.wer is not none else '–' }}</span>{% endif %}</td>{% endif %}
   <td class="small">{{ a.failure_reason }}{% if a.valid and a.passed %}{% for f in a.soft_flags %}<span class="chip">{{ r.soft_labels.get(f, f) }}</span>{% endfor %}{% endif %}</td>
   <td>{{ a.duration_ms|ms }}</td><td>{{ a.latency_p95_ms|ms }}</td><td>{{ '%.0f%%'|format(a.wer*100) if a.wer is not none else '–' }}</td><td>{{ a.dead_air_total_ms|ms }}</td><td class="small">{{ a.ended_by }}</td>

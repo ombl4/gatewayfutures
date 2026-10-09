@@ -18,12 +18,13 @@ def by_id(result: dict, cid: str) -> dict:
     return next(c for c in result["checks"] if c["id"] == cid)
 
 
-def test_basic_refund_passes_every_task_check_but_the_latency_bar(tmp_path: Path):
-    """The recorded call did the right thing; under the v3 fail bars (T5.13) its 4.2 s p95
-    reply latency fails the call on experience, and nothing else does."""
+def test_basic_refund_passes_the_task_and_fails_the_experience_bar(tmp_path: Path):
+    """The recorded call did the right thing, so the task verdict passes (T5.15); its 4.2 s
+    p95 reply latency fails the experience verdict, and nothing else does."""
     r = score_attempt(REC / "refund-basic", Session.load(SESS / "refund-basic.yaml"))
-    assert r["valid"] and r["tool_ok"] and not r["passed"]
-    assert r["hard_fails"] == ["ux.latency_p95"], r["hard_fails"]
+    assert r["valid"] and r["tool_ok"] and r["passed"] and r["hard_fails"] == []
+    assert r["experience_ok"] is False and r["experience_fails"] == ["ux.latency_p95"]
+    assert "p95" in r["experience_reason"] and r["failure_reason"] == ""
     assert by_id(r, "tools.required.lookup_order")["passed"]
     assert by_id(r, "tools.required.issue_refund")["passed"]
     assert by_id(r, "tools.order")["passed"] and by_id(r, "tools.wrong_write")["passed"]
@@ -47,9 +48,9 @@ def test_fault_retried_path_passes_every_task_check():
     r = score_attempt(
         REC / "refund-fault-retried", Session.load(SESS / "retired" / "refund-backend-fault.yaml")
     )
-    assert r["valid"] and r["tool_ok"]
-    # T5.13: the only hard failure is the 5.2 s silence after the caller spoke
-    assert r["hard_fails"] == ["ux.dead_air"], r["hard_fails"]
+    assert r["valid"] and r["tool_ok"] and r["passed"]
+    # T5.13/T5.15: the 5.2 s silence after the caller spoke fails the experience verdict only
+    assert r["experience_fails"] == ["ux.dead_air"] and r["experience_ok"] is False
     assert [tuple(t) for t in r["tool_calls"]] == [
         ("lookup_order", 200),
         ("issue_refund", 500),

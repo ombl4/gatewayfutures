@@ -58,7 +58,7 @@
     <td><a href="{{ links.run(h.run_id) }}">{{ h.run_id }}</a>{% if h.kind != 'run' %} <span class="chip">detector check</span>{% endif %}</td>
     <td><a href="{{ links.call(h.run_id, a.session_id, a.attempt) }}">{{ a.attempt }}</a></td>
     <td>{% if a.has_audio is not defined or a.has_audio %}<button class="play" data-src="{{ links.audio(h.run_id, a.session_id, a.attempt) }}" data-label="{{ s.title }} #{{ a.attempt }} ({{ h.run_id }})"><span class="ic">▶</span><span class="t">{{ a.duration_ms|clock if a.duration_ms else '' }}</span></button>{% endif %}</td>
-    <td><span class="pill {{ 'invalid' if not a.valid else ('pass' if a.passed else 'fail') }}">{{ 'invalid' if not a.valid else ('pass' if a.passed else 'fail') }}</span></td>
+    <td><span class="pill {{ 'invalid' if not a.valid else ('pass' if a.passed else 'fail') }}">{{ 'invalid' if not a.valid else ('pass' if a.passed else 'fail') }}</span>{% if a.valid and a.experience_ok is defined and a.experience_ok == false %} <span class="pill amber exp" title="{{ a.experience_reason }}">experience</span>{% endif %}</td>
     <td class="small">{{ a.failure_reason }}{% if a.valid and a.passed %}{% for f in a.soft_flags %}<span class="chip">{{ f }}</span>{% endfor %}{% endif %}</td>
     <td>{{ a.latency_p95_ms|ms }}</td><td>{{ a.duration_ms|ms }}</td>
   </tr>

@@ -31,6 +31,9 @@ def method_version() -> str:
     return f"{METHOD_VERSION}+th-{thresholds_hash()}"
 
 
+EXPERIENCE_GROUPS = ("ux", "quality", "speech")
+
+
 def score_attempt(folder: str | Path, session: Session) -> dict[str, Any]:
     folder = Path(folder)
     record = CallRecord.load(folder)
@@ -69,7 +72,11 @@ def score_attempt(folder: str | Path, session: Session) -> dict[str, Any]:
         c for c in checks if c.group == "validity" and c.severity == "hard" and not c.passed
     ]
     valid = not validity_fails
-    fails = [c for c in hard_fails(checks) if c.group != "validity"]
+    all_fails = [c for c in hard_fails(checks) if c.group != "validity"]
+    # two verdicts (T5.15): the task (backend outcome and honesty) and the experience (the
+    # fail bars on latency, dead air and the agent's own intelligibility)
+    fails = [c for c in all_fails if c.group not in EXPERIENCE_GROUPS]
+    experience_fails = [c for c in all_fails if c.group in EXPERIENCE_GROUPS]
     soft = [
         c
         for c in checks
@@ -89,11 +96,14 @@ def score_attempt(folder: str | Path, session: Session) -> dict[str, Any]:
         "attempt": record.attempt,
         "valid": valid,
         "passed": valid and not fails,
+        "experience_ok": valid and not experience_fails,
         "hard_fails": [c.id for c in fails],
+        "experience_fails": [c.id for c in experience_fails],
         "soft_flags": [c.id for c in soft],
         "failure_reason": "invalid: " + "; ".join(_unique(c.what_happened for c in validity_fails))
         if not valid
         else (fails[0].what_happened if fails else ""),
+        "experience_reason": experience_fails[0].what_happened if experience_fails else "",
         "ended_by": record.ended_by,
         "goal_met": record.caller_result.get("goal_met"),
         "duration_ms": ux.get("duration_ms"),
@@ -167,6 +177,7 @@ def score_run(run_id: str) -> dict[str, Any]:
         rows = [a for a in attempts if a["session_id"] == sid]
         valid_rows = [a for a in rows if a["valid"]]
         ps = pass_summary([a["passed"] for a in valid_rows])
+        es = pass_summary([a.get("experience_ok", True) for a in valid_rows])
         lat = [a["latency_p95_ms"] for a in valid_rows if a.get("latency_p95_ms") is not None]
         reasons = Counter(a["failure_reason"] for a in valid_rows if not a["passed"])
         per_session.append(
@@ -178,6 +189,8 @@ def score_run(run_id: str) -> dict[str, Any]:
                 "attempts": len(rows),
                 "invalid": len(rows) - len(valid_rows),
                 **ps,
+                "experience_passed": es["passed"],
+                "experience_rate": es["rate"],
                 "latency_p95_ms_max": max(lat) if lat else None,
                 "main_failure": reasons.most_common(1)[0][0] if reasons else "",
                 "soft_flags": dict(Counter(f for a in valid_rows for f in a["soft_flags"])),
@@ -185,6 +198,7 @@ def score_run(run_id: str) -> dict[str, Any]:
         )
     valid_all = [a for a in attempts if a["valid"]]
     overall = pass_summary([a["passed"] for a in valid_all])
+    experience = pass_summary([a.get("experience_ok", True) for a in valid_all])
     all_lat = [a["latency_p95_ms"] for a in valid_all if a.get("latency_p95_ms") is not None]
     reasons = Counter(a["failure_reason"] for a in valid_all if not a["passed"])
     summary = {
@@ -200,6 +214,7 @@ def score_run(run_id: str) -> dict[str, Any]:
         "calls": len(attempts),
         "invalid": len(attempts) - len(valid_all),
         "overall": overall,
+        "experience": experience,
         "latency_p95_ms": {
             "median": sorted(all_lat)[len(all_lat) // 2] if all_lat else None,
             "max": max(all_lat) if all_lat else None,
