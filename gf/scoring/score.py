@@ -199,6 +199,10 @@ def score_run(run_id: str) -> dict[str, Any]:
     valid_all = [a for a in attempts if a["valid"]]
     overall = pass_summary([a["passed"] for a in valid_all])
     experience = pass_summary([a.get("experience_ok", True) for a in valid_all])
+    from gf.scoring.gfscore import gf_score
+    from gf.sessions.taxonomy import areas_of
+
+    score = gf_score(attempts, {sid: areas_of(sess) for sid, sess in sessions.items()})
     all_lat = [a["latency_p95_ms"] for a in valid_all if a.get("latency_p95_ms") is not None]
     reasons = Counter(a["failure_reason"] for a in valid_all if not a["passed"])
     summary = {
@@ -215,6 +219,7 @@ def score_run(run_id: str) -> dict[str, Any]:
         "invalid": len(attempts) - len(valid_all),
         "overall": overall,
         "experience": experience,
+        "gf_score": score,
         "latency_p95_ms": {
             "median": sorted(all_lat)[len(all_lat) // 2] if all_lat else None,
             "max": max(all_lat) if all_lat else None,

@@ -496,35 +496,27 @@ def test_rename_run_rewrites_every_reference(env):
         rename("nope", "x")
 
 
-def test_issue_breakdown_rows(env):
-    """T6.29: one row per kind of problem with count, share and seriousness; rendered on the
-    overview and the run page with the caller-quality card."""
+def test_gf_score_card_and_issues_page(env):
+    """T5.16 / T6.38: the score is on the overview with every lost point linking to the
+    issues page, where each listed call lost that point; the breakdown card is gone."""
     from gf.report import model
 
     r = model.run_report("t1")
-    b = r["issue_breakdown"]
-    assert b["total"] == 2 and b["rows"]
-    keys = {row["key"] for row in b["rows"]}
-    assert any(k.startswith("flag:") for k in keys)  # the fixture calls pass with flags
-    for row in b["rows"]:
-        assert (
-            row["count"] >= 1
-            and 0 < row["share"] <= 1
-            and row["status"] in ("high", "medium", "low")
-        )
-        assert len(row["series"]) == b["runs"] >= 1
-    statuses = [row["status"] for row in b["rows"]]
-    assert statuses == sorted(statuses, key=["high", "medium", "low"].index)
+    g = r["gf"]
+    assert g["score"] is not None and 0 <= g["score"] <= 100 and g["band"]
+    assert [c["max"] for c in g["components"]] == [65, 10, 15, 10]
+    assert abs(sum(c["points"] for c in g["components"]) - g["raw"]) < 0.2
     html = env["client"].get("/").text
-    assert "Performance by area" in html and "Issue breakdown" in html
-    assert 'id="simulation-quality"' in html and 'class="area"' in html
-    run_html = env["client"].get("/runs/t1").text  # T6.30: the run page keeps none of them
-    assert "Performance by area" not in run_html and 'id="kpis"' not in run_html
-    runs_html = env["client"].get("/runs").text
-    assert 'data-open="1"' in runs_html and 'data-src="/runs/t1/sessions"' in runs_html
-    frag = env["client"].get("/runs/t1/sessions")
-    assert frag.status_code == 200 and 'class="srow"' in frag.text and "<title>" not in frag.text
-    assert env["client"].get("/runs/zzz/sessions").status_code == 404
+    assert 'id="gf-score"' in html and "Issue breakdown" not in html
+    assert 'href="/runs/t1/issues#' in html or "nothing lost" in html
+    ip = model.issues_page("t1")
+    assert ip is not None and {s["key"] for s in ip["sections"]} >= {"task", "latency", "facts"}
+    lost = {(x["session_id"], x["attempt"]) for i in g["items"] for x in i["lost"]}
+    listed = {(c["session_id"], c["attempt"]) for s in ip["sections"] for c in s["calls"]}
+    assert listed == lost
+    page_html = env["client"].get("/runs/t1/issues").text
+    assert 'id="harm"' in page_html and 'id="simulator"' in page_html
+    assert env["client"].get("/runs/nope/issues").status_code == 404
 
 
 def test_negative_controls_live_on_the_runs_page(env):

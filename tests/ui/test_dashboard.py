@@ -723,7 +723,9 @@ def test_static_report_works_from_disk(site, page):
     assert page.evaluate("document.getElementById('insp-audio').currentTime") > 0
     page.goto((site["static"] / "overview.html").as_uri())
     assert page.locator("#inspector").count() == 0  # static pages link to call pages instead
-    assert page.locator("#kpis .kpi").count() == 5  # T5.15: task + experience and page.locator("details.srow").count() == 0
+    assert (
+        page.locator("#kpis .kpi").count() == 5
+    )  # T5.15: task + experience and page.locator("details.srow").count() == 0
     page.click("aside.nav a.item:has-text('Practice sessions')")
     assert page.url.endswith("sessions.html")
     _no_errors(page)

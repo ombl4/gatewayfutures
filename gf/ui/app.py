@@ -534,6 +534,16 @@ def run(run_id: str, call: str = ""):
     )
 
 
+@app.get("/runs/{run_id}/issues", response_class=HTMLResponse)
+def run_issues(run_id: str):
+    """Every call that cost GF Score points, by cause (T6.38)."""
+    _require_run(run_id)
+    data = model.issues_page(run_id)
+    if data is None:
+        raise HTTPException(404, f"run {run_id} has no summary yet")
+    return page("issues.html", p=data)
+
+
 @app.get("/runs/{run_id}/caller", response_class=HTMLResponse)
 def run_caller(run_id: str):
     """Caller quality of a run, explained (T6.37)."""
