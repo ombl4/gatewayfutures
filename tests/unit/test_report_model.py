@@ -277,3 +277,13 @@ def test_environment_tag_is_stable_and_sensitive_to_the_right_things(tmp_path, m
         "env_tag": "env-?",
         "set_tag": E.set_tag(["a"]),
     }
+
+
+def test_backfill_reads_library_versions_from_the_lockfile_history():
+    from gf import environment as E
+
+    hist = E.environment_from_history("2026-10-08T20:26:05+00:00")
+    assert hist and hist["livekit-agents"] and hist["git_commit"]
+    assert "uv.lock" in hist["backfilled"]["from"]
+    # same recorded libraries as a live manifest, so the tag can match a live run's
+    assert set(E.RECORDED_LIBS) <= set(hist)

@@ -158,6 +158,65 @@ def current(engine: str = "gf-caller", agent_variant: str | None = None) -> dict
     return {"env_tag": env_tag(comp), "components": comp}
 
 
+RECORDED_LIBS = (
+    "livekit-agents",
+    "livekit-plugins-deepgram",
+    "livekit-plugins-openai",
+    "livekit-plugins-silero",
+    "livekit-plugins-turn-detector",
+    "livekit-plugins-noise-cancellation",
+    "openai",
+    "jiwer",
+)
+
+
+def environment_from_history(started_at: str) -> dict[str, Any] | None:
+    """For a run made before manifests recorded versions: the library versions from the
+    lockfile at the last commit before the run started (the checkout the run was made from),
+    with the evidence recorded. Python is taken as the current interpreter and marked so."""
+    import platform
+    import re
+    import subprocess
+
+    from gf.config import ROOT
+
+    try:
+        commit = subprocess.run(
+            ["git", "log", "-1", "--format=%h", f"--before={started_at}"],
+            capture_output=True,
+            text=True,
+            cwd=ROOT,
+            timeout=5,
+        ).stdout.strip()
+        lock = subprocess.run(
+            ["git", "show", f"{commit}:uv.lock"],
+            capture_output=True,
+            text=True,
+            cwd=ROOT,
+            timeout=5,
+        ).stdout
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if not commit or not lock:
+        return None
+    found = {
+        m.group(1): m.group(2)
+        for m in re.finditer(r'\[\[package\]\]\nname = "([^"]+)"\nversion = "([^"]+)"', lock)
+    }
+    libs = {k: found.get(k) for k in RECORDED_LIBS}
+    if not libs.get("livekit-agents"):
+        return None
+    return {
+        "git_commit": commit,
+        "python": platform.python_version(),
+        **libs,
+        "backfilled": {
+            "from": f"uv.lock at commit {commit} (last commit before the run started)",
+            "python": "assumed: the interpreter used for the backfill",
+        },
+    }
+
+
 def backfill() -> list[str]:
     """Tag runs that recorded their library versions before tags existed, when the agent
     config they used is the current one (so the components are known). Returns run ids."""
@@ -170,8 +229,13 @@ def backfill() -> list[str]:
         if not mp.exists():
             continue
         man = json.loads(mp.read_text())
-        if man.get("env_tag") or not man.get("environment"):
+        if man.get("env_tag"):
             continue
+        if not man.get("environment"):
+            hist = environment_from_history(man.get("started_at") or "")
+            if not hist:
+                continue
+            man["environment"] = hist
         base = (man.get("agent_config_hash") or "").split("+")[0]
         if base != cfg_hash:
             continue
