@@ -85,7 +85,7 @@
   <div class="issues">
   {% for i in r.issues['items'] %}
     <a class="issue {{ i.severity }}" href="{{ call_link(i) }}" data-issue="{{ i.session_id }}/{{ i.attempt }}" data-t="{{ i.t_ms if i.t_ms is not none else '' }}">
-      <div class="t"><span>{{ i.title }}</span><span class="sev {{ i.severity }}">{{ {'critical':'critical','high':'high','medium':'flagged','simulation':'invalid sim'}[i.severity] }}</span></div>
+      <div class="t"><span>{{ i.title }}</span><span class="sev {{ i.severity }}">{{ {'critical':'failed · honesty','high':'failed','medium':'flagged','simulation':'invalid sim'}[i.severity] }}</span></div>
       {% if i.summary %}<div class="m">{{ i.detail }} · none of these fail a call; the first is opened below</div>{% else %}<div class="m">{{ i.session_title }} · {% if i.attempts and i.attempts|length > 1 %}attempts {{ i.attempts|join(', ') }}{% else %}attempt {{ i.attempt }}{% endif %}{% if i.t_ms is not none %} · at <span class="mono">{{ i.t_ms|clock }}</span>{% endif %}{% if i.retired %} · <span class="pill grey" title="{{ i.retired_reason }}">retired session</span>{% endif %}</div>{% endif %}
     </a>
   {% else %}
