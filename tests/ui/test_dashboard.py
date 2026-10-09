@@ -483,16 +483,12 @@ def test_inspector_controls(site, page):
     page.click("#insp-play")
     time.sleep(0.6)
     assert page.evaluate("!document.getElementById('insp-audio').paused")
-    assert (
-        page.locator("#insp-play .i-pause").is_visible()
-        and page.locator("#insp-play .i-play").is_hidden()
-    )
+    page.wait_for_selector("#insp-play .i-pause:visible")
+    assert page.locator("#insp-play .i-play").is_hidden()
     page.click("#insp-play")
     assert page.evaluate("document.getElementById('insp-audio').paused")
-    assert (
-        page.locator("#insp-play .i-play").is_visible()
-        and page.locator("#insp-play .i-pause").is_hidden()
-    )
+    page.wait_for_selector("#insp-play .i-play:visible")
+    assert page.locator("#insp-play .i-pause").is_hidden()
     assert page.locator("#insp-cur").inner_text() != "0:00"
     # prev/next attempt links exist when there is a neighbour (fixture has one attempt per session)
     assert insp.locator(".nav").inner_text()
