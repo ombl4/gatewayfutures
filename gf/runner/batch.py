@@ -42,6 +42,7 @@ async def run_batch(
     parent_run: str | None = None,
     max_cost_usd: float | None = None,
     personas: list[str] | None = None,
+    target: str | None = None,
 ) -> dict:
     """`max_cost_usd` (default: GF_MAX_COST_USD, else 10): once the priced cost of the finished
     calls exceeds it, no new call is scheduled; the run is marked partial and the skipped calls
@@ -54,7 +55,11 @@ async def run_batch(
     if max_cost_usd is None:
         max_cost_usd = float(os.environ.get("GF_MAX_COST_USD") or 10.0)
 
+    from gf import targets as _targets
+
     v = get_variant(variant)
+    tgt = _targets.load(target) if target else _targets.active()
+    tgt.credentials()  # fail before any call when the target has no secrets
     sessions = (
         load_all(ROOT / "sessions", include_retired=False)
         if all_sessions
@@ -95,6 +100,15 @@ async def run_batch(
         "repeat": repeat,
         "concurrency": concurrency,
         "engine": "gf-caller",
+        "target": {
+            "id": tgt.id,
+            "kind": tgt.kind,
+            "name": tgt.name,
+            "agent_name": tgt.agent_name,
+            "version": tgt.version_label(),
+            "server_host": tgt.server_host,
+            "reference": tgt.reference,
+        },
         "suite": suite,
         "parent_run": parent_run,
         "max_cost_usd": max_cost_usd,
@@ -117,7 +131,14 @@ async def run_batch(
     }
     from gf.environment import stamp
 
-    stamp(run_id, folder, manifest, [s.id for s in sessions], agent_variant=v.name if v else None)
+    stamp(
+        run_id,
+        folder,
+        manifest,
+        [s.id for s in sessions],
+        agent_variant=v.name if v else None,
+        target=tgt,
+    )
     (folder / "manifest.json").write_text(json.dumps(manifest, indent=2))
 
     sem = asyncio.Semaphore(concurrency)
@@ -144,7 +165,7 @@ async def run_batch(
             log.info("call %s: %s attempt %d", call_id, session.title, attempt)
             try:
                 meta = await run_call(
-                    session, call_id, record_dir, attempt=attempt, variant=variant
+                    session, call_id, record_dir, attempt=attempt, variant=variant, target=tgt
                 )
             except Exception as e:  # noqa: BLE001 - one broken call must not sink the run
                 log.error("call %s crashed: %s", call_id, e)

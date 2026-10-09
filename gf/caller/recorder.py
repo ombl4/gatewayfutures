@@ -56,9 +56,18 @@ class Channel:
 class CallRecorder:
     """Joins `room_name` hidden and records `caller_identity` left, agent participants right."""
 
-    def __init__(self, room_name: str, caller_identity: str):
+    def __init__(
+        self,
+        room_name: str,
+        caller_identity: str,
+        *,
+        url: str = "",
+        api_key: str = "",
+        api_secret: str = "",
+    ):
         self.room_name = room_name
         self.caller_identity = caller_identity
+        self._creds = (url, api_key, api_secret)  # the target's; the repo's own when empty
         self.t0 = time.time()
         self.caller = Channel()
         self.agent = Channel()
@@ -87,8 +96,14 @@ class CallRecorder:
 
     async def start(self) -> None:
         s = settings()
+        url, key, secret = self._creds
+        url, key, secret = (
+            url or s.livekit_url,
+            key or s.livekit_api_key,
+            secret or s.livekit_api_secret,
+        )
         token = (
-            api.AccessToken(s.livekit_api_key, s.livekit_api_secret)
+            api.AccessToken(key, secret)
             .with_identity(RECORDER_IDENTITY)
             .with_grants(
                 api.VideoGrants(
@@ -114,7 +129,7 @@ class CallRecorder:
             log.info("recording %s (%s)", participant.identity, who)
             self._tasks.append(asyncio.create_task(self._pump(track, channel, who)))
 
-        await room.connect(s.livekit_url, token)
+        await room.connect(url, token)
         self._room = room
 
     async def stop(self) -> None:

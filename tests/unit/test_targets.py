@@ -99,3 +99,72 @@ def test_metadata_template_renders_unknown_fields_empty(tdir):
     meta = json.loads(t.dispatch_metadata(call_id="c9", record_dir="/tmp/r"))
     assert meta == {"call_id": "c9", "record_dir": "/tmp/r"}
     assert json.loads(t.dispatch_metadata())["call_id"] == ""
+
+
+def test_external_target_changes_the_environment_tag_but_the_reference_does_not(tdir, monkeypatch):
+    """T9.2: the reference agent keeps the tag it always had; an external agent is tagged by its
+    id and version label instead of a config hash it does not own."""
+    from gf import environment as E
+
+    monkeypatch.setenv("LIVEKIT_URL", "wss://ref.livekit.cloud")
+    monkeypatch.setenv("LIVEKIT_API_KEY", "k")
+    monkeypatch.setenv("LIVEKIT_API_SECRET", "s")
+    info = {"python": "3.12.0", "livekit-agents": "1.8.5"}
+    base = E.env_tag(E.components(info=info))
+    assert E.env_tag(E.components(info=info, target=targets.load("reference"))) == base
+    targets.save(targets.Target(id="acme", name="Acme", agent_name="a", version="v1"))
+    comp = E.components(info=info, target=targets.load("acme"))
+    assert comp["agent_config_hash"] == "target:acme@v1" and comp["models"]["llm"] == "external"
+    assert E.env_tag(comp) != base
+    targets.save(targets.Target(id="acme", name="Acme", agent_name="a", version="v2"))
+    assert E.env_tag(E.components(info=info, target=targets.load("acme"))) != E.env_tag(comp)
+
+
+def test_run_batch_runs_every_call_against_the_target(tdir, tmp_path, monkeypatch):
+    """T9.2: the batch resolves the target once, refuses to start without its secrets, hands
+    it to every call and records it in the manifest and the stamp."""
+    import asyncio
+    import json
+
+    from gf.config import ROOT
+    from gf.runner import batch
+
+    monkeypatch.setenv("RUNS_DIR", str(tmp_path / "runs"))
+    monkeypatch.setenv("GF_MAX_COST_USD", "100")
+    targets.save(targets.Target(id="acme", name="Acme", agent_name="acme-agent", version="v3"))
+    session = str(ROOT / "sessions" / "refund-basic.yaml")
+    with pytest.raises(targets.MissingSecrets):
+        asyncio.run(batch.run_batch([session], repeat=1, run_id="t-none", target="acme"))
+    targets.save(
+        targets.Target(
+            id="acme",
+            name="Acme",
+            agent_name="acme-agent",
+            version="v3",
+            server_url="wss://acme.livekit.cloud",
+        ),
+        api_key="k",
+        api_secret="s",
+    )
+    seen = []
+
+    async def fake_call(session, call_id, record_dir, *, attempt, variant, target):
+        seen.append((target.id, target.agent_name, attempt))
+        record_dir.mkdir(parents=True, exist_ok=True)
+        return {
+            "call_id": call_id,
+            "session_id": session.id,
+            "attempt": attempt,
+            "ended_by": "caller",
+        }
+
+    monkeypatch.setattr(batch, "run_call", fake_call)
+    monkeypatch.setattr(batch, "estimate_cost", lambda _d: 0.0, raising=False)
+    man = asyncio.run(
+        batch.run_batch([session], repeat=2, run_id="t-acme", target="acme", stagger_s=0)
+    )
+    assert seen == [("acme", "acme-agent", 1), ("acme", "acme-agent", 2)]
+    assert man["target"]["id"] == "acme" and man["target"]["version"] == "v3"
+    assert man["env_components"]["agent_config_hash"] == "target:acme@v3"
+    on_disk = json.loads((tmp_path / "runs" / "t-acme" / "manifest.json").read_text())
+    assert on_disk["target"]["reference"] is False and "api_key" not in json.dumps(on_disk)

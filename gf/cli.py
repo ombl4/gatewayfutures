@@ -175,6 +175,9 @@ def run(
     persona_group: str = typer.Option(
         "", "--persona-group", help="A persona group (standard, hard-line, difficult, or all)."
     ),
+    target: str = typer.Option(
+        "", help="Agent under test to run against (see `gf targets list`; default: the active one)."
+    ),
 ) -> None:
     """Run sessions N times each, concurrently, into runs/<run_id>/ with a manifest."""
     import asyncio
@@ -212,6 +215,7 @@ def run(
             concurrency=concurrency,
             run_id=run_id,
             variant=variant or None,
+            target=target or None,
             suite=suite or None,
             parent_run=parent or None,
             max_cost_usd=max_cost or None,

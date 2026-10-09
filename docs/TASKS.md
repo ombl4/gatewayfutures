@@ -143,7 +143,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 
 ## Part 9 — Agents under test and sandbox systems (PRD revised 2026-10-09)
 - [x] T9.1 Target model and store (2026-10-09) (`gf/targets.py`, `targets/<id>.yaml`, secrets outside the repo, `gf targets`)
-- [ ] T9.2 Runner per target (`gf run --target`, manifest target block, tag components)
+- [x] T9.2 Runner per target (2026-10-09) (`gf run --target`, manifest target block, tag components)
 - [ ] T9.3 Connection test (`gf targets test`, UI button)
 - [ ] T9.4 Agents under test in the UI (list, add, test, activate; header pill; start-run dropdown; providers folded in)
 - [ ] T9.5 Sandbox systems in the product's words (labels, "Run stamps", `docs/sandboxes.md`)

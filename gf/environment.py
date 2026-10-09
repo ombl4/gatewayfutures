@@ -36,19 +36,31 @@ TAGGED_LIBS = (
 
 
 def components(
-    *, agent_variant: str | None = None, engine: str = "gf-caller", info: dict | None = None
+    *,
+    agent_variant: str | None = None,
+    engine: str = "gf-caller",
+    info: dict | None = None,
+    target: Any = None,
 ) -> dict[str, Any]:
-    """The hashed components of the environment tag, in a stable order."""
+    """The hashed components of the environment tag, in a stable order. For the reference
+    agent (or no target) the agent's config hash and models are the components, exactly as
+    before targets existed; for an external agent under test its id and version label stand
+    in, since its configuration is not ours to hash (T9.2)."""
     from gf.agent.config import agent_config
     from gf.runner.batch import environment_info
     from gf.scoring.score import method_version
 
     cfg = agent_config()
     info = info or environment_info()
+    external = target is not None and not getattr(target, "reference", False)
     return {
-        "agent_config_hash": cfg.config_hash,
+        "agent_config_hash": f"target:{target.id}@{target.version_label()}"
+        if external
+        else cfg.config_hash,
         "agent_variant": agent_variant,
-        "models": {
+        "models": {"stt": "external", "llm": "external", "tts": "external"}
+        if external
+        else {
             "stt": f"{cfg.models.stt.vendor} {cfg.models.stt.model}",
             "llm": f"{cfg.models.llm.vendor} {cfg.models.llm.model}",
             "tts": f"{cfg.models.tts.vendor} {cfg.models.tts.model}",
@@ -77,10 +89,13 @@ def stamp(
     *,
     agent_variant: str | None = None,
     engine: str = "gf-caller",
+    target: Any = None,
 ) -> dict[str, Any]:
     """Compute both tags for a run, store them in the manifest and in `environment.json`,
     and record the run in the registry. Returns the environment record."""
-    comp = components(agent_variant=agent_variant, engine=engine, info=manifest.get("environment"))
+    comp = components(
+        agent_variant=agent_variant, engine=engine, info=manifest.get("environment"), target=target
+    )
     tag = env_tag(comp)
     rec = {
         "env_tag": tag,

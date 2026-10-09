@@ -34,6 +34,7 @@ from gf.caller.recorder import CallRecorder
 from gf.caller.simulator import CallerAgent
 from gf.config import settings
 from gf.sessions.schema import Session
+from gf.targets import Target
 from gf.util import now_ms
 
 log = logging.getLogger("gf.runner")
@@ -85,9 +86,17 @@ async def run_call(
     *,
     attempt: int = 1,
     variant: str | None = None,
+    target: Target | None = None,
 ) -> dict:
+    """One simulated call against `target` (default: the active agent under test, T9.2): the
+    room is created in the target's LiveKit project, its agent is dispatched by name with the
+    target's metadata template, and the caller and the recorder join with the target's token."""
+    from gf import targets as _targets
+
     s = settings()
     cfg = agent_config()
+    target = target or _targets.active()
+    lk_url, lk_key, lk_secret = target.credentials()
     config_hash = f"{cfg.config_hash}+{variant}" if variant else cfg.config_hash
     record_dir.mkdir(parents=True, exist_ok=True)
     room_name = f"gf-sim-{call_id}"
@@ -100,6 +109,14 @@ async def run_call(
         "room": room_name,
         "agent_config_hash": config_hash,
         "agent_variant": variant,
+        "target": {
+            "id": target.id,
+            "kind": target.kind,
+            "name": target.name,
+            "agent_name": target.agent_name,
+            "version": target.version_label(),
+            "server_host": target.server_host,
+        },
         "agent_models": cfg.models.model_dump(),
         "caller": session.caller.model_dump(),
         "caller_params_unsupported": [],
@@ -108,11 +125,13 @@ async def run_call(
         "started_ms": now_ms(),
     }
 
-    lk = api.LiveKitAPI(s.livekit_url, s.livekit_api_key, s.livekit_api_secret)
+    lk = api.LiveKitAPI(lk_url, lk_key, lk_secret)
     http = aiohttp.ClientSession()
     backend = httpx.AsyncClient(base_url=s.backend_url, timeout=15)
     caller = CallerAgent(session.caller, http_session=http, seed_offset=attempt - 1)
-    recorder = CallRecorder(room_name, CALLER_IDENTITY)
+    recorder = CallRecorder(
+        room_name, CALLER_IDENTITY, url=lk_url, api_key=lk_key, api_secret=lk_secret
+    )
     room = rtc.Room()
     sim: AgentSession | None = None
     events = EventRecorder(record_dir / "caller_events.jsonl", room=None, call_id=call_id)
@@ -138,15 +157,19 @@ async def run_call(
         await lk.room.create_room(api.CreateRoomRequest(name=room_name, empty_timeout=120))
         await lk.agent_dispatch.create_dispatch(
             api.CreateAgentDispatchRequest(
-                agent_name=s.agent_name,
+                agent_name=target.agent_name,
                 room=room_name,
-                metadata=json.dumps(
-                    {"call_id": call_id, "record_dir": str(record_dir), "agent_variant": variant}
+                metadata=target.dispatch_metadata(
+                    call_id=call_id,
+                    record_dir=str(record_dir),
+                    agent_variant=variant,
+                    sandbox_url=s.backend_url,
+                    session_id=session.id,
                 ),
             )
         )
         token = (
-            api.AccessToken(s.livekit_api_key, s.livekit_api_secret)
+            api.AccessToken(lk_key, lk_secret)
             .with_identity(CALLER_IDENTITY)
             .with_name(session.caller.persona.name)
             .with_grants(api.VideoGrants(room_join=True, room=room_name))
@@ -164,7 +187,7 @@ async def run_call(
 
         recorder.t0 = time.time()
         await recorder.start()
-        await room.connect(s.livekit_url, token)
+        await room.connect(lk_url, token)
 
         sim = AgentSession(vad=silero.VAD.load(), user_away_timeout=None)
         events.attach(sim)
