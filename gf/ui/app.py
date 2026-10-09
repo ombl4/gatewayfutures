@@ -161,7 +161,7 @@ async def overview(call: str = "", run: str = ""):
         job=jobs.current(),
         sessions=model.sessions_page()["sessions"],
         suites=model.sessions_page()["suites"],
-        issue_link=_issue_link(f"/?run={chosen}&") if chosen else _issue_link("/"),
+        issue_link=_issue_link(f"/runs/{chosen}") if chosen else _issue_link("/"),
         **ctx,
     )
 

@@ -5,7 +5,7 @@
 {% block crumbs %}<b>Overview</b>{% if r %}<i>›</i><span>run {{ r.run_id }}</span>{% endif %}{% endblock %}
 {% block content %}
 <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-<h1>Evaluation overview</h1>
+<h1>Agent performance</h1>
 {% if r %}
 <label class="small muted" style="display:flex;align-items:center;gap:8px">Run
   {% if mode == 'live' %}
@@ -23,15 +23,6 @@
 <p class="meta"><span>No completed run yet.</span></p>
 {% endif %}
 
-<div class="flow" id="flow" title="How a simulated call flows. Click a step to see how it is configured.">
-  <span class="lbl">How a call flows</span>
-  <a href="{{ links.sessions() }}"><b>1</b>Practice sessions</a><i>→</i>
-  <a href="{{ links.caller() }}"><b>2</b>Simulated caller</a><i>⇄</i>
-  <a href="{{ links.agent() }}"><b>3</b>Support agent</a><i>→</i>
-  <a href="{{ links.backend() }}"><b>4</b>Order system</a><i>→</i>
-  <a href="{{ links.scoring() }}"><b>5</b>Scoring</a>
-</div>
-
 {% if mode == 'live' and job %}
 <div class="banner"><b>Run in progress:</b> <a href="{{ links.run(job.run_id) }}">{{ job.run_id }}</a> <span class="progress"><i style="width:{{ (100 * job.done / job.total) if job.total else 0 }}%"></i></span> <span class="small">{{ job.done }} / {{ job.total }} calls</span></div>
 {% endif %}
@@ -41,10 +32,10 @@
 {{ rb.by_area(r) }}
 {{ rb.simulation(r) }}
 {% if r.previous and not r.previous.like_for_like %}<p class="small muted" style="margin:-8px 0 12px">* compared with {{ r.previous.run_id }}: {% if r.previous.env_same is sameas false %}different environment{% endif %}{% if r.previous.env_same is sameas false and r.previous.set_same is sameas false %} and {% endif %}{% if r.previous.set_same is sameas false %}different session set{% endif %}{% if r.previous.env_same is none %}environment unknown for the older run{% endif %}; treat the change as indicative.</p>{% endif %}
-<div class="work">
-  {{ rb.sessions(r) }}
+<div class="issues-wide">
   {{ rb.issues(r, issue_link) }}
 </div>
+<p class="small muted" style="margin:-4px 0 16px">Every practice session with its three attempts, and the call inspector, are on the <a href="{{ links.run(r.run_id) }}">run page</a>.</p>
 {% endif %}
 
 
