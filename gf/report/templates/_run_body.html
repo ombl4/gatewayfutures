@@ -68,7 +68,7 @@
       </div>
       {% for a in row.attempts_detail %}
       <div class="att">
-        <span class="pill {{ 'invalid' if not a.valid else ('pass' if a.passed else 'fail') }}">{{ 'invalid' if not a.valid else ('pass' if a.passed else 'fail') }}</span>{% if a.valid and a.experience_ok is defined and a.experience_ok == false %} <span class="pill amber exp" title="{{ a.experience_reason }}">experience</span>{% endif %}
+        <span class="verdicts"><span class="pill {{ 'invalid' if not a.valid else ('pass' if a.passed else 'fail') }}">{{ 'invalid' if not a.valid else ('pass' if a.passed else 'fail') }}</span>{% if a.valid and a.experience_ok is defined and a.experience_ok == false %}<span class="pill amber exp" title="{{ a.experience_reason }}">experience</span>{% endif %}</span>
         <span>{{ replay(r.run_id, a, row.title) }}</span>
         <span class="rs" title="{{ a.failure_reason or a.flags|join(', ') }}">#{{ a.attempt }} · {{ a.duration_ms|clock }} · p95 {{ a.latency_p95_ms|ms }}{% if a.failure_reason %} · {{ a.failure_reason }}{% elif a.experience_ok is defined and a.experience_ok == false %} · {{ a.experience_reason }}{% elif a.flags %} · flagged: {{ a.flags|join(', ') }}{% else %} · clean{% endif %}</span>
         {% if mode == 'live' %}<button type="button" class="btn sm callbtn" data-src="/runs/{{ r.run_id }}/{{ row.session_id }}/{{ a.attempt }}/inspector" data-call="{{ row.session_id }}/{{ a.attempt }}" data-href="{{ links.call(r.run_id, row.session_id, a.attempt) }}">Details ▾</button>{% else %}<a href="{{ links.call(r.run_id, row.session_id, a.attempt) }}">Open call →</a>{% endif %}
