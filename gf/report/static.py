@@ -49,20 +49,10 @@ def render_run(run_id: str, out: Path | None = None, *, bundle_audio: bool = Fal
         t = i["t_ms"] if i.get("t_ms") is not None else 0
         return f"{links.call(run_id, i['session_id'], i['attempt'])}#t={t}"
 
-    insp: dict = {"c": None, "start_ms": None}
-    sel = model.select_call(r)
-    if sel and (run_dir / sel[0] / str(sel[1]) / "meta.json").exists():
-        insp["c"] = model.call_report(run_id, sel[0], sel[1], audio_href=audio_map.get(sel))
-        insp["start_ms"] = next(
-            (i["t_ms"] for i in r["issues"]["items"] if (i["session_id"], i["attempt"]) == sel),
-            None,
-        )
-    (out / "index.html").write_text(
-        render("run.html", links, r=r, issue_link=issue_link, **insp, **common)
-    )
+    (out / "index.html").write_text(render("run.html", links, r=r, issue_link=issue_link, **common))
     o = model.overview()
     (out / "overview.html").write_text(
-        render("overview.html", links, o=o, r=r, issue_link=issue_link, **insp, **common)
+        render("overview.html", links, o=o, r=r, issue_link=issue_link, **common)
     )
     (out / "agent.html").write_text(render("agent.html", links, a=model.agent_page(), **common))
     (out / "backend.html").write_text(

@@ -57,27 +57,32 @@ def page(template: str, status_code: int = 200, **ctx: Any) -> HTMLResponse:
     return HTMLResponse(render(template, LINKS, **ctx), status_code=status_code)
 
 
-def _inspector_ctx(run_id: str, call: str = "") -> dict[str, Any]:
-    """The run report plus the call the embedded inspector shows (T6.12/T6.14)."""
+def _run_ctx(run_id: str) -> dict[str, Any]:
+    """The run report for the overview and run pages. The call inspector is not part of it
+    any more: each attempt row loads its own inline (T6.25)."""
     st = jobs.job_status(run_id)
     r = model.run_report(run_id, in_progress=st["state"] == "running")
-    ctx: dict[str, Any] = {"r": r, "c": None, "start_ms": None, "job": st}
-    sel = model.select_call(r, call or None)
-    if sel:
-        sid, n = sel
-        folder = model.call_folder(run_id, sid, n)
-        if (folder / "meta.json").exists():
-            href = LINKS.audio(run_id, sid, n) if (folder / "audio.wav").exists() else None
-            ctx["c"] = model.call_report(run_id, sid, n, audio_href=href)
-            ctx["start_ms"] = next(
-                (
-                    i["t_ms"]
-                    for i in r["issues"]["items"]
-                    if (i["session_id"], i["attempt"]) == (sid, n)
-                ),
-                None,
-            )
-    return ctx
+    return {"r": r, "job": st}
+
+
+def _call_ctx(run_id: str, sid: str, n: int, t: int | None = None) -> dict[str, Any]:
+    """One call's inspector context; `t` is where to seek, else the call's first issue."""
+    folder = model.call_folder(run_id, sid, n)
+    if not (folder / "meta.json").exists():
+        raise HTTPException(404, f"no call record for {sid}/{n} in {run_id}")
+    href = LINKS.audio(run_id, sid, n) if (folder / "audio.wav").exists() else None
+    c = model.call_report(run_id, sid, n, audio_href=href)
+    if t is None:
+        r = model.run_report(run_id)
+        t = next(
+            (
+                i["t_ms"]
+                for i in r["issues"]["items"]
+                if (i["session_id"], i["attempt"]) == (sid, n)
+            ),
+            None,
+        )
+    return {"c": c, "start_ms": t}
 
 
 def _issue_link(base: str):
@@ -143,11 +148,11 @@ async def _any_error(request: Request, exc: Exception):
 @app.get("/", response_class=HTMLResponse)
 async def overview(call: str = "", run: str = ""):
     o = model.overview()
-    ctx: dict[str, Any] = {"r": None, "c": None, "start_ms": None}
+    ctx: dict[str, Any] = {"r": None}
     known = {x["run_id"] for x in o["runs"]} | {x["run_id"] for x in o["checks"]}
     chosen = run if run in known else (o["latest"]["run_id"] if o["latest"] else "")
     if chosen:
-        ctx = _inspector_ctx(chosen, call)
+        ctx = _run_ctx(chosen)
         ctx.pop("job", None)
     return page(
         "overview.html",
@@ -426,7 +431,7 @@ def run(run_id: str, call: str = ""):
         st = jobs.job_status(run_id)
         return page("run_starting.html", run_id=run_id, job=st, log_tail=jobs.tail_log(run_id))
     _require_run(run_id)
-    ctx = _inspector_ctx(run_id, call)
+    ctx = _run_ctx(run_id)
     st = ctx["job"]
     return page(
         "run.html",
@@ -434,6 +439,13 @@ def run(run_id: str, call: str = ""):
         issue_link=_issue_link(f"/runs/{run_id}"),
         **ctx,
     )
+
+
+@app.get("/runs/{run_id}/{session_id}/{attempt}/inspector", response_class=HTMLResponse)
+def call_inspector(run_id: str, session_id: str, attempt: int, t: int | None = None):
+    """The inspector alone, for the Details dropdown under an attempt row (T6.25)."""
+    _require_run(run_id)
+    return page("_inspector_frame.html", **_call_ctx(run_id, session_id, attempt, t))
 
 
 @app.get("/runs/{run_id}/{session_id}/{attempt}", response_class=HTMLResponse)

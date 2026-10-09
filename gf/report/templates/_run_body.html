@@ -68,8 +68,9 @@
         <span class="pill {{ 'invalid' if not a.valid else ('pass' if a.passed else 'fail') }}">{{ 'invalid' if not a.valid else ('pass' if a.passed else 'fail') }}</span>
         <span>{{ replay(r.run_id, a, row.title) }}</span>
         <span class="rs" title="{{ a.failure_reason or a.flags|join(', ') }}">#{{ a.attempt }} · {{ a.duration_ms|clock }} · p95 {{ a.latency_p95_ms|ms }}{% if a.failure_reason %} · {{ a.failure_reason }}{% elif a.flags %} · flagged: {{ a.flags|join(', ') }}{% else %} · clean{% endif %}</span>
-        <a href="{{ links.call(r.run_id, row.session_id, a.attempt) }}">Open call →</a>
+        {% if mode == 'live' %}<button type="button" class="btn sm callbtn" data-src="/runs/{{ r.run_id }}/{{ row.session_id }}/{{ a.attempt }}/inspector" data-call="{{ row.session_id }}/{{ a.attempt }}" data-href="{{ links.call(r.run_id, row.session_id, a.attempt) }}">Details ▾</button>{% else %}<a href="{{ links.call(r.run_id, row.session_id, a.attempt) }}">Open call →</a>{% endif %}
       </div>
+      {% if mode == 'live' %}<div class="callbox" hidden></div>{% endif %}
       {% endfor %}
       <div class="small" style="margin-top:8px"><a href="{{ links.session(row.session_id) }}">Session definition and history →</a>{% if mode == 'live' and not row.retired %} · <form method="post" action="/runs/{{ r.run_id }}/rerun" style="display:inline"><input type="hidden" name="session" value="{{ row.session_id }}"><button class="btn sm rerun-session" type="submit" title="new run with just this session, same repeats, compared with this run">Re-run this session</button></form>{% endif %}{% if row.p95_class in ('amber','red') %} <span class="muted">· worst p95 reply {{ row.latency_p95_ms_max|ms }}</span>{% endif %}</div>
     </div>

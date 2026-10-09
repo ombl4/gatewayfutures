@@ -106,6 +106,12 @@ def test_pages_render(env):
     assert c.get("/runs/t1/zzz/1").status_code == 404
     call = c.get("/runs/t1/7c994c348001/1").text
     assert 'data-pane="spans"' in call and 'data-kind="reply"' in call  # T6.24
+    # T6.25: the run pages carry no inspector; each attempt's Details loads it from here
+    assert 'id="inspector"' not in c.get("/runs/t1").text
+    assert 'class="btn sm callbtn"' in c.get("/runs/t1").text
+    frag = c.get("/runs/t1/7c994c348001/1/inspector?t=1200")
+    assert frag.status_code == 200 and 'id="inspector"' in frag.text and "<title>" not in frag.text
+    assert c.get("/runs/t1/zzz/1/inspector").status_code == 404
 
 
 def test_run_page_content(env):

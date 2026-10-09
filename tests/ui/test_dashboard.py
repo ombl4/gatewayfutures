@@ -237,15 +237,40 @@ def test_kpis_accordion_and_issues(site, page):
     opened = first
     assert opened.locator(".cols4 .h").count() == 4  # persona / goal / conditions / expected
     assert opened.locator(".att button.play").count() >= 1
-    assert opened.locator(".att a:has-text('Open call')").count() >= 1
-    # issue cards carry a timestamp and open the inspector at that moment
+    # Details dropdown (T6.25): the inspector loads inline under the attempt, one at a time
+    assert opened.locator(".att .callbtn").count() >= 1 and page.locator("#inspector").count() == 0
+    second = rows.nth(1)
+    if second.get_attribute("open") is None:
+        second.locator("summary").click()
+    b1, b2 = opened.locator(".att .callbtn").first, second.locator(".att .callbtn").first
+    b1.click()
+    page.wait_for_selector("details.srow .callbox #inspector")
+    assert page.locator("#inspector").get_attribute("data-call") == b1.get_attribute("data-call")
+    assert f"call={b1.get_attribute('data-call')}" in page.url and "on" in b1.get_attribute("class")
+    assert "has-call" in page.locator(".work").get_attribute("class")
+    b2.click()
+    page.wait_for_function(
+        "c => document.querySelector('#inspector') && document.querySelector('#inspector').dataset.call === c",
+        arg=b2.get_attribute("data-call"),
+    )
+    assert page.locator("#inspector").count() == 1
+    b2.click()  # toggles closed
+    assert page.locator("#inspector").count() == 0
+    assert "has-call" not in page.locator(".work").get_attribute("class")
+    # issue cards open the right attempt's dropdown at that moment
     cards = page.locator("#issues a.issue")
     assert cards.count() >= 1
     target = cards.first.get_attribute("data-issue")
     page.click("#issues a.issue >> nth=0")
-    page.wait_for_selector("#inspector")
+    page.wait_for_selector(".callbox #inspector")
     assert page.locator("#inspector").get_attribute("data-call") == target
     assert f"call={target}" in page.url
+    assert (
+        page.locator(f'.callbtn[data-call="{target}"]')
+        .locator("xpath=ancestor::details")
+        .get_attribute("open")
+        is not None
+    )
     _no_errors(page)
 
 
@@ -411,7 +436,7 @@ def test_add_session_to_regression_suite_from_the_ui(site, page):
 def test_overview_opens_at_the_top(site, page):
     page.goto(site["base"] + "/runs/t1")
     page.click("aside.nav a.item:has-text('Overview')")
-    page.wait_for_selector("#inspector")
+    page.wait_for_selector("#kpis")
     page.wait_for_timeout(300)
     assert page.evaluate("window.scrollY") == 0
     page.goto(site["base"] + "/")
@@ -448,6 +473,7 @@ def test_run_page_actions_present(site, page):
     assert page.locator("#btn-rescore").is_visible() and page.locator("#btn-prove").is_visible()
     assert page.locator("#every-call").is_visible()
     page.click("#issues a.issue >> nth=0")
+    page.wait_for_selector(".callbox #inspector")
     assert "call=" in page.url and page.locator("#inspector").is_visible()
     _no_errors(page)
 
@@ -518,7 +544,8 @@ def test_static_report_works_from_disk(site, page):
     page.locator("#transcript .turn").nth(1).click()
     assert page.evaluate("document.getElementById('insp-audio').currentTime") > 0
     page.goto((site["static"] / "overview.html").as_uri())
-    assert page.locator("#inspector").count() == 1
+    assert page.locator("#inspector").count() == 0  # static pages link to call pages instead
+    assert page.locator(".att a:has-text('Open call')").count() >= 1
     page.click("aside.nav a.item:has-text('Practice sessions')")
     assert page.url.endswith("sessions.html")
     _no_errors(page)

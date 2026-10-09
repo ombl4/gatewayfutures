@@ -142,6 +142,7 @@ textarea.input{font-family:var(--mono);font-size:12px;line-height:1.45}
 .flow i{color:#c4c8cf;font-style:normal}
 /* workspace: sessions + issues */
 .work{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start;margin-bottom:16px}
+.work.has-call{grid-template-columns:minmax(0,1fr)}
 @media (max-width:1100px){.work{grid-template-columns:1fr}}
 .acc{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}
 .acc .hd{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line)}
@@ -165,6 +166,7 @@ details.srow summary .ttl .chip{font-weight:400}
 .cols4 .h{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-bottom:2px}
 .att{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:5px 0;border-top:1px solid var(--line2);font-size:12.5px}
 .att .rs{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.callbtn.on{background:var(--accent-bg);color:var(--accent-ink);border-color:var(--accent)}.callbox{margin:6px 0 10px}.callbox .insp{margin:0}.callbox .loading{padding:12px;font-size:12px;color:var(--muted)}
 .issues{display:flex;flex-direction:column;gap:8px}
 .issue{display:block;background:#fff;border:1px solid var(--line);border-left:3px solid var(--line);border-radius:8px;padding:9px 12px;color:var(--ink)}
 .issue:hover{text-decoration:none;border-color:var(--accent);border-left-color:var(--accent)}
@@ -400,6 +402,37 @@ document.addEventListener('click', e => {
 document.addEventListener('click', e => {
   document.querySelectorAll('details.pmenu[open]').forEach(d => { if (!d.contains(e.target)) d.removeAttribute('open'); });
 });
+// Details dropdown under an attempt row (T6.25): loads that call's inspector inline, one at a time.
+window.gfCalls = (function(){
+  let cur = null;
+  function close(){ if (!cur) return; cur.box.hidden = true; cur.box.innerHTML = ''; cur.btn.classList.remove('on'); cur.btn.textContent = 'Details ▾'; cur = null; document.querySelectorAll('.work.has-call').forEach(w => w.classList.remove('has-call')); }
+  async function open(btn, t){
+    const box = btn.closest('.att').nextElementSibling;
+    if (cur && cur.btn === btn) { close(); return; }
+    close();
+    cur = { btn, box }; btn.classList.add('on'); btn.textContent = 'Details ▴';
+    const work = box.closest('.work'); if (work) work.classList.add('has-call');  // the call needs the full width
+    box.hidden = false; box.innerHTML = '<div class="loading">loading the call…</div>';
+    const q = new URLSearchParams(location.search); q.set('call', btn.dataset.call);
+    history.replaceState(null, '', location.pathname + '?' + q.toString().replace(/%2F/g, '/') + (t != null ? '#t=' + t : ''));
+    try {
+      const res = await fetch(btn.dataset.src + (t != null ? '?t=' + t : ''));
+      if (!res.ok) throw new Error(res.status);
+      box.innerHTML = await res.text();
+      box.querySelectorAll('script').forEach(s => { const n = document.createElement('script'); n.textContent = s.textContent; s.replaceWith(n); });
+    } catch (err) { box.innerHTML = '<div class="loading">could not load this call (' + err.message + '). <a href="' + btn.dataset.href + '">Open the call page</a></div>'; }
+  }
+  document.addEventListener('click', e => {
+    const b = e.target.closest('.callbtn'); if (b) { e.preventDefault(); open(b); return; }
+    const a = e.target.closest('a.issue[data-issue]'); if (!a) return;
+    const btn = document.querySelector('.callbtn[data-call="' + a.dataset.issue + '"]'); if (!btn) return;
+    e.preventDefault(); const row = btn.closest('details'); if (row) row.open = true;
+    open(btn, a.dataset.t ? +a.dataset.t : null); btn.closest('.att').scrollIntoView({behavior:'smooth', block:'start'});
+  });
+  const want = new URLSearchParams(location.search).get('call');
+  if (want) { const btn = document.querySelector('.callbtn[data-call="' + want + '"]'); if (btn) { const row = btn.closest('details'); if (row) row.open = true; const m = location.hash.match(/t=(\d+)/); open(btn, m ? +m[1] : null); } }
+  return { open, close };
+})();
 document.addEventListener('click', e => {
   const a = e.target.closest('#btn-run'); if (!a) return;
   const d = document.getElementById('run'); if (d && d.tagName === 'DETAILS') { e.preventDefault(); d.open = true; d.scrollIntoView({behavior:'smooth', block:'start'}); }
