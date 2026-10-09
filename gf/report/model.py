@@ -243,7 +243,39 @@ def shell_info() -> dict[str, Any]:
         "tools": list(cfg.tools),
         "hash": cfg.config_hash,
         "providers": providers_rows(),
+        **_shell_targets(),
     }
+
+
+def _shell_targets() -> dict[str, Any]:
+    """The active agent under test and the list for the header menu (T9.4), with each
+    target's last connection test; never a secret."""
+    from gf import targets
+    from gf.targets_check import last_result
+
+    try:
+        rows = []
+        act = targets.active_id()
+        for t in targets.load_all():
+            r = t.redacted()
+            chk = last_result(t.id)
+            r["check"] = chk
+            r["state"] = "ok" if chk and chk.get("ok") else ("bad" if chk else "")
+            r["active"] = t.id == act
+            rows.append(r)
+        cur = next((r for r in rows if r["active"]), rows[0] if rows else None)
+    except Exception:  # noqa: BLE001 - a broken targets folder must not break every page
+        rows, cur = [], None
+    return {"targets": rows, "target": cur}
+
+
+def targets_page() -> dict[str, Any]:
+    """The Agents under test page: every target with its last check, the active one, and the
+    target kinds the seam supports."""
+    from gf.providers import providers
+
+    shell = _shell_targets()
+    return {"targets": shell["targets"], "active": shell["target"], "kinds": providers()}
 
 
 def providers_rows() -> list[dict[str, Any]]:
@@ -866,6 +898,8 @@ def run_row(run_id: str) -> dict[str, Any]:
     o = (summ or {}).get("overall", {})
     return {
         "run_id": run_id,
+        "target_name": (man.get("target") or {}).get("name"),
+        "target_id": (man.get("target") or {}).get("id"),
         "started_at": man.get("started_at"),
         "duration_s": man.get("duration_s"),
         "calls": len(man.get("calls", [])),
@@ -1070,6 +1104,7 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
         "kind": man.get("kind", "run"),
         "variant": man.get("agent_variant"),
         "tags": tags_of(man),
+        "target": man.get("target"),
         "parent_run": man.get("parent_run"),
         "env_components": man.get("env_components"),
         "cost": summ.get("cost"),

@@ -145,7 +145,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 - [x] T9.1 Target model and store (2026-10-09) (`gf/targets.py`, `targets/<id>.yaml`, secrets outside the repo, `gf targets`)
 - [x] T9.2 Runner per target (2026-10-09) (`gf run --target`, manifest target block, tag components)
 - [x] T9.3 Connection test (2026-10-09) (`gf targets test`, UI button)
-- [ ] T9.4 Agents under test in the UI (list, add, test, activate; header pill; start-run dropdown; providers folded in)
+- [x] T9.4 Agents under test in the UI (2026-10-09) (list, add, test, activate; header pill; start-run dropdown; providers folded in)
 - [ ] T9.5 Sandbox systems in the product's words (labels, "Run stamps", `docs/sandboxes.md`)
 - [ ] T9.6 Hooking a customer's tools to the sandbox (README + example)
 - [ ] T9.7 Phone-number targets (filed, not built) · T9.8 Real-backend hooks (filed, not built)

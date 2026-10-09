@@ -23,6 +23,11 @@ def env(tmp_path, monkeypatch):
     shutil.copytree(SESSIONS, sess)
     monkeypatch.setenv("RUNS_DIR", str(runs))
     monkeypatch.setenv("SESSIONS_DIR", str(sess))
+    tdir = tmp_path / "targets"
+    tdir.mkdir()
+    shutil.copy(ROOT / "targets" / "reference.yaml", tdir / "reference.yaml")
+    monkeypatch.setenv("TARGETS_DIR", str(tdir))
+    monkeypatch.delenv("GF_TARGET", raising=False)
     run = runs / "t1"
     calls = []
     for src, sid, n in (
@@ -191,7 +196,7 @@ def test_run_page_content(env):
     # the provider menu (T4.6a): current provider named, designed-for ones listed, add link
     home_html = env["client"].get("/").text
     assert 'id="provider-menu"' in home_html and 'id="btn-add-provider"' in home_html
-    assert "LiveKit Agents" in home_html and "Pipecat" in home_html
+    assert "Gateway Goods support line" in home_html and "Add an agent" in home_html
     prov = env["client"].get("/providers").text
     assert 'id="add"' in prov and "Day 1" in prov and "Day 5" in prov
     assert env["client"].get("/api/providers").json()["current"]["key"] == "livekit"
@@ -283,7 +288,9 @@ def test_rerun_starts_a_child_run_without_touching_the_parent(env, monkeypatch):
 
     calls = []
 
-    def fake_start(ids, repeat, concurrency, run_id="", variant=None, suite=None, parent_run=None):
+    def fake_start(
+        ids, repeat, concurrency, run_id="", variant=None, suite=None, parent_run=None, **kw
+    ):
         calls.append((sorted(ids), repeat, concurrency, parent_run))
         return "child-1"
 
@@ -364,7 +371,7 @@ def test_static_report_renders(env, tmp_path):
     assert "Refund for a broken blender, clean line" in (out / "index.html").read_text()
     assert (out / "sessions.html").exists() and (out / "scoring.html").exists()
     assert "Day 1" in (out / "providers.html").read_text()
-    assert 'href="providers.html#add"' in (out / "index.html").read_text()
+    assert 'href="agent.html#add"' in (out / "index.html").read_text()
     page = (out / "call-7c994c348001-1.html").read_text()
     assert 'href="index.html"' in page and "lookup_order" in page
     assert 'data-pane="spans"' in page
@@ -489,3 +496,66 @@ def test_negative_controls_live_on_the_runs_page(env):
     assert "Negative controls" in runs
     scoring = c.get("/scoring").text
     assert 'action="/checks/run"' not in scoring and "#selftest" in scoring
+
+
+def test_agents_under_test_page(env, monkeypatch):
+    """T9.4: list, add (secrets never rendered), test (stubbed connector), activate, remove;
+    the header and the start form follow the active target."""
+    from gf import targets, targets_check
+
+    c = env["client"]
+    page_html = c.get("/agent").text
+    assert "Agents under test" in page_html and 'id="targets"' in page_html
+    assert "Gateway Goods support line" in page_html and 'id="add-target"' in page_html
+    r = c.post(
+        "/agents",
+        data={
+            "id": "acme",
+            "name": "Acme support",
+            "url": "wss://acme.livekit.cloud",
+            "agent_name": "acme-agent",
+            "api_key": "APIacme",
+            "api_secret": "s3cretvalue",
+            "version": "v7",
+        },
+        follow_redirects=False,
+    )
+    assert r.status_code == 303 and r.headers["location"] == "/agent#acme"
+    listing = c.get("/agent").text
+    assert "Acme support" in listing and "acme.livekit.cloud" in listing and "v7" in listing
+    assert "APIacme" not in listing and "s3cretvalue" not in listing
+    assert targets.load("acme").credentials()[1] == "APIacme"
+    dup = {"id": "acme", "name": "x", "url": "wss://x", "agent_name": "a"}
+    assert c.post("/agents", data=dup).status_code == 400
+    assert c.post("/agents", data=dup | {"id": "Bad Id"}).status_code == 400
+
+    async def fake_test(t, *, timeout_s=20.0):
+        res = {
+            "target_id": t.id,
+            "ok": True,
+            "reason": "ok",
+            "message": targets_check.REASONS["ok"],
+            "agent_identity": "agent-xyz",
+            "joined_ms": 900,
+            "spoke_ms": 1800,
+            "error": None,
+            "checked_at": "2026-10-09T12:00:00+00:00",
+        }
+        targets_check.store(t.id, res)
+        return res
+
+    monkeypatch.setattr(targets_check, "connection_test", fake_test)
+    assert c.post("/agents/acme/test", follow_redirects=False).status_code == 303
+    after = c.get("/agent?tested=acme").text
+    assert 'id="test-result"' in after and "Connected · Acme support" in after
+    assert "agent-xyz" in after
+    assert c.post("/agents/nope/test", follow_redirects=False).status_code == 404
+    assert c.post("/agents/acme/activate", follow_redirects=False).status_code == 303
+    assert targets.active_id() == "acme"
+    home = c.get("/").text
+    assert 'id="provider-menu"' in home and "Acme support" in home
+    runs_page = c.get("/runs").text
+    assert 'id="target-select"' in runs_page and 'value="acme" selected' in runs_page
+    assert c.post("/agents/reference/remove").status_code == 400
+    assert c.post("/agents/acme/remove", follow_redirects=False).status_code == 303
+    assert not targets.exists("acme") and targets.active_id() == "reference"

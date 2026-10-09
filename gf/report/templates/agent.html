@@ -1,10 +1,51 @@
 {% extends "base.html" %}
 {% set page='agent' %}
-{% block title %}Agent · Call simulator{% endblock %}
-{% block crumbs %}<b>Agent settings</b>{% endblock %}
+{% block title %}Agents under test · Call simulator{% endblock %}
+{% block crumbs %}<b>Agents under test</b>{% endblock %}
 {% block content %}
-<h1>{{ a.cfg.name }}</h1>
-<p class="sub">The agent under test. Read-only here; it is configured in <code>gf/agent/config.yaml</code>. Config hash <span class="mono">{{ a.hash }}</span> is stamped on every call record.</p>
+<h1>Agents under test</h1>
+<p class="sub">The agents this platform runs practice sessions against. Each one is reached in its own LiveKit project; its tools point at the sandbox order system for test runs. The active agent is what runs and the header use by default.</p>
+{% if error %}<div class="banner warn">{{ error }}</div>{% endif %}
+{% if tested %}{% set tr = (p.targets|selectattr('id','equalto',tested)|list|first) %}{% if tr and tr.check %}<div class="banner {{ '' if tr.check.ok else 'warn' }}" id="test-result"><b>{{ 'Connected' if tr.check.ok else 'Connection failed' }} · {{ tr.name }}</b> <span class="small">{{ tr.check.message }}{% if tr.check.agent_identity %} Agent {{ tr.check.agent_identity }} joined after {{ tr.check.joined_ms }} ms{% if tr.check.spoke_ms is not none %}, spoke after {{ tr.check.spoke_ms }} ms{% endif %}.{% endif %}{% if tr.check.error %} <span class="mono">{{ tr.check.error }}</span>{% endif %}</span></div>{% endif %}{% endif %}
+<div class="tablewrap" id="targets"><table>
+<tr><th>agent</th><th>kind</th><th>project</th><th>dispatch name</th><th>version</th><th>last connection test</th><th></th></tr>
+{% for t in p.targets %}
+<tr id="{{ t.id }}" class="target-row" data-target="{{ t.id }}">
+  <td><b>{{ t.name }}</b>{% if t.active %} <span class="pill indigo">active</span>{% endif %}{% if t.reference %} <span class="chip">reference</span>{% endif %}<div class="small muted mono">{{ t.id }}</div></td>
+  <td>{{ t.kind }}</td>
+  <td class="mono small">{{ t.server_host or '—' }}{% if not t.has_secrets %} <span class="pill red">no secrets</span>{% endif %}</td>
+  <td class="mono small">{{ t.agent_name }}</td>
+  <td class="mono small">{{ t.version_label }}</td>
+  <td>{% if t.check %}<span class="pill {{ 'green' if t.check.ok else 'red' }}">{{ 'connected' if t.check.ok else t.check.reason|replace('_',' ') }}</span> <span class="small muted">{{ t.check.checked_at|dt }}</span>{% else %}<span class="small muted">not tested yet</span>{% endif %}</td>
+  <td style="white-space:nowrap">{% if mode == 'live' %}<form method="post" action="/agents/{{ t.id }}/test" style="display:inline"><button class="btn sm" type="submit" title="create a room in this agent's project, dispatch it, wait for it to speak">Test connection</button></form> {% if not t.active %}<form method="post" action="/agents/{{ t.id }}/activate" style="display:inline"><button class="btn sm" type="submit">Use</button></form>{% endif %} {% if not t.reference %}<form method="post" action="/agents/{{ t.id }}/remove" style="display:inline"><button class="btn sm danger" type="submit">Remove</button></form>{% endif %}{% endif %}</td>
+</tr>
+{% endfor %}
+</table></div>
+{% if mode == 'live' %}
+<details class="card" id="add" style="margin:12px 0 16px;padding:12px 16px">
+  <summary>Add an agent under test</summary>
+  <p class="small muted" style="margin:8px 0 10px">A LiveKit agent reached by its project's credentials: we create the room in that project and dispatch the agent by name; the key and secret are stored in <code>targets/secrets.yaml</code> on this machine and never shown again. The agent's tools must point at this sandbox for test runs (see the README).</p>
+  <form method="post" action="/agents" class="two" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 16px" id="add-target">
+    <div>
+      <label class="small muted">Id (lowercase, dashes)</label><input class="input" name="id" required pattern="[a-z0-9][a-z0-9\-]{0,39}" placeholder="acme-support">
+      <label class="small muted">Name</label><input class="input" name="name" required placeholder="Acme support line">
+      <label class="small muted">LiveKit server URL</label><input class="input" name="url" required placeholder="wss://acme-xxxx.livekit.cloud">
+      <label class="small muted">Agent name to dispatch</label><input class="input" name="agent_name" required placeholder="acme-agent">
+    </div>
+    <div>
+      <label class="small muted">API key</label><input class="input" name="api_key" required autocomplete="off">
+      <label class="small muted">API secret</label><input class="input" name="api_secret" type="password" required autocomplete="off">
+      <label class="small muted">Version label (optional)</label><input class="input" name="version" placeholder="v12, 2026-10-09, git sha…">
+      <label class="small muted">Notes (optional)</label><input class="input" name="notes">
+      <button class="btn primary" type="submit" id="btn-add-target">Register</button>
+    </div>
+  </form>
+</details>
+{% endif %}
+<p class="small muted" id="kinds">Target kinds: {% for k in p.kinds %}<b>{{ k.name }}</b>{% if k.current %} (in use){% elif not k.runnable %} (next){% endif %}{% if not loop.last %} · {% endif %}{% endfor %} · <a href="{{ links.providers() }}">how a kind is added</a>.</p>
+
+<h2 id="reference">Reference agent · {{ a.cfg.name }}</h2>
+<p class="sub">The support line in this repository, registered as the first agent under test. Read-only here; it is configured in <code>gf/agent/config.yaml</code>. Config hash <span class="mono">{{ a.hash }}</span> is its version and is stamped on every call record.</p>
 
 <div class="kpis" id="models">
   <div class="kpi grey"><div class="ic">⎈</div><div class="k">Provider</div><div class="v" style="font-size:18px">{{ a.cfg.provider }}</div><div class="d">worker <code>gf-support-agent</code>, explicit dispatch</div></div>
@@ -22,7 +63,7 @@
 <tr><td class="mono">{{ name }}</td><td class="mono">{{ a.tools[name].args }}</td><td>{{ a.tools[name].does }}</td></tr>
 {% endfor %}
 </table></div>
-<p class="small muted">Every call goes to the <a href="{{ links.backend() }}">mock order system</a> with the call id, so what the agent did is read from the backend log, never from the transcript.</p>
+<p class="small muted">Every call goes to the <a href="{{ links.backend() }}">sandbox order system</a> with the call id, so what the agent did is read from the sandbox log, never from the transcript.</p>
 
 <h2 id="prompt">Instructions (system prompt)</h2>
 <div class="card"><pre style="white-space:pre-wrap;border:0;background:none;padding:0;font-size:13px;font-family:inherit">{{ a.cfg.instructions }}</pre></div>

@@ -167,8 +167,74 @@ async def overview(call: str = "", run: str = ""):
 
 
 @app.get("/agent", response_class=HTMLResponse)
-def agent():
-    return page("agent.html", a=model.agent_page())
+@app.get("/agents", response_class=HTMLResponse)
+def agent(tested: str = "", error: str = ""):
+    """Agents under test (T9.4): the registered targets and the reference agent's config."""
+    return page(
+        "agent.html", a=model.agent_page(), p=model.targets_page(), tested=tested, error=error
+    )
+
+
+@app.post("/agents")
+async def agent_add(request: Request):
+    """Register a LiveKit agent under test. The key and secret go to the secrets file and are
+    never rendered again."""
+    from gf import targets
+
+    form = await request.form()
+    fields = ("id", "name", "url", "agent_name", "api_key", "api_secret", "version", "notes")
+    f = {k: str(form.get(k, "")).strip() for k in fields}
+    try:
+        if not f["id"] or not f["name"] or not f["url"] or not f["agent_name"]:
+            raise ValueError("id, name, server URL and agent name are required")
+        if targets.exists(f["id"]):
+            raise ValueError(f"a target named {f['id']!r} already exists")
+        t = targets.Target(
+            id=f["id"],
+            name=f["name"],
+            server_url=f["url"],
+            agent_name=f["agent_name"],
+            version=f["version"],
+            notes=f["notes"],
+        )
+        targets.save(t, api_key=f["api_key"], api_secret=f["api_secret"])
+    except ValueError as e:
+        raise HTTPException(400, str(e)) from None
+    return RedirectResponse(f"/agent#{f['id']}", status_code=303)
+
+
+@app.post("/agents/{target_id}/test")
+async def agent_test(target_id: str):
+    from gf import targets, targets_check
+
+    try:
+        t = targets.load(target_id)
+    except FileNotFoundError as e:
+        raise HTTPException(404, str(e)) from None
+    await targets_check.connection_test(t)
+    return RedirectResponse(f"/agent?tested={target_id}#{target_id}", status_code=303)
+
+
+@app.post("/agents/{target_id}/activate")
+def agent_activate(target_id: str):
+    from gf import targets
+
+    try:
+        targets.set_active(target_id)
+    except FileNotFoundError as e:
+        raise HTTPException(404, str(e)) from None
+    return RedirectResponse(f"/agent#{target_id}", status_code=303)
+
+
+@app.post("/agents/{target_id}/remove")
+def agent_remove(target_id: str):
+    from gf import targets
+
+    try:
+        targets.remove(target_id)
+    except ValueError as e:
+        raise HTTPException(400, str(e)) from None
+    return RedirectResponse("/agent", status_code=303)
 
 
 @app.get("/backend", response_class=HTMLResponse)
@@ -349,6 +415,7 @@ async def run_start(request: Request):
             int(form.get("concurrency", 4)),
             str(form.get("run_id", "")).strip(),
             suite=suite or None,
+            target=str(form.get("target", "")).strip() or None,
         )
     except (RuntimeError, ValueError) as e:
         raise HTTPException(400, str(e)) from None
@@ -416,6 +483,7 @@ async def run_rerun(run_id: str, request: Request):
             next_run_id(run_id),  # base-001 -> base-002; other names keep the dated id
             suite=man.get("suite"),
             parent_run=run_id,
+            target=(man.get("target") or {}).get("id"),  # the same agent under test
         )
     except (RuntimeError, ValueError) as e:
         raise HTTPException(400, str(e)) from None

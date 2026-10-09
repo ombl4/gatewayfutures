@@ -374,14 +374,19 @@ details.srow summary .ttl .chip{font-weight:400}
   <a class="item {% if nav=='sessions' %}active{% endif %}" href="{{ links.sessions() }}"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Practice sessions</a>
   <a class="item {% if nav=='scoring' %}active{% endif %}" href="{{ links.scoring() }}"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16"/><path d="M8 15l4-5 3 3 5-6"/></svg>Scoring</a>
   <a class="item {% if nav=='environments' %}active{% endif %}" href="{{ links.environments() }}"><svg viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4 8 4 8-4z"/><path d="M4 7v10l8 4 8-4V7"/><path d="M12 11v10"/></svg>Environments</a>
-  <a class="item {% if nav in ('agent','backend','caller') %}active{% endif %}" href="{{ links.agent() }}"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Agent settings</a>
-  <div class="sec">Support agent</div>
-  <a class="agentbox" href="{{ links.agent() }}" style="text-decoration:none;color:inherit"><div class="av">{{ shell.persona[:1] if shell.persona else 'A' }}</div><div><div class="nm">{{ shell.name }}</div><div class="st"><i></i>{{ shell.provider }}{% if provider_state == 'bad' %} · unreachable{% endif %}</div></div></a>
+  <a class="item {% if nav in ('agent','backend','caller') %}active{% endif %}" href="{{ links.agent() }}"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Agents under test</a>
+  <div class="sec">Agent under test</div>
+  <a class="agentbox" href="{{ links.agent() }}" style="text-decoration:none;color:inherit"><div class="av">{{ (shell.target.name[:1] if shell.target else shell.persona[:1]) or 'A' }}</div><div><div class="nm">{{ shell.target.name if shell.target else shell.name }}</div><div class="st"><i></i>{{ shell.target.kind if shell.target else shell.provider }}{% if shell.target and shell.target.reference %} · reference{% endif %}{% if provider_state == 'bad' and (not shell.target or shell.target.reference) %} · unreachable{% endif %}</div></div></a>
+  {% if not shell.target or shell.target.reference %}
   <a class="row" href="{{ links.agent() }}#prompt"><span>Prompt</span><span>{{ shell.persona }}</span></a>
   <a class="row" href="{{ links.agent() }}#voice"><span>Voice</span><span>{{ shell.tts }}</span></a>
   <a class="row" href="{{ links.agent() }}#tools"><span>Tools</span><span>{{ shell.tools|length }} tools</span></a>
   <a class="row" href="{{ links.agent() }}#models"><span>Model</span><span>{{ shell.llm }}</span></a>
-  <a class="row" href="{{ links.backend() }}"><span>Order system</span><span>mock</span></a>
+  {% else %}
+  <a class="row" href="{{ links.agent() }}#{{ shell.target.id }}"><span>Dispatch</span><span>{{ shell.target.agent_name }}</span></a>
+  <a class="row" href="{{ links.agent() }}#{{ shell.target.id }}"><span>Version</span><span>{{ shell.target.version_label }}</span></a>
+  {% endif %}
+  <a class="row" href="{{ links.backend() }}"><span>Sandbox</span><span>order system</span></a>
   <a class="row" href="{{ links.caller() }}"><span>Simulated caller</span><span>gf-caller</span></a>
   <div class="vers">gatewayfutures {{ version }}<br>{% if mode=='static' %}static report · {{ generated|dt }}{% else %}live view over runs/{% endif %}</div>
 </aside>
@@ -389,15 +394,16 @@ details.srow summary .ttl .chip{font-weight:400}
 <header class="top">
   <div class="crumbs"><a href="{{ links.overview() }}">Voice agent evaluation</a><i>›</i>{% block crumbs %}<b>Overview</b>{% endblock %}</div>
   <div class="right">
-    {% set cur = (shell.providers|selectattr('current')|list)|first if shell.providers else none %}
+    {% set tg = shell.target %}
+    {% set tstate = (provider_state if (not tg or tg.reference) else tg.state) %}
     <details class="pmenu" id="provider-menu">
-      <summary class="status-pill {{ provider_state or '' }}" title="{{ provider_detail or shell.provider }}"><i></i>{{ cur.name if cur else shell.provider }}{% if provider_state == 'ok' %} · connected{% elif provider_state == 'bad' %} · unreachable{% endif %}<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></summary>
+      <summary class="status-pill {{ tstate or '' }}" title="{{ (provider_detail if (not tg or tg.reference) else (tg.check.message if tg.check else 'not tested yet')) }}"><i></i>{{ tg.name if tg else shell.name }}{% if tstate == 'ok' %} · connected{% elif tstate == 'bad' %} · unreachable{% endif %}<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></summary>
       <div class="menu">
-        <div class="hd">Voice agent provider</div>
-        {% for p in shell.providers %}
-        <a class="mi {% if p.current %}cur {{ provider_state or '' }}{% endif %}" href="{{ links.providers() }}#{{ p.key }}"><i></i><span>{{ p.name }}</span><em>{% if p.current %}current{% elif p.runnable %}available{% else %}next week{% endif %}</em></a>
+        <div class="hd">Agent under test</div>
+        {% for x in shell.targets %}
+        <a class="mi {% if x.active %}cur {{ tstate or '' }}{% endif %}" href="{{ links.agent() }}#{{ x.id }}"><i></i><span>{{ x.name }}</span><em>{% if x.active %}active{% elif x.check and x.check.ok %}connected{% elif x.check %}check failed{% else %}not tested{% endif %}</em></a>
         {% endfor %}
-        <a class="mi add" href="{{ links.providers() }}#add" id="btn-add-provider">＋ Add a provider</a>
+        <a class="mi add" href="{{ links.agent() }}#add" id="btn-add-provider">＋ Add an agent</a>
       </div>
     </details>
     {% if mode == 'live' %}

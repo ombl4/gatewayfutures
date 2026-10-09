@@ -33,6 +33,10 @@
         </script>
       </div>
       <div>
+        <label class="small muted">Agent under test</label>
+        <select class="input" name="target" id="target-select">
+          {% for x in shell.targets %}<option value="{{ x.id }}" {% if x.active %}selected{% endif %}{% if not x.has_secrets %} disabled{% endif %}>{{ x.name }}{% if not x.has_secrets %} (no secrets){% endif %}</option>{% endfor %}
+        </select>
         <label class="small muted">Sessions</label>
         <select class="input" name="pick" id="pick" onchange="gfPick(this)">
           {% for su in suites %}<option value="suite:{{ su }}" {% if su == 'core' %}selected{% endif %}>suite {{ su }}{% if su == 'core' %} (default){% endif %}</option>{% endfor %}

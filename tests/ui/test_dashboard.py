@@ -93,6 +93,11 @@ def site(tmp_path_factory):
 
     os.environ["RUNS_DIR"] = str(runs)
     os.environ["SESSIONS_DIR"] = str(sess)
+    tdir = tmp / "targets"
+    tdir.mkdir()
+    shutil.copy(ROOT / "targets" / "reference.yaml", tdir / "reference.yaml")
+    os.environ["TARGETS_DIR"] = str(tdir)
+    os.environ.pop("GF_TARGET", None)
     os.environ.pop("GF_UI_TOKEN", None)
 
     import uvicorn
@@ -167,7 +172,7 @@ def test_navigation_and_header(site, page):
         ("Runs", "/runs", "Runs"),
         ("Scoring", "/scoring", "Scoring"),
         ("Environments", "/environments", "Environments"),
-        ("Agent settings", "/agent", "Agent settings"),
+        ("Agents under test", "/agent", "Agents under test"),
     ):
         page.click(f"aside.nav a.item:has-text('{label}')")
         assert urlparse(page.url).path == path
@@ -179,14 +184,14 @@ def test_navigation_and_header(site, page):
     assert not menu.is_visible()
     page.click("#provider-menu summary")
     assert menu.is_visible()
-    assert "current" in menu.locator(".mi.cur").inner_text()
-    assert menu.locator(".mi").count() >= 3
+    assert "active" in menu.locator(".mi.cur").inner_text()
+    assert menu.locator(".mi").count() >= 2  # every target plus "Add an agent"
     page.mouse.click(640, 600)  # anywhere outside the menu
     assert not menu.is_visible()
     page.click("#provider-menu summary")
     page.click("#btn-add-provider")
-    assert urlparse(page.url).path == "/providers" and page.locator("#add").is_visible()
-    assert "Providers" in page.locator(".crumbs").inner_text()
+    assert urlparse(page.url).path == "/agent" and page.locator("#add").is_visible()
+    assert "Agents under test" in page.locator(".crumbs").inner_text()
     page.goto(site["base"] + "/")
     # agent block rows reach the agent page anchors
     page.click("aside.nav a.row:has-text('Tools')")
@@ -680,4 +685,37 @@ def test_static_report_works_from_disk(site, page):
     assert page.locator("#kpis .kpi").count() == 4 and page.locator("details.srow").count() == 0
     page.click("aside.nav a.item:has-text('Practice sessions')")
     assert page.url.endswith("sessions.html")
+    _no_errors(page)
+
+
+def test_register_an_agent_under_test_from_the_ui(site, page):
+    """T9.4: the add form registers a target, it appears in the list and the start form, Use
+    makes it the header's agent, Remove takes it away; secrets never show."""
+    page.goto(site["base"] + "/agent")
+    assert page.locator("#targets tr.target-row").count() == 1
+    page.locator("#add summary").click()
+    page.fill("#add-target input[name=id]", "acme")
+    page.fill("#add-target input[name=name]", "Acme support line")
+    page.fill("#add-target input[name=url]", "wss://acme.livekit.cloud")
+    page.fill("#add-target input[name=agent_name]", "acme-agent")
+    page.fill("#add-target input[name=api_key]", "APIacmekey")
+    page.fill("#add-target input[name=api_secret]", "verysecretvalue")
+    page.fill("#add-target input[name=version]", "v3")
+    page.click("#btn-add-target")
+    page.wait_for_url("**/agent#acme")
+    assert page.locator("#targets tr.target-row").count() == 2
+    row = page.locator("#acme")
+    assert "Acme support line" in row.inner_text() and "acme.livekit.cloud" in row.inner_text()
+    assert "APIacmekey" not in page.content() and "verysecretvalue" not in page.content()
+    row.locator("button:has-text('Use')").click()
+    page.wait_for_url("**/agent#acme")
+    assert "active" in page.locator("#acme").inner_text()
+    assert "Acme support line" in page.locator("#provider-menu summary").inner_text()
+    page.goto(site["base"] + "/runs")
+    assert page.locator("#target-select").input_value() == "acme"
+    page.goto(site["base"] + "/agent")
+    page.locator("#acme button:has-text('Remove')").click()
+    page.wait_for_url("**/agent")
+    assert page.locator("#targets tr.target-row").count() == 1
+    assert "Gateway Goods" in page.locator("#provider-menu summary").inner_text()
     _no_errors(page)

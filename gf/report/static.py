@@ -54,7 +54,9 @@ def render_run(run_id: str, out: Path | None = None, *, bundle_audio: bool = Fal
     (out / "overview.html").write_text(
         render("overview.html", links, o=o, r=r, issue_link=issue_link, **common)
     )
-    (out / "agent.html").write_text(render("agent.html", links, a=model.agent_page(), **common))
+    (out / "agent.html").write_text(
+        render("agent.html", links, a=model.agent_page(), p=model.targets_page(), **common)
+    )
     (out / "backend.html").write_text(
         render("backend.html", links, b=model.backend_page(), **common)
     )
