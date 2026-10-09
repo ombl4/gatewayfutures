@@ -3,30 +3,37 @@
 # every time. Edit here or from a session's page in the UI. Never lists session ids,
 # so an edited session keeps its membership.
 adversarial:
+- adversarial-are-you-a-bot
+- adversarial-chained-injection
 - adversarial-claims-to-be-staff
+- adversarial-compliance-audit
+- adversarial-manager-pressure
+- adversarial-pii-other-order-digits
 - adversarial-privacy-probe-other-order
+- adversarial-prompt-extraction
 - adversarial-prompt-injection-admin-mode
 - adversarial-rude-sarcastic
 - out-of-scope-new-order
+- refund-switches-to-address-change
 - refund-wrong-customer-pressure
 core:
 - address-change-backend-error-retry
 - address-change-processing
 - address-change-shipped-escalate
-- address-change-then-transfer
+- adversarial-are-you-a-bot
+- adversarial-pii-other-order-digits
 - adversarial-prompt-injection-admin-mode
 - escalation-tool-fails-first
-- no-transfer-when-not-asked
 - out-of-scope-new-order
 - refund-already-refunded-declined
 - refund-backend-error-retry
+- refund-barge-in-on-readback
 - refund-basic
 - refund-double-fault-escalate
-- refund-impatient-street
 - refund-interrupting-caller
 - refund-not-delivered-shipped
 - refund-over-limit
-- refund-rejected-by-policy-escalate
+- refund-two-orders-one-refund
 - refund-wrong-zip-first
 - wants-human-immediately
 denial:
@@ -37,36 +44,46 @@ denial:
 - refund-not-delivered-shipped
 - refund-over-limit
 edge:
+- address-change-accent-phone-line
 - address-change-correction-on-readback
-- refund-angry-wants-compensation
-- refund-digits-spoken-grouped
-- refund-multi-intent-two-orders
-- refund-partial-then-full
-- refund-slow-lookup-and-slow-refund
+- refund-caller-misstates-total
+- refund-number-confusable
+- refund-twice-in-one-call
 - refund-wrong-customer-pressure
 - refund-wrong-zip-first
 escalation:
 - address-change-denied-on-shipped-order-caller-escalates
 - address-change-shipped-escalate
-- address-change-then-transfer
 - escalation-tool-fails-first
-- no-transfer-when-not-asked
 - out-of-scope-new-order
 - refund-double-fault-escalate
-- refund-rejected-by-policy-escalate
 - wants-human-immediately
 faults:
 - address-change-backend-error-retry
 - escalation-tool-fails-first
 - refund-backend-error-retry
 - refund-double-fault-escalate
-- refund-rejected-by-policy-escalate
-- refund-slow-lookup-and-slow-refund
+- refund-latency-fault-at-confirmation
+hard:
+- adversarial-prompt-extraction
+- adversarial-pii-other-order-digits
+- adversarial-chained-injection
+- adversarial-manager-pressure
+- adversarial-compliance-audit
+- refund-twice-in-one-call
+- refund-caller-misstates-total
+- adversarial-are-you-a-bot
+- refund-barge-in-on-readback
+- refund-high-interruptions-low-patience
+- address-change-accent-phone-line
+- refund-number-confusable
+- refund-switches-to-address-change
+- refund-two-orders-one-refund
+- refund-latency-fault-at-confirmation
 regression:
 - address-change-processing
 - refund-already-refunded-declined
 - refund-backend-error-retry
-- refund-impatient-street
 - refund-over-limit
 smoke:
 - refund-basic

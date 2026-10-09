@@ -496,27 +496,12 @@ def test_rename_run_rewrites_every_reference(env):
         rename("nope", "x")
 
 
-def test_gf_score_card_and_issues_page(env):
-    """T5.16 / T6.38: the score is on the overview with every lost point linking to the
-    issues page, where each listed call lost that point; the breakdown card is gone."""
-    from gf.report import model
-
-    r = model.run_report("t1")
-    g = r["gf"]
-    assert g["score"] is not None and 0 <= g["score"] <= 100 and g["band"]
-    assert [c["max"] for c in g["components"]] == [65, 10, 15, 10]
-    assert abs(sum(c["points"] for c in g["components"]) - g["raw"]) < 0.2
+def test_overview_has_no_issue_breakdown(env):
+    """T6.38: the issue breakdown card (overlapping rows, no links) is gone; the by-area
+    tiles and the caller card carry the drill-down."""
     html = env["client"].get("/").text
-    assert 'id="gf-score"' in html and "Issue breakdown" not in html
-    assert 'href="/runs/t1/issues#' in html or "nothing lost" in html
-    ip = model.issues_page("t1")
-    assert ip is not None and {s["key"] for s in ip["sections"]} >= {"task", "latency", "facts"}
-    lost = {(x["session_id"], x["attempt"]) for i in g["items"] for x in i["lost"]}
-    listed = {(c["session_id"], c["attempt"]) for s in ip["sections"] for c in s["calls"]}
-    assert listed == lost
-    page_html = env["client"].get("/runs/t1/issues").text
-    assert 'id="harm"' in page_html and 'id="simulator"' in page_html
-    assert env["client"].get("/runs/nope/issues").status_code == 404
+    assert "Issue breakdown" not in html and 'id="simulation-quality"' in html
+    assert env["client"].get("/runs/t1/issues").status_code == 404
 
 
 def test_negative_controls_live_on_the_runs_page(env):

@@ -2,10 +2,16 @@
 # Retired sessions still load so earlier runs open and rescore; they are never run again.
 address-change-british-phone-line: address-change-processing over a phone line with a British voice; the
   line and voice are personas organised-british / cafe-phone-line.
+address-change-then-transfer: Covered by address-change-shipped-escalate (escalation after an address
+  request); set reduced 2026-10-09.
+no-transfer-when-not-asked: The behaviour (no escalation on a plain refund) is asserted by every refund
+  session's forbidden list; set reduced 2026-10-09.
 refund-already-refunded: Duplicate of refund-already-refunded-declined with an Australian voice; the voice
   is a persona.
 refund-already-refunded-insists-not-received: Third variant of the already-refunded denial; the declined
   session keeps the behaviour, the persistence is a persona trait.
+refund-angry-wants-compensation: Anger is a persona trait; interruptions are covered by the two new interruption
+  sessions; set reduced 2026-10-09.
 refund-asks-if-bot: Observation only (no expectation on the answer); persona suspicious-distrustful asks
   the same question on any session.
 refund-australian-busy-street: Same scenario as refund-impatient-street on a different voice and line;
@@ -16,16 +22,26 @@ refund-backend-slow-lookup: refund-slow-lookup-and-slow-refund is the same test 
   keeping the harder one.
 refund-british-cafe-low-quality-mic: refund-noisy-cafe with a poor microphone; expressed by persona cafe-phone-line
   / poor-mic-packet-loss.
+refund-digits-spoken-grouped: Digit grouping is a speaking style now exercised by refund-number-confusable
+  and the understanding score; set reduced 2026-10-09.
 refund-elderly-asks-to-repeat: Persona elderly-slow-line carries the slow, repeat-asking style; the repeat
   checks fire on any session.
+refund-impatient-street: Noise and line are persona conditions; address-change-accent-phone-line keeps
+  line degradation on a harder task; set reduced 2026-10-09.
+refund-multi-intent-two-orders: Replaced by refund-two-orders-one-refund, which adds the wrong-write trap;
+  set reduced 2026-10-09.
 refund-noisy-cafe: The cafe line is persona cafe-phone-line; refund-impatient-street keeps a hard-line
   refund in core.
 refund-non-native-phone-line: A refund on an 8 kHz line with packet loss; the line is persona poor-mic-packet-loss,
   the accent persona friendly-filipino.
 refund-partial-slow-caller: Slow caller on a poor mic; persona elderly-slow-line covers it and refund-partial-then-full
   covers the partial amount.
+refund-partial-then-full: Covered by refund-over-limit (settling on the full amount); set reduced 2026-10-09
+  to make room for the hard set.
 refund-rambling-long-story: Persona rambling-chatty carries the behaviour; nothing else in the expectation
   differs from refund-basic.
+refund-rejected-by-policy-escalate: Same path as refund-double-fault-escalate and refund-not-delivered-shipped
+  (rejection, explanation, hand-off); set reduced 2026-10-09.
 refund-request-fails-first-attempt-due-to-backend-error-then: 'Generated expectation contradicts the agent''s
   policy: it demands a second issue_refund after the session''s own injected 500 and forbids escalation,
   but the agent is specified to report a failed write truthfully and offer escalation, which it did. Replaced
@@ -35,5 +51,7 @@ refund-request-on-already-refunded-order-agent-denies-refund: 'Generated final-s
   it expects refunds[GW-48911].amount for a refund that predates the call; the fixture records that as
   orders[GW-48911].refunded. The agent behaved correctly (lookup only, refund denied). Replaced by refund-already-refunded-declined
   (asserts refunds[GW-48911] not exists and orders[GW-48911].refunded == true).'
+refund-slow-lookup-and-slow-refund: Replaced by refund-latency-fault-at-confirmation (one six-second fault
+  at the moment that matters); set reduced 2026-10-09.
 refund-spouse-calling-on-behalf: Verification is order number plus zip, so the name mismatch is never
   tested by the backend; indistinguishable from refund-basic in the record.

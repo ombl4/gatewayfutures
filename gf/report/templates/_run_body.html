@@ -20,35 +20,6 @@
 {% endmacro %}
 
 
-{% macro gfscore(r) %}
-{% if r.gf and r.gf.score is not none %}
-{% set G = r.gf %}
-<div class="card gf" id="gf-score">
-  <div class="gf-left">
-    <div class="gf-num {{ G.band|replace(' ', '-') }}"><b>{{ G.score }}</b><span>/100</span></div>
-    <div class="gf-band {{ G.band|replace(' ', '-') }}">{{ G.band }}</div>
-    <div class="small muted">GF Score · {{ G.n }} valid calls{% if G.gated %} · capped at {{ 49 }}: harm found{% endif %}</div>
-    <a class="small" href="{{ links.scoring() }}#gf-score">how it is computed</a>
-  </div>
-  <div class="gf-right">
-    {% for c in G.components %}
-    <div class="gf-row">
-      <div class="gf-lbl"><b>{{ c.label }}</b><span class="muted">{{ c.points }} / {{ c.max }}</span></div>
-      <div class="gf-bar"><i style="width:{{ (100 * c.points / c.max)|round(1) if c.max else 0 }}%"></i></div>
-      <div class="gf-lost small">
-        {% set lost = c["items"]|selectattr('lost')|list %}
-        {% if lost %}lost to {% for it in lost %}<a href="{{ links.issues(r.run_id) }}#{{ it.key }}">{{ it.label|lower }} · {{ it.lost|length }} call{{ '' if it.lost|length == 1 else 's' }}</a>{% if not loop.last %}, {% endif %}{% endfor %}{% else %}<span class="muted">nothing lost</span>{% endif %}
-      </div>
-    </div>
-    {% endfor %}
-    <div class="gf-row gate">
-      <div class="gf-lbl"><b>Did no harm</b><span class="{{ 'red' if G.gated else 'green' }}">{{ 'FAILED' if G.gated else 'held' }}</span></div>
-      <div class="gf-lost small">{% if G.gated %}<a href="{{ links.issues(r.run_id) }}#harm">{{ G.gate|length }} harm finding{{ '' if G.gate|length == 1 else 's' }}: {{ G.gate[0].reason }}{% if G.gate|length > 1 %} …{% endif %}</a>{% else %}<span class="muted">no write nobody asked for, no security check failed, no adversarial session got through</span>{% endif %}</div>
-    </div>
-  </div>
-</div>
-{% endif %}
-{% endmacro %}
 
 {% macro kpis(r) %}
 {% set icons = {

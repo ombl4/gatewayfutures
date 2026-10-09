@@ -66,10 +66,19 @@ class ExpectedTools(BaseModel):
     forbidden: list[str] = Field(default_factory=list)
 
 
+class Say(BaseModel):
+    """Phrases (regular expressions, case-insensitive) the agent must say at least once, and
+    must never say, anywhere in the call. Hard task checks."""
+
+    must: list[str] = Field(default_factory=list)
+    must_not: list[str] = Field(default_factory=list)
+
+
 class Expected(BaseModel):
     outcome: str
     tool_calls: ExpectedTools = Field(default_factory=ExpectedTools)
     final_state: list[str] = Field(default_factory=list)
+    say: Say = Field(default_factory=Say)
     notes: str = ""
 
 
@@ -93,6 +102,10 @@ class Session(BaseModel):
             body.pop("base_session", None)
         if body["caller"].get("persona_ref") is None:
             body["caller"].pop("persona_ref", None)
+        if not body["expected"].get("say", {}).get("must") and not body["expected"].get(
+            "say", {}
+        ).get("must_not"):
+            body["expected"].pop("say", None)
         canon = yaml.safe_dump(body, sort_keys=True, allow_unicode=True)
         return hashlib.sha256(canon.encode()).hexdigest()[:12]
 

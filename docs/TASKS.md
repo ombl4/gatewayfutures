@@ -92,8 +92,8 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 - [x] T5.5 Statistics — Wilson 95%, pass^k / pass@k, flaky, interval overlap (`stats.py`), unit-tested against known values
 - [x] T5.6 `gf score <run_id>` — scores.json per call, summary.json per run with the comparability stamp; batch-test-1 scored 6/6 (CI 61–100%)
 - [x] T5.8 Simulator hearing check — `gf/scoring/hearing.py`: agent turn ↔ caller transcript pairing, digit entities (tens-aware) and word substitutions, invalid when the caller acted on the wrong value; the `full-1` Austin/Boston call is now invalid for that reason (boston→austin, beacon→eakin); 5 unit tests
-- [ ] T5.16 GF Score — 65 task / 10 honesty / 15 experience / 10 understanding, harm gate caps at 49, bands; score card first on the overview, runs table column, formula on the scoring page
-- [ ] T6.38 Issues page `/runs/<run>/issues`; the issue breakdown card is removed
+- [ ] T5.16 GF Score — built on 2026-10-09, then taken out the same evening (too much, too late before the hand-in); the proposal stays in `docs/research/scoring-standards.md` for a later decision
+- [x] T6.38 Issue breakdown card removed (2026-10-09); the by-area tiles and the caller quality page are the drill-down
 - [ ] T7.6 Adversarial session set v2 (15 sessions; `expected.say`, `security.other_customer_data`, `security.prompt_leak`); run `adv-001`
 - [ ] T7.7 Audio-borne injection, backchannel/pause conditions, must-not-invent facts (filed)
 - [x] T5.15 Two verdicts per call (2026-10-09) — `passed` = task (tools, honesty); `experience_ok` = latency, dead air, intelligibility bars; `experience` summary per run with interval; KPI cards Task success + Experience; pills, call header, grading step 4, issue breakdown, area popovers, runs table

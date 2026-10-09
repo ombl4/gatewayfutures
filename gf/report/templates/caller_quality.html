@@ -37,6 +37,15 @@
   </div>
 </div>
 
+<div class="card" id="cq-personas" style="margin-top:12px">
+  <div class="hd"><h3>By persona</h3><span class="small muted">{{ p.personas|length }} persona{{ '' if p.personas|length == 1 else 's' }}</span></div>
+  <div class="tablewrap"><table class="small">
+    <tr><th>persona</th><th>voice</th><th class="num">calls</th><th class="num">in character</th><th>flags</th></tr>
+    {% for d in p.personas %}
+    <tr><td>{{ d.persona }}</td><td class="mono small">{{ d.voice or '—' }}</td><td class="num">{{ d.n }}</td><td class="num"><span class="pill {{ d.rate_class }}">{{ d.ok }}/{{ d.n }}</span></td><td class="small">{% for f in d.flags %}{{ f.label }} ×{{ f.count }}{% if not loop.last %}, {% endif %}{% else %}—{% endfor %}</td></tr>
+    {% endfor %}
+  </table></div>
+
 {% for g in p.groups %}
 <div class="card" id="{{ g.flag|replace('.', '-') }}" style="margin-top:12px">
   <div class="hd"><h3>{{ g.label[:1]|upper }}{{ g.label[1:] }}</h3><span class="small muted">{{ g.count }} call{{ '' if g.count == 1 else 's' }}</span></div>
@@ -55,14 +64,6 @@
 </div>
 {% endfor %}
 
-<div class="card" id="cq-personas" style="margin-top:12px">
-  <div class="hd"><h3>By persona</h3><span class="small muted">{{ p.personas|length }} persona{{ '' if p.personas|length == 1 else 's' }}</span></div>
-  <div class="tablewrap"><table class="small">
-    <tr><th>persona</th><th>voice</th><th class="num">calls</th><th class="num">in character</th><th>flags</th></tr>
-    {% for d in p.personas %}
-    <tr><td>{{ d.persona }}</td><td class="mono small">{{ d.voice or '—' }}</td><td class="num">{{ d.n }}</td><td class="num"><span class="pill {{ d.rate_class }}">{{ d.ok }}/{{ d.n }}</span></td><td class="small">{% for f in d.flags %}{{ f.label }} ×{{ f.count }}{% if not loop.last %}, {% endif %}{% else %}—{% endfor %}</td></tr>
-    {% endfor %}
-  </table></div>
 </div>
 
 <div class="card" id="cq-glossary" style="margin-top:12px">

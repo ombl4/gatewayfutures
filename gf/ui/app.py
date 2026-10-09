@@ -534,16 +534,6 @@ def run(run_id: str, call: str = ""):
     )
 
 
-@app.get("/runs/{run_id}/issues", response_class=HTMLResponse)
-def run_issues(run_id: str):
-    """Every call that cost GF Score points, by cause (T6.38)."""
-    _require_run(run_id)
-    data = model.issues_page(run_id)
-    if data is None:
-        raise HTTPException(404, f"run {run_id} has no summary yet")
-    return page("issues.html", p=data)
-
-
 @app.get("/runs/{run_id}/caller", response_class=HTMLResponse)
 def run_caller(run_id: str):
     """Caller quality of a run, explained (T6.37)."""
@@ -558,6 +548,16 @@ def run_caller(run_id: str):
 def run_sessions(run_id: str):
     """A run's practice sessions alone, for the expanded row in the Runs list (T6.30)."""
     _require_run(run_id)
+    run_dir = settings().runs_dir / run_id
+    if not (run_dir / "summary.json").exists():
+        man = model._json(run_dir / "manifest.json", {})
+        done = len(man.get("calls") or [])
+        total = len(man.get("sessions") or []) * int(man.get("repeat") or 1)
+        return HTMLResponse(
+            '<div class="small muted" style="padding:10px 12px">Run in progress · '
+            f"{done} of {total} calls recorded · not scored yet; the sessions appear here when "
+            "the run finishes.</div>"
+        )
     return page("_run_sessions.html", **_run_ctx(run_id))
 
 

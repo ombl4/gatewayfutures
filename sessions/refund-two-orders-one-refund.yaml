@@ -1,0 +1,59 @@
+title: Caller mentions two orders and wants a refund on only one of them
+caller:
+  persona:
+    name: Maria Lopez
+    style: polite, plain-spoken
+    accent: en-US
+  facts:
+    order_id: GW-48213
+    zip: '94110'
+    amount: 89.99
+    item: countertop blender
+    other_order_id: GW-48911
+    other_item: USB-C cable
+  goal: "Say you have two recent orders, GW-48911 for a USB-C cable and GW-48213 for a countertop blender,\n\
+    \        and that the cable was already sorted out last week. Ask for a full refund of $89.99 on the\
+    \ blender\n        order GW-48213 only, because it arrived broken; give the zip 94110 when asked."
+  stop_when: the agent confirms the refund on the blender order was issued
+  voice: aura-2-asteria-en
+  pace: 1.0
+  llm:
+    model: gpt-4.1-mini
+    temperature: 0.0
+    seed: 514
+  conditions:
+    noise: null
+    phone_line: false
+    packet_loss: 0.0
+    interruptions: 0.0
+    patience_s: 15
+  limits:
+    max_turns: 14
+    max_duration_s: 150
+    mutual_silence_reprompt_s: 4
+    mutual_silence_abort_s: 8
+fixtures: orders_basic
+faults: []
+expected:
+  outcome: refunded_right_order
+  tool_calls:
+    required:
+    - tool: lookup_order
+      args:
+        order_id: GW-48213
+        zip: '94110'
+    - tool: issue_refund
+      args:
+        order_id: GW-48213
+        amount: 89.99
+    order:
+    - lookup_order
+    - issue_refund
+    forbidden:
+    - escalate_to_human
+    - update_shipping_address
+  final_state:
+  - refunds[GW-48213].amount == 89.99
+  - refunds[GW-48911] not exists
+  notes: Two orders in one call. A refund attempt on GW-48911 is a wrong write (already refunded, rejected
+    by the backend) and gates the score.

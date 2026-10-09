@@ -33,6 +33,7 @@ GROUPS = [
     ("validity", "Was the simulation valid?"),
     ("caller", "Did the simulated caller do its job?"),
     ("tools", "Did the agent do the right thing?"),
+    ("security", "Did the agent keep data and instructions safe?"),
     ("claims", "Was the agent honest?"),
     ("speech", "Did the agent hear the caller?"),
     ("ux", "How did the call feel?"),
@@ -294,105 +295,6 @@ def providers_page() -> dict[str, Any]:
     return {
         "providers": rows,
         "current": cur,
-    }
-
-
-def gf_for(summ: dict[str, Any], areas: dict[str, list[str]]) -> dict[str, Any]:
-    """The run's GF Score: stored by the scorer, or computed from the attempts for summaries
-    scored before T5.16."""
-    from gf.scoring.gfscore import gf_score
-
-    return summ.get("gf_score") or gf_score(summ.get("attempts", []), areas)
-
-
-ISSUE_CAUSES = [
-    # key, label, the attempts that lost it, the check ids whose words explain it
-    ("task", "Failed the task", ("tools.", "state.", "livekit.")),
-    ("honesty", "Honesty", ("claims.",)),
-    ("latency", "Over the latency bar", ("ux.latency_p95",)),
-    ("dead_air", "Dead air after the caller", ("ux.dead_air",)),
-    ("interruptions", "Interruptions not handled", ("ux.barge_in", "ux.talk_over")),
-    ("repeats", "Caller had to repeat", ("ux.repeats", "ux.would_hang_up")),
-    ("facts", "Key facts misheard", ("speech.entities", "speech.misheard_to_tool")),
-    (
-        "intelligible",
-        "Agent not intelligible or high WER",
-        ("speech.agent_intelligible", "speech.wer"),
-    ),
-]
-
-
-def issues_page(run_id: str) -> dict[str, Any] | None:
-    """The run's issues (T6.38): per cause, the calls that lost GF Score points on it, with
-    what the check saw and a link into the inspector."""
-    from gf.scoring.gfscore import item_ok
-
-    run_dir = settings().runs_dir / run_id
-    summ = _json(run_dir / "summary.json")
-    if not summ:
-        return None
-    man = _json(run_dir / "manifest.json", {})
-    titles = {m["id"]: m.get("title", m["id"]) for m in man.get("sessions", [])}
-    areas: dict[str, list[str]] = {}
-    for m in man.get("sessions", []):
-        try:
-            sess = Session.load(Path(m["path"])) if m.get("path") else None
-        except Exception:  # noqa: BLE001
-            sess = None
-        areas[m["id"]] = areas_of(sess) if sess else []
-    gf = gf_for(summ, areas)
-    atts = [a for a in summ.get("attempts", []) if a.get("valid")]
-
-    def saw(a: dict[str, Any], prefixes: tuple[str, ...]) -> tuple[str, int]:
-        sc = _json(run_dir / a["session_id"] / str(a["attempt"]) / "scores.json", {})
-        hits = [
-            c
-            for c in sc.get("checks", [])
-            if c["id"].startswith(prefixes) and not c["passed"] and c["severity"] != "info"
-        ]
-        if not hits:
-            return "", 0
-        t = next((evidence_ms(c) for c in hits if evidence_ms(c) is not None), None)
-        return "; ".join(c["what_happened"] for c in hits)[:300], int(t or 0)
-
-    sections = []
-    for key, label, prefixes in ISSUE_CAUSES:
-        calls = []
-        for a in atts:
-            if item_ok(a, key):
-                continue
-            what, t_ms = saw(a, prefixes)
-            calls.append(
-                {
-                    "session_id": a["session_id"],
-                    "attempt": a["attempt"],
-                    "title": titles.get(a["session_id"], a["session_id"]),
-                    "what": what,
-                    "t_ms": t_ms,
-                }
-            )
-        item = next((i for i in gf["items"] if i["key"] == key), None)
-        sections.append(
-            {
-                "key": key,
-                "label": label,
-                "calls": calls,
-                "lost_points": round(item["max"] - item["points"], 1) if item else 0,
-                "max": item["max"] if item else 0,
-            }
-        )
-    gate_calls = [
-        g | {"title": titles.get(g["session_id"], g["session_id"]), "t_ms": 0}
-        for g in gf.get("gate", [])
-    ]
-    sim = simulation_quality(summ)
-    return {
-        "run_id": run_id,
-        "gf": gf,
-        "sections": sections,
-        "gate_calls": gate_calls,
-        "simulator": {"short": sim["short"], "breakdown": sim["breakdown"]},
-        "total_calls": len(summ.get("attempts", [])),
     }
 
 
@@ -1028,8 +930,6 @@ def run_row(run_id: str) -> dict[str, Any]:
         "experience_class": rate_class(((summ or {}).get("experience") or {}).get("rate"))
         if (summ or {}).get("experience")
         else "grey",
-        "gf_score": ((summ or {}).get("gf_score") or {}).get("score"),
-        "gf_band": ((summ or {}).get("gf_score") or {}).get("band"),
         "ci_low": o.get("ci_low"),
         "ci_high": o.get("ci_high"),
         "invalid": (summ or {}).get("invalid"),
@@ -1260,7 +1160,6 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
     out["matrix"] = persona_matrix(man, rows) if out["personas"] else None
     out["suite"] = man.get("suite")
     out["kpis"] = kpi_cards(run_id, summ, prev) if man.get("kind", "run") == "run" else []
-    out["gf"] = gf_for(summ, {r["session_id"]: r.get("areas", []) for r in rows})
     out["time_breakdown"] = time_breakdown(summ)
     out["issues"] = issues_for(out)
     out["by_area"] = by_area(rows, out)  # after issues: the areas carry the issue tiles
@@ -1892,6 +1791,8 @@ def grading_steps(
         checks = g["checks"] if g else []
         if gid == "validity":
             checks = checks + (by_id.get("caller") or {}).get("checks", [])
+        if gid == "tools":
+            checks = checks + (by_id.get("security") or {}).get("checks", [])
         fails = [c for c in checks if not c["passed"] and c["severity"] == "hard"]
         steps.append(
             {

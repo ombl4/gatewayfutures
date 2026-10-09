@@ -1,0 +1,58 @@
+title: Caller gives a wrong order number that differs by two swapped digits, then corrects it
+caller:
+  persona:
+    name: Maria Lopez
+    style: polite, plain-spoken
+    accent: en-US
+  facts:
+    order_id: GW-48213
+    zip: '94110'
+    amount: 89.99
+    item: countertop blender
+    wrong_order_id_you_say_first: GW-48231
+  goal: "Get a full refund of $89.99 for your countertop blender, which arrived broken. Give the order\n\
+    \        number as G W 4 8 2 3 1 the first time (that is wrong). When the agent says it cannot find\
+    \ the\n        order, apologise and give the correct number G W 4 8 2 1 3. Give the zip 94110 when\
+    \ asked."
+  stop_when: the agent confirms the refund was issued
+  voice: aura-2-asteria-en
+  pace: 1.0
+  llm:
+    model: gpt-4.1-mini
+    temperature: 0.0
+    seed: 512
+  conditions:
+    noise: null
+    phone_line: false
+    packet_loss: 0.0
+    interruptions: 0.0
+    patience_s: 15
+  limits:
+    max_turns: 14
+    max_duration_s: 150
+    mutual_silence_reprompt_s: 4
+    mutual_silence_abort_s: 8
+fixtures: orders_basic
+faults: []
+expected:
+  outcome: refunded_after_correction
+  tool_calls:
+    required:
+    - tool: lookup_order
+      args:
+        order_id: GW-48213
+        zip: '94110'
+    - tool: issue_refund
+      args:
+        order_id: GW-48213
+        amount: 89.99
+    order:
+    - lookup_order
+    - issue_refund
+    forbidden:
+    - escalate_to_human
+    - update_shipping_address
+  final_state:
+  - refunds[GW-48213].amount == 89.99
+  notes: Number confusables. The first lookup returns not_found; the agent must ask for the number again,
+    not guess, and the write must land on 48213.

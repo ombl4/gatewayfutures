@@ -3,7 +3,7 @@
 {% endif %}
 {% if o.runs %}
 <div class="tablewrap"><table>
-  <tr><th>run</th><th>agent</th><th>started</th><th>sessions × repeat</th><th>calls</th><th title="GF Score: 65 task, 10 honesty, 15 experience, 10 understanding; harm caps it at 49">GF score</th><th title="task verdict: right actions in the order system and honest">passed</th><th title="experience verdict: within the latency, dead-air and intelligibility bars">experience</th><th title="Observed pass rate over valid calls. Underneath: the range of true pass rates consistent with this many calls (Wilson 95% interval). Few calls give a wide range: 9/9 is 100% observed but could still be a 70% agent.">pass rate</th><th>invalid</th><th>flaky</th><th>p95 latency</th><th title="priced from the providers' usage events with pricing.yaml">cost</th><th>environment</th><th>session set</th></tr>
+  <tr><th>run</th><th>agent</th><th>started</th><th>sessions × repeat</th><th>calls</th><th title="task verdict: right actions in the order system and honest">passed</th><th title="experience verdict: within the latency, dead-air and intelligibility bars">experience</th><th title="Observed pass rate over valid calls. Underneath: the range of true pass rates consistent with this many calls (Wilson 95% interval). Few calls give a wide range: 9/9 is 100% observed but could still be a 70% agent.">pass rate</th><th>invalid</th><th>flaky</th><th>p95 latency</th><th title="priced from the providers' usage events with pricing.yaml">cost</th><th>environment</th><th>session set</th></tr>
   {% for r in o.runs %}
   <tr class="runrow" data-run="{{ r.run_id }}"{% if expandable %} data-src="/runs/{{ r.run_id }}/sessions"{% if loop.first %} data-open="1"{% endif %}{% endif %}>
     <td>{% if expandable %}<button type="button" class="chev-btn" aria-label="expand"><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>{% endif %}<a href="{{ links.run(r.run_id) }}">{{ r.run_id }}</a></td>
@@ -11,7 +11,6 @@
     <td class="small">{{ r.started_at|dt }}</td>
     <td>{{ r.sessions }} × {{ r.repeat }}</td>
     <td>{{ r.calls }}</td>
-    <td>{% if r.gf_score is not none %}<b title="{{ r.gf_band }}">{{ r.gf_score }}</b>{% else %}<span class="muted">–</span>{% endif %}</td>
     <td>{% if r.scored %}<span class="pill {{ r.rate_class }}">{{ r.passed }}/{{ r.n }}</span>{% else %}<span class="muted">not scored</span>{% endif %}</td>
     <td>{% if r.scored and r.experience_passed is not none %}<span class="pill {{ r.experience_class }}">{{ r.experience_passed }}/{{ r.n }}</span>{% else %}<span class="muted">–</span>{% endif %}</td>
     <td>{% if r.scored and r.n %}<b>{{ r.rate|pct }}</b><div class="small muted" title="95% interval: the true pass rate is likely in this range">likely {{ r.ci_low|pct }}–{{ r.ci_high|pct }}</div>{% endif %}</td>
@@ -22,7 +21,7 @@
     <td>{% if r.env_tag %}<a class="pill indigo mono" href="{{ links.environments() }}#{{ r.env_tag }}">{{ r.env_tag }}</a>{% endif %}</td>
     <td>{% if r.set_tag %}<a class="pill grey mono" href="{{ links.session_set(r.set_tag) }}">{{ r.set_tag }}</a>{% endif %}</td>
   </tr>
-  {% if expandable %}<tr class="runbody" hidden><td colspan="15"><div class="runbox"></div></td></tr>{% endif %}
+  {% if expandable %}<tr class="runbody" hidden><td colspan="14"><div class="runbox"></div></td></tr>{% endif %}
   {% endfor %}
 </table></div>
 <p class="small muted" style="margin-top:6px">"Likely" is the 95% interval: the true pass rate the calls are consistent with. 9/9 is 100% observed, but nine calls cannot rule out an agent that passes 70% of the time; more repeats narrow the range.</p>

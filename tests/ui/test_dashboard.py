@@ -243,7 +243,9 @@ def test_navigation_and_header(site, page):
 
 def test_overview_is_the_performance_page(site, page):
     page.goto(site["base"] + "/")
-    assert page.locator("#kpis .kpi").count() == 5  # T5.15: task + experience
+    assert (
+        page.locator("#kpis .kpi").count() == 5
+    )  # GF Score + task + experience + tools + WER + p95
     assert "first run" in page.locator("#kpis").inner_text()
     assert page.locator("details.srow").count() == 0 and page.locator("#flow").count() == 0
     assert page.locator("#by-area .area").count() >= 1 and page.locator("table").count() >= 1
