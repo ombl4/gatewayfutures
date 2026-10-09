@@ -1,0 +1,6 @@
+{# A run expanded inside the Runs list (T6.30): its sessions with the Details dropdowns. #}
+{% import "_run_body.html" as rb with context %}
+<div class="runbody-in" id="runbody-{{ r.run_id }}">
+  <p class="meta" style="margin:0 0 10px"><span>{{ r.started_at|dt }}</span><i>·</i><span>{{ r.sessions|length }} sessions × {{ r.repeat }}</span><i>·</i><span>{{ r.summary.calls }} calls ({{ r.valid_count }} valid)</span>{% if r.duration_s %}<i>·</i><span>{{ (r.duration_s / 60)|round(1) }} min</span>{% endif %}<i>·</i><a href="{{ links.run(r.run_id) }}">Full run page →</a></p>
+  {{ rb.sessions(r) }}
+</div>

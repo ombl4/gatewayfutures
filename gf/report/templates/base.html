@@ -150,6 +150,8 @@ textarea.input{font-family:var(--mono);font-size:12px;line-height:1.45}
 .area .ct{margin-top:4px;font-size:13px}.area .ct b{font-weight:600}.area .rate{font-weight:700;margin-left:4px}.area .rate.green{color:var(--green)}.area .rate.amber{color:#b45309}.area .rate.red{color:var(--red)}.area .rate.grey{color:var(--muted)}
 .area .bar{height:6px;border-radius:3px;background:var(--grey-bg);margin:8px 0 6px;overflow:hidden}.area .bar i{display:block;height:100%;border-radius:3px}.area .bar i.green{background:var(--green)}.area .bar i.amber{background:#f59e0b}.area .bar i.red{background:var(--red)}.area .bar i.grey{background:#c4c8cf}
 .area .ft{display:flex;align-items:center;gap:4px;font-size:11.5px;color:var(--muted)}.area .ft span{margin-left:4px}.area .d{width:6px;height:6px;border-radius:50%;display:inline-block;background:#e5e7eb}.area .d.f{background:var(--red)}.area .d.x{background:#6b7280}.area .d.w{background:var(--amber)}
+.runrow .chev-btn{border:0;background:none;padding:0 6px 0 0;cursor:pointer;vertical-align:middle}.runrow .chev{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:2;transition:transform .15s}.runrow.open .chev{transform:rotate(90deg)}
+tr.runbody>td{padding:0 0 14px;background:var(--bg)}.runbox{padding:10px 12px 0}.runbox .loading{padding:10px;font-size:12px;color:var(--muted)}
 .two-cards{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:12px;margin:0 0 12px}@media (max-width:900px){.two-cards{grid-template-columns:1fr}}
 #simulation-quality .big{display:flex;align-items:center;gap:12px;margin:6px 0}#simulation-quality .big b{font-size:30px;font-weight:700;letter-spacing:-.01em}#simulation-quality .big span{display:flex;flex-direction:column;font-size:12.5px}#simulation-quality .big .k{font-weight:600}
 #simulation-quality .bar{height:8px;border-radius:4px;background:var(--grey-bg);overflow:hidden;margin:4px 0 12px}#simulation-quality .bar i{display:block;height:100%;background:var(--accent)}
@@ -423,6 +425,26 @@ document.addEventListener('click', e => {
 document.addEventListener('click', e => {
   document.querySelectorAll('details.pmenu[open]').forEach(d => { if (!d.contains(e.target)) d.removeAttribute('open'); });
 });
+// Runs list (T6.30): a row expands to the run's sessions; the latest run opens on load
+window.gfRuns = (function(){
+  async function toggle(row, force){
+    const body = row.nextElementSibling, box = body && body.querySelector('.runbox'); if (!box) return;
+    const open = force !== undefined ? force : body.hidden;
+    body.hidden = !open; row.classList.toggle('open', open);
+    if (open && !box.dataset.loaded) {
+      box.innerHTML = '<div class="loading">loading the run…</div>';
+      try {
+        const res = await fetch(row.dataset.src); if (!res.ok) throw new Error(res.status);
+        box.innerHTML = await res.text(); box.dataset.loaded = '1';
+      } catch (err) { box.innerHTML = '<div class="loading">could not load this run (' + err.message + ')</div>'; }
+    }
+  }
+  document.addEventListener('click', e => {
+    const b = e.target.closest('.runrow .chev-btn'); if (!b) return; e.preventDefault(); toggle(b.closest('.runrow'));
+  });
+  document.querySelectorAll('.runrow[data-open]').forEach(r => toggle(r, true));
+  return { toggle };
+})();
 // area pills (T6.28): hover shows the popover; click/tap pins it; the popover flips left near the right edge
 document.addEventListener('click', e => {
   const pill = e.target.closest('.area .tile');

@@ -248,8 +248,7 @@ def test_overview_is_the_performance_page(site, page):
 
 def test_kpis_accordion_and_issues(site, page):
     page.goto(site["base"] + "/runs/t1")
-    assert page.locator("#kpis .kpi").count() == 4
-    assert "first run" in page.locator("#kpis").inner_text()
+    assert page.locator("#kpis").count() == 0 and page.locator("#by-area").count() == 0  # T6.30
     rows = page.locator("details.srow")
     assert rows.count() == 2
     # first row with a failure is open by default; toggling works
@@ -283,17 +282,11 @@ def test_kpis_accordion_and_issues(site, page):
     assert page.locator("#inspector").count() == 1
     b2.click()  # toggles closed
     assert page.locator("#inspector").count() == 0
-    # area tiles open the right attempt's dropdown at that moment
-    area = page.locator(
-        "#by-area .area:has(.d.f), #by-area .area:has(.d.x), #by-area .area:has(.d.w)"
-    ).first
-    area.locator(".tile").click()
-    tile = area.locator(".itile").first
-    target = tile.get_attribute("data-issue")
-    tile.click()
+    # the ?call= deep link opens the attempt's dropdown at that moment
+    target = opened.locator(".att .callbtn").first.get_attribute("data-call")
+    page.goto(site["base"] + f"/runs/t1?call={target}#t=1000")
     page.wait_for_selector(".callbox #inspector")
     assert page.locator("#inspector").get_attribute("data-call") == target
-    assert f"call={target}" in page.url
     assert (
         page.locator(f'.callbtn[data-call="{target}"]')
         .locator("xpath=ancestor::details")
@@ -508,14 +501,20 @@ def test_run_page_actions_present(site, page):
     page.goto(site["base"] + "/runs/t1")
     assert page.locator("#btn-rescore").is_visible() and page.locator("#btn-prove").is_visible()
     assert page.locator("#every-call").is_visible()
-    assert page.locator("#issues").count() == 0  # T6.28: issues live on the area pills here too
-    area = page.locator(
-        "#by-area .area:has(.d.f), #by-area .area:has(.d.x), #by-area .area:has(.d.w)"
-    ).first
-    area.locator(".tile").click()
-    area.locator(".itile").first.click()
-    page.wait_for_selector(".callbox #inspector")
-    assert "call=" in page.url and page.locator("#inspector").is_visible()
+    assert page.locator("#issues").count() == 0 and page.locator("#by-area").count() == 0
+    # Runs list (T6.30): the latest run is expanded to its sessions; Details loads the inspector
+    page.goto(site["base"] + "/runs")
+    row = page.locator("tr.runrow").first
+    assert row.get_attribute("data-open") == "1"
+    page.wait_for_selector("tr.runbody:not([hidden]) details.srow")
+    assert "open" in row.get_attribute("class")
+    srow = page.locator("tr.runbody details.srow").first
+    if srow.get_attribute("open") is None:
+        srow.locator("summary").click()
+    srow.locator(".att .callbtn").first.click()
+    page.wait_for_selector("tr.runbody .callbox #inspector")
+    row.locator(".chev-btn").click()
+    assert page.locator("tr.runbody").first.is_hidden()
     _no_errors(page)
 
 
@@ -573,9 +572,9 @@ def test_no_horizontal_overflow(site, browser, width):
 def test_static_report_works_from_disk(site, page):
     index = site["static"] / "index.html"
     page.goto(index.as_uri())
-    assert page.locator("#kpis .kpi").count() == 4
-    assert page.locator("details.srow").count() == 2
+    assert page.locator("#kpis").count() == 0 and page.locator("details.srow").count() == 2
     assert page.locator("#btn-run").count() == 0  # live-only controls are absent
+    page.goto((site["static"] / "overview.html").as_uri())
     area = page.locator(
         "#by-area .area:has(.d.f), #by-area .area:has(.d.x), #by-area .area:has(.d.w)"
     ).first

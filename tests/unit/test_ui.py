@@ -136,7 +136,6 @@ def test_run_page_content(env):
     assert 'id="caller-pill"' in call and 'id="agent-pill"' in call
     assert 'class="tags tested"' in call and 'data-check="tools.required.issue_refund"' in call
     assert 'data-check="ux.latency_p95"' in call
-    assert 'id="simulation-quality"' in r
     for step in (
         "Step 1 · Simulated caller: did it do its job?",
         "Step 2 · Did the agent do what the session asks?",
@@ -150,7 +149,7 @@ def test_run_page_content(env):
     assert call.count('class="tag ') >= 10 and 'data-check="ux.latency_p95"' in call
     assert 'aria-label="explain latency_p95"' in call
     assert 'id="time-breakdown"' in r
-    assert 'id="by-area"' in r and "refund" in r
+    assert "refund" in r
     runs_page = env["client"].get("/runs").text
     assert 'value="suite:regression"' in runs_page and 'name="pick"' in runs_page
     sessions = env["client"].get("/sessions").text
@@ -463,7 +462,13 @@ def test_issue_breakdown_rows(env):
         assert len(row["series"]) == b["runs"] >= 1
     statuses = [row["status"] for row in b["rows"]]
     assert statuses == sorted(statuses, key=["high", "medium", "low"].index)
-    for path in ("/", "/runs/t1"):
-        html = env["client"].get(path).text
-        assert "Performance by area" in html and "Issue breakdown" in html
-        assert 'id="simulation-quality"' in html and 'class="area"' in html
+    html = env["client"].get("/").text
+    assert "Performance by area" in html and "Issue breakdown" in html
+    assert 'id="simulation-quality"' in html and 'class="area"' in html
+    run_html = env["client"].get("/runs/t1").text  # T6.30: the run page keeps none of them
+    assert "Performance by area" not in run_html and 'id="kpis"' not in run_html
+    runs_html = env["client"].get("/runs").text
+    assert 'data-open="1"' in runs_html and 'data-src="/runs/t1/sessions"' in runs_html
+    frag = env["client"].get("/runs/t1/sessions")
+    assert frag.status_code == 200 and 'class="srow"' in frag.text and "<title>" not in frag.text
+    assert env["client"].get("/runs/zzz/sessions").status_code == 404

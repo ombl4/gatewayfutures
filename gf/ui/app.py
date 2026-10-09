@@ -443,6 +443,13 @@ def run(run_id: str, call: str = ""):
     )
 
 
+@app.get("/runs/{run_id}/sessions", response_class=HTMLResponse)
+def run_sessions(run_id: str):
+    """A run's practice sessions alone, for the expanded row in the Runs list (T6.30)."""
+    _require_run(run_id)
+    return page("_run_sessions.html", **_run_ctx(run_id))
+
+
 @app.get("/runs/{run_id}/{session_id}/{attempt}/inspector", response_class=HTMLResponse)
 def call_inspector(run_id: str, session_id: str, attempt: int, t: int | None = None):
     """The inspector alone, for the Details dropdown under an attempt row (T6.25)."""
