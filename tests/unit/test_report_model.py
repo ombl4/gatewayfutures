@@ -121,12 +121,17 @@ def test_issues_are_prioritised_and_selected():
     }
     iss = model.issues_for(r)
     assert iss["total"] == 4
-    assert [i["severity"] for i in iss["items"]] == ["critical", "high", "medium", "simulation"]
+    assert [i["severity"] for i in iss["items"]] == ["critical", "high", "simulation", "medium"]
     assert iss["items"][0]["title"].startswith("Claimed a refund")
     assert iss["items"][1]["title"].startswith("issue_refund")  # tool names keep their case
-    assert iss["items"][2]["title"] == "Dead air"
-    assert iss["items"][3]["title"] == "The caller broke character"
+    assert iss["items"][2]["title"] == "The caller broke character"
+    assert iss["items"][3]["title"] == "1 call passed with flags" and iss["items"][3]["summary"]
+    assert "dead air ×1" in iss["items"][3]["detail"]
     assert all(i["t_ms"] == 12_000 for i in iss["items"])
+    r["failing"].append(_attempt("a", 3, passed=False) | {"title": "A"})
+    grouped = model.issues_for(r)["items"]
+    a_cards = [i for i in grouped if i["session_id"] == "a" and i["severity"] == "high"]
+    assert len(a_cards) == 1 and a_cards[0]["attempts"] == [2, 3]
     assert model.select_call(r) == ("b", 1)
     assert model.select_call(r, "a/2") == ("a", 2)
     assert model.select_call(r, "zzz/9") == ("b", 1)  # unknown call falls back to the top issue

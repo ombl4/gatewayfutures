@@ -411,12 +411,33 @@ def issues_for(r: dict[str, Any], limit: int = 6) -> dict[str, Any]:
         out.append(
             _issue(r, a, "critical" if crit else "high", a.get("failure_reason") or "failed")
         )
-    for a in r["flagged"]:
-        flags = [SOFT_LABELS.get(f, f) for f in a.get("soft_flags", [])]
-        out.append(_issue(r, a, "medium", ", ".join(flags) or "flagged"))
     for a in r["invalid"]:
         out.append(_issue(r, a, "simulation", a.get("failure_reason") or "invalid simulation"))
+    # the same failure on several attempts of one session is one card listing the attempts
+    merged: dict[tuple[str, str, str], dict[str, Any]] = {}
+    for i in out:
+        key = (i["session_id"], i["severity"], i["title"])
+        if key in merged:
+            merged[key]["attempts"].append(i["attempt"])
+        else:
+            merged[key] = i | {"attempts": [i["attempt"]]}
+    out = list(merged.values())
     out.sort(key=lambda i: (SEVERITY_ORDER[i["severity"]], i["session_id"], i["attempt"]))
+    # soft flags are one summary card, not one card per call: they never fail a call
+    if r["flagged"]:
+        counts = Counter(f for a in r["flagged"] for f in a.get("soft_flags", []))
+        first = r["flagged"][0]
+        summary = _issue(
+            r,
+            first,
+            "medium",
+            f"{len(r['flagged'])} call{'s' if len(r['flagged']) != 1 else ''} passed with flags",
+        )
+        summary["detail"] = ", ".join(
+            f"{SOFT_LABELS.get(k, k)} ×{n}" for k, n in counts.most_common()
+        )
+        summary["summary"] = True
+        out.append(summary)
     return {"items": out[:limit], "total": len(out)}
 
 
@@ -426,7 +447,10 @@ def _issue(r, a, severity, text) -> dict[str, Any]:
     row = next((x for x in r.get("sessions", []) if x["session_id"] == a["session_id"]), {})
     return {
         "severity": severity,
-        "title": _clip(head if "_" in head.split(" ")[0] else head[:1].upper() + head[1:], 72),
+        "title": _clip(
+            head if any(ch in head.split(" ")[0] for ch in "_[].") else head[:1].upper() + head[1:],
+            72,
+        ),
         "detail": text if text != head else "",
         "run_id": r["run_id"],
         "session_id": a["session_id"],
