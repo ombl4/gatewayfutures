@@ -39,6 +39,9 @@ class Links:
     def scoring(self) -> str:
         return "/scoring" if self.mode == "live" else "scoring.html"
 
+    def settings(self) -> str:
+        return "/settings" if self.mode == "live" else "settings.html"
+
     def session_set(self, tag: str) -> str:
         return f"/sets/{tag}" if self.mode == "live" else f"set-{tag}.html"
 

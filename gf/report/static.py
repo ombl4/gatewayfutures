@@ -61,6 +61,9 @@ def render_run(run_id: str, out: Path | None = None, *, bundle_audio: bool = Fal
         render("backend.html", links, b=model.backend_page(), **common)
     )
     (out / "caller.html").write_text(render("caller.html", links, **common))
+    (out / "settings.html").write_text(
+        render("settings.html", links, s=model.settings_page(), **common)
+    )
     (out / "scoring.html").write_text(
         render("scoring.html", links, s=model.scoring_page(), **common)
     )

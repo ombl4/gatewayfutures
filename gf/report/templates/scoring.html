@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% set page='scoring' %}
 {% block title %}Scoring · Call simulator{% endblock %}
-{% block crumbs %}<b>Scoring</b>{% endblock %}
+{% block crumbs %}<a href="{{ links.settings() }}">Settings</a><i>›</i><b>Scoring</b>{% endblock %}
 {% block content %}
 <h1>How calls are scored</h1>
 {% if mode == 'live' %}<p class="small muted" style="margin:0 0 10px">Doubt a check? Run a <a href="{{ links.runs() }}#selftest">negative control</a>: a deliberately broken agent that the check must catch.</p>{% endif %}

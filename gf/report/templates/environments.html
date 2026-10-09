@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% set page='environments' %}
 {% block title %}Environments · Call simulator{% endblock %}
-{% block crumbs %}<b>Environments</b>{% endblock %}
+{% block crumbs %}<a href="{{ links.settings() }}">Settings</a><i>›</i><b>Environments</b>{% endblock %}
 {% block content %}
 <h1>Environments</h1>
 <p class="meta"><span>Every run carries two tags. <b>env-…</b> hashes the agent config and variant, the STT/LLM/TTS models, the engine, the scoring method with its thresholds, and the library and Python versions. <b>set-…</b> hashes the session files run. Two runs are like-for-like when both tags match.</span></p>

@@ -92,6 +92,7 @@ def test_pages_render(env):
         "/backend",
         "/caller",
         "/scoring",
+        "/settings",
         "/sessions",
         "/sessions/7c994c348001",
         "/sessions/new",
@@ -189,6 +190,15 @@ def test_run_page_content(env):
     )
     assert env["client"].get("/sets/set-00000000").status_code == 404
     assert f'href="/sets/{tag}"' in r
+    # Settings (T6.36): one tile per section, each reaching its page; sub pages link back
+    st = env["client"].get("/settings").text
+    assert st.count('class="stile"') == 3
+    for href in ('href="/agent"', 'href="/scoring"', 'href="/environments"'):
+        assert href in st
+    assert "checks" in st and "registered" in st
+    for path in ("/scoring", "/environments", "/agent", "/backend", "/caller", "/providers"):
+        assert 'id="btn-settings-back"' in env["client"].get(path).text, path
+    assert 'id="btn-settings-back"' not in env["client"].get("/").text
     envs = env["client"].get("/environments").text
     assert "Environments" in envs and "t1" in envs  # untagged fixture run is listed as such
     assert "set-" in r  # the run page carries the session-set tag even for untagged runs
@@ -370,6 +380,7 @@ def test_static_report_renders(env, tmp_path):
     assert (out / "call-7c994c348001-1.html").exists()
     assert "Refund for a broken blender, clean line" in (out / "index.html").read_text()
     assert (out / "sessions.html").exists() and (out / "scoring.html").exists()
+    assert 'href="scoring.html"' in (out / "settings.html").read_text()
     assert "Voice agent providers" in (out / "providers.html").read_text()
     assert 'href="agent.html?add=1"' in (out / "index.html").read_text()
     page = (out / "call-7c994c348001-1.html").read_text()

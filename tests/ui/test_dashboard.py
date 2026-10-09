@@ -170,14 +170,26 @@ def test_navigation_and_header(site, page):
     for label, path, crumb in (
         ("Practice sessions", "/sessions", "Practice sessions"),
         ("Runs", "/runs", "Runs"),
-        ("Scoring", "/scoring", "Scoring"),
-        ("Environments", "/environments", "Environments"),
-        ("Agents under test", "/agent", "Agents under test"),
+        ("Settings", "/settings", "Settings"),
     ):
         page.click(f"aside.nav a.item:has-text('{label}')")
         assert urlparse(page.url).path == path
         assert crumb in page.locator(".crumbs").inner_text()
         assert label in page.locator("aside.nav .item.active").inner_text()
+    # Settings (T6.36): three tiles, each its own screen with a button back to Settings;
+    # the Settings nav item stays lit on those screens
+    assert page.locator("#settings-tiles .stile").count() == 3
+    for tile, path, crumb in (
+        ("#tile-scoring", "/scoring", "Scoring"),
+        ("#tile-environments", "/environments", "Environments"),
+        ("#tile-agents", "/agent", "Agents under test"),
+    ):
+        page.click(tile)
+        assert urlparse(page.url).path == path
+        assert crumb in page.locator(".crumbs").inner_text()
+        assert page.locator("aside.nav .item.active").inner_text().strip() == "Settings"
+        page.click("#btn-settings-back")
+        assert urlparse(page.url).path == "/settings"
     # provider menu (T4.6a): opens from the pill, names the current provider, closes on an
     # outside click, and "Add a provider" reaches the Providers page
     menu = page.locator("#provider-menu .menu")
@@ -647,7 +659,7 @@ def _crawl(page, base, start_paths):
 
 
 def test_no_dead_links_and_no_console_errors(site, page):
-    seen, bad = _crawl(page, site["base"], ["/", "/runs/t1", "/sessions", "/scoring", "/agent"])
+    seen, bad = _crawl(page, site["base"], ["/", "/runs/t1", "/sessions", "/settings", "/agent"])
     assert not bad, bad
     assert len(seen) > 10
     _no_errors(page)

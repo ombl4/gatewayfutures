@@ -62,6 +62,8 @@ footer{color:var(--muted);font-size:11.5px;text-align:center;margin-top:36px}
   main{padding:14px 16px 90px}
 }
 /* components */
+.backrow{margin:0 0 10px}
+.stiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin:14px 0 20px}.stile{display:block;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;color:inherit;transition:border-color .12s,box-shadow .12s}.stile:hover{text-decoration:none;border-color:var(--accent);box-shadow:0 1px 6px rgba(20,24,40,.06)}.stile svg{width:18px;height:18px;stroke:var(--accent);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;margin-bottom:10px;display:block}.stile b{display:block;font-size:15px;font-weight:600;margin-bottom:4px}.stile span{display:block;color:var(--muted);font-size:13px;line-height:1.4}.stile em{display:block;font-style:normal;margin-top:12px;font-size:12px;color:var(--muted)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
 .card h3{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .grid{display:grid;gap:12px}
@@ -372,9 +374,7 @@ details.srow summary .ttl .chip{font-weight:400}
   <a class="item {% if nav=='overview' %}active{% endif %}" href="{{ links.overview() }}"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Overview</a>
   <a class="item {% if nav in ('runs','run','call') %}active{% endif %}" href="{{ links.runs() }}"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h12M3 18h6"/></svg>Runs</a>
   <a class="item {% if nav=='sessions' %}active{% endif %}" href="{{ links.sessions() }}"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Practice sessions</a>
-  <a class="item {% if nav=='scoring' %}active{% endif %}" href="{{ links.scoring() }}"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16"/><path d="M8 15l4-5 3 3 5-6"/></svg>Scoring</a>
-  <a class="item {% if nav=='environments' %}active{% endif %}" href="{{ links.environments() }}"><svg viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4 8 4 8-4z"/><path d="M4 7v10l8 4 8-4V7"/><path d="M12 11v10"/></svg>Environments</a>
-  <a class="item {% if nav in ('agent','backend','caller') %}active{% endif %}" href="{{ links.agent() }}"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Agents under test</a>
+  <a class="item {% if nav in ('settings','scoring','environments','agent','backend','caller','providers') %}active{% endif %}" href="{{ links.settings() }}"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Settings</a>
   <div class="sec">Agent under test</div>
   <a class="agentbox" href="{{ links.agent() }}" style="text-decoration:none;color:inherit"><div class="av">{{ (shell.target.name[:1] if shell.target else shell.persona[:1]) or 'A' }}</div><div><div class="nm">{{ shell.target.name if shell.target else shell.name }}</div><div class="st"><i></i>{{ shell.target.kind if shell.target else shell.provider }}{% if shell.target and shell.target.reference %} · reference{% endif %}{% if provider_state == 'bad' and (not shell.target or shell.target.reference) %} · unreachable{% endif %}</div></div></a>
   {% if not shell.target or shell.target.reference %}
@@ -413,6 +413,7 @@ details.srow summary .ttl .chip{font-weight:400}
   </div>
 </header>
 <main>
+{% if nav in ('scoring','environments','agent','backend','caller','providers') %}<p class="backrow"><a class="btn sm" href="{{ links.settings() }}" id="btn-settings-back">← Settings</a></p>{% endif %}
 {% block content %}{% endblock %}
 <footer>gatewayfutures {{ version }} · {% if mode=='static' %}static report generated {{ generated|dt }}{% else %}live view over runs/{% endif %}</footer>
 </main>

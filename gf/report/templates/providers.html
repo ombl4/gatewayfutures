@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% set page='providers' %}
 {% block title %}Providers · Call simulator{% endblock %}
-{% block crumbs %}<b>Providers</b>{% endblock %}
+{% block crumbs %}<a href="{{ links.settings() }}">Settings</a><i>›</i><b>Providers</b>{% endblock %}
 {% block content %}
 <h1>Voice agent providers</h1>
 <p class="sub">The agent under test runs on a provider. The simulator only ever needs three things from one: a way for the caller to reach the agent with real audio, the agent's tool calls and transcript, and a hash of its configuration. Everything else (sessions, scoring, reports) never sees the provider.</p>

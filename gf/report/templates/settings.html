@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% set page='settings' %}
+{% block title %}Settings · Call simulator{% endblock %}
+{% block crumbs %}<b>Settings</b>{% endblock %}
+{% block content %}
+<h1>Settings</h1>
+<p class="sub">How the platform is set up: which agents it calls, how it grades a call, and the stamps that make runs comparable. Each section opens on its own page.</p>
+<div class="stiles" id="settings-tiles">
+  <a class="stile" href="{{ links.agent() }}" id="tile-agents">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+    <b>Agents under test</b>
+    <span>The agents this platform runs practice sessions against, how each is reached, and which one runs by default.</span>
+    <em>{{ s.agents.count }} registered · active: {{ s.agents.active }}{% if s.agents.state %} · {{ s.agents.state }}{% endif %}</em>
+  </a>
+  <a class="stile" href="{{ links.scoring() }}" id="tile-scoring">
+    <svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16"/><path d="M8 15l4-5 3 3 5-6"/></svg>
+    <b>Scoring</b>
+    <span>Every check a call gets, what makes it hard or soft, and the thresholds behind the latency and audio flags.</span>
+    <em>{{ s.scoring.checks }} checks · {{ s.scoring.hard }} hard · {{ s.scoring.method }}</em>
+  </a>
+  <a class="stile" href="{{ links.environments() }}" id="tile-environments">
+    <svg viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4 8 4 8-4z"/><path d="M4 7v10l8 4 8-4V7"/><path d="M12 11v10"/></svg>
+    <b>Environments</b>
+    <span>The stamps every run carries: the agent and models on one side, the session set on the other. Runs with the same stamps compare like for like.</span>
+    <em>{{ s.environments.count }} environment{{ '' if s.environments.count == 1 else 's' }} seen{% if s.environments.untagged %} · {{ s.environments.untagged }} untagged run{{ '' if s.environments.untagged == 1 else 's' }}{% endif %}</em>
+  </a>
+</div>
+{% endblock %}

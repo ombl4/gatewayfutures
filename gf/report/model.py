@@ -23,6 +23,7 @@ from gf.record.latency import STAGES, turn_latency
 from gf.record.model import CallRecord
 from gf.record.spans import build_spans
 from gf.runner.batch import list_runs
+from gf.scoring import METHOD_VERSION
 from gf.scoring.checks import evidence_ms
 from gf.scoring.stats import wilson
 from gf.sessions.schema import Session, is_retired, load_all, retired_reason
@@ -724,6 +725,31 @@ def variants_page() -> list[dict[str, Any]]:
         }
         for v in VARIANTS.values()
     ]
+
+
+def settings_page() -> dict[str, Any]:
+    """The Settings page (T6.36): one tile per section with a one-line state."""
+    shell = _shell_targets()
+    tg = shell["target"]
+    state = ""
+    if tg and tg.get("check"):
+        state = "connected" if tg["check"]["ok"] else "check failed"
+    sc = scoring_page()
+    checks = [c for g in sc["groups"] for c in g["checks"]]
+    envs = environments_page()
+    return {
+        "agents": {
+            "count": len(shell["targets"]),
+            "active": tg["name"] if tg else "none",
+            "state": state,
+        },
+        "scoring": {
+            "checks": len(checks),
+            "hard": sum(1 for c in checks if c.get("severity") == "hard"),
+            "method": METHOD_VERSION,
+        },
+        "environments": {"count": len(envs["environments"]), "untagged": len(envs["untagged"])},
+    }
 
 
 def scoring_page() -> dict[str, Any]:

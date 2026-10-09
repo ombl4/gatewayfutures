@@ -252,6 +252,12 @@ def caller():
     return page("caller.html")
 
 
+@app.get("/settings", response_class=HTMLResponse)
+def settings_():
+    """Settings (T6.36): tiles for Agents under test, Scoring and Environments."""
+    return page("settings.html", s=model.settings_page())
+
+
 @app.get("/scoring", response_class=HTMLResponse)
 def scoring():
     return page(

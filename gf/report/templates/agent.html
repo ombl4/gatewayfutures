@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% set page='agent' %}
 {% block title %}Agents under test · Call simulator{% endblock %}
-{% block crumbs %}<b>Agents under test</b>{% endblock %}
+{% block crumbs %}<a href="{{ links.settings() }}">Settings</a><i>›</i><b>Agents under test</b>{% endblock %}
 {% block content %}
 <h1>Agents under test</h1>
 <p class="sub">The agents this platform runs practice sessions against. Each one is reached in its own LiveKit project; its tools point at the sandbox order system for test runs. The active agent is what runs and the header use by default.</p>

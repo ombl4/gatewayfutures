@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% set page='backend' %}
 {% block title %}Order system · Call simulator{% endblock %}
-{% block crumbs %}<a href="{{ links.agent() }}">Agent settings</a><i>›</i><b>Order system</b>{% endblock %}
+{% block crumbs %}<a href="{{ links.settings() }}">Settings</a><i>›</i><b>Order system</b>{% endblock %}
 {% block content %}
 <h1>Mock order system</h1>
 <p class="sub">Stands in for the store's real systems. Every call gets its own copy of the fixture data, so calls never see each other's refunds or address changes. Its request log is the ground truth for what the agent did.</p>
