@@ -407,9 +407,18 @@ def test_area_pills_carry_their_sessions_issues(env):
             assert "attempt" in i and "t_ms" in i
         for f in a["flagged"]:
             assert f["session_id"] in in_area and f["flags"]
+        # B10: passed-without-flags calls are listed too, so every area opens a call
+        for c in a["passes"]:
+            assert c["session_id"] in in_area and c["attempt"]
+        assert a["issues"] or a["flagged"] or a["passes"], a["area"]
         assert a["n_fail"] + a["n_invalid"] == sum(
             len(i.get("attempts") or [1]) for i in a["issues"]
         )
+    assert all(
+        (x["session_id"], x["attempt"])
+        not in {(i["session_id"], i["attempt"]) for i in r["failing"] + r["invalid"] + r["flagged"]}
+        for x in r["clean"]
+    )
     seen = {
         (i["session_id"], n)
         for a in areas.values()
@@ -420,6 +429,7 @@ def test_area_pills_carry_their_sessions_issues(env):
         assert (x["session_id"], x["attempt"]) in seen
     html = env["client"].get("/").text
     assert 'class="area"' in html and "itile" in html and 'id="issues"' not in html
+    assert 'class="itile ok"' in html and "Every valid call" not in html
 
 
 def test_rename_run_rewrites_every_reference(env):

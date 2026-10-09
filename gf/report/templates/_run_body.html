@@ -145,10 +145,14 @@
     </div>
     <span class="pop">
       <b>{{ a.area }}</b> <span class="muted">{{ a.sessions }} session{{ '' if a.sessions == 1 else 's' }} · {{ a.passed }}/{{ a.n }} valid calls passed{% if a.rate is not none %} · likely {{ a.ci_low|pct }}–{{ a.ci_high|pct }}{% endif %}</span>
-      {% set tiles = a.issues|length + a.flagged|length %}
-      {% if not tiles %}<span class="clean">Every valid call in this area passed without flags.</span>{% endif %}
-      {% for i in a.issues[:6] %}<a class="itile {{ 'sim' if i.severity == 'simulation' else 'fail' }}" href="{{ call_link(i) if call_link else links.call(r.run_id, i.session_id, i.attempt) }}" data-issue="{{ i.session_id }}/{{ i.attempt }}" data-t="{{ i.t_ms if i.t_ms is not none else '' }}"><span class="tt">{{ i.title }}</span><span class="tm">{{ i.session_title }} · {% if i.attempts and i.attempts|length > 1 %}attempts {{ i.attempts|join(', ') }}{% else %}attempt {{ i.attempt }}{% endif %}{% if i.t_ms is not none %} · <span class="mono">{{ i.t_ms|clock }}</span>{% endif %} · <em>{{ 'invalid sim' if i.severity == 'simulation' else 'failed' }}</em></span></a>{% endfor %}
-      {% for f in a.flagged[:(6 - (a.issues|length if a.issues|length < 6 else 6))] %}<a class="itile warn" href="{{ call_link(f) if call_link else links.call(r.run_id, f.session_id, f.attempt) }}" data-issue="{{ f.session_id }}/{{ f.attempt }}" data-t="{{ f.t_ms if f.t_ms is not none else '' }}"><span class="tt">{{ f.flags|join(', ') }}</span><span class="tm">{{ f.session_title }} · attempt {{ f.attempt }}{% if f.t_ms is not none %} · <span class="mono">{{ f.t_ms|clock }}</span>{% endif %} · <em>passed, flagged</em></span></a>{% endfor %}
+      {% set tiles = a.issues|length + a.flagged|length + a.passes|length %}
+      {% if not tiles %}<span class="clean">No valid calls in this area yet.</span>{% endif %}
+      {% set ns = namespace(left=6) %}
+      {% for i in a.issues[:ns.left] %}<a class="itile {{ 'sim' if i.severity == 'simulation' else 'fail' }}" href="{{ call_link(i) if call_link else links.call(r.run_id, i.session_id, i.attempt) }}" data-issue="{{ i.session_id }}/{{ i.attempt }}" data-t="{{ i.t_ms if i.t_ms is not none else '' }}"><span class="tt">{{ i.title }}</span><span class="tm">{{ i.session_title }} · {% if i.attempts and i.attempts|length > 1 %}attempts {{ i.attempts|join(', ') }}{% else %}attempt {{ i.attempt }}{% endif %}{% if i.t_ms is not none %} · <span class="mono">{{ i.t_ms|clock }}</span>{% endif %} · <em>{{ 'invalid sim' if i.severity == 'simulation' else 'failed' }}</em></span></a>{% endfor %}
+      {% set ns.left = ns.left - (a.issues|length if a.issues|length < ns.left else ns.left) %}
+      {% for f in a.flagged[:ns.left] %}<a class="itile warn" href="{{ call_link(f) if call_link else links.call(r.run_id, f.session_id, f.attempt) }}" data-issue="{{ f.session_id }}/{{ f.attempt }}" data-t="{{ f.t_ms if f.t_ms is not none else '' }}"><span class="tt">{{ f.flags|join(', ') }}</span><span class="tm">{{ f.session_title }} · attempt {{ f.attempt }}{% if f.t_ms is not none %} · <span class="mono">{{ f.t_ms|clock }}</span>{% endif %} · <em>passed, flagged</em></span></a>{% endfor %}
+      {% set ns.left = ns.left - (a.flagged|length if a.flagged|length < ns.left else ns.left) %}
+      {% for c in a.passes[:ns.left] %}<a class="itile ok" href="{{ call_link(c) if call_link else links.call(r.run_id, c.session_id, c.attempt) }}" data-issue="{{ c.session_id }}/{{ c.attempt }}" data-t=""><span class="tt">{{ c.session_title }}</span><span class="tm">attempt {{ c.attempt }} · <em>passed</em></span></a>{% endfor %}
       {% if tiles > 6 %}<a class="more" href="{{ links.run(r.run_id) }}">+{{ tiles - 6 }} more on the run page →</a>{% endif %}
     </span>
   </div>

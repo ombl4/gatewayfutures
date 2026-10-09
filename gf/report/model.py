@@ -554,6 +554,7 @@ def by_area(
                 "rate_class": rate_class(rate) if d["n"] else "grey",
                 "issues": [],
                 "flagged": [],
+                "passes": [],
             }
         )
     if report is not None:
@@ -571,6 +572,17 @@ def by_area(
                     "flags": [SOFT_LABELS.get(f, f) for f in x.get("soft_flags", [])],
                 }
                 for x in report.get("flagged", [])
+                if a in areas_of_session.get(x["session_id"], [])
+            ]
+            # passed without flags: listed too, so every area leads to a call (B10)
+            entry["passes"] = [
+                {
+                    "session_id": x["session_id"],
+                    "session_title": x.get("title", x["session_id"]),
+                    "attempt": x["attempt"],
+                    "t_ms": None,
+                }
+                for x in report.get("clean", [])
                 if a in areas_of_session.get(x["session_id"], [])
             ]
             entry["n_fail"] = sum(
@@ -1083,6 +1095,7 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
     failing = _attempt_rows(lambda a: a["valid"] and not a["passed"])
     invalid = _attempt_rows(lambda a: not a["valid"])
     flagged = _attempt_rows(lambda a: a["valid"] and a["passed"] and a.get("soft_flags"))
+    clean = _attempt_rows(lambda a: a["valid"] and a["passed"] and not a.get("soft_flags"))
     reference = next(
         (a for a in summ["attempts"] if a["valid"] and a["passed"] and not a.get("soft_flags")),
         None,
@@ -1110,6 +1123,7 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
         "failing": failing,
         "invalid": invalid,
         "flagged": flagged,
+        "clean": clean,
         "reference": reference,
         "previous": {
             "run_id": prev.get("run_id"),

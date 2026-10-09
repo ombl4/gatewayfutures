@@ -265,6 +265,18 @@ def test_overview_is_the_performance_page(site, page):
     page.wait_for_selector(".callbox #inspector")
     assert urlparse(page.url).path == "/runs/t1" and f"call={target}" in page.url
     assert page.locator("#inspector").get_attribute("data-call") == target
+    # B10: every area, including one with no issue dots, lists calls to open
+    page.goto(site["base"] + "/")
+    for area in page.locator("#by-area .area").all():
+        area.locator(".tile").hover()
+        assert area.locator(".itile").count() >= 1, area.get_attribute("data-area")
+    clean = page.locator("#by-area .area:has(.itile.ok)").first
+    clean.locator(".tile").click()
+    ok = clean.locator(".itile.ok").first
+    target = ok.get_attribute("data-issue")
+    ok.click()
+    page.wait_for_selector(".callbox #inspector")
+    assert page.locator("#inspector").get_attribute("data-call") == target
     _no_errors(page)
 
 
