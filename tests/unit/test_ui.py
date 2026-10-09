@@ -121,6 +121,25 @@ def test_run_page_content(env):
     assert call.count('class="tag ') >= 10 and 'data-check="ux.latency_p95"' in call
     assert 'aria-label="explain latency_p95"' in call
     assert 'id="time-breakdown"' in r
+    assert 'id="by-area"' in r and "refund" in r
+    home = env["client"].get("/").text
+    assert 'value="suite:regression"' in home or 'name="pick"' in home
+    sessions = env["client"].get("/sessions").text
+    assert 'data-filter="area:refund"' in sessions
+    sp = env["client"].get("/sessions/7c994c348001").text
+    assert 'id="btn-add-suite"' in sp
+    r2 = env["client"].post(
+        "/sessions/7c994c348001/suite",
+        data={"suite": "Regression!", "action": "add"},
+        follow_redirects=False,
+    )
+    assert r2.status_code == 303
+    assert "regression" in (env["sessions"] / "suites.yaml").read_text()
+    assert ">regression<" in env["client"].get("/sessions/7c994c348001").text
+    env["client"].post(
+        "/sessions/7c994c348001/suite", data={"suite": "regression", "action": "remove"}
+    )
+    assert env["client"].post("/sessions/zzz/suite", data={"suite": "x"}).status_code == 404
     envs = env["client"].get("/environments").text
     assert "Environments" in envs and "t1" in envs  # untagged fixture run is listed as such
     assert "set-" in r  # the run page carries the session-set tag even for untagged runs

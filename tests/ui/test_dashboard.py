@@ -319,6 +319,24 @@ def test_inspector_without_recording_still_draws_lanes(site, page):
     _no_errors(page)
 
 
+def test_add_session_to_regression_suite_from_the_ui(site, page):
+    page.goto(site["base"] + "/sessions/7c994c348001")
+    page.fill("#suites input.input[name=suite]", "regression")
+    page.click("#btn-add-suite")
+    page.wait_for_url("**/sessions/7c994c348001")
+    assert "regression" in page.locator("#suites").inner_text()
+    page.goto(site["base"] + "/sessions")
+    page.click('#filters [data-filter="suite:regression"]')
+    visible = page.locator("#sessions details.srow:not([hidden])")
+    ids = [visible.nth(i).get_attribute("data-session") for i in range(visible.count())]
+    assert (
+        "7c994c348001" in ids and visible.count() < page.locator("#sessions details.srow").count()
+    )
+    page.goto(site["base"] + "/")
+    assert page.locator('input[name=pick][value="suite:regression"]').count() == 1
+    _no_errors(page)
+
+
 def test_hash_time_opens_at_the_moment(site, page):
     page.goto(site["base"] + "/runs/t1/7c994c348001/1#t=5000")
     page.wait_for_selector("#inspector")

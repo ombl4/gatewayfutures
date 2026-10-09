@@ -112,6 +112,10 @@ expected:
 
 The customers and orders available are listed on the UI's **Order system** page. Sessions are never deleted: to stop running one, move its file to `sessions/retired/` (it stays loadable so earlier runs still open and rescore). Keep every number the caller needs inside `facts`: a caller that says a number outside its facts makes the call invalid rather than counting against the agent.
 
+## Suites and areas
+
+Every session has **areas** derived from its content: what the agent must do (`refund`, `address change`, `escalation`, `denial`) and what makes the call hard (`fault handling`, `hard line`, `interruptions`, `impatient`). Run pages show the pass rate per area. **Suites** are named lists in `sessions/suites.yaml` referencing session files by name: `smoke` for a quick check, `regression` for sessions that have failed before and must run every time, plus any you define. Add a session to a suite from its page in the UI or by editing the file; run one with `gf run --suite regression` or the suite picker in the start-run form; `gf sessions suites` lists them. Suites never touch the session files, so ids and the session-set tag stay stable.
+
 ## Environment tags
 
 Every run carries two short tags you can quote: `env-…` hashes everything that shapes the agent and the measurement except the sessions (agent config and variant, STT/LLM/TTS models, engine, scoring method with thresholds, versions of livekit-agents, the LiveKit SDK, the OpenAI and Deepgram plugins, Python), and `set-…` hashes the session files run. Two runs are like-for-like when both match; otherwise the KPI deltas are marked with an asterisk. The tags are stored in the run's `manifest.json` and `environment.json`, and every environment seen is kept under `runs/_environments/<env-tag>.json` with its components and the runs that used it (the **Environments** page in the UI). `gf env` prints the tag a run would carry right now; `gf env --backfill` tags earlier runs: from their recorded versions, or, for runs made before manifests recorded versions, from the lockfile at the last commit before they started (the evidence is stored under `environment.backfilled`).

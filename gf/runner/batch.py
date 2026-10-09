@@ -38,6 +38,7 @@ async def run_batch(
     run_id: str = "",
     stagger_s: float = 2.0,
     variant: str | None = None,
+    suite: str | None = None,
 ) -> dict:
     from gf.agent.variants import get_variant
 
@@ -66,6 +67,7 @@ async def run_batch(
         "repeat": repeat,
         "concurrency": concurrency,
         "engine": "gf-caller",
+        "suite": suite,
         "environment": environment_info(),
         "sessions": [{"id": s.id, "title": s.title, "path": s.source_path} for s in sessions],
         "calls": [],

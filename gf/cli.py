@@ -162,12 +162,21 @@ def run(
     concurrency: int = 4,
     run_id: str = "",
     variant: str = typer.Option("", help="Agent variant, e.g. 'dishonest' (detector check)."),
+    suite: str = typer.Option("", help="Run a named suite from sessions/suites.yaml."),
 ) -> None:
     """Run sessions N times each, concurrently, into runs/<run_id>/ with a manifest."""
     import asyncio
     import logging
 
     from gf.runner.batch import run_batch
+
+    if suite:
+        from gf.config import settings
+        from gf.sessions.taxonomy import sessions_in_suite
+
+        sessions = [x.source_path for x in sessions_in_suite(settings().sessions_dir, suite)]
+        if not sessions:
+            raise typer.BadParameter(f"suite {suite!r} has no runnable sessions")
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     for noisy in ("opentelemetry", "livekit", "httpx", "aiohttp", "root"):
@@ -182,6 +191,7 @@ def run(
             concurrency=concurrency,
             run_id=run_id,
             variant=variant or None,
+            suite=suite or None,
         )
     )
     typer.echo(
@@ -369,3 +379,21 @@ def config() -> None:
 
 if __name__ == "__main__":
     app()
+
+
+@sessions_app.command("suites")
+def sessions_suites() -> None:
+    """List the suites in sessions/suites.yaml and the sessions each one runs."""
+    from gf.config import settings
+    from gf.sessions.taxonomy import load_suites, sessions_in_suite
+
+    folder = settings().sessions_dir
+    suites = load_suites(folder)
+    if not suites:
+        typer.echo("no suites yet: add sessions/suites.yaml or use a session's page in the UI")
+        return
+    for name in sorted(suites):
+        members = sessions_in_suite(folder, name)
+        typer.echo(f"{name} ({len(members)} runnable of {len(suites[name])} listed)")
+        for x in members:
+            typer.echo(f"  {x.title}  [{x.id}]")

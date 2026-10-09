@@ -38,6 +38,7 @@
 
 {% if r %}
 {{ rb.kpis(r) }}
+{{ rb.by_area(r) }}
 {% if r.previous and not r.previous.like_for_like %}<p class="small muted" style="margin:-8px 0 12px">* compared with {{ r.previous.run_id }}: {% if r.previous.env_same is sameas false %}different environment{% endif %}{% if r.previous.env_same is sameas false and r.previous.set_same is sameas false %} and {% endif %}{% if r.previous.set_same is sameas false %}different session set{% endif %}{% if r.previous.env_same is none %}environment unknown for the older run{% endif %}; treat the change as indicative.</p>{% endif %}
 <div class="work">
   {{ rb.sessions(r) }}
@@ -58,7 +59,12 @@
   <form method="post" action="/runs/start">
     <div class="two" style="grid-template-columns:minmax(0,1fr) 260px">
       <div>
-        <label class="small"><input type="checkbox" name="all" value="1" checked onchange="document.querySelectorAll('.sessionpick input').forEach(i=>i.disabled=this.checked)"> <b>All {{ sessions|length }} sessions</b></label>
+        <div class="small" style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:6px" id="pick">
+          <label><input type="radio" name="pick" value="all" checked onchange="gfPick(this)"> <b>All {{ sessions|length }} sessions</b></label>
+          {% for su in suites %}<label><input type="radio" name="pick" value="suite:{{ su }}" onchange="gfPick(this)"> suite <b>{{ su }}</b></label>{% endfor %}
+          <label><input type="radio" name="pick" value="pick" onchange="gfPick(this)"> pick sessions</label>
+        </div>
+        <script>function gfPick(el){ const pick = el.value === 'pick'; document.querySelectorAll('.sessionpick input').forEach(i => i.disabled = !pick); }</script>
         <div class="sessionpick" style="margin-top:6px">
         {% for s in sessions %}<label><input type="checkbox" name="session" value="{{ s.id }}" disabled> {{ s.title }}</label>{% endfor %}
         </div>

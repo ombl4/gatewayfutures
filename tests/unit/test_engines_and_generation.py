@@ -215,3 +215,63 @@ def test_scoring_finds_a_session_whose_file_moved(tmp_path, monkeypatch):
     assert sess.id == "7c994c348001"
     with pytest.raises(FileNotFoundError, match="retired"):
         _load_session({"id": "nope", "path": str(tmp_path / "gone" / "x.yaml")})
+
+
+def test_areas_are_derived_from_what_the_agent_must_do(tmp_path):
+    from pathlib import Path
+
+    from gf.sessions.schema import load_all
+    from gf.sessions.taxonomy import areas_of
+
+    root = Path(__file__).resolve().parents[2]
+    by_file = {
+        s.source_path.rsplit("/", 1)[-1]: areas_of(s)
+        for s in load_all(root / "sessions", include_retired=False)
+    }
+    assert by_file["refund-basic.yaml"] == ["refund"]
+    assert (
+        by_file["refund-backend-fault.yaml"][:1] == ["refund"]
+        and "fault handling" in by_file["refund-backend-fault.yaml"]
+    )
+    assert (
+        by_file["refund-noisy-cafe.yaml"][0] == "refund"
+        and "hard line" in by_file["refund-noisy-cafe.yaml"]
+    )
+    assert "escalation" in by_file["wants-human-immediately.yaml"]
+    assert by_file["refund-already-refunded.yaml"][:2] == ["refund", "denial"]
+    assert "interruptions" in by_file["refund-interrupting-caller.yaml"]
+    assert "impatient" in by_file["refund-impatient-street.yaml"]
+
+
+def test_suites_round_trip_and_resolve(tmp_path):
+    import shutil
+    from pathlib import Path
+
+    from gf.sessions.taxonomy import add_to_suite, load_suites, remove_from_suite, sessions_in_suite
+
+    root = Path(__file__).resolve().parents[2]
+    folder = tmp_path / "sessions"
+    folder.mkdir()
+    for f in ("refund-basic.yaml", "wants-human-immediately.yaml"):
+        shutil.copy(root / "sessions" / f, folder / f)
+    (folder / "retired").mkdir()
+    shutil.copy(root / "sessions" / "refund-noisy-cafe.yaml", folder / "retired" / "old.yaml")
+    assert load_suites(folder) == {}
+    add_to_suite(folder, "regression", "refund-basic")
+    add_to_suite(folder, "regression", "old")  # retired: listed but skipped when run
+    add_to_suite(folder, "smoke", "wants-human-immediately")
+    assert load_suites(folder) == {
+        "regression": ["old", "refund-basic"],
+        "smoke": ["wants-human-immediately"],
+    }
+    assert [s.title for s in sessions_in_suite(folder, "regression")] == [
+        "Refund for a broken blender, clean line"
+    ]
+    with pytest.raises(ValueError, match="unknown suite"):
+        sessions_in_suite(folder, "nope")
+    add_to_suite(folder, "smoke", "missing-file")
+    with pytest.raises(ValueError, match="does not exist"):
+        sessions_in_suite(folder, "smoke")
+    remove_from_suite(folder, "smoke", "missing-file")
+    remove_from_suite(folder, "smoke", "wants-human-immediately")
+    assert "smoke" not in load_suites(folder)

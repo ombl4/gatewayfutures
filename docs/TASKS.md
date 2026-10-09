@@ -59,7 +59,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 - [x] B4 The run log shows one "room session transport is closed" traceback per finished call (the library's session-event writer runs after the caller's session is closed). Fix: drain and close the caller's AgentSession before leaving the room; if the library still emits it, filter that message from the `livekit.agents` logger in the runner. Logs then only show real errors.
 
 ## Next up (in order)
-1. T5.9 per-session comparison → T6.10 remaining item (real tool schemas on the agent page) → T4.6 provider seam (LiveKit + Fake + Vapi/Pipecat skeletons) → T5.10 cost
+1. verify `full-4` (same env and set tags as `full-3`, like-for-like deltas) → T5.9 per-session comparison → T6.10 remaining item (real tool schemas on the agent page) → T4.6 provider seam (LiveKit + Fake + Vapi/Pipecat skeletons) → T5.10 cost
 2. Re-run the full matrix (`full-3`: 12 hand-written + regenerated sessions) and refresh `docs/sample-report`; prove `make up` in Docker end to end
 3. Gate 6 human review of the UI and the sample report (CI green on GitHub; Pages enabled)
 - T4.5 follow-up (2026-10-08): generated sessions are checked against the fixture (order exists, zip matches, refunds only on delivered and not-yet-refunded orders within the total, address changes only on processing orders and only with a `new_address` fact) and free-text arguments are never pinned; the first generated batch failed 0/8 in `full-2` for exactly these reasons, so that run was discarded and the sessions regenerated (3 written, 3 rejected with reasons)
@@ -110,6 +110,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 - [x] T8.2 `gf sessions export-simulate` — sessions → `--scenarios` YAML (label = session title so imports map back); tested
 
 ## Part 7 — Deliverables
+- [x] T7.4 Suites and areas — `gf/sessions/taxonomy.py` (areas from the caller's goal, refusal, faults, line, interruptions, impatience; `sessions/suites.yaml` with smoke + regression), `gf run --suite`, `gf sessions suites`, suite picker in the start form, by-area pills on overview and run pages, area/suite chips and filters on the Sessions page, add/remove from a suite on the session page; manifest records the suite; 2 unit + route + browser tests. Was: — derived areas (refund / address change / escalation / denial + fault handling, hard line, interruptions, impatient), `sessions/suites.yaml` (smoke, regression, …), `gf run --suite`, suite picker in the start form, by-area table on runs, suite/area chips and filters on the Sessions page, add-to-suite on the session page; unit + route + browser tests
 - [x] T7.1 Session set — 11 hand-written sessions (generation deferred, see T4.5)
 - [x] T7.2 Full run and sample report — `full-1` bundled into `docs/sample-report/`
 - [x] T7.3 README and design note written; clean-clone check done (install, tests, CLI, compose config, image build). `make smoke` has no e2e test yet: a smoke call is `gf call sessions/refund-basic.yaml` with the services up

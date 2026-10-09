@@ -23,7 +23,9 @@ from gf.record.latency import STAGES, turn_latency
 from gf.record.model import CallRecord
 from gf.runner.batch import list_runs
 from gf.scoring.checks import evidence_ms
+from gf.scoring.stats import wilson
 from gf.sessions.schema import Session, is_retired, load_all
+from gf.sessions.taxonomy import areas_of, load_suites, session_file, suites_of
 
 GROUPS = [
     ("validity", "Was the simulation valid?"),
@@ -127,6 +129,8 @@ def session_card(s: Session) -> dict[str, Any]:
         "path": s.source_path,
         "generated": "/generated/" in (s.source_path or "").replace("\\", "/"),
         "retired": is_retired(s),
+        "areas": areas_of(s),
+        "file": session_file(s),
     }
 
 
@@ -326,6 +330,38 @@ def kpi_cards(
     ]
 
 
+def by_area(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Pass rate per area over the valid attempts of the sessions in that area."""
+    from gf.sessions.taxonomy import MODIFIER_AREAS, PRIMARY_AREAS
+
+    order = list(PRIMARY_AREAS) + ["other"] + list(MODIFIER_AREAS)
+    acc: dict[str, dict[str, int]] = {}
+    for r in rows:
+        for a in r.get("areas", []):
+            d = acc.setdefault(a, {"n": 0, "passed": 0, "sessions": 0})
+            d["n"] += r.get("n") or 0
+            d["passed"] += r.get("passed") or 0
+            d["sessions"] += 1
+    out = []
+    for a in sorted(acc, key=lambda x: order.index(x) if x in order else 99):
+        d = acc[a]
+        rate, lo, hi = wilson(d["passed"], d["n"]) if d["n"] else (None, None, None)
+        out.append(
+            {
+                "area": a,
+                "kind": "primary" if a in PRIMARY_AREAS or a == "other" else "modifier",
+                "n": d["n"],
+                "passed": d["passed"],
+                "sessions": d["sessions"],
+                "rate": rate,
+                "ci_low": lo,
+                "ci_high": hi,
+                "rate_class": rate_class(rate) if d["n"] else "grey",
+            }
+        )
+    return out
+
+
 def time_breakdown(summ: dict[str, Any]) -> list[dict[str, Any]]:
     """Where the time goes in a run: median over valid calls of each call's median per stage."""
     valid = [a for a in summ.get("attempts", []) if a.get("valid") and a.get("latency_breakdown")]
@@ -505,13 +541,21 @@ def backend_page() -> dict[str, Any]:
 
 
 def sessions_page() -> dict[str, Any]:
-    """Active sessions (offered for runs) and retired ones (kept for old runs), separately."""
+    """Active sessions (offered for runs) and retired ones (kept for old runs), separately,
+    with their areas and suites."""
     sessions = load_all(settings().sessions_dir)
     history = _session_history()
-    cards = [session_card(s) | {"history": history.get(s.id, [])} for s in sessions]
+    suites = load_suites(settings().sessions_dir)
+    cards = [
+        session_card(s) | {"history": history.get(s.id, []), "suites": suites_of(s, suites)}
+        for s in sessions
+    ]
+    areas = sorted({a for c in cards if not c["retired"] for a in c["areas"]})
     return {
         "sessions": [c for c in cards if not c["retired"]],
         "retired": [c for c in cards if c["retired"]],
+        "suites": sorted(suites),
+        "areas": areas,
     }
 
 
@@ -521,9 +565,10 @@ def session_page(session_id: str) -> dict[str, Any]:
         Path(s.source_path).read_text() if s.source_path and Path(s.source_path).exists() else ""
     )
     return {
-        "session": session_card(s),
+        "session": session_card(s) | {"suites": suites_of(s, load_suites(settings().sessions_dir))},
         "history": _session_history().get(s.id, []),
         "yaml": yaml_text,
+        "all_suites": sorted(load_suites(settings().sessions_dir)),
     }
 
 
@@ -687,6 +732,7 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
                 if sess
                 else [],
                 "facts": sess.caller.facts if sess else {},
+                "areas": areas_of(sess) if sess else [],
             }
         )
 
@@ -757,6 +803,8 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
         if man.get("kind") == "detector_check"
         else None,
     }
+    out["by_area"] = by_area(rows)
+    out["suite"] = man.get("suite")
     out["kpis"] = kpi_cards(run_id, summ, prev) if man.get("kind", "run") == "run" else []
     out["time_breakdown"] = time_breakdown(summ)
     out["issues"] = issues_for(out)

@@ -93,3 +93,9 @@
   </div>
 </div>
 {% endmacro %}
+
+{% macro by_area(r) %}
+{% if r.by_area %}
+<div class="meta" id="by-area" style="margin:-6px 0 14px;gap:8px"><span class="muted">By area:</span>{% for a in r.by_area %}<span class="pill {{ a.rate_class }}" title="{{ a.area }} · {{ a.sessions }} session{{ '' if a.sessions == 1 else 's' }} · {{ a.passed }}/{{ a.n }} valid calls passed{% if a.rate is not none %} · 95% interval {{ a.ci_low|pct }}–{{ a.ci_high|pct }}{% endif %}" style="font-weight:500">{{ a.area }} <b>{{ a.passed }}/{{ a.n }}</b></span>{% endfor %}{% if r.suite %}<i>·</i><span>suite <span class="chip">{{ r.suite }}</span></span>{% endif %}</div>
+{% endif %}
+{% endmacro %}

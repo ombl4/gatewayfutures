@@ -134,7 +134,9 @@ def load_all(folder: Path, include_retired: bool = True) -> list[Session]:
     paths = sorted(folder.glob("*.yaml")) + sorted((folder / "generated").glob("*.yaml"))
     if include_retired:
         paths += sorted((folder / "retired").glob("*.yaml"))
-    return [Session.load(p) for p in paths]
+    return [
+        Session.load(p) for p in paths if p.name != "suites.yaml"
+    ]  # suites.yaml is not a session
 
 
 def is_retired(session: Session) -> bool:

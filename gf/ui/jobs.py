@@ -98,6 +98,7 @@ def start(
     concurrency: int,
     run_id: str = "",
     variant: str | None = None,
+    suite: str | None = None,
 ) -> str:
     if current():
         raise RuntimeError("a run is already in progress")
@@ -123,6 +124,7 @@ def start(
         "--run-id",
         run_id,
         *(["--variant", variant] if variant else []),
+        *(["--suite", suite] if suite else []),
     ]
     env = os.environ | {"PYTHONWARNINGS": "ignore", "PYTHONUNBUFFERED": "1"}
     log = open(run_dir / "run.log", "ab")  # noqa: SIM115 - handed to the child
@@ -139,6 +141,7 @@ def start(
                 "repeat": repeat,
                 "concurrency": concurrency,
                 "variant": variant,
+                "suite": suite,
                 "cmd": cmd,
             },
             indent=2,

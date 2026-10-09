@@ -155,6 +155,7 @@ async def overview(call: str = "", run: str = ""):
         st=await status.status(),
         job=jobs.current(),
         sessions=model.sessions_page()["sessions"],
+        suites=model.sessions_page()["suites"],
         issue_link=_issue_link(f"/?run={chosen}&") if chosen else _issue_link("/"),
         **ctx,
     )
@@ -263,6 +264,25 @@ def session(session_id: str):
         raise HTTPException(404, "unknown session") from None
 
 
+@app.post("/sessions/{session_id}/suite")
+def session_suite(session_id: str, suite: str = Form(...), action: str = Form("add")):
+    """Add a session to a suite or remove it (writes sessions/suites.yaml, never the session)."""
+    from gf.sessions.taxonomy import add_to_suite, remove_from_suite, session_file
+
+    try:
+        sess = next(x for x in model.load_all(settings().sessions_dir) if x.id == session_id)
+    except StopIteration:
+        raise HTTPException(404, "unknown session") from None
+    name = "".join(ch for ch in suite.strip().lower() if ch.isalnum() or ch in "-_")
+    if not name:
+        raise HTTPException(400, "give the suite a name (letters, digits, dashes)")
+    if action == "remove":
+        remove_from_suite(settings().sessions_dir, name, session_file(sess))
+    else:
+        add_to_suite(settings().sessions_dir, name, session_file(sess))
+    return RedirectResponse(f"/sessions/{session_id}", status_code=303)
+
+
 @app.get("/runs", response_class=HTMLResponse)
 def runs():
     return page("runs.html", o=model.overview(), job=jobs.current())
@@ -272,14 +292,25 @@ def runs():
 async def run_start(request: Request):
     form = await request.form()
     ids = [str(v) for v in form.getlist("session")]
-    if form.get("all"):
+    pick = str(form.get("pick", "all" if form.get("all") else "pick"))
+    suite = ""
+    if pick == "all":
         ids = [s["id"] for s in model.sessions_page()["sessions"]]
+    elif pick.startswith("suite:"):
+        from gf.sessions.taxonomy import sessions_in_suite
+
+        suite = pick.split(":", 1)[1]
+        try:
+            ids = [x.id for x in sessions_in_suite(settings().sessions_dir, suite)]
+        except ValueError as e:
+            raise HTTPException(400, str(e)) from None
     try:
         run_id = jobs.start(
             ids,
             int(form.get("repeat", 3)),
             int(form.get("concurrency", 4)),
             str(form.get("run_id", "")).strip(),
+            suite=suite or None,
         )
     except (RuntimeError, ValueError) as e:
         raise HTTPException(400, str(e)) from None

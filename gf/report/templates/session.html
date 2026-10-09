@@ -77,6 +77,20 @@
     </div>
     {% if s.expected.notes %}<p class="small muted" style="margin:8px 0 0">{{ s.expected.notes }}</p>{% endif %}
   </div>
+  <div class="card" style="margin-top:12px" id="suites">
+    <h3>Areas and suites</h3>
+    <div class="small" style="margin-bottom:6px">{% for a in s.areas %}<span class="chip">{{ a }}</span>{% endfor %} <span class="muted">derived from what the agent must do and how hard the call is</span></div>
+    <div class="small">{% if s.suites %}In suites: {% for su in s.suites %}<span class="pill indigo">{{ su }}</span>{% if mode == 'live' %} <form method="post" action="/sessions/{{ s.id }}/suite" style="display:inline"><input type="hidden" name="suite" value="{{ su }}"><input type="hidden" name="action" value="remove"><button class="btn sm" type="submit" title="remove from {{ su }}">×</button></form>{% endif %} {% endfor %}{% else %}<span class="muted">In no suite yet.</span>{% endif %}</div>
+    {% if mode == 'live' %}
+    <form method="post" action="/sessions/{{ s.id }}/suite" class="small" style="display:flex;gap:6px;align-items:center;margin-top:8px">
+      <input type="hidden" name="action" value="add">
+      <input class="input" name="suite" list="suite-names" placeholder="regression" style="width:160px;margin:0" required>
+      <datalist id="suite-names">{% for su in p.all_suites %}<option value="{{ su }}">{% endfor %}</datalist>
+      <button class="btn sm" type="submit" id="btn-add-suite">Add to suite</button>
+      <span class="muted">regression = runs every time because it failed before · smoke = quick check</span>
+    </form>
+    {% endif %}
+  </div>
   <div class="card" style="margin-top:12px">
     <h3>Results by run</h3>
     {% if p.history %}
