@@ -170,4 +170,4 @@ make test-live   # tests that call the real LLM (agent behaviours in text mode)
 make lint
 ```
 
-Thresholds for every flag live in `thresholds.yaml`. Scoring is deterministic; re-scoring never re-runs calls.
+Thresholds for every flag live in `thresholds.yaml`. Scoring is deterministic; re-scoring never re-runs calls, and a change to a scoring rule bumps `METHOD_VERSION` so runs scored under different rules are never compared as like-for-like. The caller's mutual-silence re-prompt (4 s) and abort (8 s) are floors: once two replies have been heard they scale with the agent's median reply latency (1.5× and 2.5×), so a slow agent is not re-prompted in the middle of starting its reply.

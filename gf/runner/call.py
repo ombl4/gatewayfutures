@@ -61,6 +61,23 @@ logging.getLogger("livekit.agents").addFilter(_DropClosedTransportNoise())
 logging.getLogger("livekit").addFilter(_DropClosedTransportNoise())
 
 
+def silence_thresholds(limits, heard_latency_ms: list[int]) -> tuple[float, float]:
+    """Re-prompt and abort delays for the mutual-silence watchdog, adapted to the agent.
+
+    The session's values are floors. Once the caller has heard a few replies, the thresholds
+    scale with the agent's own median reply latency, so a slow but working agent is not
+    re-prompted in the middle of starting its reply (a re-prompt that lands as the agent
+    begins to speak makes both sides cut each other and the call loops on fragments)."""
+    rows = sorted(x for x in heard_latency_ms if x is not None and x > 0)
+    if len(rows) < 2:
+        return limits.mutual_silence_reprompt_s, limits.mutual_silence_abort_s
+    median_s = rows[len(rows) // 2] / 1000
+    return (
+        max(limits.mutual_silence_reprompt_s, round(1.5 * median_s, 1)),
+        max(limits.mutual_silence_abort_s, round(2.5 * median_s, 1)),
+    )
+
+
 async def run_call(
     session: Session,
     call_id: str,
@@ -197,12 +214,17 @@ async def run_call(
                     silence["reprompted"] = False
                     continue
                 quiet_s = (now_ms() - max(since, armed_at if not heard_anything else since)) / 1000
-                if quiet_s >= lim.mutual_silence_abort_s:
-                    events.emit("mutual_silence_abort", quiet_s=round(quiet_s, 1))
+                reprompt_s, abort_s = silence_thresholds(
+                    lim, [r.get("response_ms") for r in caller.heard.rows]
+                )
+                if quiet_s >= abort_s:
+                    events.emit("mutual_silence_abort", quiet_s=round(quiet_s, 1), after_s=abort_s)
                     caller.end_from_outside("mutual_silence", f"{quiet_s:.1f}s of mutual silence")
-                elif quiet_s >= lim.mutual_silence_reprompt_s and not silence["reprompted"]:
+                elif quiet_s >= reprompt_s and not silence["reprompted"]:
                     silence["reprompted"] = True
-                    events.emit("mutual_silence_reprompt", quiet_s=round(quiet_s, 1))
+                    events.emit(
+                        "mutual_silence_reprompt", quiet_s=round(quiet_s, 1), after_s=reprompt_s
+                    )
                     try:
                         sim.say("Hello? Are you still there?")
                     except Exception as e:  # noqa: BLE001
