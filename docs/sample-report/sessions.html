@@ -236,6 +236,8 @@ details.srow summary .ttl .chip{font-weight:400}
 .group h4{display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin:0 0 2px;font-size:12.5px}
 .group.collapsed .checks{display:none}
 .tags{display:flex;flex-wrap:wrap;gap:4px;margin:2px 0 8px}
+.tags.tested{margin:3px 0 0}
+.tags.tested .tag{font-size:11px;padding:0 3px 0 5px}
 .tag{position:relative;display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);border-radius:6px;padding:1px 4px 1px 6px;font-size:11.5px;background:#fff;color:var(--ink)}
 .tag .m{font-weight:700;font-size:11px}
 .tag.pass .m{color:var(--green)}.tag.fail{border-color:#fecaca;background:#fff5f5}.tag.fail .m{color:var(--red)}.tag.warn{border-color:#fde68a;background:#fffbeb}.tag.warn .m{color:var(--amber)}.tag.info .m{color:var(--grey)}
@@ -287,7 +289,7 @@ details.srow summary .ttl .chip{font-weight:400}
   <a class="row" href="agent.html#models"><span>Model</span><span>gpt-4.1-mini</span></a>
   <a class="row" href="backend.html"><span>Order system</span><span>mock</span></a>
   <a class="row" href="caller.html"><span>Simulated caller</span><span>gf-caller</span></a>
-  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-09 00:48 UTC</div>
+  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-09 01:30 UTC</div>
 </aside>
 <div class="wrap">
 <header class="top">
@@ -298,17 +300,22 @@ details.srow summary .ttl .chip{font-weight:400}
 </header>
 <main>
 <h1>Practice sessions</h1>
-<p class="meta"><span>13 sessions</span><i>·</i><span>each is an immutable YAML file: who is calling, what they know, what they want, how the line sounds, what a correct outcome looks like</span></p>
+<p class="meta"><span>15 sessions</span><i>·</i><span>each is an immutable YAML file: who is calling, what they know, what they want, how the line sounds, what a correct outcome looks like</span></p>
 <div class="small" id="filters" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 10px">
   <span class="muted">Show:</span>
-  <button type="button" class="btn sm on" data-filter="" onclick="gfFilter(this)">all</button>
-<button type="button" class="btn sm" data-filter="suite:regression" onclick="gfFilter(this)">suite regression</button><button type="button" class="btn sm" data-filter="suite:smoke" onclick="gfFilter(this)">suite smoke</button><button type="button" class="btn sm" data-filter="area:address change" onclick="gfFilter(this)">address change</button><button type="button" class="btn sm" data-filter="area:denial" onclick="gfFilter(this)">denial</button><button type="button" class="btn sm" data-filter="area:escalation" onclick="gfFilter(this)">escalation</button><button type="button" class="btn sm" data-filter="area:fault handling" onclick="gfFilter(this)">fault handling</button><button type="button" class="btn sm" data-filter="area:hard line" onclick="gfFilter(this)">hard line</button><button type="button" class="btn sm" data-filter="area:impatient" onclick="gfFilter(this)">impatient</button><button type="button" class="btn sm" data-filter="area:interruptions" onclick="gfFilter(this)">interruptions</button><button type="button" class="btn sm" data-filter="area:refund" onclick="gfFilter(this)">refund</button></div>
+  <button type="button" class="btn sm on" data-filter="" data-label="All sessions" onclick="gfFilter(this)">all <span class="muted">15</span></button>
+<button type="button" class="btn sm" data-filter="suite:regression" data-label="Suite regression" onclick="gfFilter(this)">suite regression <span class="muted">6</span></button><button type="button" class="btn sm" data-filter="suite:smoke" data-label="Suite smoke" onclick="gfFilter(this)">suite smoke <span class="muted">2</span></button><button type="button" class="btn sm" data-filter="area:address change" data-label="Area address change" onclick="gfFilter(this)">address change <span class="muted">4</span></button><button type="button" class="btn sm" data-filter="area:denial" data-label="Area denial" onclick="gfFilter(this)">denial <span class="muted">4</span></button><button type="button" class="btn sm" data-filter="area:escalation" data-label="Area escalation" onclick="gfFilter(this)">escalation <span class="muted">3</span></button><button type="button" class="btn sm" data-filter="area:fault handling" data-label="Area fault handling" onclick="gfFilter(this)">fault handling <span class="muted">2</span></button><button type="button" class="btn sm" data-filter="area:hard line" data-label="Area hard line" onclick="gfFilter(this)">hard line <span class="muted">6</span></button><button type="button" class="btn sm" data-filter="area:impatient" data-label="Area impatient" onclick="gfFilter(this)">impatient <span class="muted">6</span></button><button type="button" class="btn sm" data-filter="area:interruptions" data-label="Area interruptions" onclick="gfFilter(this)">interruptions <span class="muted">1</span></button><button type="button" class="btn sm" data-filter="area:refund" data-label="Area refund" onclick="gfFilter(this)">refund <span class="muted">10</span></button></div>
 <script>
-function gfFilter(btn){ document.querySelectorAll('#filters .btn').forEach(b => b.classList.toggle('on', b === btn)); const f = btn.dataset.filter;
-  document.querySelectorAll('#sessions details.srow').forEach(d => { const tags = (d.dataset.tags || '').split('|'); d.hidden = !!f && !tags.includes(f); }); }
+function gfFilter(btn){
+  document.querySelectorAll('#filters .btn').forEach(b => b.classList.toggle('on', b === btn));
+  const f = btn.dataset.filter; let shown = 0, total = 0;
+  document.querySelectorAll('#sessions details.srow').forEach(d => { total++; const tags = (d.dataset.tags || '').split('|'); const hide = !!f && !tags.includes(f); d.hidden = hide; if (!hide) shown++; });
+  document.getElementById('sessions-title').textContent = btn.dataset.label;
+  document.getElementById('sessions-count').textContent = f ? '(' + shown + ' of ' + total + ')' : '(' + total + ')';
+}
 </script>
 <div class="acc" id="sessions">
-  <div class="hd"><h3>All sessions <span class="muted" style="font-weight:500">(13)</span></h3><span class="small muted">history: pass count per run, oldest → newest</span></div>
+  <div class="hd"><h3><span id="sessions-title">All sessions</span> <span class="muted" id="sessions-count" style="font-weight:500">(15)</span></h3><span class="small muted">history: pass count per run, oldest → newest</span></div>
   <details class="srow" data-session="915dd5186fa8" data-tags="area:address change|area:hard line|">
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
@@ -363,6 +370,24 @@ function gfFilter(btn){ document.querySelectorAll('#filters .btn').forEach(b => 
       <div class="small"><a href="session-ff2985a2b7ab.html">Open session →</a> · <span class="mono muted">ff2985a2b7ab</span></div>
     </div>
   </details>
+  <details class="srow" data-session="e35c84ccedc9" data-tags="area:refund|area:denial|suite:regression|">
+    <summary>
+      <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+      <span class="ttl">Refund asked on an order that was already refunded, the agent explains and declines <span class="chip">refund</span><span class="chip">denial</span><span class="pill indigo" style="font-size:10.5px">regression</span> </span>
+      <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
+      <span class="cnt"><b class="p">3/3</b> last</span>
+      <span class="cnt"><a href="index.html" class="pill green" title="fix-1">3/3</a> </span>
+    </summary>
+    <div class="sbody">
+      <div class="cols4" style="margin:8px 0 10px">
+        <div><div class="h">Persona</div><b>Maria Lopez</b><div class="muted">confused · en-US</div></div>
+        <div><div class="h">Goal</div>Request a refund on order GW-48911 which was already refunded, and accept denial.</div>
+        <div><div class="h">Conditions</div><span class="chip">clean line</span></div>
+        <div><div class="h">Expected</div><span class="chip">explained_already_refunded</span><div class="muted mono" style="margin-top:3px">lookup_order</div></div>
+      </div>
+      <div class="small"><a href="session-e35c84ccedc9.html">Open session →</a> · <span class="mono muted">e35c84ccedc9</span></div>
+    </div>
+  </details>
   <details class="srow" data-session="2e729ea48f97" data-tags="area:refund|area:denial|">
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
@@ -381,13 +406,31 @@ function gfFilter(btn){ document.querySelectorAll('#filters .btn').forEach(b => 
       <div class="small"><a href="session-2e729ea48f97.html">Open session →</a> · <span class="mono muted">2e729ea48f97</span></div>
     </div>
   </details>
+  <details class="srow" data-session="3a886a33bb7a" data-tags="area:refund|area:fault handling|suite:regression|">
+    <summary>
+      <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+      <span class="ttl">Refund where the first attempt hits a backend error and the agent retries <span class="chip">refund</span><span class="chip">fault handling</span><span class="pill indigo" style="font-size:10.5px">regression</span> </span>
+      <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
+      <span class="cnt"><b class="p">3/3</b> last</span>
+      <span class="cnt"><a href="index.html" class="pill green" title="fix-1">3/3</a> </span>
+    </summary>
+    <div class="sbody">
+      <div class="cols4" style="margin:8px 0 10px">
+        <div><div class="h">Persona</div><b>Maria Lopez</b><div class="muted">chatty · en-US</div></div>
+        <div><div class="h">Goal</div>Get a full refund of $89.99 for order GW-48213, which arrived broken. If the agent says something failed, ask it to try again.</div>
+        <div><div class="h">Conditions</div><span class="chip">clean line</span></div>
+        <div><div class="h">Expected</div><span class="chip">refunded_after_retry</span><div class="muted mono" style="margin-top:3px">lookup_order → issue_refund</div></div>
+      </div>
+      <div class="small"><a href="session-3a886a33bb7a.html">Open session →</a> · <span class="mono muted">3a886a33bb7a</span></div>
+    </div>
+  </details>
   <details class="srow" data-session="cf6cec4de0e0" data-tags="area:refund|area:fault handling|suite:regression|">
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
       <span class="ttl">Refund where the order system returns a 500 on the first attempt <span class="chip">refund</span><span class="chip">fault handling</span><span class="pill indigo" style="font-size:10.5px">regression</span> </span>
       <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
       <span class="cnt"><b class="p">3/3</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill green" title="full-3">3/3</a> <a href="index.html" class="pill green" title="full-4">3/3</a> </span>
+      <span class="cnt"><a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill green" title="full-3">3/3</a> <a href="index.html" class="pill green" title="full-4">3/3</a> <a href="index.html" class="pill green" title="fix-1">3/3</a> </span>
     </summary>
     <div class="sbody">
       <div class="cols4" style="margin:8px 0 10px">
@@ -548,7 +591,7 @@ function gfFilter(btn){ document.querySelectorAll('#filters .btn').forEach(b => 
 <ul class="list small"><li><a href="session-ed0bca0e0d0d.html">Refund request fails first attempt due to backend error, then succeeds</a> <span class="mono muted">ed0bca0e0d0d</span></li><li><a href="session-a0e4e5e8d324.html">Refund request on already refunded order, agent denies refund</a> <span class="mono muted">a0e4e5e8d324</span></li></ul>
 </details>
 <p class="small muted" style="margin-top:12px">To add a session: use "New session" above, or copy a file in <code>sessions/</code>, edit it and run <code>gf sessions</code> to validate. Editing an existing file changes its id, so results stay tied to the exact definition they were produced with.</p>
-<footer>gatewayfutures 0.1.0 · static report generated 2026-10-09 00:48 UTC</footer>
+<footer>gatewayfutures 0.1.0 · static report generated 2026-10-09 01:30 UTC</footer>
 </main>
 </div>
 <div id="player"><span class="lbl"></span><audio controls preload="none"></audio><button class="btn sm" onclick="gfPlayer.close()">✕</button></div>

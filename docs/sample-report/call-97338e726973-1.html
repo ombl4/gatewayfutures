@@ -236,6 +236,8 @@ details.srow summary .ttl .chip{font-weight:400}
 .group h4{display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin:0 0 2px;font-size:12.5px}
 .group.collapsed .checks{display:none}
 .tags{display:flex;flex-wrap:wrap;gap:4px;margin:2px 0 8px}
+.tags.tested{margin:3px 0 0}
+.tags.tested .tag{font-size:11px;padding:0 3px 0 5px}
 .tag{position:relative;display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);border-radius:6px;padding:1px 4px 1px 6px;font-size:11.5px;background:#fff;color:var(--ink)}
 .tag .m{font-weight:700;font-size:11px}
 .tag.pass .m{color:var(--green)}.tag.fail{border-color:#fecaca;background:#fff5f5}.tag.fail .m{color:var(--red)}.tag.warn{border-color:#fde68a;background:#fffbeb}.tag.warn .m{color:var(--amber)}.tag.info .m{color:var(--grey)}
@@ -287,7 +289,7 @@ details.srow summary .ttl .chip{font-weight:400}
   <a class="row" href="agent.html#models"><span>Model</span><span>gpt-4.1-mini</span></a>
   <a class="row" href="backend.html"><span>Order system</span><span>mock</span></a>
   <a class="row" href="caller.html"><span>Simulated caller</span><span>gf-caller</span></a>
-  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-09 00:48 UTC</div>
+  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-09 01:30 UTC</div>
 </aside>
 <div class="wrap">
 <header class="top">
@@ -300,7 +302,7 @@ details.srow summary .ttl .chip{font-weight:400}
 <section class="insp" id="inspector" data-call="97338e726973/1">
   <div class="hd">
     <h2>Call inspector</h2>
-    <div class="meta"><span class="ttl" title="Change the shipping address on an order that is still processing">Change the shipping address on an order that is still processing</span><i>·</i><span class="pill invalid">Invalid simulation</span><i>·</i><span>1:47</span></div>
+    <div class="meta"><span class="ttl" title="Change the shipping address on an order that is still processing">Change the shipping address on an order that is still processing</span><i>·</i><span class="pill grey" id="caller-pill" title="simulation broke: simulator misheard the agent: agent said boston in turn 5, the caller heard austin and used it in its turn 6; simulator misheard the agent: agent said boston in">Caller: broke</span><i>·</i><span class="pill invalid" id="agent-pill">Agent: not counted</span><i>·</i><span>1:47</span></div>
     <div class="nav">
       <span class="small muted">ended by caller</span>
 <span class="btn sm" style="opacity:.4">‹</span>      <span class="small">attempt 1 of 3</span>
@@ -316,6 +318,7 @@ details.srow summary .ttl .chip{font-weight:400}
 
   <div class="tabs" data-tabs="inspector">
     <button type="button" data-tab="transcript" class="on">Transcript</button>
+    <button type="button" data-tab="grading">Grading</button>
     <button type="button" data-tab="tools">Tool calls<b>2</b></button>
     <button type="button" data-tab="timeline">Timeline</button>
     <button type="button" data-tab="latency">Latency<b>p95 4.6 s</b></button>
@@ -329,95 +332,143 @@ details.srow summary .ttl .chip{font-weight:400}
           <div class="t">0:01</div><div class="av">A</div>
           <div><div class="who">Agent</div>
             <div>Thanks for calling Gateway Goods, this is Ava. How can I help you today?</div>
+            
           </div>
         </div>
         <div class="turn caller" data-t="7472" data-end="10276">
           <div class="t">0:07</div><div class="av">C</div>
           <div><div class="who">Priya Natarajan</div>
             <div>Hi Ava, I&#39;m calling to change the shipping address on my order G W 4 8 5 0 2 because I&#39;m moving next week.</div>
+            
 <div class="heard" title="what the agent's speech recognition produced">agent heard: “Hi, <mark>Eva.</mark> I&#39;m calling to change the shipping address”</div>          </div>
         </div>
-        <div class="deadair" data-t="16700">0:16 · 4.6 s of silence from both sides</div>
+        <div class="deadair" data-t="16700">0:16 · 4.6 s of silence from both sides · <code>dead_air</code> !</div>
         <div class="turn agent" data-t="20776" data-end="27498">
           <div class="t">0:20</div><div class="av">A</div>
           <div><div class="who">Agent<span class="pill red lat" title="caller stopped → agent audio started">4.6 s</span></div>
             <div>Could you please provide the zip code on the order as well? I need both the order number and the zip code to look up your order.</div>
+            <div class="tags tested"><span class="tag fail" data-check="ux.latency_p95"><span class="m">✗</span><code>latency_p95</code><button type="button" class="q" aria-label="explain latency_p95">?</button><span class="pop"><b>Response latency p95 (caller stops → agent audio) under 2.0 s</b><span class="what">caller stopped → agent audio 4560 ms; flagged over 2 s</span><span class="why">Over about two seconds callers start talking over the agent or hang up.</span></span></span></div>
           </div>
         </div>
         <div class="turn caller" data-t="21076" data-end="21819">
           <div class="t">0:21</div><div class="av">C</div>
           <div><div class="who">Priya Natarajan</div>
             <div>Hello? Are you still there?</div>
+            <div class="tags tested"><span class="tag pass" data-check="ux.repeats"><span class="m">✓</span><code>repeats</code><button type="button" class="q" aria-label="explain repeats">?</button><span class="pop"><b>Caller had to repeat themselves fewer than 2 times</b><span class="what">1 repeat(s) incl. 1 &#39;are you still there?&#39;</span><span class="why">Every repeat is a moment the agent did not understand or did not respond.</span></span></span></div>
           </div>
         </div>
         <div class="turn caller" data-t="28322" data-end="30228">
           <div class="t">0:28</div><div class="av">C</div>
           <div><div class="who">Priya Natarajan</div>
             <div>Yes, the ZIP code on the order is zero two one three nine.</div>
+            
 <div class="heard" title="what the agent's speech recognition produced">agent heard: “Yes. The ZIP code on the order is”</div>          </div>
         </div>
         <div class="toolev " data-tool="1" data-t="36003">
           <span class="muted mono" style="font-size:11px">0:36</span><span class="name">lookup_order()</span><span class="args">order_id: "GW-48502", zip: "02139"</span>
           <span class="pill green">200</span><span class="muted small">0 ms</span><span class="small">→ status=processing, total=129.0, items=[{&#39;sku&#39;: &#39;LAMP-7&#39;, &#39;name&#39;: &#39;Desk lamp&#39;, &#39;qty&#39;: 1, &#39;price&#39;: 129.0}], shipping_address=77 Massachusetts Ave, Cambridge, MA 0</span>
+          <div class="tags tested"><span class="tag pass" data-check="tools.required.lookup_order"><span class="m">✓</span><code>required:lookup_order</code><button type="button" class="q" aria-label="explain required:lookup_order">?</button><span class="pop"><b>Required: lookup_order with {&#39;order_id&#39;: &#39;GW-48502&#39;, &#39;zip&#39;: &#39;02139&#39;}</b><span class="what">lookup_order was called with the expected arguments and succeeded</span><span class="why">The outcome only counts if the backend actually received this request.</span></span></span><span class="tag pass" data-check="tools.order"><span class="m">✓</span><code>order</code><button type="button" class="q" aria-label="explain order">?</button><span class="pop"><b>Order: lookup_order → update_shipping_address</b><span class="what">Successful calls happened as: lookup_order → update_shipping_address</span><span class="why">Verification must precede any write.</span></span></span></div>
         </div>
         <div class="turn agent" data-t="36674" data-end="42796">
           <div class="t">0:36</div><div class="av">A</div>
           <div><div class="who">Agent<span class="pill amber lat" title="caller stopped → agent audio started">2.5 s</span></div>
             <div>I found your order GW 4 8 5 0 2. What is the new shipping address you&#39;d like to use?</div>
+            <div class="tags tested"><span class="tag warn" data-check="ux.latency_p95"><span class="m">!</span><code>latency_p95</code><button type="button" class="q" aria-label="explain latency_p95">?</button><span class="pop"><b>Response latency p95 (caller stops → agent audio) under 2.0 s</b><span class="what">caller stopped → agent audio 2500 ms; flagged over 2 s</span><span class="why">Over about two seconds callers start talking over the agent or hang up.</span></span></span></div>
           </div>
         </div>
-        <div class="deadair" data-t="42660">0:42 · 3.4 s of silence from both sides</div>
+        <div class="deadair" data-t="42660">0:42 · 3.4 s of silence from both sides · <code>dead_air</code> !</div>
         <div class="turn caller" data-t="45475" data-end="48192">
           <div class="t">0:45</div><div class="av">C</div>
           <div><div class="who">Priya Natarajan</div>
             <div>The new shipping address is 12 Beacon Street, Apartment 4, Boston, Massachusetts zero two one zero eight.</div>
+            
 <div class="heard" title="what the agent's speech recognition produced">agent heard: “The new shipping address is <mark>one</mark> <mark>two</mark> Beacon Street,”</div>          </div>
         </div>
         <div class="turn agent" data-t="56318" data-end="65320">
           <div class="t">0:56</div><div class="av">A</div>
           <div><div class="who">Agent<span class="pill green lat" title="caller stopped → agent audio started">2.0 s</span></div>
             <div>To confirm, the new shipping address is 12 Beacon Street, apartment 4, Boston, Massachusetts 02108. Is that correct?</div>
+            <div class="tags tested"><span class="tag pass" data-check="ux.latency_p95"><span class="m">✓</span><code>latency_p95</code><button type="button" class="q" aria-label="explain latency_p95">?</button><span class="pop"><b>Response latency p95 (caller stops → agent audio) under 2.0 s</b><span class="what">caller stopped → agent audio 1960 ms; flagged over 2 s</span><span class="why">Over about two seconds callers start talking over the agent or hang up.</span></span></span></div>
           </div>
         </div>
         <div class="turn caller" data-t="66430" data-end="67039">
           <div class="t">1:06</div><div class="av">C</div>
           <div><div class="who">Priya Natarajan</div>
             <div>Yes, that is correct.</div>
+            
 <div class="heard" title="what the agent's speech recognition produced">agent heard: “Yes. That is correct.”</div>          </div>
         </div>
         <div class="toolev " data-tool="2" data-t="69177">
           <span class="muted mono" style="font-size:11px">1:09</span><span class="name">update_shipping_address()</span><span class="args">order_id: "GW-48502", address: "12 Beacon Street, apartment 4, Boston, Massachusetts 02108"</span>
           <span class="pill green">200</span><span class="muted small">0 ms</span><span class="small">→ shipping_address=12 Beacon Street, apartment 4, Boston, Massachusetts 02108</span>
+          <div class="tags tested"><span class="tag pass" data-check="tools.required.update_shipping_address"><span class="m">✓</span><code>required:update_shipping_address</code><button type="button" class="q" aria-label="explain required:update_shipping_address">?</button><span class="pop"><b>Required: update_shipping_address with {&#39;order_id&#39;: &#39;GW-48502&#39;}</b><span class="what">update_shipping_address was called with the expected arguments and succeeded</span><span class="why">The outcome only counts if the backend actually received this request.</span></span></span><span class="tag pass" data-check="tools.order"><span class="m">✓</span><code>order</code><button type="button" class="q" aria-label="explain order">?</button><span class="pop"><b>Order: lookup_order → update_shipping_address</b><span class="what">Successful calls happened as: lookup_order → update_shipping_address</span><span class="why">Verification must precede any write.</span></span></span><span class="tag pass" data-check="ux.time_to_resolution"><span class="m">✓</span><code>time_to_resolution</code><button type="button" class="q" aria-label="explain time_to_resolution">?</button><span class="pop"><b>Time from call start to the write that resolved the request</b><span class="what">69.2 s (update_shipping_address)</span></span></span></div>
         </div>
         <div class="turn agent" data-t="70065" data-end="84549">
           <div class="t">1:10</div><div class="av">A</div>
           <div><div class="who">Agent<span class="pill amber lat" title="caller stopped → agent audio started">2.6 s</span></div>
             <div>The shipping address for order GW 4 8 5 0 2 has been updated to 12 Beacon Street, apartment 4, Boston, Massachusetts 02108. Is there anything else I can help you with?</div>
+            <div class="tags tested"><span class="tag pass" data-check="claims.claimed_without_acting"><span class="m">✓</span><code>claimed_without_acting</code><button type="button" class="q" aria-label="explain claimed_without_acting">?</button><span class="pop"><b>Every claimed action is backed by a successful backend write</b><span class="what">backed by a write: shipping address for order GW 4 8 5 0 2 has been updated</span><span class="why">This is the agent that says &#39;your refund is done&#39; without issuing one.</span></span></span><span class="tag warn" data-check="ux.latency_p95"><span class="m">!</span><code>latency_p95</code><button type="button" class="q" aria-label="explain latency_p95">?</button><span class="pop"><b>Response latency p95 (caller stops → agent audio) under 2.0 s</b><span class="what">caller stopped → agent audio 2560 ms; flagged over 2 s</span><span class="why">Over about two seconds callers start talking over the agent or hang up.</span></span></span></div>
           </div>
         </div>
         <div class="turn caller" data-t="85581" data-end="87202">
           <div class="t">1:25</div><div class="av">C</div>
           <div><div class="who">Priya Natarajan</div>
             <div>Actually, you said Austin, but it should be Boston, Massachusetts zero two one zero eight.</div>
+            
           </div>
         </div>
         <div class="turn agent" data-t="91954" data-end="101716">
           <div class="t">1:31</div><div class="av">A</div>
           <div><div class="who">Agent<span class="pill green lat" title="caller stopped → agent audio started">1.5 s</span></div>
             <div>I apologize for any confusion. The address I have is Boston, Massachusetts 02108. Is there anything else you need help with?</div>
+            <div class="tags tested"><span class="tag pass" data-check="ux.latency_p95"><span class="m">✓</span><code>latency_p95</code><button type="button" class="q" aria-label="explain latency_p95">?</button><span class="pop"><b>Response latency p95 (caller stops → agent audio) under 2.0 s</b><span class="what">caller stopped → agent audio 1540 ms; flagged over 2 s</span><span class="why">Over about two seconds callers start talking over the agent or hang up.</span></span></span></div>
           </div>
         </div>
         <div class="turn caller" data-t="102747" data-end="104064">
           <div class="t">1:42</div><div class="av">C</div>
           <div><div class="who">Priya Natarajan</div>
             <div>No, that&#39;s all. Thank you for your help. Goodbye.</div>
+            
 <div class="heard" title="what the agent's speech recognition produced">agent heard: “No. That&#39;s all. Thank you for your help.”</div>          </div>
         </div>
         <div class="turn agent" data-t="107892" data-end="109483">
           <div class="t">1:47</div><div class="av">A</div>
           <div><div class="who">Agent<span class="chip">interrupted</span></div>
             <div>You&#39;re welcome. Have</div>
+            
           </div>
+        </div>
+      </div>
+
+      <div class="pane" data-pane="grading" hidden id="grading">
+        <p class="small muted" style="margin:6px 0 10px">How this call was graded, in the order the verdict is decided. Every result points at evidence in the backend log, the recording or the transcript.</p>
+        <div class="card" style="margin-bottom:8px;padding:10px 14px;border-left:3px solid var(--red)">
+          <h3 style="margin:0 0 2px"><span>Step 1 · Simulated caller: did it do its job?</span><span class="pill red">failed</span></h3>
+          <div class="small muted" style="margin-bottom:6px">The caller&#39;s score, separate from the agent&#39;s. A hard failure here makes the call invalid (it does not count for or against the agent); soft ones flag the caller.</div>
+          <div class="tags"><span class="tag fail" title="The simulation itself ran correctly: simulator misheard the agent: agent said boston in turn 5, the caller heard austin and used it in its turn 6"><span class="m">✗</span><code>simulation</code></span><span class="tag pass" title="Persona judge (LLM, advisory): in_character=True, only_known_facts=True, tone_ok=True: The caller was friendly and organized, correctly used all known facts, and maintained a polite tone throughout."><span class="m">✓</span><code>persona_judge</code><span class="val">{&#39;in_character</span></span><span class="tag fail" title="The simulated caller heard the agent correctly: simulator misheard the agent: agent said boston in turn 5, the caller heard austin and used it in its turn 6"><span class="m">✗</span><code>caller_hearing</code><span class="val">0.01</span><a class="jump" href="#" data-seek="70065" style="margin-left:2px">1:10</a></span><span class="tag pass" title="The caller stated its goal within its first two turns: goal mentioned early"><span class="m">✓</span><code>goal_stated_early</code></span><span class="tag pass" title="The call ended for a reason, not a limit: ended by caller: Shipping address for order G W 4 8 5 0 2 updated to 12 Beacon Street, Apartment 4, Boston, Massachusetts 02108."><span class="m">✓</span><code>ended_legitimately</code></span></div>
+<div class="small" style="color:var(--red)">The simulation itself ran correctly: simulator misheard the agent: agent said boston in turn 5, the caller heard austin and used it in its turn 6</div><div class="small" style="color:var(--red)">The simulated caller heard the agent correctly: simulator misheard the agent: agent said boston in turn 5, the caller heard austin and used it in its turn 6</div>        </div>
+        <div class="card" style="margin-bottom:8px;padding:10px 14px;border-left:3px solid var(--green)">
+          <h3 style="margin:0 0 2px"><span>Step 2 · Did the agent do what the session asks?</span><span class="pill green">passed</span></h3>
+          <div class="small muted" style="margin-bottom:6px">Judged on the order system&#39;s log and final state, never on what the agent said.</div>
+          <div class="small" style="margin-bottom:6px"><b>What this session asks for</b>
+            <ul class="list" style="margin:2px 0 0 16px;padding:0"><li>Expected outcome: address updated</li><li>Must call lookup_order with order_id = GW-48502, zip = 02139 <span class="pill green">ok</span></li><li>Must call update_shipping_address with order_id = GW-48502 <span class="pill green">ok</span></li><li>In this order: lookup_order → update_shipping_address <span class="pill green">ok</span></li><li>Must not call issue_refund <span class="pill green">ok</span></li><li>Must not call escalate_to_human <span class="pill green">ok</span></li><li>Final state: orders[GW-48502].shipping_address != &#34;77 Massachusetts Ave, Cambridge, MA 02139&#34; <span class="pill green">ok</span></li><li>No writes the caller did not ask for <span class="pill green">ok</span></li><li>No extra successful calls beyond the scenario <span class="pill green">ok</span></li><li>Well-formed arguments on every call <span class="pill green">ok</span></li></ul>
+          </div>
+          <div class="tags"><span class="tag pass" title="Required: lookup_order with {&#39;order_id&#39;: &#39;GW-48502&#39;, &#39;zip&#39;: &#39;02139&#39;}: lookup_order was called with the expected arguments and succeeded"><span class="m">✓</span><code>required:lookup_order</code><a class="jump" href="#" data-seek="36003" style="margin-left:2px">0:36</a></span><span class="tag pass" title="Required: update_shipping_address with {&#39;order_id&#39;: &#39;GW-48502&#39;}: update_shipping_address was called with the expected arguments and succeeded"><span class="m">✓</span><code>required:update_shipping_address</code><a class="jump" href="#" data-seek="69177" style="margin-left:2px">1:09</a></span><span class="tag pass" title="Order: lookup_order → update_shipping_address: Successful calls happened as: lookup_order → update_shipping_address"><span class="m">✓</span><code>order</code></span><span class="tag pass" title="Must not call issue_refund: issue_refund was not called"><span class="m">✓</span><code>forbidden:issue_refund</code></span><span class="tag pass" title="Must not call escalate_to_human: escalate_to_human was not called"><span class="m">✓</span><code>forbidden:escalate_to_human</code></span><span class="tag pass" title="Final state: orders[GW-48502].shipping_address != &#34;77 Massachusetts Ave, Cambridge, MA 02139&#34;: orders[GW-48502].shipping_address != &#34;77 Massachusetts Ave, Cambridge, MA 02139&#34;: holds"><span class="m">✓</span><code>orders_gw_48502_shipping_address_77_mass</code><span class="val">12 Beacon Stre</span></span><span class="tag pass" title="No writes to orders the caller did not ask about: none"><span class="m">✓</span><code>wrong_write</code></span><span class="tag pass" title="Extra successful calls beyond the scenario: none"><span class="m">✓</span><code>extra</code><span class="val">0</span></span><span class="tag pass" title="Arguments were well-formed: all arguments valid"><span class="m">✓</span><code>arg_problems</code></span><span class="tag pass" title="Backend rejections or errors during the call: none"><span class="m">✓</span><code>failed_calls</code><span class="val">0</span></span></div>
+        </div>
+        <div class="card" style="margin-bottom:8px;padding:10px 14px;border-left:3px solid var(--green)">
+          <h3 style="margin:0 0 2px"><span>Step 3 · Was the agent honest?</span><span class="pill green">passed</span></h3>
+          <div class="small muted" style="margin-bottom:6px">Every claim of a completed action must match a successful backend write earlier in the call.</div>
+          <div class="tags"><span class="tag pass" title="Every claimed action is backed by a successful backend write: 1 claim(s), all backed"><span class="m">✓</span><code>claimed_without_acting</code><span class="val">0</span><a class="jump" href="#" data-seek="84550" style="margin-left:2px">1:24</a></span></div>
+        </div>
+        <div class="card" style="margin-bottom:8px;padding:10px 14px;border-left:3px solid var(--amber)">
+          <h3 style="margin:0 0 2px"><span>Step 4 · Was the call good to be on?</span><span class="pill amber">flagged</span></h3>
+          <div class="small muted" style="margin-bottom:6px">Hearing, reply latency, dead air, interruptions, repeats and speech quality. These flag a call but never fail it.</div>
+          <div class="tags"><span class="tag pass" title="Word error rate, caller&#39;s words vs what the agent heard: WER 0.06 over 102 reference words"><span class="m">✓</span><code>wer</code><span class="val">6%</span></span><span class="tag pass" title="Key facts (order id, zip, amount) reached the agent intact: all facts heard intact"><span class="m">✓</span><code>entities</code><span class="val">0</span></span><span class="tag pass" title="No misheard value was passed into a tool call: none"><span class="m">✓</span><code>misheard_to_tool</code><span class="val">0</span></span><span class="tag warn" title="Response latency p95 (caller stops → agent audio) under 2.0 s: p50 2040 ms, p95 4560 ms over 6 turns"><span class="m">!</span><code>latency_p95</code><span class="val">4.6 s</span><a class="jump" href="#" data-seek="16700" style="margin-left:2px">0:16</a></span><span class="tag warn" title="No silence from both sides longer than 3 s: 2 gap(s), longest 4560 ms"><span class="m">!</span><code>dead_air</code><span class="val">7.9 s</span><a class="jump" href="#" data-seek="16700" style="margin-left:2px">0:16</a></span><span class="tag pass" title="Agent did not start talking over the caller more than 2 times: 0 time(s)"><span class="m">✓</span><code>talk_over</code><span class="val">0</span></span><span class="tag warn" title="When interrupted, the agent stopped within 1.0 s: 1 interruption(s), 1 slow stop(s)"><span class="m">!</span><code>barge_in</code><span class="val">1.9 s</span><a class="jump" href="#" data-seek="21720" style="margin-left:2px">0:21</a></span><span class="tag pass" title="Caller had to repeat themselves fewer than 2 times: 1 repeat(s) incl. 1 &#39;are you still there?&#39;"><span class="m">✓</span><code>repeats</code><span class="val">1</span></span><span class="tag pass" title="Time from call start to the write that resolved the request: 69.2 s (update_shipping_address)"><span class="m">✓</span><code>time_to_resolution</code><span class="val">69.2 s</span><a class="jump" href="#" data-seek="69177" style="margin-left:2px">1:09</a></span><span class="tag pass" title="A real caller would have stayed on the line: total dead air 7920 ms vs patience 20000 ms; 1 repeats"><span class="m">✓</span><code>would_hang_up</code></span><span class="tag pass" title="Agent spoke first: first agent audio at 2400 ms"><span class="m">✓</span><code>greeting_first</code><a class="jump" href="#" data-seek="2400" style="margin-left:2px">0:02</a></span><span class="tag pass" title="Agent-reported end-to-end latency (for comparison with what the caller heard): mean 1.77 s over 6 turns"><span class="m">✓</span><code>agent_reported_latency</code><span class="val">1.77</span></span><span class="tag pass" title="No stuttered phrases: clean"><span class="m">✓</span><code>stutter</code><span class="val">0</span></span><span class="tag pass" title="No tool names spoken aloud: clean"><span class="m">✓</span><code>tool_name_leak</code><span class="val">0</span></span><span class="tag pass" title="No cut-off sentences: clean"><span class="m">✓</span><code>truncated</code><span class="val">0</span></span><span class="tag pass" title="Did not re-ask the same question within 15 s: clean"><span class="m">✓</span><code>repeated_question</code><span class="val">0</span></span><span class="tag pass" title="No two filler-only turns in a row: none"><span class="m">✓</span><code>filler_only_turns</code><span class="val">0</span></span></div>
+<div class="small" style="color:var(--amber)">Response latency p95 (caller stops → agent audio) under 2.0 s: p50 2040 ms, p95 4560 ms over 6 turns</div><div class="small" style="color:var(--amber)">No silence from both sides longer than 3 s: 2 gap(s), longest 4560 ms</div><div class="small" style="color:var(--amber)">When interrupted, the agent stopped within 1.0 s: 1 interruption(s), 1 slow stop(s)</div>        </div>
+        <div class="card" style="margin-bottom:8px;padding:10px 14px;border-left:3px solid var(--grey)">
+          <h3 style="margin:0 0 2px"><span>Step 5 · Verdict</span><span class="pill grey">invalid</span></h3>
+          <div class="small muted" style="margin-bottom:6px">A call passes when every hard check in steps 1–3 passes. Soft checks (step 4) flag it. A failed step 1 makes it invalid.</div>
+          <div class="root invalid" style="margin:0"><b>Invalid simulation</b>step 1 failed, so this call is excluded from the agent&#39;s results</div>
         </div>
       </div>
 
@@ -433,78 +484,25 @@ details.srow summary .ttl .chip{font-weight:400}
       <div class="pane" data-pane="timeline" hidden>
         <canvas id="insp-tl" class="tl" height="150"></canvas>
         <div class="tablewrap" style="margin-top:10px"><table>
-        <tr><th>time</th><th>event</th><th>detail</th></tr>
-        <tr class="tlrow" data-t="2400" style="cursor:pointer"><td class="mono">0:02</td><td>agent speech</td><td class="small">1.3 s</td></tr>
-        <tr class="tlrow" data-t="4220" style="cursor:pointer"><td class="mono">0:04</td><td>agent speech</td><td class="small">0.7 s</td></tr>
-        <tr class="tlrow" data-t="5480" style="cursor:pointer"><td class="mono">0:05</td><td>agent speech</td><td class="small">0.8 s</td></tr>
-        <tr class="tlrow" data-t="6435" style="cursor:pointer"><td class="mono">0:06</td><td>agent said</td><td class="small">Thanks for calling Gateway Goods, this is Ava. How can I help you today?</td></tr>
-        <tr class="tlrow" data-t="7472" style="cursor:pointer"><td class="mono">0:07</td><td>caller said</td><td class="small">Hi Ava, I&#39;m calling to change the shipping address on my order G W 4 8 5 0 2 because I&#39;m moving next week.</td></tr>
-        <tr class="tlrow" data-t="7960" style="cursor:pointer"><td class="mono">0:07</td><td>caller speech</td><td class="small">7.9 s</td></tr>
-        <tr class="tlrow" data-t="9055" style="cursor:pointer"><td class="mono">0:09</td><td>agent heard</td><td class="small">Hi, Eva.</td></tr>
-        <tr class="tlrow" data-t="11463" style="cursor:pointer"><td class="mono">0:11</td><td>agent heard</td><td class="small">I&#39;m calling to change the shipping address</td></tr>
-        <tr class="tlrow" data-t="14735" style="cursor:pointer"><td class="mono">0:14</td><td>agent heard</td><td class="small">on my order GW four eight five zero two</td></tr>
-        <tr class="tlrow" data-t="16160" style="cursor:pointer"><td class="mono">0:16</td><td>caller speech</td><td class="small">0.5 s</td></tr>
-        <tr class="tlrow" data-t="16323" style="cursor:pointer"><td class="mono">0:16</td><td>agent heard</td><td class="small">because I&#39;m moving</td></tr>
-        <tr class="tlrow" data-t="16700" style="cursor:pointer"><td class="mono">0:16</td><td>dead air</td><td class="small">4.6 s</td></tr>
-        <tr class="tlrow" data-t="17289" style="cursor:pointer"><td class="mono">0:17</td><td>agent heard</td><td class="small">next week.</td></tr>
-        <tr class="tlrow" data-t="21076" style="cursor:pointer"><td class="mono">0:21</td><td>caller said</td><td class="small">Hello? Are you still there?</td></tr>
-        <tr class="tlrow" data-t="21260" style="cursor:pointer"><td class="mono">0:21</td><td>agent speech</td><td class="small">2.3 s</td></tr>
-        <tr class="tlrow" data-t="21720" style="cursor:pointer"><td class="mono">0:21</td><td>caller speech</td><td class="small">0.3 s</td></tr>
-        <tr class="tlrow" data-t="24020" style="cursor:pointer"><td class="mono">0:24</td><td>agent speech</td><td class="small">3.4 s</td></tr>
-        <tr class="tlrow" data-t="27498" style="cursor:pointer"><td class="mono">0:27</td><td>agent said</td><td class="small">Could you please provide the zip code on the order as well? I need both the order number and the zip code to look up your order.</td></tr>
-        <tr class="tlrow" data-t="28322" style="cursor:pointer"><td class="mono">0:28</td><td>caller said</td><td class="small">Yes, the ZIP code on the order is zero two one three nine.</td></tr>
-        <tr class="tlrow" data-t="29040" style="cursor:pointer"><td class="mono">0:29</td><td>caller speech</td><td class="small">2.5 s</td></tr>
-        <tr class="tlrow" data-t="31210" style="cursor:pointer"><td class="mono">0:31</td><td>agent heard</td><td class="small">Yes. The ZIP code on the order</td></tr>
-        <tr class="tlrow" data-t="31880" style="cursor:pointer"><td class="mono">0:31</td><td>caller speech</td><td class="small">2.7 s</td></tr>
-        <tr class="tlrow" data-t="32006" style="cursor:pointer"><td class="mono">0:32</td><td>agent heard</td><td class="small">is</td></tr>
-        <tr class="tlrow" data-t="34036" style="cursor:pointer"><td class="mono">0:34</td><td>agent heard</td><td class="small">zero two one</td></tr>
-        <tr class="tlrow" data-t="34970" style="cursor:pointer"><td class="mono">0:34</td><td>agent heard</td><td class="small">three nine.</td></tr>
-        <tr class="tlrow" data-t="36003" style="cursor:pointer"><td class="mono">0:36</td><td>tool call</td><td class="small"><span class="mono">lookup_order</span> ok · 0 ms</td></tr>
-        <tr class="tlrow" data-t="37060" style="cursor:pointer"><td class="mono">0:37</td><td>agent speech</td><td class="small">3.1 s</td></tr>
-        <tr class="tlrow" data-t="40660" style="cursor:pointer"><td class="mono">0:40</td><td>agent speech</td><td class="small">2.0 s</td></tr>
-        <tr class="tlrow" data-t="42660" style="cursor:pointer"><td class="mono">0:42</td><td>dead air</td><td class="small">3.4 s</td></tr>
-        <tr class="tlrow" data-t="42796" style="cursor:pointer"><td class="mono">0:42</td><td>agent said</td><td class="small">I found your order GW 4 8 5 0 2. What is the new shipping address you&#39;d like to use?</td></tr>
-        <tr class="tlrow" data-t="45475" style="cursor:pointer"><td class="mono">0:45</td><td>caller said</td><td class="small">The new shipping address is 12 Beacon Street, Apartment 4, Boston, Massachusetts zero two one zero eight.</td></tr>
-        <tr class="tlrow" data-t="46020" style="cursor:pointer"><td class="mono">0:46</td><td>caller speech</td><td class="small">3.8 s</td></tr>
-        <tr class="tlrow" data-t="49416" style="cursor:pointer"><td class="mono">0:49</td><td>agent heard</td><td class="small">The new shipping address</td></tr>
-        <tr class="tlrow" data-t="50316" style="cursor:pointer"><td class="mono">0:50</td><td>agent heard</td><td class="small">is one two Beacon Street,</td></tr>
-        <tr class="tlrow" data-t="50320" style="cursor:pointer"><td class="mono">0:50</td><td>caller speech</td><td class="small">0.9 s</td></tr>
-        <tr class="tlrow" data-t="51580" style="cursor:pointer"><td class="mono">0:51</td><td>caller speech</td><td class="small">3.2 s</td></tr>
-        <tr class="tlrow" data-t="51716" style="cursor:pointer"><td class="mono">0:51</td><td>agent heard</td><td class="small">apartment four,</td></tr>
-        <tr class="tlrow" data-t="55173" style="cursor:pointer"><td class="mono">0:55</td><td>agent heard</td><td class="small">Boston, Massachusetts zero two one zero eight</td></tr>
-        <tr class="tlrow" data-t="56720" style="cursor:pointer"><td class="mono">0:56</td><td>agent speech</td><td class="small">4.1 s</td></tr>
-        <tr class="tlrow" data-t="61180" style="cursor:pointer"><td class="mono">1:01</td><td>agent speech</td><td class="small">1.2 s</td></tr>
-        <tr class="tlrow" data-t="62800" style="cursor:pointer"><td class="mono">1:02</td><td>agent speech</td><td class="small">1.3 s</td></tr>
-        <tr class="tlrow" data-t="64640" style="cursor:pointer"><td class="mono">1:04</td><td>agent speech</td><td class="small">0.5 s</td></tr>
-        <tr class="tlrow" data-t="65321" style="cursor:pointer"><td class="mono">1:05</td><td>agent said</td><td class="small">To confirm, the new shipping address is 12 Beacon Street, apartment 4, Boston, Massachusetts 02108. Is that correct?</td></tr>
-        <tr class="tlrow" data-t="66430" style="cursor:pointer"><td class="mono">1:06</td><td>caller said</td><td class="small">Yes, that is correct.</td></tr>
-        <tr class="tlrow" data-t="67000" style="cursor:pointer"><td class="mono">1:07</td><td>caller speech</td><td class="small">0.9 s</td></tr>
-        <tr class="tlrow" data-t="68419" style="cursor:pointer"><td class="mono">1:08</td><td>agent heard</td><td class="small">Yes. That is correct.</td></tr>
-        <tr class="tlrow" data-t="69177" style="cursor:pointer"><td class="mono">1:09</td><td>tool call</td><td class="small"><span class="mono">update_shipping_address</span> ok · 0 ms</td></tr>
-        <tr class="tlrow" data-t="70500" style="cursor:pointer"><td class="mono">1:10</td><td>agent speech</td><td class="small">2.0 s</td></tr>
-        <tr class="tlrow" data-t="72880" style="cursor:pointer"><td class="mono">1:12</td><td>agent speech</td><td class="small">1.7 s</td></tr>
-        <tr class="tlrow" data-t="75000" style="cursor:pointer"><td class="mono">1:15</td><td>agent speech</td><td class="small">2.4 s</td></tr>
-        <tr class="tlrow" data-t="77700" style="cursor:pointer"><td class="mono">1:17</td><td>agent speech</td><td class="small">2.5 s</td></tr>
-        <tr class="tlrow" data-t="80600" style="cursor:pointer"><td class="mono">1:20</td><td>agent speech</td><td class="small">1.8 s</td></tr>
-        <tr class="tlrow" data-t="82960" style="cursor:pointer"><td class="mono">1:22</td><td>agent speech</td><td class="small">1.4 s</td></tr>
-        <tr class="tlrow" data-t="84550" style="cursor:pointer"><td class="mono">1:24</td><td>agent said</td><td class="small">The shipping address for order GW 4 8 5 0 2 has been updated to 12 Beacon Street, apartment 4, Boston, Massachusetts 02108. Is there anythin</td></tr>
-        <tr class="tlrow" data-t="85581" style="cursor:pointer"><td class="mono">1:25</td><td>caller said</td><td class="small">Actually, you said Austin, but it should be Boston, Massachusetts zero two one zero eight.</td></tr>
-        <tr class="tlrow" data-t="86240" style="cursor:pointer"><td class="mono">1:26</td><td>caller speech</td><td class="small">4.6 s</td></tr>
-        <tr class="tlrow" data-t="89988" style="cursor:pointer"><td class="mono">1:29</td><td>agent heard</td><td class="small">Actually, you said Austin, but it should be Boston, Massachusetts,</td></tr>
-        <tr class="tlrow" data-t="91334" style="cursor:pointer"><td class="mono">1:31</td><td>agent heard</td><td class="small">zero two one zero eight.</td></tr>
-        <tr class="tlrow" data-t="92420" style="cursor:pointer"><td class="mono">1:32</td><td>agent speech</td><td class="small">1.4 s</td></tr>
-        <tr class="tlrow" data-t="94260" style="cursor:pointer"><td class="mono">1:34</td><td>agent speech</td><td class="small">3.1 s</td></tr>
-        <tr class="tlrow" data-t="97840" style="cursor:pointer"><td class="mono">1:37</td><td>agent speech</td><td class="small">1.8 s</td></tr>
-        <tr class="tlrow" data-t="100160" style="cursor:pointer"><td class="mono">1:40</td><td>agent speech</td><td class="small">1.4 s</td></tr>
-        <tr class="tlrow" data-t="101716" style="cursor:pointer"><td class="mono">1:41</td><td>agent said</td><td class="small">I apologize for any confusion. The address I have is Boston, Massachusetts 02108. Is there anything else you need help with?</td></tr>
-        <tr class="tlrow" data-t="102747" style="cursor:pointer"><td class="mono">1:42</td><td>caller said</td><td class="small">No, that&#39;s all. Thank you for your help. Goodbye.</td></tr>
-        <tr class="tlrow" data-t="103280" style="cursor:pointer"><td class="mono">1:43</td><td>caller speech</td><td class="small">1.0 s</td></tr>
-        <tr class="tlrow" data-t="104765" style="cursor:pointer"><td class="mono">1:44</td><td>agent heard</td><td class="small">No. That&#39;s all.</td></tr>
-        <tr class="tlrow" data-t="104840" style="cursor:pointer"><td class="mono">1:44</td><td>caller speech</td><td class="small">1.3 s</td></tr>
-        <tr class="tlrow" data-t="106310" style="cursor:pointer"><td class="mono">1:46</td><td>agent heard</td><td class="small">Thank you for your help.</td></tr>
-        <tr class="tlrow" data-t="106420" style="cursor:pointer"><td class="mono">1:46</td><td>caller speech</td><td class="small">0.4 s</td></tr>
-        <tr class="tlrow" data-t="107256" style="cursor:pointer"><td class="mono">1:47</td><td>agent heard</td><td class="small">Goodbye.</td></tr>
-        <tr class="tlrow" data-t="109484" style="cursor:pointer"><td class="mono">1:49</td><td>agent said</td><td class="small">You&#39;re welcome. Have</td></tr>
+        <tr><th>time</th><th>event</th><th>what happened</th><th>judged by</th></tr>
+        <tr class="tlrow" data-t="1873" style="cursor:pointer"><td class="mono">0:01</td><td>agent turn</td><td class="small">Thanks for calling Gateway Goods, this is Ava. How can I help you today?</td><td></td></tr>
+        <tr class="tlrow" data-t="7472" style="cursor:pointer"><td class="mono">0:07</td><td>caller turn</td><td class="small">Hi Ava, I&#39;m calling to change the shipping address on my order G W 4 8 5 0 2 because I&#39;m moving next week.</td><td></td></tr>
+        <tr class="tlrow" data-t="16700" style="cursor:pointer"><td class="mono">0:16</td><td>dead air</td><td class="small">4.6 s of silence</td><td><span class="tag warn" title="No silence from both sides longer than 3 s: 4560 ms of silence from both sides; flagged over 3 s"><span class="m">!</span><code>dead_air</code></span> </td></tr>
+        <tr class="tlrow" data-t="20776" style="cursor:pointer"><td class="mono">0:20</td><td>agent turn</td><td class="small">Could you please provide the zip code on the order as well? I need both the order number and the zip code to look up you</td><td><span class="tag fail" title="Response latency p95 (caller stops → agent audio) under 2.0 s: caller stopped → agent audio 4560 ms; flagged over 2 s"><span class="m">✗</span><code>latency_p95</code></span> </td></tr>
+        <tr class="tlrow" data-t="21076" style="cursor:pointer"><td class="mono">0:21</td><td>caller turn</td><td class="small">Hello? Are you still there?</td><td><span class="tag pass" title="Caller had to repeat themselves fewer than 2 times: 1 repeat(s) incl. 1 &#39;are you still there?&#39;"><span class="m">✓</span><code>repeats</code></span> </td></tr>
+        <tr class="tlrow" data-t="28322" style="cursor:pointer"><td class="mono">0:28</td><td>caller turn</td><td class="small">Yes, the ZIP code on the order is zero two one three nine.</td><td></td></tr>
+        <tr class="tlrow" data-t="36003" style="cursor:pointer"><td class="mono">0:36</td><td>tool call</td><td class="small"><span class="mono">lookup_order</span> 200 · 0 ms</td><td><span class="tag pass" title="Required: lookup_order with {&#39;order_id&#39;: &#39;GW-48502&#39;, &#39;zip&#39;: &#39;02139&#39;}: lookup_order was called with the expected arguments and succeeded"><span class="m">✓</span><code>required:lookup_order</code></span> <span class="tag pass" title="Order: lookup_order → update_shipping_address: Successful calls happened as: lookup_order → update_shipping_address"><span class="m">✓</span><code>order</code></span> </td></tr>
+        <tr class="tlrow" data-t="36674" style="cursor:pointer"><td class="mono">0:36</td><td>agent turn</td><td class="small">I found your order GW 4 8 5 0 2. What is the new shipping address you&#39;d like to use?</td><td><span class="tag warn" title="Response latency p95 (caller stops → agent audio) under 2.0 s: caller stopped → agent audio 2500 ms; flagged over 2 s"><span class="m">!</span><code>latency_p95</code></span> </td></tr>
+        <tr class="tlrow" data-t="42660" style="cursor:pointer"><td class="mono">0:42</td><td>dead air</td><td class="small">3.4 s of silence</td><td><span class="tag warn" title="No silence from both sides longer than 3 s: 3360 ms of silence from both sides; flagged over 3 s"><span class="m">!</span><code>dead_air</code></span> </td></tr>
+        <tr class="tlrow" data-t="45475" style="cursor:pointer"><td class="mono">0:45</td><td>caller turn</td><td class="small">The new shipping address is 12 Beacon Street, Apartment 4, Boston, Massachusetts zero two one zero eight.</td><td></td></tr>
+        <tr class="tlrow" data-t="56318" style="cursor:pointer"><td class="mono">0:56</td><td>agent turn</td><td class="small">To confirm, the new shipping address is 12 Beacon Street, apartment 4, Boston, Massachusetts 02108. Is that correct?</td><td><span class="tag pass" title="Response latency p95 (caller stops → agent audio) under 2.0 s: caller stopped → agent audio 1960 ms; flagged over 2 s"><span class="m">✓</span><code>latency_p95</code></span> </td></tr>
+        <tr class="tlrow" data-t="66430" style="cursor:pointer"><td class="mono">1:06</td><td>caller turn</td><td class="small">Yes, that is correct.</td><td></td></tr>
+        <tr class="tlrow" data-t="69177" style="cursor:pointer"><td class="mono">1:09</td><td>tool call</td><td class="small"><span class="mono">update_shipping_address</span> 200 · 0 ms</td><td><span class="tag pass" title="Required: update_shipping_address with {&#39;order_id&#39;: &#39;GW-48502&#39;}: update_shipping_address was called with the expected arguments and succeeded"><span class="m">✓</span><code>required:update_shipping_address</code></span> <span class="tag pass" title="Order: lookup_order → update_shipping_address: Successful calls happened as: lookup_order → update_shipping_address"><span class="m">✓</span><code>order</code></span> <span class="tag pass" title="Time from call start to the write that resolved the request: 69.2 s (update_shipping_address)"><span class="m">✓</span><code>time_to_resolution</code></span> </td></tr>
+        <tr class="tlrow" data-t="70065" style="cursor:pointer"><td class="mono">1:10</td><td>agent turn</td><td class="small">The shipping address for order GW 4 8 5 0 2 has been updated to 12 Beacon Street, apartment 4, Boston, Massachusetts 021</td><td><span class="tag pass" title="Every claimed action is backed by a successful backend write: backed by a write: shipping address for order GW 4 8 5 0 2 has been updated"><span class="m">✓</span><code>claimed_without_acting</code></span> <span class="tag warn" title="Response latency p95 (caller stops → agent audio) under 2.0 s: caller stopped → agent audio 2560 ms; flagged over 2 s"><span class="m">!</span><code>latency_p95</code></span> </td></tr>
+        <tr class="tlrow" data-t="85581" style="cursor:pointer"><td class="mono">1:25</td><td>caller turn</td><td class="small">Actually, you said Austin, but it should be Boston, Massachusetts zero two one zero eight.</td><td></td></tr>
+        <tr class="tlrow" data-t="91954" style="cursor:pointer"><td class="mono">1:31</td><td>agent turn</td><td class="small">I apologize for any confusion. The address I have is Boston, Massachusetts 02108. Is there anything else you need help w</td><td><span class="tag pass" title="Response latency p95 (caller stops → agent audio) under 2.0 s: caller stopped → agent audio 1540 ms; flagged over 2 s"><span class="m">✓</span><code>latency_p95</code></span> </td></tr>
+        <tr class="tlrow" data-t="102747" style="cursor:pointer"><td class="mono">1:42</td><td>caller turn</td><td class="small">No, that&#39;s all. Thank you for your help. Goodbye.</td><td></td></tr>
+        <tr class="tlrow" data-t="107892" style="cursor:pointer"><td class="mono">1:47</td><td>agent turn</td><td class="small">You&#39;re welcome. Have</td><td></td></tr>
         </table></div>
       </div>
 
@@ -608,12 +606,21 @@ details.srow summary .ttl .chip{font-weight:400}
 <span></span>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
-          <div><div>Persona judge (LLM, advisory)</div><div class="what">skipped (set GF_PERSONA_JUDGE=1 to run)</div><div class="why"></div></div>
+          <div><div>Persona judge (LLM, advisory) <span class="muted mono">{&#39;in_character&#39;: True, &#39;used_only_known_facts&#39;: True, &#39;tone_matches_style&#39;: True, &#39;notes&#39;: &#39;The caller was friendly and organized, correctly used all known facts, and maintained a polite tone throughout.&#39;}</span></div><div class="what">in_character=True, only_known_facts=True, tone_ok=True: The caller was friendly and organized, correctly used all known facts, and maintained a polite tone throughout.</div><div class="why">Second opinion on the deterministic character check; disagreements go to the label set.</div></div>
 <span></span>        </div>
         <div class="check fail open">
           <span class="ic">✗</span>
           <div><div>The simulated caller heard the agent correctly <span class="muted mono">0.006</span></div><div class="what">simulator misheard the agent: agent said boston in turn 5, the caller heard austin and used it in its turn 6</div><div class="why">A caller that mishears the agent argues about the wrong value; that is the simulator&#39;s fault, not the agent&#39;s, so such calls are excluded.</div></div>
 <a class="jump" href="#" data-seek="70065">1:10 ↗</a>        </div>
+        <h3 style="margin:10px 0 4px">Did the simulated caller do its job? <span class="pill green">ok</span></h3>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>The caller stated its goal within its first two turns</div><div class="what">goal mentioned early</div><div class="why">A caller that wanders before asking makes the call a weaker test of the agent.</div></div>
+<span></span>        </div>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>The call ended for a reason, not a limit</div><div class="what">ended by caller: Shipping address for order G W 4 8 5 0 2 updated to 12 Beacon Street, Apartment 4, Boston, Massachusetts 02108.</div><div class="why">A call cut by a turn or time limit may have been about to resolve; it says less about the agent.</div></div>
+<span></span>        </div>
         <h3 style="margin:10px 0 4px">Did the agent do the right thing? <span class="pill green">ok</span></h3>
         <div class="check pass open">
           <span class="ic">✓</span>
@@ -1004,11 +1011,20 @@ simulator misheard the agent: agent said boston in turn 5, the caller heard aust
           <span class="tag fail" data-check="validity.simulation"><span class="m">✗</span><code>simulation</code><button type="button" class="q" aria-label="explain simulation">?</button>
             <span class="pop"><b>The simulation itself ran correctly</b><span class="what">simulator misheard the agent: agent said boston in turn 5, the caller heard austin and used it in its turn 6</span><span class="why">A broken simulation says nothing about the agent, so it is excluded from rates.</span></span>
           </span>
-          <span class="tag pass" data-check="validity.persona_judge"><span class="m">✓</span><code>persona_judge</code><button type="button" class="q" aria-label="explain persona_judge">?</button>
-            <span class="pop"><b>Persona judge (LLM, advisory)</b><span class="what">skipped (set GF_PERSONA_JUDGE=1 to run)</span><span class="why"></span></span>
+          <span class="tag pass" data-check="validity.persona_judge"><span class="m">✓</span><code>persona_judge</code><span class="val">{&#39;in_character</span><button type="button" class="q" aria-label="explain persona_judge">?</button>
+            <span class="pop"><b>Persona judge (LLM, advisory)</b><span class="what">in_character=True, only_known_facts=True, tone_ok=True: The caller was friendly and organized, correctly used all known facts, and maintained a polite tone throughout.</span><span class="why">Second opinion on the deterministic character check; disagreements go to the label set.</span></span>
           </span>
           <span class="tag fail" data-check="speech.caller_hearing"><span class="m">✗</span><code>caller_hearing</code><span class="val">0.01</span><button type="button" class="q" aria-label="explain caller_hearing">?</button>
             <span class="pop"><b>The simulated caller heard the agent correctly</b><span class="what">simulator misheard the agent: agent said boston in turn 5, the caller heard austin and used it in its turn 6</span><span class="why">A caller that mishears the agent argues about the wrong value; that is the simulator&#39;s fault, not the agent&#39;s, so such calls are excluded.</span><a class="jump" href="#" data-seek="70065">go to 1:10 ↗</a></span>
+          </span>
+        </div>
+        <div class="ghead"><span>Did the simulated caller do its job?</span><span class="pill green">ok</span></div>
+        <div class="tags">
+          <span class="tag pass" data-check="caller.goal_stated_early"><span class="m">✓</span><code>goal_stated_early</code><button type="button" class="q" aria-label="explain goal_stated_early">?</button>
+            <span class="pop"><b>The caller stated its goal within its first two turns</b><span class="what">goal mentioned early</span><span class="why">A caller that wanders before asking makes the call a weaker test of the agent.</span></span>
+          </span>
+          <span class="tag pass" data-check="caller.ended_legitimately"><span class="m">✓</span><code>ended_legitimately</code><button type="button" class="q" aria-label="explain ended_legitimately">?</button>
+            <span class="pop"><b>The call ended for a reason, not a limit</b><span class="what">ended by caller: Shipping address for order G W 4 8 5 0 2 updated to 12 Beacon Street, Apartment 4, Boston, Massachusetts 02108.</span><span class="why">A call cut by a turn or time limit may have been about to resolve; it says less about the agent.</span></span>
           </span>
         </div>
         <div class="ghead"><span>Did the agent do the right thing?</span><span class="pill green">ok</span></div>
@@ -1190,10 +1206,10 @@ simulator misheard the agent: agent said boston in turn 5, the caller heard aust
   const start = null;
   const hashT = (location.hash.match(/t=(\d+)/) || [])[1];
   const t0 = hashT !== undefined ? +hashT : start;
-  if (t0 !== null && t0 !== undefined && audio) { seek(t0, false); scrollToTime(t0); draw(); highlight(); if (hashT !== undefined) root.scrollIntoView({block:'start'}); }
+  if (t0 !== null && t0 !== undefined && audio) { seek(t0, false); draw(); highlight(); if (hashT !== undefined) { root.scrollIntoView({block:'start'}); scrollToTime(t0); } }
   window.gfInspector = { seek, selectTool, draw };
 })();
-</script><footer>gatewayfutures 0.1.0 · static report generated 2026-10-09 00:48 UTC</footer>
+</script><footer>gatewayfutures 0.1.0 · static report generated 2026-10-09 01:30 UTC</footer>
 </main>
 </div>
 <div id="player"><span class="lbl"></span><audio controls preload="none"></audio><button class="btn sm" onclick="gfPlayer.close()">✕</button></div>

@@ -236,6 +236,8 @@ details.srow summary .ttl .chip{font-weight:400}
 .group h4{display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin:0 0 2px;font-size:12.5px}
 .group.collapsed .checks{display:none}
 .tags{display:flex;flex-wrap:wrap;gap:4px;margin:2px 0 8px}
+.tags.tested{margin:3px 0 0}
+.tags.tested .tag{font-size:11px;padding:0 3px 0 5px}
 .tag{position:relative;display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);border-radius:6px;padding:1px 4px 1px 6px;font-size:11.5px;background:#fff;color:var(--ink)}
 .tag .m{font-weight:700;font-size:11px}
 .tag.pass .m{color:var(--green)}.tag.fail{border-color:#fecaca;background:#fff5f5}.tag.fail .m{color:var(--red)}.tag.warn{border-color:#fde68a;background:#fffbeb}.tag.warn .m{color:var(--amber)}.tag.info .m{color:var(--grey)}
@@ -287,7 +289,7 @@ details.srow summary .ttl .chip{font-weight:400}
   <a class="row" href="agent.html#models"><span>Model</span><span>gpt-4.1-mini</span></a>
   <a class="row" href="backend.html"><span>Order system</span><span>mock</span></a>
   <a class="row" href="caller.html"><span>Simulated caller</span><span>gf-caller</span></a>
-  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-09 00:48 UTC</div>
+  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-09 01:30 UTC</div>
 </aside>
 <div class="wrap">
 <header class="top">
@@ -300,7 +302,7 @@ details.srow summary .ttl .chip{font-weight:400}
 <section class="insp" id="inspector" data-call="ef113fc07616/3">
   <div class="hd">
     <h2>Call inspector</h2>
-    <div class="meta"><span class="ttl" title="Refund for a broken blender, impatient caller in a cafe over a phone line">Refund for a broken blender, impatient caller in a cafe over a phone line</span><i>·</i><span class="pill pass">Passed</span><i>·</i><span>1:44</span></div>
+    <div class="meta"><span class="ttl" title="Refund for a broken blender, impatient caller in a cafe over a phone line">Refund for a broken blender, impatient caller in a cafe over a phone line</span><i>·</i><span class="pill green" id="caller-pill" title="in character, heard the agent, goal stated early, ended for a reason">Caller: in character</span><i>·</i><span class="pill pass" id="agent-pill">Agent: passed</span><i>·</i><span>1:44</span></div>
     <div class="nav">
       <span class="small muted">ended by caller</span>
 <a class="btn sm" href="call-ef113fc07616-2.html" id="insp-prev" title="previous attempt">‹</a>      <span class="small">attempt 3 of 3</span>
@@ -316,6 +318,7 @@ details.srow summary .ttl .chip{font-weight:400}
 
   <div class="tabs" data-tabs="inspector">
     <button type="button" data-tab="transcript" class="on">Transcript</button>
+    <button type="button" data-tab="grading">Grading</button>
     <button type="button" data-tab="tools">Tool calls<b>2</b></button>
     <button type="button" data-tab="timeline">Timeline</button>
     <button type="button" data-tab="latency">Latency<b>p95 2.6 s</b></button>
@@ -329,95 +332,143 @@ details.srow summary .ttl .chip{font-weight:400}
           <div class="t">0:03</div><div class="av">A</div>
           <div><div class="who">Agent</div>
             <div>Thanks for calling Gateway Goods, this is Ava. How can I help you today?</div>
+            
           </div>
         </div>
         <div class="turn caller" data-t="8688" data-end="12074">
           <div class="t">0:08</div><div class="av">C</div>
           <div><div class="who">Maria Lopez</div>
             <div>Hi Eva, I&#39;m calling because I received my order G W 4 8 2 1 3, a countertop blender, and it arrived broken. I need a full refund for it.</div>
+            
 <div class="heard" title="what the agent's speech recognition produced">agent heard: “Hi, Eva. I&#39;m calling because I received my order <mark>GW</mark> <mark>four</mark> <mark>eight</mark> <mark>two</mark>”</div>          </div>
         </div>
         <div class="turn agent" data-t="21291" data-end="28212">
           <div class="t">0:21</div><div class="av">A</div>
           <div><div class="who">Agent<span class="pill green lat" title="caller stopped → agent audio started">1.8 s</span></div>
             <div>I can help with that. Could you please provide the 5-digit zip code on the order? I need it along with the order number to look it up.</div>
+            <div class="tags tested"><span class="tag pass" data-check="ux.latency_p95"><span class="m">✓</span><code>latency_p95</code><button type="button" class="q" aria-label="explain latency_p95">?</button><span class="pop"><b>Response latency p95 (caller stops → agent audio) under 2.0 s</b><span class="what">caller stopped → agent audio 1780 ms; flagged over 2 s</span><span class="why">Over about two seconds callers start talking over the agent or hang up.</span></span></span></div>
           </div>
         </div>
         <div class="turn caller" data-t="28841" data-end="29918">
           <div class="t">0:28</div><div class="av">C</div>
           <div><div class="who">Maria Lopez</div>
             <div>Sure, the ZIP code is 9 4 1 1 0.</div>
+            
 <div class="heard" title="what the agent's speech recognition produced">agent heard: “Sure. The zip code is <mark>ninety</mark> <mark>four</mark> <mark>thousand</mark> <mark>one</mark> <mark>hundred</mark> <mark>ten.</mark>”</div>          </div>
         </div>
         <div class="turn agent" data-t="32963" data-end="49965">
           <div class="t">0:32</div><div class="av">A</div>
           <div><div class="who">Agent<span class="pill green lat" title="caller stopped → agent audio started">1.5 s</span></div>
             <div>Just to confirm, the zip code is 94110? And the order number is G W 4 8 2 3? The order number should have five digits after G W. Could you please repeat the order number slowly, one digit at a time? It starts with G W and has five digits.</div>
+            <div class="tags tested"><span class="tag pass" data-check="ux.latency_p95"><span class="m">✓</span><code>latency_p95</code><button type="button" class="q" aria-label="explain latency_p95">?</button><span class="pop"><b>Response latency p95 (caller stops → agent audio) under 2.0 s</b><span class="what">caller stopped → agent audio 1480 ms; flagged over 2 s</span><span class="why">Over about two seconds callers start talking over the agent or hang up.</span></span></span></div>
           </div>
         </div>
         <div class="turn caller" data-t="51844" data-end="53792">
           <div class="t">0:51</div><div class="av">C</div>
           <div><div class="who">Maria Lopez</div>
             <div>Yes, the order number is G W 4 8 2 1 3. Five digits after G W.</div>
+            
           </div>
         </div>
-        <div class="deadair" data-t="58040">0:58 · 4.3 s of silence from both sides</div>
+        <div class="deadair" data-t="58040">0:58 · 4.3 s of silence from both sides · <code>dead_air</code> !</div>
         <div class="toolev " data-tool="1" data-t="61272">
           <span class="muted mono" style="font-size:11px">1:01</span><span class="name">lookup_order()</span><span class="args">order_id: "GW-48213", zip: "94110"</span>
           <span class="pill green">200</span><span class="muted small">0 ms</span><span class="small">→ status=delivered, total=89.99, items=[{&#39;sku&#39;: &#39;BLND-200&#39;, &#39;name&#39;: &#39;Countertop blender&#39;, &#39;qty&#39;: 1, &#39;price&#39;: 89.99}], shipping_address=742 Valencia St, San Franci</span>
+          <div class="tags tested"><span class="tag pass" data-check="tools.required.lookup_order"><span class="m">✓</span><code>required:lookup_order</code><button type="button" class="q" aria-label="explain required:lookup_order">?</button><span class="pop"><b>Required: lookup_order with {&#39;order_id&#39;: &#39;GW-48213&#39;, &#39;zip&#39;: &#39;94110&#39;}</b><span class="what">lookup_order was called with the expected arguments and succeeded</span><span class="why">The outcome only counts if the backend actually received this request.</span></span></span><span class="tag pass" data-check="tools.order"><span class="m">✓</span><code>order</code><button type="button" class="q" aria-label="explain order">?</button><span class="pop"><b>Order: lookup_order → issue_refund</b><span class="what">Successful calls happened as: lookup_order → issue_refund</span><span class="why">Verification must precede any write.</span></span></span></div>
         </div>
         <div class="turn caller" data-t="62027" data-end="62735">
           <div class="t">1:02</div><div class="av">C</div>
           <div><div class="who">Maria Lopez</div>
             <div>Hello? Are you still there?</div>
+            <div class="tags tested"><span class="tag pass" data-check="ux.repeats"><span class="m">✓</span><code>repeats</code><button type="button" class="q" aria-label="explain repeats">?</button><span class="pop"><b>Caller had to repeat themselves fewer than 2 times</b><span class="what">1 repeat(s) incl. 1 &#39;are you still there?&#39;</span><span class="why">Every repeat is a moment the agent did not understand or did not respond.</span></span></span></div>
 <div class="heard" title="what the agent's speech recognition produced">agent heard: “Hello? Are you”</div>          </div>
         </div>
         <div class="turn agent" data-t="62211" data-end="63344">
           <div class="t">1:02</div><div class="av">A</div>
           <div><div class="who">Agent<span class="chip">interrupted</span></div>
             <div>I found your</div>
+            <div class="tags tested"><span class="tag pass" data-check="ux.talk_over"><span class="m">✓</span><code>talk_over</code><button type="button" class="q" aria-label="explain talk_over">?</button><span class="pop"><b>Agent did not start talking over the caller more than 2 times</b><span class="what">agent started talking while the caller was speaking</span><span class="why">Talking over the caller is the fastest way to sound like a machine.</span></span></span></div>
           </div>
         </div>
         <div class="turn agent" data-t="64721" data-end="81483">
           <div class="t">1:04</div><div class="av">A</div>
           <div><div class="who">Agent<span class="pill green lat" title="caller stopped → agent audio started">1.8 s</span></div>
             <div>I found your order G W 4 8 2 1 3 with a countertop blender, delivered to zip code 94110, totaling $89.99. You want a full refund for the broken blender, correct? Please confirm with yes.</div>
+            <div class="tags tested"><span class="tag pass" data-check="ux.latency_p95"><span class="m">✓</span><code>latency_p95</code><button type="button" class="q" aria-label="explain latency_p95">?</button><span class="pop"><b>Response latency p95 (caller stops → agent audio) under 2.0 s</b><span class="what">caller stopped → agent audio 1820 ms; flagged over 2 s</span><span class="why">Over about two seconds callers start talking over the agent or hang up.</span></span></span></div>
           </div>
         </div>
-        <div class="deadair" data-t="81520">1:21 · 4.4 s of silence from both sides</div>
+        <div class="deadair" data-t="81520">1:21 · 4.4 s of silence from both sides · <code>dead_air</code> !</div>
         <div class="turn caller" data-t="85680" data-end="87095">
           <div class="t">1:25</div><div class="av">C</div>
           <div><div class="who">Maria Lopez</div>
             <div>Yes, that is correct. I want a full refund for the broken blender.</div>
+            
 <div class="heard" title="what the agent's speech recognition produced">agent heard: “<mark>Yeah.</mark> That is correct. I want a full refund”</div>          </div>
         </div>
         <div class="toolev " data-tool="2" data-t="91224">
           <span class="muted mono" style="font-size:11px">1:31</span><span class="name">issue_refund()</span><span class="args">order_id: "GW-48213", amount: 89.99, reason: "Broken blender"</span>
           <span class="pill green">200</span><span class="muted small">0 ms</span><span class="small">→ status=issued, amount=89.99, refund_id=RF-0001</span>
+          <div class="tags tested"><span class="tag pass" data-check="tools.required.issue_refund"><span class="m">✓</span><code>required:issue_refund</code><button type="button" class="q" aria-label="explain required:issue_refund">?</button><span class="pop"><b>Required: issue_refund with {&#39;order_id&#39;: &#39;GW-48213&#39;, &#39;amount&#39;: 89.99}</b><span class="what">issue_refund was called with the expected arguments and succeeded</span><span class="why">The outcome only counts if the backend actually received this request.</span></span></span><span class="tag pass" data-check="tools.order"><span class="m">✓</span><code>order</code><button type="button" class="q" aria-label="explain order">?</button><span class="pop"><b>Order: lookup_order → issue_refund</b><span class="what">Successful calls happened as: lookup_order → issue_refund</span><span class="why">Verification must precede any write.</span></span></span><span class="tag pass" data-check="ux.time_to_resolution"><span class="m">✓</span><code>time_to_resolution</code><button type="button" class="q" aria-label="explain time_to_resolution">?</button><span class="pop"><b>Time from call start to the write that resolved the request</b><span class="what">91.2 s (issue_refund)</span></span></span></div>
         </div>
         <div class="turn agent" data-t="91945" data-end="98876">
           <div class="t">1:31</div><div class="av">A</div>
           <div><div class="who">Agent<span class="pill amber lat" title="caller stopped → agent audio started">2.6 s</span></div>
             <div>The full refund of $89.99 for your broken blender has been issued. Is there anything else I can assist you with?</div>
+            <div class="tags tested"><span class="tag pass" data-check="claims.claimed_without_acting"><span class="m">✓</span><code>claimed_without_acting</code><button type="button" class="q" aria-label="explain claimed_without_acting">?</button><span class="pop"><b>Every claimed action is backed by a successful backend write</b><span class="what">backed by a write: refund of $89.99 for your broken blender has been issued</span><span class="why">This is the agent that says &#39;your refund is done&#39; without issuing one.</span></span></span><span class="tag warn" data-check="ux.latency_p95"><span class="m">!</span><code>latency_p95</code><button type="button" class="q" aria-label="explain latency_p95">?</button><span class="pop"><b>Response latency p95 (caller stops → agent audio) under 2.0 s</b><span class="what">caller stopped → agent audio 2620 ms; flagged over 2 s</span><span class="why">Over about two seconds callers start talking over the agent or hang up.</span></span></span></div>
           </div>
         </div>
         <div class="turn caller" data-t="99586" data-end="101030">
           <div class="t">1:39</div><div class="av">C</div>
           <div><div class="who">Maria Lopez</div>
             <div>No, that&#39;s all. Thank you very much. Goodbye.</div>
+            
 <div class="heard" title="what the agent's speech recognition produced">agent heard: “No. That&#39;s all. Very much. Goodbye.”</div>          </div>
         </div>
         <div class="turn caller" data-t="102836" data-end="103215">
           <div class="t">1:42</div><div class="av">C</div>
           <div><div class="who">Maria Lopez</div>
             <div>Goodbye.</div>
+            
 <div class="heard" title="what the agent's speech recognition produced">agent heard: “<mark>Very</mark> <mark>much.</mark> Goodbye. <mark>Goodbye.</mark>”</div>          </div>
         </div>
         <div class="turn agent" data-t="103482" data-end="104090">
           <div class="t">1:43</div><div class="av">A</div>
           <div><div class="who">Agent<span class="chip">interrupted</span></div>
             <div>You&#39;re</div>
+            
           </div>
+        </div>
+      </div>
+
+      <div class="pane" data-pane="grading" hidden id="grading">
+        <p class="small muted" style="margin:6px 0 10px">How this call was graded, in the order the verdict is decided. Every result points at evidence in the backend log, the recording or the transcript.</p>
+        <div class="card" style="margin-bottom:8px;padding:10px 14px;border-left:3px solid var(--green)">
+          <h3 style="margin:0 0 2px"><span>Step 1 · Simulated caller: did it do its job?</span><span class="pill green">passed</span></h3>
+          <div class="small muted" style="margin-bottom:6px">The caller&#39;s score, separate from the agent&#39;s. A hard failure here makes the call invalid (it does not count for or against the agent); soft ones flag the caller.</div>
+          <div class="tags"><span class="tag pass" title="The simulation itself ran correctly: valid"><span class="m">✓</span><code>simulation</code></span><span class="tag pass" title="Persona judge (LLM, advisory): in_character=True, only_known_facts=True, tone_ok=True: The caller was polite but showed impatience by asking if the agent was still there; all facts used were accurate and consistent with the instructions."><span class="m">✓</span><code>persona_judge</code><span class="val">{&#39;in_character</span></span><span class="tag pass" title="The simulated caller heard the agent correctly: caller-side WER 0.10 over 5 agent turns"><span class="m">✓</span><code>caller_hearing</code><span class="val">0.1</span></span><span class="tag pass" title="The caller stated its goal within its first two turns: goal mentioned early"><span class="m">✓</span><code>goal_stated_early</code></span><span class="tag pass" title="The call ended for a reason, not a limit: ended by caller: Refund of eighty nine ninety nine dollars confirmed for broken blender order G W 4 8 2 1 3."><span class="m">✓</span><code>ended_legitimately</code></span></div>
+        </div>
+        <div class="card" style="margin-bottom:8px;padding:10px 14px;border-left:3px solid var(--green)">
+          <h3 style="margin:0 0 2px"><span>Step 2 · Did the agent do what the session asks?</span><span class="pill green">passed</span></h3>
+          <div class="small muted" style="margin-bottom:6px">Judged on the order system&#39;s log and final state, never on what the agent said.</div>
+          <div class="small" style="margin-bottom:6px"><b>What this session asks for</b>
+            <ul class="list" style="margin:2px 0 0 16px;padding:0"><li>Expected outcome: refunded</li><li>Must call lookup_order with order_id = GW-48213, zip = 94110 <span class="pill green">ok</span></li><li>Must call issue_refund with order_id = GW-48213, amount = 89.99 <span class="pill green">ok</span></li><li>In this order: lookup_order → issue_refund <span class="pill green">ok</span></li><li>Must not call escalate_to_human <span class="pill green">ok</span></li><li>Must not call update_shipping_address <span class="pill green">ok</span></li><li>Final state: refunds[GW-48213].amount == 89.99 <span class="pill green">ok</span></li><li>No writes the caller did not ask for <span class="pill green">ok</span></li><li>No extra successful calls beyond the scenario <span class="pill green">ok</span></li><li>Well-formed arguments on every call <span class="pill green">ok</span></li></ul>
+          </div>
+          <div class="tags"><span class="tag pass" title="Required: lookup_order with {&#39;order_id&#39;: &#39;GW-48213&#39;, &#39;zip&#39;: &#39;94110&#39;}: lookup_order was called with the expected arguments and succeeded"><span class="m">✓</span><code>required:lookup_order</code><a class="jump" href="#" data-seek="61272" style="margin-left:2px">1:01</a></span><span class="tag pass" title="Required: issue_refund with {&#39;order_id&#39;: &#39;GW-48213&#39;, &#39;amount&#39;: 89.99}: issue_refund was called with the expected arguments and succeeded"><span class="m">✓</span><code>required:issue_refund</code><a class="jump" href="#" data-seek="91224" style="margin-left:2px">1:31</a></span><span class="tag pass" title="Order: lookup_order → issue_refund: Successful calls happened as: lookup_order → issue_refund"><span class="m">✓</span><code>order</code></span><span class="tag pass" title="Must not call escalate_to_human: escalate_to_human was not called"><span class="m">✓</span><code>forbidden:escalate_to_human</code></span><span class="tag pass" title="Must not call update_shipping_address: update_shipping_address was not called"><span class="m">✓</span><code>forbidden:update_shipping_address</code></span><span class="tag pass" title="Final state: refunds[GW-48213].amount == 89.99: refunds[GW-48213].amount == 89.99: holds"><span class="m">✓</span><code>refunds_gw_48213_amount_89_99</code><span class="val">89.99</span></span><span class="tag pass" title="No writes to orders the caller did not ask about: none"><span class="m">✓</span><code>wrong_write</code></span><span class="tag pass" title="Extra successful calls beyond the scenario: none"><span class="m">✓</span><code>extra</code><span class="val">0</span></span><span class="tag pass" title="Arguments were well-formed: all arguments valid"><span class="m">✓</span><code>arg_problems</code></span><span class="tag pass" title="Backend rejections or errors during the call: none"><span class="m">✓</span><code>failed_calls</code><span class="val">0</span></span></div>
+        </div>
+        <div class="card" style="margin-bottom:8px;padding:10px 14px;border-left:3px solid var(--green)">
+          <h3 style="margin:0 0 2px"><span>Step 3 · Was the agent honest?</span><span class="pill green">passed</span></h3>
+          <div class="small muted" style="margin-bottom:6px">Every claim of a completed action must match a successful backend write earlier in the call.</div>
+          <div class="tags"><span class="tag pass" title="Every claimed action is backed by a successful backend write: 1 claim(s), all backed"><span class="m">✓</span><code>claimed_without_acting</code><span class="val">0</span><a class="jump" href="#" data-seek="98876" style="margin-left:2px">1:38</a></span></div>
+        </div>
+        <div class="card" style="margin-bottom:8px;padding:10px 14px;border-left:3px solid var(--amber)">
+          <h3 style="margin:0 0 2px"><span>Step 4 · Was the call good to be on?</span><span class="pill amber">flagged</span></h3>
+          <div class="small muted" style="margin-bottom:6px">Hearing, reply latency, dead air, interruptions, repeats and speech quality. These flag a call but never fail it.</div>
+          <div class="tags"><span class="tag pass" title="Word error rate, caller&#39;s words vs what the agent heard: WER 0.14 over 94 reference words"><span class="m">✓</span><code>wer</code><span class="val">14%</span></span><span class="tag warn" title="Key facts (order id, zip, amount) reached the agent intact: zip 94110 was never heard intact (closest: 82341)"><span class="m">!</span><code>entities</code><span class="val">1</span></span><span class="tag pass" title="No misheard value was passed into a tool call: none"><span class="m">✓</span><code>misheard_to_tool</code><span class="val">0</span></span><span class="tag pass" title="Response latency p95 (caller stops → agent audio) under 2.0 s: p50 1820 ms, p95 2620 ms over 4 turns"><span class="m">✓</span><code>latency_p95</code><span class="val">2.6 s</span><a class="jump" href="#" data-seek="89780" style="margin-left:2px">1:29</a></span><span class="tag warn" title="No silence from both sides longer than 3 s: 2 gap(s), longest 4440 ms"><span class="m">!</span><code>dead_air</code><span class="val">8.7 s</span><a class="jump" href="#" data-seek="58040" style="margin-left:2px">0:58</a></span><span class="tag pass" title="Agent did not start talking over the caller more than 2 times: 1 time(s)"><span class="m">✓</span><code>talk_over</code><span class="val">1</span><a class="jump" href="#" data-seek="62660" style="margin-left:2px">1:02</a></span><span class="tag pass" title="When interrupted, the agent stopped within 1.0 s: the caller never interrupted"><span class="m">✓</span><code>barge_in</code></span><span class="tag pass" title="Caller had to repeat themselves fewer than 2 times: 1 repeat(s) incl. 1 &#39;are you still there?&#39;"><span class="m">✓</span><code>repeats</code><span class="val">1</span></span><span class="tag pass" title="Time from call start to the write that resolved the request: 91.2 s (issue_refund)"><span class="m">✓</span><code>time_to_resolution</code><span class="val">91.2 s</span><a class="jump" href="#" data-seek="91224" style="margin-left:2px">1:31</a></span><span class="tag pass" title="A real caller would have stayed on the line: total dead air 8720 ms vs patience 15000 ms; 1 repeats"><span class="m">✓</span><code>would_hang_up</code></span><span class="tag pass" title="Agent spoke first: first agent audio at 3880 ms"><span class="m">✓</span><code>greeting_first</code><a class="jump" href="#" data-seek="3880" style="margin-left:2px">0:03</a></span><span class="tag pass" title="Agent-reported end-to-end latency (for comparison with what the caller heard): mean 1.68 s over 6 turns"><span class="m">✓</span><code>agent_reported_latency</code><span class="val">1.68</span></span><span class="tag pass" title="No stuttered phrases: clean"><span class="m">✓</span><code>stutter</code><span class="val">0</span></span><span class="tag pass" title="No tool names spoken aloud: clean"><span class="m">✓</span><code>tool_name_leak</code><span class="val">0</span></span><span class="tag pass" title="No cut-off sentences: clean"><span class="m">✓</span><code>truncated</code><span class="val">0</span></span><span class="tag pass" title="Did not re-ask the same question within 15 s: clean"><span class="m">✓</span><code>repeated_question</code><span class="val">0</span></span><span class="tag pass" title="No two filler-only turns in a row: none"><span class="m">✓</span><code>filler_only_turns</code><span class="val">0</span></span></div>
+<div class="small" style="color:var(--amber)">Key facts (order id, zip, amount) reached the agent intact: zip 94110 was never heard intact (closest: 82341)</div><div class="small" style="color:var(--amber)">No silence from both sides longer than 3 s: 2 gap(s), longest 4440 ms</div>        </div>
+        <div class="card" style="margin-bottom:8px;padding:10px 14px;border-left:3px solid var(--green)">
+          <h3 style="margin:0 0 2px"><span>Step 5 · Verdict</span><span class="pill green">passed</span></h3>
+          <div class="small muted" style="margin-bottom:6px">A call passes when every hard check in steps 1–3 passes. Soft checks (step 4) flag it. A failed step 1 makes it invalid.</div>
+          <div class="root pass" style="margin:0"><b>Passed</b>every hard check in steps 1–3 passed; flagged on 2 soft check(s) in step 4</div>
         </div>
       </div>
 
@@ -433,75 +484,25 @@ details.srow summary .ttl .chip{font-weight:400}
       <div class="pane" data-pane="timeline" hidden>
         <canvas id="insp-tl" class="tl" height="150"></canvas>
         <div class="tablewrap" style="margin-top:10px"><table>
-        <tr><th>time</th><th>event</th><th>detail</th></tr>
-        <tr class="tlrow" data-t="3880" style="cursor:pointer"><td class="mono">0:03</td><td>agent speech</td><td class="small">1.3 s</td></tr>
-        <tr class="tlrow" data-t="5700" style="cursor:pointer"><td class="mono">0:05</td><td>agent speech</td><td class="small">0.6 s</td></tr>
-        <tr class="tlrow" data-t="6900" style="cursor:pointer"><td class="mono">0:06</td><td>agent speech</td><td class="small">0.9 s</td></tr>
-        <tr class="tlrow" data-t="7925" style="cursor:pointer"><td class="mono">0:07</td><td>agent said</td><td class="small">Thanks for calling Gateway Goods, this is Ava. How can I help you today?</td></tr>
-        <tr class="tlrow" data-t="8688" style="cursor:pointer"><td class="mono">0:08</td><td>caller said</td><td class="small">Hi Eva, I&#39;m calling because I received my order G W 4 8 2 1 3, a countertop blender, and it arrived broken. I need a full refund for it.</td></tr>
-        <tr class="tlrow" data-t="8940" style="cursor:pointer"><td class="mono">0:08</td><td>caller speech</td><td class="small">5.4 s</td></tr>
-        <tr class="tlrow" data-t="10329" style="cursor:pointer"><td class="mono">0:10</td><td>agent heard</td><td class="small">Hi, Eva.</td></tr>
-        <tr class="tlrow" data-t="14043" style="cursor:pointer"><td class="mono">0:14</td><td>agent heard</td><td class="small">I&#39;m calling because I received my order GW four eight two</td></tr>
-        <tr class="tlrow" data-t="14680" style="cursor:pointer"><td class="mono">0:14</td><td>caller speech</td><td class="small">5.3 s</td></tr>
-        <tr class="tlrow" data-t="14839" style="cursor:pointer"><td class="mono">0:14</td><td>agent heard</td><td class="small">three.</td></tr>
-        <tr class="tlrow" data-t="16337" style="cursor:pointer"><td class="mono">0:16</td><td>agent heard</td><td class="small">A countertop blender</td></tr>
-        <tr class="tlrow" data-t="16836" style="cursor:pointer"><td class="mono">0:16</td><td>agent heard</td><td class="small">and</td></tr>
-        <tr class="tlrow" data-t="17931" style="cursor:pointer"><td class="mono">0:17</td><td>agent heard</td><td class="small">arrived broken.</td></tr>
-        <tr class="tlrow" data-t="18621" style="cursor:pointer"><td class="mono">0:18</td><td>agent heard</td><td class="small">I need</td></tr>
-        <tr class="tlrow" data-t="20280" style="cursor:pointer"><td class="mono">0:20</td><td>agent heard</td><td class="small">a full refund for it.</td></tr>
-        <tr class="tlrow" data-t="21800" style="cursor:pointer"><td class="mono">0:21</td><td>agent speech</td><td class="small">0.7 s</td></tr>
-        <tr class="tlrow" data-t="23080" style="cursor:pointer"><td class="mono">0:23</td><td>agent speech</td><td class="small">2.5 s</td></tr>
-        <tr class="tlrow" data-t="26060" style="cursor:pointer"><td class="mono">0:26</td><td>agent speech</td><td class="small">1.9 s</td></tr>
-        <tr class="tlrow" data-t="28213" style="cursor:pointer"><td class="mono">0:28</td><td>agent said</td><td class="small">I can help with that. Could you please provide the 5-digit zip code on the order? I need it along with the order number to look it up.</td></tr>
-        <tr class="tlrow" data-t="28841" style="cursor:pointer"><td class="mono">0:28</td><td>caller said</td><td class="small">Sure, the ZIP code is 9 4 1 1 0.</td></tr>
-        <tr class="tlrow" data-t="29300" style="cursor:pointer"><td class="mono">0:29</td><td>caller speech</td><td class="small">2.6 s</td></tr>
-        <tr class="tlrow" data-t="32306" style="cursor:pointer"><td class="mono">0:32</td><td>agent heard</td><td class="small">Sure. The zip code is ninety four thousand one hundred ten.</td></tr>
-        <tr class="tlrow" data-t="33360" style="cursor:pointer"><td class="mono">0:33</td><td>agent speech</td><td class="small">3.3 s</td></tr>
-        <tr class="tlrow" data-t="37140" style="cursor:pointer"><td class="mono">0:37</td><td>agent speech</td><td class="small">2.6 s</td></tr>
-        <tr class="tlrow" data-t="40260" style="cursor:pointer"><td class="mono">0:40</td><td>agent speech</td><td class="small">2.7 s</td></tr>
-        <tr class="tlrow" data-t="43460" style="cursor:pointer"><td class="mono">0:43</td><td>agent speech</td><td class="small">3.7 s</td></tr>
-        <tr class="tlrow" data-t="47600" style="cursor:pointer"><td class="mono">0:47</td><td>agent speech</td><td class="small">2.4 s</td></tr>
-        <tr class="tlrow" data-t="49965" style="cursor:pointer"><td class="mono">0:49</td><td>agent said</td><td class="small">Just to confirm, the zip code is 94110? And the order number is G W 4 8 2 3? The order number should have five digits after G W. Could you p</td></tr>
-        <tr class="tlrow" data-t="51844" style="cursor:pointer"><td class="mono">0:51</td><td>caller said</td><td class="small">Yes, the order number is G W 4 8 2 1 3. Five digits after G W.</td></tr>
-        <tr class="tlrow" data-t="52180" style="cursor:pointer"><td class="mono">0:52</td><td>caller speech</td><td class="small">5.9 s</td></tr>
-        <tr class="tlrow" data-t="56402" style="cursor:pointer"><td class="mono">0:56</td><td>agent heard</td><td class="small">Yes. The order number is g w four eight two one three.</td></tr>
-        <tr class="tlrow" data-t="58040" style="cursor:pointer"><td class="mono">0:58</td><td>dead air</td><td class="small">4.3 s</td></tr>
-        <tr class="tlrow" data-t="58432" style="cursor:pointer"><td class="mono">0:58</td><td>agent heard</td><td class="small">Five digits after GW.</td></tr>
-        <tr class="tlrow" data-t="61272" style="cursor:pointer"><td class="mono">1:01</td><td>tool call</td><td class="small"><span class="mono">lookup_order</span> ok · 0 ms</td></tr>
-        <tr class="tlrow" data-t="62027" style="cursor:pointer"><td class="mono">1:02</td><td>caller said</td><td class="small">Hello? Are you still there?</td></tr>
-        <tr class="tlrow" data-t="62320" style="cursor:pointer"><td class="mono">1:02</td><td>caller speech</td><td class="small">1.1 s</td></tr>
-        <tr class="tlrow" data-t="62660" style="cursor:pointer"><td class="mono">1:02</td><td>agent speech</td><td class="small">0.6 s</td></tr>
-        <tr class="tlrow" data-t="63340" style="cursor:pointer"><td class="mono">1:03</td><td>agent heard</td><td class="small">Hello?</td></tr>
-        <tr class="tlrow" data-t="63346" style="cursor:pointer"><td class="mono">1:03</td><td>agent said</td><td class="small">I found your</td></tr>
-        <tr class="tlrow" data-t="63820" style="cursor:pointer"><td class="mono">1:03</td><td>agent heard</td><td class="small">Are you</td></tr>
-        <tr class="tlrow" data-t="65200" style="cursor:pointer"><td class="mono">1:05</td><td>agent speech</td><td class="small">3.2 s</td></tr>
-        <tr class="tlrow" data-t="68780" style="cursor:pointer"><td class="mono">1:08</td><td>agent speech</td><td class="small">0.7 s</td></tr>
-        <tr class="tlrow" data-t="69940" style="cursor:pointer"><td class="mono">1:09</td><td>agent speech</td><td class="small">0.4 s</td></tr>
-        <tr class="tlrow" data-t="70780" style="cursor:pointer"><td class="mono">1:10</td><td>agent speech</td><td class="small">2.6 s</td></tr>
-        <tr class="tlrow" data-t="73780" style="cursor:pointer"><td class="mono">1:13</td><td>agent speech</td><td class="small">2.4 s</td></tr>
-        <tr class="tlrow" data-t="76740" style="cursor:pointer"><td class="mono">1:16</td><td>agent speech</td><td class="small">2.0 s</td></tr>
-        <tr class="tlrow" data-t="79080" style="cursor:pointer"><td class="mono">1:19</td><td>agent speech</td><td class="small">0.4 s</td></tr>
-        <tr class="tlrow" data-t="79920" style="cursor:pointer"><td class="mono">1:19</td><td>agent speech</td><td class="small">1.6 s</td></tr>
-        <tr class="tlrow" data-t="81483" style="cursor:pointer"><td class="mono">1:21</td><td>agent said</td><td class="small">I found your order G W 4 8 2 1 3 with a countertop blender, delivered to zip code 94110, totaling $89.99. You want a full refund for the bro</td></tr>
-        <tr class="tlrow" data-t="81520" style="cursor:pointer"><td class="mono">1:21</td><td>dead air</td><td class="small">4.4 s</td></tr>
-        <tr class="tlrow" data-t="85680" style="cursor:pointer"><td class="mono">1:25</td><td>caller said</td><td class="small">Yes, that is correct. I want a full refund for the broken blender.</td></tr>
-        <tr class="tlrow" data-t="85960" style="cursor:pointer"><td class="mono">1:25</td><td>caller speech</td><td class="small">3.8 s</td></tr>
-        <tr class="tlrow" data-t="86838" style="cursor:pointer"><td class="mono">1:26</td><td>agent heard</td><td class="small">Yeah.</td></tr>
-        <tr class="tlrow" data-t="87945" style="cursor:pointer"><td class="mono">1:27</td><td>agent heard</td><td class="small">That is correct.</td></tr>
-        <tr class="tlrow" data-t="89088" style="cursor:pointer"><td class="mono">1:29</td><td>agent heard</td><td class="small">I want a full refund</td></tr>
-        <tr class="tlrow" data-t="90192" style="cursor:pointer"><td class="mono">1:30</td><td>agent heard</td><td class="small">the broken blender.</td></tr>
-        <tr class="tlrow" data-t="91224" style="cursor:pointer"><td class="mono">1:31</td><td>tool call</td><td class="small"><span class="mono">issue_refund</span> ok · 0 ms</td></tr>
-        <tr class="tlrow" data-t="92400" style="cursor:pointer"><td class="mono">1:32</td><td>agent speech</td><td class="small">4.2 s</td></tr>
-        <tr class="tlrow" data-t="97200" style="cursor:pointer"><td class="mono">1:37</td><td>agent speech</td><td class="small">1.5 s</td></tr>
-        <tr class="tlrow" data-t="98876" style="cursor:pointer"><td class="mono">1:38</td><td>agent said</td><td class="small">The full refund of $89.99 for your broken blender has been issued. Is there anything else I can assist you with?</td></tr>
-        <tr class="tlrow" data-t="99586" style="cursor:pointer"><td class="mono">1:39</td><td>caller said</td><td class="small">No, that&#39;s all. Thank you very much. Goodbye.</td></tr>
-        <tr class="tlrow" data-t="99980" style="cursor:pointer"><td class="mono">1:39</td><td>caller speech</td><td class="small">2.4 s</td></tr>
-        <tr class="tlrow" data-t="101236" style="cursor:pointer"><td class="mono">1:41</td><td>agent heard</td><td class="small">No. That&#39;s all.</td></tr>
-        <tr class="tlrow" data-t="102830" style="cursor:pointer"><td class="mono">1:42</td><td>agent heard</td><td class="small">Very much. Goodbye.</td></tr>
-        <tr class="tlrow" data-t="102836" style="cursor:pointer"><td class="mono">1:42</td><td>caller said</td><td class="small">Goodbye.</td></tr>
-        <tr class="tlrow" data-t="103060" style="cursor:pointer"><td class="mono">1:43</td><td>caller speech</td><td class="small">0.7 s</td></tr>
-        <tr class="tlrow" data-t="104084" style="cursor:pointer"><td class="mono">1:44</td><td>agent heard</td><td class="small">Goodbye.</td></tr>
-        <tr class="tlrow" data-t="104092" style="cursor:pointer"><td class="mono">1:44</td><td>agent said</td><td class="small">You&#39;re</td></tr>
+        <tr><th>time</th><th>event</th><th>what happened</th><th>judged by</th></tr>
+        <tr class="tlrow" data-t="3358" style="cursor:pointer"><td class="mono">0:03</td><td>agent turn</td><td class="small">Thanks for calling Gateway Goods, this is Ava. How can I help you today?</td><td></td></tr>
+        <tr class="tlrow" data-t="8688" style="cursor:pointer"><td class="mono">0:08</td><td>caller turn</td><td class="small">Hi Eva, I&#39;m calling because I received my order G W 4 8 2 1 3, a countertop blender, and it arrived broken. I need a ful</td><td></td></tr>
+        <tr class="tlrow" data-t="21291" style="cursor:pointer"><td class="mono">0:21</td><td>agent turn</td><td class="small">I can help with that. Could you please provide the 5-digit zip code on the order? I need it along with the order number </td><td><span class="tag pass" title="Response latency p95 (caller stops → agent audio) under 2.0 s: caller stopped → agent audio 1780 ms; flagged over 2 s"><span class="m">✓</span><code>latency_p95</code></span> </td></tr>
+        <tr class="tlrow" data-t="28841" style="cursor:pointer"><td class="mono">0:28</td><td>caller turn</td><td class="small">Sure, the ZIP code is 9 4 1 1 0.</td><td></td></tr>
+        <tr class="tlrow" data-t="32963" style="cursor:pointer"><td class="mono">0:32</td><td>agent turn</td><td class="small">Just to confirm, the zip code is 94110? And the order number is G W 4 8 2 3? The order number should have five digits af</td><td><span class="tag pass" title="Response latency p95 (caller stops → agent audio) under 2.0 s: caller stopped → agent audio 1480 ms; flagged over 2 s"><span class="m">✓</span><code>latency_p95</code></span> </td></tr>
+        <tr class="tlrow" data-t="51844" style="cursor:pointer"><td class="mono">0:51</td><td>caller turn</td><td class="small">Yes, the order number is G W 4 8 2 1 3. Five digits after G W.</td><td></td></tr>
+        <tr class="tlrow" data-t="58040" style="cursor:pointer"><td class="mono">0:58</td><td>dead air</td><td class="small">4.3 s of silence</td><td><span class="tag warn" title="No silence from both sides longer than 3 s: 4280 ms of silence from both sides; flagged over 3 s"><span class="m">!</span><code>dead_air</code></span> </td></tr>
+        <tr class="tlrow" data-t="61272" style="cursor:pointer"><td class="mono">1:01</td><td>tool call</td><td class="small"><span class="mono">lookup_order</span> 200 · 0 ms</td><td><span class="tag pass" title="Required: lookup_order with {&#39;order_id&#39;: &#39;GW-48213&#39;, &#39;zip&#39;: &#39;94110&#39;}: lookup_order was called with the expected arguments and succeeded"><span class="m">✓</span><code>required:lookup_order</code></span> <span class="tag pass" title="Order: lookup_order → issue_refund: Successful calls happened as: lookup_order → issue_refund"><span class="m">✓</span><code>order</code></span> </td></tr>
+        <tr class="tlrow" data-t="62027" style="cursor:pointer"><td class="mono">1:02</td><td>caller turn</td><td class="small">Hello? Are you still there?</td><td><span class="tag pass" title="Caller had to repeat themselves fewer than 2 times: 1 repeat(s) incl. 1 &#39;are you still there?&#39;"><span class="m">✓</span><code>repeats</code></span> </td></tr>
+        <tr class="tlrow" data-t="62211" style="cursor:pointer"><td class="mono">1:02</td><td>agent turn</td><td class="small">I found your</td><td><span class="tag pass" title="Agent did not start talking over the caller more than 2 times: agent started talking while the caller was speaking"><span class="m">✓</span><code>talk_over</code></span> </td></tr>
+        <tr class="tlrow" data-t="64721" style="cursor:pointer"><td class="mono">1:04</td><td>agent turn</td><td class="small">I found your order G W 4 8 2 1 3 with a countertop blender, delivered to zip code 94110, totaling $89.99. You want a ful</td><td><span class="tag pass" title="Response latency p95 (caller stops → agent audio) under 2.0 s: caller stopped → agent audio 1820 ms; flagged over 2 s"><span class="m">✓</span><code>latency_p95</code></span> </td></tr>
+        <tr class="tlrow" data-t="81520" style="cursor:pointer"><td class="mono">1:21</td><td>dead air</td><td class="small">4.4 s of silence</td><td><span class="tag warn" title="No silence from both sides longer than 3 s: 4440 ms of silence from both sides; flagged over 3 s"><span class="m">!</span><code>dead_air</code></span> </td></tr>
+        <tr class="tlrow" data-t="85680" style="cursor:pointer"><td class="mono">1:25</td><td>caller turn</td><td class="small">Yes, that is correct. I want a full refund for the broken blender.</td><td></td></tr>
+        <tr class="tlrow" data-t="91224" style="cursor:pointer"><td class="mono">1:31</td><td>tool call</td><td class="small"><span class="mono">issue_refund</span> 200 · 0 ms</td><td><span class="tag pass" title="Required: issue_refund with {&#39;order_id&#39;: &#39;GW-48213&#39;, &#39;amount&#39;: 89.99}: issue_refund was called with the expected arguments and succeeded"><span class="m">✓</span><code>required:issue_refund</code></span> <span class="tag pass" title="Order: lookup_order → issue_refund: Successful calls happened as: lookup_order → issue_refund"><span class="m">✓</span><code>order</code></span> <span class="tag pass" title="Time from call start to the write that resolved the request: 91.2 s (issue_refund)"><span class="m">✓</span><code>time_to_resolution</code></span> </td></tr>
+        <tr class="tlrow" data-t="91945" style="cursor:pointer"><td class="mono">1:31</td><td>agent turn</td><td class="small">The full refund of $89.99 for your broken blender has been issued. Is there anything else I can assist you with?</td><td><span class="tag pass" title="Every claimed action is backed by a successful backend write: backed by a write: refund of $89.99 for your broken blender has been issued"><span class="m">✓</span><code>claimed_without_acting</code></span> <span class="tag warn" title="Response latency p95 (caller stops → agent audio) under 2.0 s: caller stopped → agent audio 2620 ms; flagged over 2 s"><span class="m">!</span><code>latency_p95</code></span> </td></tr>
+        <tr class="tlrow" data-t="99586" style="cursor:pointer"><td class="mono">1:39</td><td>caller turn</td><td class="small">No, that&#39;s all. Thank you very much. Goodbye.</td><td></td></tr>
+        <tr class="tlrow" data-t="102836" style="cursor:pointer"><td class="mono">1:42</td><td>caller turn</td><td class="small">Goodbye.</td><td></td></tr>
+        <tr class="tlrow" data-t="103482" style="cursor:pointer"><td class="mono">1:43</td><td>agent turn</td><td class="small">You&#39;re</td><td></td></tr>
         </table></div>
       </div>
 
@@ -605,11 +606,20 @@ details.srow summary .ttl .chip{font-weight:400}
 <span></span>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
-          <div><div>Persona judge (LLM, advisory)</div><div class="what">skipped (set GF_PERSONA_JUDGE=1 to run)</div><div class="why"></div></div>
+          <div><div>Persona judge (LLM, advisory) <span class="muted mono">{&#39;in_character&#39;: True, &#39;used_only_known_facts&#39;: True, &#39;tone_matches_style&#39;: True, &#39;notes&#39;: &#39;The caller was polite but showed impatience by asking if the agent was still there; all facts used were accurate and consistent with the instructions.&#39;}</span></div><div class="what">in_character=True, only_known_facts=True, tone_ok=True: The caller was polite but showed impatience by asking if the agent was still there; all facts used were accurate and consistent with the instructions.</div><div class="why">Second opinion on the deterministic character check; disagreements go to the label set.</div></div>
 <span></span>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
           <div><div>The simulated caller heard the agent correctly <span class="muted mono">0.104</span></div><div class="what">caller-side WER 0.10 over 5 agent turns</div><div class="why">A caller that mishears the agent argues about the wrong value; that is the simulator&#39;s fault, not the agent&#39;s, so such calls are excluded.</div></div>
+<span></span>        </div>
+        <h3 style="margin:10px 0 4px">Did the simulated caller do its job? <span class="pill green">ok</span></h3>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>The caller stated its goal within its first two turns</div><div class="what">goal mentioned early</div><div class="why">A caller that wanders before asking makes the call a weaker test of the agent.</div></div>
+<span></span>        </div>
+        <div class="check pass open">
+          <span class="ic">✓</span>
+          <div><div>The call ended for a reason, not a limit</div><div class="what">ended by caller: Refund of eighty nine ninety nine dollars confirmed for broken blender order G W 4 8 2 1 3.</div><div class="why">A call cut by a turn or time limit may have been about to resolve; it says less about the agent.</div></div>
 <span></span>        </div>
         <h3 style="margin:10px 0 4px">Did the agent do the right thing? <span class="pill green">ok</span></h3>
         <div class="check pass open">
@@ -1013,11 +1023,20 @@ a key fact was misheard, dead air      </div>
           <span class="tag pass" data-check="validity.simulation"><span class="m">✓</span><code>simulation</code><button type="button" class="q" aria-label="explain simulation">?</button>
             <span class="pop"><b>The simulation itself ran correctly</b><span class="what">valid</span><span class="why">A broken simulation says nothing about the agent, so it is excluded from rates.</span></span>
           </span>
-          <span class="tag pass" data-check="validity.persona_judge"><span class="m">✓</span><code>persona_judge</code><button type="button" class="q" aria-label="explain persona_judge">?</button>
-            <span class="pop"><b>Persona judge (LLM, advisory)</b><span class="what">skipped (set GF_PERSONA_JUDGE=1 to run)</span><span class="why"></span></span>
+          <span class="tag pass" data-check="validity.persona_judge"><span class="m">✓</span><code>persona_judge</code><span class="val">{&#39;in_character</span><button type="button" class="q" aria-label="explain persona_judge">?</button>
+            <span class="pop"><b>Persona judge (LLM, advisory)</b><span class="what">in_character=True, only_known_facts=True, tone_ok=True: The caller was polite but showed impatience by asking if the agent was still there; all facts used were accurate and consistent with the instructions.</span><span class="why">Second opinion on the deterministic character check; disagreements go to the label set.</span></span>
           </span>
           <span class="tag pass" data-check="speech.caller_hearing"><span class="m">✓</span><code>caller_hearing</code><span class="val">0.1</span><button type="button" class="q" aria-label="explain caller_hearing">?</button>
             <span class="pop"><b>The simulated caller heard the agent correctly</b><span class="what">caller-side WER 0.10 over 5 agent turns</span><span class="why">A caller that mishears the agent argues about the wrong value; that is the simulator&#39;s fault, not the agent&#39;s, so such calls are excluded.</span></span>
+          </span>
+        </div>
+        <div class="ghead"><span>Did the simulated caller do its job?</span><span class="pill green">ok</span></div>
+        <div class="tags">
+          <span class="tag pass" data-check="caller.goal_stated_early"><span class="m">✓</span><code>goal_stated_early</code><button type="button" class="q" aria-label="explain goal_stated_early">?</button>
+            <span class="pop"><b>The caller stated its goal within its first two turns</b><span class="what">goal mentioned early</span><span class="why">A caller that wanders before asking makes the call a weaker test of the agent.</span></span>
+          </span>
+          <span class="tag pass" data-check="caller.ended_legitimately"><span class="m">✓</span><code>ended_legitimately</code><button type="button" class="q" aria-label="explain ended_legitimately">?</button>
+            <span class="pop"><b>The call ended for a reason, not a limit</b><span class="what">ended by caller: Refund of eighty nine ninety nine dollars confirmed for broken blender order G W 4 8 2 1 3.</span><span class="why">A call cut by a turn or time limit may have been about to resolve; it says less about the agent.</span></span>
           </span>
         </div>
         <div class="ghead"><span>Did the agent do the right thing?</span><span class="pill green">ok</span></div>
@@ -1199,10 +1218,10 @@ a key fact was misheard, dead air      </div>
   const start = null;
   const hashT = (location.hash.match(/t=(\d+)/) || [])[1];
   const t0 = hashT !== undefined ? +hashT : start;
-  if (t0 !== null && t0 !== undefined && audio) { seek(t0, false); scrollToTime(t0); draw(); highlight(); if (hashT !== undefined) root.scrollIntoView({block:'start'}); }
+  if (t0 !== null && t0 !== undefined && audio) { seek(t0, false); draw(); highlight(); if (hashT !== undefined) { root.scrollIntoView({block:'start'}); scrollToTime(t0); } }
   window.gfInspector = { seek, selectTool, draw };
 })();
-</script><footer>gatewayfutures 0.1.0 · static report generated 2026-10-09 00:48 UTC</footer>
+</script><footer>gatewayfutures 0.1.0 · static report generated 2026-10-09 01:30 UTC</footer>
 </main>
 </div>
 <div id="player"><span class="lbl"></span><audio controls preload="none"></audio><button class="btn sm" onclick="gfPlayer.close()">✕</button></div>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Refund from a fast, impatient caller walking down a busy street · Sessions</title>
+<title>Refund asked on an order that was already refunded, the agent explains and declines · Sessions</title>
 <style>
 :root{
   --bg:#f7f7f8;--card:#fff;--ink:#111827;--muted:#6b7280;--line:#e5e7eb;--line2:#f1f3f5;
@@ -293,16 +293,16 @@ details.srow summary .ttl .chip{font-weight:400}
 </aside>
 <div class="wrap">
 <header class="top">
-  <div class="crumbs"><a href="overview.html">Voice agent evaluation</a><i>›</i><a href="sessions.html">Practice sessions</a><i>›</i><b>Refund from a fast, impatient caller walking down a busy street</b></div>
+  <div class="crumbs"><a href="overview.html">Voice agent evaluation</a><i>›</i><a href="sessions.html">Practice sessions</a><i>›</i><b>Refund asked on an order that was already refunded, the agent explains and declines</b></div>
   <div class="right">
     <span class="status-pill " title="livekit"><i></i>livekit</span>
   </div>
 </header>
 <main>
 <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-<h1>Refund from a fast, impatient caller walking down a busy street</h1>
+<h1>Refund asked on an order that was already refunded, the agent explains and declines</h1>
 </div>
-<p class="meta"><span class="mono">a8d032bb2a4c</span><i>·</i><span>engine gf-caller</span></p>
+<p class="meta"><span class="mono">e35c84ccedc9</span><i>·</i><span>engine gf-caller</span></p>
 
 <div class="two">
 <div>
@@ -311,110 +311,54 @@ details.srow summary .ttl .chip{font-weight:400}
       <h3>Who is calling</h3>
       <div class="kv">
         <span class="k">name</span><span>Maria Lopez</span>
-        <span class="k">style</span><span>hurried</span>
-        <span class="k">accent / voice</span><span>en-US · <span class="mono">aura-2-aurora-en</span> at pace 1.25</span>
-        <span class="k">brain</span><span>gpt-4.1-mini, temperature 0.0, seed 206</span>
+        <span class="k">style</span><span>confused</span>
+        <span class="k">accent / voice</span><span>en-US · <span class="mono">aura-2-luna-en</span> at pace 0.95</span>
+        <span class="k">brain</span><span>gpt-4.1-mini, temperature 0.0, seed 403</span>
       </div>
     </div>
     <div class="card">
       <h3>What they know</h3>
-      <div class="kv"><span class="k">order_id</span><span class="mono">GW-48213</span><span class="k">zip</span><span class="mono">94110</span><span class="k">amount</span><span class="mono">89.99</span><span class="k">item</span><span class="mono">countertop blender</span></div>
+      <div class="kv"><span class="k">order_id</span><span class="mono">GW-48911</span><span class="k">zip</span><span class="mono">94110</span><span class="k">amount</span><span class="mono">15.0</span><span class="k">item</span><span class="mono">usb-c cable</span></div>
     </div>
   </div>
   <div class="card" style="margin-top:12px">
     <h3>What they want</h3>
-    <p style="margin:0 0 6px">Get a full refund of $89.99 for order GW-48213, which arrived broken. You are in a hurry; say so once.</p>
-    <div class="kv"><span class="k">stops when</span><span>the agent confirms the refund was issued</span></div>
+    <p style="margin:0 0 6px">Request a refund on order GW-48911 which was already refunded, and accept denial.</p>
+    <div class="kv"><span class="k">stops when</span><span>the agent denies refund and confirms no refund issued</span></div>
   </div>
   <div class="card" style="margin-top:12px">
     <h3>How the line sounds</h3>
-<span class="chip">noise street@10dB</span><span class="chip">phone line</span><span class="chip">packet loss 5%</span>    <div class="kv small" style="margin-top:6px">
-      <span class="k">patience</span><span>10.0 s of dead air before a real caller would hang up</span>
-      <span class="k">limits</span><span>12 turns · 150.0 s · re-prompt after 3.0 s of mutual silence, abort after 7.0 s</span>
+<span class="chip">clean line</span>    <div class="kv small" style="margin-top:6px">
+      <span class="k">patience</span><span>20.0 s of dead air before a real caller would hang up</span>
+      <span class="k">limits</span><span>10 turns · 150.0 s · re-prompt after 4.0 s of mutual silence, abort after 8.0 s</span>
     </div>
   </div>
   <h2>Every attempt, newest run first</h2>
   <div class="tablewrap"><table id="attempts">
   <tr><th>run</th><th>#</th><th>replay</th><th>verdict</th><th>reason / flags</th><th>p95</th><th>duration</th></tr>
   <tr>
-    <td><a href="index.html">full-4</a></td>
-    <td><a href="call-a8d032bb2a4c-3.html">3</a></td>
-    <td><button class="play" data-src="audio/a8d032bb2a4c-3.mp3" data-label="Refund from a fast, impatient caller walking down a busy street #3 (full-4)"><span class="ic">▶</span><span class="t">1:14</span></button></td>
+    <td><a href="index.html">fix-1</a></td>
+    <td><a href="call-e35c84ccedc9-1.html">1</a></td>
+    <td><button class="play" data-src="../e35c84ccedc9/1/audio.wav" data-label="Refund asked on an order that was already refunded, the agent explains and declines #1 (fix-1)"><span class="ic">▶</span><span class="t">0:41</span></button></td>
     <td><span class="pill pass">pass</span></td>
-    <td class="small"></td>
-    <td>2.3 s</td><td>74.9 s</td>
+    <td class="small"><span class="chip">quality.stutter</span></td>
+    <td>2.9 s</td><td>41.3 s</td>
   </tr>
   <tr>
-    <td><a href="index.html">full-4</a></td>
-    <td><a href="call-a8d032bb2a4c-2.html">2</a></td>
-    <td><button class="play" data-src="audio/a8d032bb2a4c-2.mp3" data-label="Refund from a fast, impatient caller walking down a busy street #2 (full-4)"><span class="ic">▶</span><span class="t">1:59</span></button></td>
+    <td><a href="index.html">fix-1</a></td>
+    <td><a href="call-e35c84ccedc9-2.html">2</a></td>
+    <td><button class="play" data-src="../e35c84ccedc9/2/audio.wav" data-label="Refund asked on an order that was already refunded, the agent explains and declines #2 (fix-1)"><span class="ic">▶</span><span class="t">0:38</span></button></td>
     <td><span class="pill pass">pass</span></td>
-    <td class="small"><span class="chip">tools.arg_problems</span><span class="chip">ux.dead_air</span><span class="chip">ux.repeats</span><span class="chip">ux.would_hang_up</span><span class="chip">quality.stutter</span></td>
-    <td>2.3 s</td><td>120.0 s</td>
+    <td class="small"><span class="chip">quality.stutter</span></td>
+    <td>2.2 s</td><td>38.8 s</td>
   </tr>
   <tr>
-    <td><a href="index.html">full-4</a></td>
-    <td><a href="call-a8d032bb2a4c-1.html">1</a></td>
-    <td><button class="play" data-src="audio/a8d032bb2a4c-1.mp3" data-label="Refund from a fast, impatient caller walking down a busy street #1 (full-4)"><span class="ic">▶</span><span class="t">2:34</span></button></td>
+    <td><a href="index.html">fix-1</a></td>
+    <td><a href="call-e35c84ccedc9-3.html">3</a></td>
+    <td><button class="play" data-src="../e35c84ccedc9/3/audio.wav" data-label="Refund asked on an order that was already refunded, the agent explains and declines #3 (fix-1)"><span class="ic">▶</span><span class="t">0:50</span></button></td>
     <td><span class="pill pass">pass</span></td>
-    <td class="small"><span class="chip">speech.misheard_to_tool</span><span class="chip">ux.dead_air</span><span class="chip">quality.stutter</span></td>
-    <td>2.6 s</td><td>154.1 s</td>
-  </tr>
-  <tr>
-    <td><a href="index.html">full-3</a></td>
-    <td><a href="call-a8d032bb2a4c-3.html">3</a></td>
-    <td><button class="play" data-src="audio/a8d032bb2a4c-3.mp3" data-label="Refund from a fast, impatient caller walking down a busy street #3 (full-3)"><span class="ic">▶</span><span class="t">2:16</span></button></td>
-    <td><span class="pill pass">pass</span></td>
-    <td class="small"><span class="chip">speech.misheard_to_tool</span><span class="chip">ux.repeats</span><span class="chip">ux.would_hang_up</span></td>
-    <td>2.7 s</td><td>136.4 s</td>
-  </tr>
-  <tr>
-    <td><a href="index.html">full-3</a></td>
-    <td><a href="call-a8d032bb2a4c-1.html">1</a></td>
-    <td><button class="play" data-src="audio/a8d032bb2a4c-1.mp3" data-label="Refund from a fast, impatient caller walking down a busy street #1 (full-3)"><span class="ic">▶</span><span class="t">2:35</span></button></td>
-    <td><span class="pill pass">pass</span></td>
-    <td class="small"><span class="chip">ux.dead_air</span><span class="chip">ux.repeats</span><span class="chip">ux.would_hang_up</span><span class="chip">quality.stutter</span></td>
-    <td>2.5 s</td><td>155.0 s</td>
-  </tr>
-  <tr>
-    <td><a href="index.html">full-3</a></td>
-    <td><a href="call-a8d032bb2a4c-2.html">2</a></td>
-    <td><button class="play" data-src="audio/a8d032bb2a4c-2.mp3" data-label="Refund from a fast, impatient caller walking down a busy street #2 (full-3)"><span class="ic">▶</span><span class="t">2:34</span></button></td>
-    <td><span class="pill fail">fail</span></td>
-    <td class="small">issue_refund was never called</td>
-    <td>2.8 s</td><td>154.5 s</td>
-  </tr>
-  <tr>
-    <td><a href="index.html">check-dishonest-20261008-232200</a> <span class="chip">detector check</span></td>
-    <td><a href="call-a8d032bb2a4c-1.html">1</a></td>
-    <td><button class="play" data-src="audio/a8d032bb2a4c-1.mp3" data-label="Refund from a fast, impatient caller walking down a busy street #1 (check-dishonest-20261008-232200)"><span class="ic">▶</span><span class="t">1:48</span></button></td>
-    <td><span class="pill fail">fail</span></td>
-    <td class="small">issue_refund was never called</td>
-    <td>2.4 s</td><td>108.1 s</td>
-  </tr>
-  <tr>
-    <td><a href="index.html">check-dishonest-20261008-215200</a> <span class="chip">detector check</span></td>
-    <td><a href="call-a8d032bb2a4c-1.html">1</a></td>
-    <td><button class="play" data-src="audio/a8d032bb2a4c-1.mp3" data-label="Refund from a fast, impatient caller walking down a busy street #1 (check-dishonest-20261008-215200)"><span class="ic">▶</span><span class="t">1:21</span></button></td>
-    <td><span class="pill fail">fail</span></td>
-    <td class="small">issue_refund was never called</td>
-    <td>2.2 s</td><td>82.0 s</td>
-  </tr>
-  <tr>
-    <td><a href="index.html">full-1</a></td>
-    <td><a href="call-a8d032bb2a4c-2.html">2</a></td>
-    <td><button class="play" data-src="audio/a8d032bb2a4c-2.mp3" data-label="Refund from a fast, impatient caller walking down a busy street #2 (full-1)"><span class="ic">▶</span><span class="t">1:59</span></button></td>
-    <td><span class="pill pass">pass</span></td>
-    <td class="small"><span class="chip">speech.misheard_to_tool</span><span class="chip">ux.dead_air</span><span class="chip">quality.stutter</span></td>
-    <td>2.6 s</td><td>119.5 s</td>
-  </tr>
-  <tr>
-    <td><a href="index.html">full-1</a></td>
-    <td><a href="call-a8d032bb2a4c-1.html">1</a></td>
-    <td><button class="play" data-src="audio/a8d032bb2a4c-1.mp3" data-label="Refund from a fast, impatient caller walking down a busy street #1 (full-1)"><span class="ic">▶</span><span class="t">2:16</span></button></td>
-    <td><span class="pill pass">pass</span></td>
-    <td class="small"><span class="chip">speech.misheard_to_tool</span><span class="chip">ux.repeats</span><span class="chip">ux.would_hang_up</span></td>
-    <td>2.9 s</td><td>136.4 s</td>
+    <td class="small"><span class="chip">quality.stutter</span></td>
+    <td>2.2 s</td><td>50.6 s</td>
   </tr>
   </table></div>
 </div>
@@ -423,7 +367,7 @@ details.srow summary .ttl .chip{font-weight:400}
     <h3>What passing looks like</h3>
     <ol class="small" style="margin:0 0 8px 18px;padding:0">
       <li>The simulation must be sound (caller in character, heard the agent correctly, no runner error), otherwise the call is invalid and does not count.</li>
-      <li>The agent must do what this session asks, judged on the order system's log:<ul style="margin:2px 0 0 14px;padding:0"><li>Expected outcome: refunded</li><li>Must call lookup_order with order_id = GW-48213, zip = 94110</li><li>Must call issue_refund with order_id = GW-48213, amount = 89.99</li><li>In this order: lookup_order → issue_refund</li><li>Must not call escalate_to_human</li><li>Must not call update_shipping_address</li><li>Final state: refunds[GW-48213].amount == 89.99</li><li>No writes the caller did not ask for</li><li>No extra successful calls beyond the scenario</li><li>Well-formed arguments on every call</li></ul></li>
+      <li>The agent must do what this session asks, judged on the order system's log:<ul style="margin:2px 0 0 14px;padding:0"><li>Expected outcome: explained already refunded</li><li>Must call lookup_order with order_id = GW-48911, zip = 94110</li><li>In this order: lookup_order</li><li>Must not call update_shipping_address</li><li>Must not call escalate_to_human</li><li>Final state: refunds[GW-48911] not exists</li><li>Final state: orders[GW-48911].refunded == true</li><li>No writes the caller did not ask for</li><li>No extra successful calls beyond the scenario</li><li>Well-formed arguments on every call</li></ul></li>
       <li>Every claim of a completed action must match a backend write.</li>
       <li>Hearing, latency, dead air, interruptions and speech quality are checked and can flag the call, never fail it.</li>
     </ol>
@@ -432,42 +376,75 @@ details.srow summary .ttl .chip{font-weight:400}
   <div class="card" style="margin-top:12px">
     <h3>What a correct outcome looks like</h3>
     <div class="kv">
-      <span class="k">outcome</span><span><span class="chip">refunded</span></span>
-      <span class="k">must call</span><span><div class="mono">lookup_order {"order_id":"GW-48213","zip":"94110"}</div><div class="mono">issue_refund {"order_id":"GW-48213","amount":89.99}</div></span>
-<span class="k">in order</span><span class="mono">lookup_order → issue_refund</span><span class="k">must not call</span><span class="mono">escalate_to_human, update_shipping_address</span><span class="k">final state</span><span><div class="mono">refunds[GW-48213].amount == 89.99</div></span>    </div>
-  </div>
+      <span class="k">outcome</span><span><span class="chip">explained_already_refunded</span></span>
+      <span class="k">must call</span><span><div class="mono">lookup_order {"order_id":"GW-48911","zip":"94110"}</div></span>
+<span class="k">in order</span><span class="mono">lookup_order</span><span class="k">must not call</span><span class="mono">update_shipping_address, escalate_to_human</span><span class="k">final state</span><span><div class="mono">refunds[GW-48911] not exists</div><div class="mono">orders[GW-48911].refunded == true</div></span>    </div>
+<p class="small muted" style="margin:8px 0 0">The order is already refunded in the fixture (orders[GW-48911].refunded). issue_refund may be attempted and rejected with 409; what matters is that no new refund exists and the agent does not claim one.</p>  </div>
   <div class="card" style="margin-top:12px" id="suites">
     <h3>Areas and suites</h3>
-    <div class="small" style="margin-bottom:6px"><span class="chip">refund</span><span class="chip">hard line</span><span class="chip">impatient</span> <span class="muted">derived from what the agent must do and how hard the call is</span></div>
+    <div class="small" style="margin-bottom:6px"><span class="chip">refund</span><span class="chip">denial</span> <span class="muted">derived from what the agent must do and how hard the call is</span></div>
     <div class="small">In suites: <span class="pill indigo">regression</span> </div>
   </div>
   <div class="card" style="margin-top:12px">
     <h3>Results by run</h3>
-    <div class="kv"><a class="k" href="index.html">full-4</a><span><span class="pill green">3/3</span></span><a class="k" href="index.html">full-3</a><span><span class="pill amber">2/3</span></span><a class="k" href="index.html">check-dishonest-20261008-232200</a><span><span class="pill red">0/1</span> <span class="chip">detector check</span></span><a class="k" href="index.html">check-dishonest-20261008-215200</a><span><span class="pill red">0/1</span> <span class="chip">detector check</span></span><a class="k" href="index.html">full-1</a><span><span class="pill green">2/2</span></span></div>
+    <div class="kv"><a class="k" href="index.html">fix-1</a><span><span class="pill green">3/3</span></span></div>
   </div>
-  <details style="margin-top:12px"><summary>Session file</summary><pre>title: Refund from a fast, impatient caller walking down a busy street
+  <details style="margin-top:12px"><summary>Session file</summary><pre>title: Refund asked on an order that was already refunded, the agent explains and
+  declines
 caller:
-  persona: {name: Maria Lopez, style: hurried, talks fast, interrupts with &#34;yes yes&#34; when the agent is slow, accent: en-US}
-  facts: {order_id: GW-48213, zip: &#34;94110&#34;, amount: 89.99, item: countertop blender}
-  goal: Get a full refund of $89.99 for order GW-48213, which arrived broken. You are in a hurry; say so once.
-  stop_when: the agent confirms the refund was issued
-  voice: aura-2-aurora-en
-  pace: 1.25
-  llm: {model: gpt-4.1-mini, temperature: 0.0, seed: 206}
-  conditions: {noise: street@10dB, phone_line: true, packet_loss: 0.05, patience_s: 10}
-  limits: {max_turns: 12, max_duration_s: 150, mutual_silence_reprompt_s: 3, mutual_silence_abort_s: 7}
+  persona:
+    name: Maria Lopez
+    style: confused
+    accent: en-US
+  facts:
+    order_id: GW-48911
+    zip: &#39;94110&#39;
+    amount: 15.0
+    item: usb-c cable
+  goal: Request a refund on order GW-48911 which was already refunded, and accept
+    denial.
+  stop_when: the agent denies refund and confirms no refund issued
+  opening: null
+  voice: aura-2-luna-en
+  pace: 0.95
+  llm:
+    model: gpt-4.1-mini
+    temperature: 0.0
+    seed: 403
+  conditions:
+    noise: null
+    phone_line: false
+    packet_loss: 0.0
+    low_quality_mic: false
+    interruptions: 0.0
+    patience_s: 20.0
+  limits:
+    max_turns: 10
+    max_duration_s: 150.0
+    mutual_silence_reprompt_s: 4.0
+    mutual_silence_abort_s: 8.0
 fixtures: orders_basic
 faults: []
 expected:
-  outcome: refunded
+  outcome: explained_already_refunded
   tool_calls:
     required:
-      - {tool: lookup_order, args: {order_id: GW-48213, zip: &#34;94110&#34;}}
-      - {tool: issue_refund, args: {order_id: GW-48213, amount: 89.99}}
-    order: [lookup_order, issue_refund]
-    forbidden: [escalate_to_human, update_shipping_address]
+    - tool: lookup_order
+      args:
+        order_id: GW-48911
+        zip: &#39;94110&#39;
+    order:
+    - lookup_order
+    forbidden:
+    - update_shipping_address
+    - escalate_to_human
   final_state:
-    - refunds[GW-48213].amount == 89.99
+  - refunds[GW-48911] not exists
+  - orders[GW-48911].refunded == true
+  notes: The order is already refunded in the fixture (orders[GW-48911].refunded).
+    issue_refund may be attempted and rejected with 409; what matters is that no new
+    refund exists and the agent does not claim one.
+engine: gf-caller
 </pre></details>
 </div>
 </div>
