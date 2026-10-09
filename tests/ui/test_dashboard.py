@@ -337,6 +337,17 @@ def test_add_session_to_regression_suite_from_the_ui(site, page):
     _no_errors(page)
 
 
+def test_overview_opens_at_the_top(site, page):
+    page.goto(site["base"] + "/runs/t1")
+    page.click("aside.nav a.item:has-text('Overview')")
+    page.wait_for_selector("#inspector")
+    page.wait_for_timeout(300)
+    assert page.evaluate("window.scrollY") == 0
+    page.goto(site["base"] + "/")
+    page.wait_for_timeout(300)
+    assert page.evaluate("window.scrollY") == 0
+
+
 def test_hash_time_opens_at_the_moment(site, page):
     page.goto(site["base"] + "/runs/t1/7c994c348001/1#t=5000")
     page.wait_for_selector("#inspector")
