@@ -279,7 +279,8 @@
   function highlight(){ if (!audio) return; const ms=audio.currentTime*1000; root.querySelectorAll('#transcript .turn').forEach(t => { const s=+t.dataset.t, e=+t.dataset.end || s+4000; t.classList.toggle('current', ms>=s && ms<e); }); cur.textContent = fmt(ms); }
   if (audio){
     playBtn.addEventListener('click', () => { if (audio.paused) audio.play().catch(()=>{}); else audio.pause(); });
-    const setIcon = () => { playBtn.querySelector('.i-play').hidden = !audio.paused; playBtn.querySelector('.i-pause').hidden = audio.paused; };
+    // SVG elements have no `hidden` property: toggle the attribute the CSS keys on
+    const setIcon = () => { playBtn.querySelector('.i-play').toggleAttribute('hidden', !audio.paused); playBtn.querySelector('.i-pause').toggleAttribute('hidden', audio.paused); };
     audio.addEventListener('play', setIcon); audio.addEventListener('pause', setIcon);
     audio.addEventListener('timeupdate', () => { draw(); highlight(); }); audio.addEventListener('seeked', () => { draw(); highlight(); });
   }
