@@ -1540,7 +1540,9 @@ LANES = [
 
 def call_flow(turns: list[dict[str, Any]], lat_turns: dict[str, Any]) -> dict[str, Any]:
     """Swimlane view (T6.23): exchanges (one caller turn and the agent's response to it; the
-    greeting is exchange 0) × lanes, with numbered cards in time order."""
+    greeting is exchange 0) × lanes, with numbered cards in time order. The agent's decision
+    card is created when its first tool call lands (so it precedes the tools it triggers) or,
+    for a reply without tools, just before the reply."""
     lat_by_n = {t["n"]: t for t in lat_turns.get("turns", [])}
     exchanges: list[dict[str, Any]] = []
 
@@ -1555,24 +1557,20 @@ def call_flow(turns: list[dict[str, Any]], lat_turns: dict[str, Any]) -> dict[st
         }
 
     cur = new(0, 0, "Greeting")
-    pending_tools: list[str] = []
-    pending_first_t = 0
+    decision: dict[str, Any] | None = None
     for it in sorted(turns, key=lambda e: (e["t_ms"] or 0, 0 if e["kind"] == "tool" else 1)):
         t = it["t_ms"] or 0
         if it["kind"] == "caller" and not it.get("interruption"):
-            if cur["cards"] or cur["n"] == 0 and exchanges == [] and False:
-                exchanges.append(cur)
-            elif cur["n"] == 0:
-                exchanges.append(cur)  # an empty greeting column still marks the start
+            exchanges.append(cur)
             cur = new(len(exchanges), t, f"Exchange {len(exchanges)}")
-            pending_tools = []
+            decision = None
         if it["kind"] == "caller":
             cur["cards"].append(
                 {
                     "lane": "caller",
                     "t_ms": t,
                     "end_ms": it.get("end_ms"),
-                    "title": "interrupts" if it.get("interruption") else "Speaks",
+                    "title": "Interrupts" if it.get("interruption") else "Speaks",
                     "text": it["text"],
                     "dur_ms": (it.get("end_ms") or t) - t,
                     "tests": it.get("tests", []),
@@ -1596,9 +1594,17 @@ def call_flow(turns: list[dict[str, Any]], lat_turns: dict[str, Any]) -> dict[st
                     }
                 )
         elif it["kind"] == "tool":
-            if not pending_tools:
-                pending_first_t = t
-            pending_tools.append(it["tool"])
+            if decision is None:
+                decision = {
+                    "lane": "decision",
+                    "t_ms": t - 1,
+                    "title": f"Decides to call {it['tool']}",
+                    "text": "",
+                    "tests": [],
+                }
+                cur["cards"].append(decision)
+            else:
+                decision["title"] += f", {it['tool']}"
             cur["cards"].append(
                 {
                     "lane": "tools",
@@ -1615,20 +1621,19 @@ def call_flow(turns: list[dict[str, Any]], lat_turns: dict[str, Any]) -> dict[st
             )
         elif it["kind"] == "agent":
             lat = lat_by_n.get(it["n"]) or {}
-            decided = f"call {', '.join(pending_tools)}" if pending_tools else "reply directly"
-            cur["cards"].append(
-                {
+            if decision is None:
+                decision = {
                     "lane": "decision",
-                    "t_ms": (pending_first_t - 1) if pending_tools else (t - 1),
-                    "title": "Decides to " + decided,
-                    "text": (
-                        f"LLM first token {lat['llm_ttft_ms']} ms" if lat.get("llm_ttft_ms") else ""
-                    )
-                    + (f" · end of turn {lat['eou_ms']} ms" if lat.get("eou_ms") else ""),
+                    "t_ms": t - 1,
+                    "title": "Decides to reply directly",
+                    "text": "",
                     "tests": [],
                 }
-            )
-            pending_tools = []
+                cur["cards"].append(decision)
+            decision["text"] = (
+                f"LLM first token {lat['llm_ttft_ms']} ms" if lat.get("llm_ttft_ms") else ""
+            ) + (f" · end of turn {lat['eou_ms']} ms" if lat.get("eou_ms") else "")
+            decision = None
             cur["cards"].append(
                 {
                     "lane": "response",
@@ -1638,7 +1643,7 @@ def call_flow(turns: list[dict[str, Any]], lat_turns: dict[str, Any]) -> dict[st
                     "text": it["text"],
                     "latency_ms": it.get("latency_ms"),
                     "latency_class": it.get("latency_class"),
-                    "dur_ms": ((it.get("end_ms") or t) - t),
+                    "dur_ms": (it.get("end_ms") or t) - t,
                     "tests": it.get("tests", []),
                     "n": it["n"],
                 }
