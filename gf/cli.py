@@ -491,3 +491,28 @@ def sessions_suites() -> None:
         typer.echo(f"{name} ({len(members)} runnable of {len(suites[name])} listed)")
         for x in members:
             typer.echo(f"  {x.title}  [{x.id}]")
+
+
+runs_app = typer.Typer(help="Manage run folders.", no_args_is_help=True)
+app.add_typer(runs_app, name="runs")
+
+
+@runs_app.command("archive")
+def runs_archive(
+    run_ids: list[str] = typer.Argument(None, help="Run ids to archive (default: --all)."),  # noqa: B008
+    all_runs: bool = typer.Option(False, "--all", help="Archive every run."),
+    restore: bool = typer.Option(
+        False, "--restore", help="Move the given runs back out of the archive."
+    ),
+) -> None:
+    """Move finished runs into runs/_archive/ so they leave every list and page (reversible:
+    the folders are kept whole; --restore brings them back). Use it before a new baseline
+    when the scorer or the session set changed and old runs can no longer be compared."""
+    from gf.runs_archive import archive
+    from gf.runs_archive import restore as _restore
+
+    moved = _restore(run_ids or []) if restore else archive(run_ids or [], all_runs=all_runs)
+    for rid in moved:
+        typer.echo(f"{'restored' if restore else 'archived'} {rid}")
+    if not moved:
+        typer.echo("nothing to do")

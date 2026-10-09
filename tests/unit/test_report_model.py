@@ -327,3 +327,30 @@ def test_call_flow_groups_a_record_into_exchanges(tmp_path, monkeypatch):
         decisions = e["lanes"]["decision"]
         for card in e["lanes"]["tools"]:
             assert any(d["num"] < card["num"] for d in decisions)  # the decision precedes its tool
+
+
+def test_archive_moves_runs_out_of_every_list_and_restores(tmp_path, monkeypatch):
+    from gf import environment as E
+    from gf.runner.batch import list_runs
+    from gf.runs_archive import archive, archived, restore
+
+    runs = tmp_path / "runs"
+    monkeypatch.setenv("RUNS_DIR", str(runs))
+    info = {"python": "3.12", "livekit-agents": "1.8.5"}
+    for rid in ("old-1", "old-2"):
+        (runs / rid).mkdir(parents=True)
+        man = {
+            "run_id": rid,
+            "started_at": f"2026-10-0{rid[-1]}T10:00:00+00:00",
+            "environment": info,
+            "duration_s": 1.0,
+        }
+        E.stamp(rid, runs / rid, man, ["a"])
+        (runs / rid / "manifest.json").write_text(json.dumps(man))
+    assert [p.name for p in list_runs()] == ["old-2", "old-1"]
+    assert archive(["old-1"]) == ["old-1"]
+    assert [p.name for p in list_runs()] == ["old-2"] and [p.name for p in archived()] == ["old-1"]
+    assert [r["run_id"] for r in E.registry()[0]["runs"]] == ["old-2"]
+    assert archive([], all_runs=True) == ["old-2"] and list_runs() == [] and E.registry() == []
+    assert restore(["old-2"]) == ["old-2"] and [p.name for p in list_runs()] == ["old-2"]
+    assert E.registry()[0]["runs"][0]["run_id"] == "old-2"
