@@ -126,6 +126,7 @@ def test_run_page_content(env):
     assert 'value="suite:regression"' in runs_page and 'name="pick"' in runs_page
     sessions = env["client"].get("/sessions").text
     assert 'data-filter="area:refund"' in sessions
+    assert 'id="sessions-count"' in sessions and 'data-label="Suite regression"' in sessions
     sp = env["client"].get("/sessions/7c994c348001").text
     assert 'id="btn-add-suite"' in sp
     r2 = env["client"].post(

@@ -330,6 +330,11 @@ def test_add_session_to_regression_suite_from_the_ui(site, page):
     assert (
         "7c994c348001" in ids and visible.count() < page.locator("#sessions details.srow").count()
     )
+    assert page.locator("#sessions-title").inner_text() == "Suite regression"
+    total = page.locator("#sessions details.srow").count()
+    assert page.locator("#sessions-count").inner_text() == f"({visible.count()} of {total})"
+    page.click('#filters [data-filter=""]')
+    assert page.locator("#sessions-title").inner_text() == "All sessions"
     page.goto(site["base"] + "/runs")
     assert page.locator('input[name=pick][value="suite:regression"]').count() == 1
     _no_errors(page)
