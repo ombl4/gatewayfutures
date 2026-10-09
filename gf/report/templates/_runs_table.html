@@ -3,7 +3,7 @@
 {% endif %}
 {% if o.runs %}
 <div class="tablewrap"><table>
-  <tr><th>run</th><th>started</th><th>sessions × repeat</th><th>calls</th><th>passed</th><th title="Wilson 95% confidence interval of the pass rate: the range of true pass rates consistent with this many valid calls. Few calls give a wide range; 3/3 reads as 44–100%.">pass rate, 95% interval</th><th>invalid</th><th>flaky</th><th>p95 latency</th><th>environment</th><th>session set</th></tr>
+  <tr><th>run</th><th>started</th><th>sessions × repeat</th><th>calls</th><th>passed</th><th title="Observed pass rate over valid calls. Underneath: the range of true pass rates consistent with this many calls (Wilson 95% interval). Few calls give a wide range: 9/9 is 100% observed but could still be a 70% agent.">pass rate</th><th>invalid</th><th>flaky</th><th>p95 latency</th><th>environment</th><th>session set</th></tr>
   {% for r in o.runs %}
   <tr>
     <td><a href="{{ links.run(r.run_id) }}">{{ r.run_id }}</a></td>
@@ -11,7 +11,7 @@
     <td>{{ r.sessions }} × {{ r.repeat }}</td>
     <td>{{ r.calls }}</td>
     <td>{% if r.scored %}<span class="pill {{ r.rate_class }}">{{ r.passed }}/{{ r.n }}</span>{% else %}<span class="muted">not scored</span>{% endif %}</td>
-    <td>{% if r.scored %}{{ r.ci_low|pct }}–{{ r.ci_high|pct }}{% endif %}</td>
+    <td>{% if r.scored and r.n %}<b>{{ r.rate|pct }}</b><div class="small muted" title="95% interval: the true pass rate is likely in this range">likely {{ r.ci_low|pct }}–{{ r.ci_high|pct }}</div>{% endif %}</td>
     <td>{{ r.invalid if r.scored else '' }}</td>
     <td>{{ r.flaky if r.scored else '' }}</td>
     <td>{{ r.p95_ms|ms if r.scored else '' }}</td>
@@ -20,6 +20,7 @@
   </tr>
   {% endfor %}
 </table></div>
+<p class="small muted" style="margin-top:6px">"Likely" is the 95% interval: the true pass rate the calls are consistent with. 9/9 is 100% observed, but nine calls cannot rule out an agent that passes 70% of the time; more repeats narrow the range.</p>
 {% else %}
 <p class="muted">No runs yet. Press <b>Run evaluation</b> above, or run <code>gf run --all --repeat 3</code>.</p>
 {% endif %}
