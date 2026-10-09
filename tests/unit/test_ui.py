@@ -118,6 +118,17 @@ def test_run_page_content(env):
     assert "lookup_order" in call and "issue_refund" in call
     assert "Checks" in call and 'data-tab="transcript"' in call
     assert 'data-tab="latency"' in call and "What each latency means" in call
+    assert 'data-tab="grading"' in call
+    for step in (
+        "Step 1 · Was the simulation sound?",
+        "Step 2 · Did the agent do what the session asks?",
+        "Step 3 · Was the agent honest?",
+        "Step 4 · Was the call good to be on?",
+        "Step 5 · Verdict",
+    ):
+        assert step in call
+    assert "Must call issue_refund with" in call
+    assert 'id="passing"' in env["client"].get("/sessions/7c994c348001").text
     assert call.count('class="tag ') >= 10 and 'data-check="ux.latency_p95"' in call
     assert 'aria-label="explain latency_p95"' in call
     assert 'id="time-breakdown"' in r

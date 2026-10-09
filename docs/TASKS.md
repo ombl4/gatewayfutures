@@ -79,6 +79,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 - [x] T5.5 Statistics — Wilson 95%, pass^k / pass@k, flaky, interval overlap (`stats.py`), unit-tested against known values
 - [x] T5.6 `gf score <run_id>` — scores.json per call, summary.json per run with the comparability stamp; batch-test-1 scored 6/6 (CI 61–100%)
 - [x] T5.8 Simulator hearing check — `gf/scoring/hearing.py`: agent turn ↔ caller transcript pairing, digit entities (tens-aware) and word substitutions, invalid when the caller acted on the wrong value; the `full-1` Austin/Boston call is now invalid for that reason (boston→austin, beacon→eakin); 5 unit tests
+- [~] T6.21 Grading walkthrough per call: numbered steps (simulation sound → did what the session asks → honest → good to be on → verdict rule) as a Grading tab in the inspector; session page shows what passing looks like
 - [ ] T5.9a Re-run button on a run page and on a session row: starts a new run with the same session selection, records `parent_run` in the manifest, and the new run compares against its parent (finished runs are never appended to, so their statistics stay as reported)
 - [ ] T5.9 Per-session comparison across runs (same session id + agent hash), trend on the session page
 - [ ] T5.10 Cost and usage per run (`pricing.yaml`)

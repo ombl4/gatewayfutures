@@ -23,6 +23,7 @@
 
   <div class="tabs" data-tabs="inspector">
     <button type="button" data-tab="transcript" class="on">Transcript</button>
+    <button type="button" data-tab="grading">Grading</button>
     <button type="button" data-tab="tools">Tool calls<b>{{ c.tool_calls|length }}</b></button>
     <button type="button" data-tab="timeline">Timeline</button>
     <button type="button" data-tab="latency">Latency{% if c.latency_turns.summary.heard_ms.p95 %}<b>p95 {{ c.latency_turns.summary.heard_ms.p95|ms }}</b>{% endif %}</button>
@@ -59,6 +60,28 @@
         <div class="deadair" data-t="{{ it.t_ms }}">{{ it.t_ms|clock }} · {{ it.gap_ms|ms }} of silence from both sides</div>
         {% endif %}
       {% endfor %}
+      </div>
+
+      <div class="pane" data-pane="grading" hidden id="grading">
+        {% set G = c.grading %}
+        <p class="small muted" style="margin:6px 0 10px">How this call was graded, in the order the verdict is decided. Every result points at evidence in the backend log, the recording or the transcript.</p>
+        {% for st in G.steps %}
+        <div class="card" style="margin-bottom:8px;padding:10px 14px;border-left:3px solid {{ {'pass':'var(--green)','fail':'var(--red)','warn':'var(--amber)','invalid':'var(--grey)','none':'var(--line)'}[st.state] }}">
+          <h3 style="margin:0 0 2px"><span>Step {{ st.num }} · {{ st.title }}</span><span class="pill {{ {'pass':'green','fail':'red','warn':'amber','invalid':'grey','none':'grey'}[st.state] }}">{{ {'pass':'passed','fail':'failed','warn':'flagged','invalid':'invalid','none':'not applicable'}[st.state] }}</span></h3>
+          <div class="small muted" style="margin-bottom:6px">{{ st.rule }}</div>
+          {% if st.requirements %}
+          <div class="small" style="margin-bottom:6px"><b>What this session asks for</b>
+            <ul class="list" style="margin:2px 0 0 16px;padding:0">{% for rq in st.requirements %}<li>{{ rq.text }}{% if rq.results %} {% for h in rq.results %}<span class="pill {{ 'green' if h.passed else ('red' if h.severity == 'hard' else 'amber') }}">{{ 'ok' if h.passed else ('failed' if h.severity == 'hard' else 'flagged') }}</span>{% endfor %}{% endif %}</li>{% endfor %}</ul>
+          </div>
+          {% endif %}
+          {% if st.verdict %}
+          <div class="root {{ {'pass':'pass','fail':'fail','invalid':'invalid'}[st.verdict] }}" style="margin:0"><b>{{ {'pass':'Passed','fail':'Failed','invalid':'Invalid simulation'}[st.verdict] }}</b>{{ st.why }}</div>
+          {% elif st.checks %}
+          <div class="tags">{% for ch in st.checks %}{% set cs = 'pass' if ch.passed else ('fail' if ch.severity=='hard' else ('warn' if ch.severity=='soft' else 'info')) %}<span class="tag {{ cs }}" title="{{ ch.label }}: {{ ch.what_happened }}"><span class="m">{{ {'pass':'✓','fail':'✗','warn':'!','info':'·'}[cs] }}</span><code>{{ ch.tag }}</code>{% if ch.brief %}<span class="val">{{ ch.brief }}</span>{% endif %}{% if ch.jump_ms is not none %}<a class="jump" href="#" data-seek="{{ ch.jump_ms }}" style="margin-left:2px">{{ ch.jump_ms|clock }}</a>{% endif %}</span>{% endfor %}</div>
+          {% for f in st.fails %}<div class="small" style="color:var(--{{ 'red' if st.state == 'fail' else 'amber' }})">{{ f.label }}: {{ f.what_happened }}</div>{% endfor %}
+          {% endif %}
+        </div>
+        {% endfor %}
       </div>
 
       <div class="pane" data-pane="tools" hidden>

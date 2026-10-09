@@ -233,8 +233,13 @@ def test_kpis_accordion_and_issues(site, page):
 def test_inspector_controls(site, page):
     page.goto(site["base"] + "/runs/t1/7c994c348001/1")
     insp = page.locator("#inspector")
-    assert insp.locator(".root").count() == 1
+    assert insp.locator("#insp-root").count() == 1
     # tabs
+    page.click('#inspector [data-tab="grading"]')
+    assert page.locator("#grading .card").count() == 5
+    verdict = page.locator("#grading .card").nth(4).locator(".pill").first.inner_text().lower()
+    header = page.locator("#inspector .hd .pill").first.inner_text().lower()
+    assert verdict.split()[0] in header
     for tab in ("tools", "timeline", "latency", "checks", "details", "transcript"):
         page.click(f'#inspector [data-tab="{tab}"]')
         assert page.locator(f'#inspector [data-pane="{tab}"]').is_visible()

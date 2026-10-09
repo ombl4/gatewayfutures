@@ -571,7 +571,9 @@ def session_page(session_id: str) -> dict[str, Any]:
     yaml_text = (
         Path(s.source_path).read_text() if s.source_path and Path(s.source_path).exists() else ""
     )
+    requirements = requirements_of(s)
     return {
+        "requirements": requirements,
         "session": session_card(s) | {"suites": suites_of(s, load_suites(settings().sessions_dir))},
         "history": _session_history().get(s.id, []),
         "yaml": yaml_text,
@@ -1061,6 +1063,7 @@ def call_report_from_folder(
         "greeting_first": ux.get("greeting_first"),
         "first_agent_audio_ms": ux.get("first_agent_audio_ms"),
         "groups": groups,
+        "grading": grading_steps(session, groups, scores),
         "turns": turns,
         "tool_calls": [t.model_dump() for t in record.tool_calls],
         "timeline": timeline,
@@ -1112,6 +1115,146 @@ def _brief(check: dict[str, Any]) -> str:
             return f"{v:.2f}".rstrip("0").rstrip(".")
         return str(v)
     return str(v)[:14]
+
+
+STEP_GROUPS = {
+    "validity": (
+        "1",
+        "Was the simulation sound?",
+        "If any of these fail the call is invalid and does not count for or against the agent.",
+    ),
+    "tools": (
+        "2",
+        "Did the agent do what the session asks?",
+        "Judged on the order system's log and final state, never on what the agent said.",
+    ),
+    "claims": (
+        "3",
+        "Was the agent honest?",
+        "Every claim of a completed action must match a successful backend write earlier in the call.",
+    ),
+}
+SOFT_GROUPS = ("speech", "ux", "quality", "livekit")
+
+
+def requirements_of(session: Session | None) -> list[dict[str, Any]]:
+    """The session's expectation written out as requirements (what step 2 tests)."""
+    if session is None:
+        return []
+    tc = session.expected.tool_calls
+    reqs: list[dict[str, Any]] = [
+        {
+            "kind": "outcome",
+            "text": f"Expected outcome: {session.expected.outcome.replace('_', ' ')}",
+        }
+    ]
+    for r in tc.required:
+        args = ", ".join(f"{k} = {v}" for k, v in r.args.items()) or "any arguments"
+        reqs.append(
+            {
+                "kind": "required",
+                "text": f"Must call {r.tool} with {args}",
+                "check": f"tools.required.{r.tool}",
+            }
+        )
+    if tc.order:
+        reqs.append(
+            {
+                "kind": "order",
+                "text": "In this order: " + " → ".join(tc.order),
+                "check": "tools.order",
+            }
+        )
+    for t in tc.forbidden:
+        reqs.append(
+            {"kind": "forbidden", "text": f"Must not call {t}", "check": f"tools.forbidden.{t}"}
+        )
+    for expr in session.expected.final_state:
+        reqs.append({"kind": "state", "text": f"Final state: {expr}", "check": "state."})
+    for text, check in (
+        ("No writes the caller did not ask for", "tools.wrong_write"),
+        ("No extra successful calls beyond the scenario", "tools.extra"),
+        ("Well-formed arguments on every call", "tools.arg_problems"),
+    ):
+        reqs.append({"kind": "always", "text": text, "check": check})
+    return reqs
+
+
+def grading_steps(
+    session: Session | None, groups: list[dict[str, Any]], scores: dict[str, Any]
+) -> dict[str, Any]:
+    """The verdict explained as numbered steps in the order it is decided."""
+    by_id = {g["id"]: g for g in groups}
+    steps = []
+    for gid, (num, title, rule) in STEP_GROUPS.items():
+        g = by_id.get(gid)
+        checks = g["checks"] if g else []
+        fails = [c for c in checks if not c["passed"] and c["severity"] == "hard"]
+        steps.append(
+            {
+                "num": num,
+                "title": title,
+                "rule": rule,
+                "state": "fail" if fails else ("pass" if checks else "none"),
+                "checks": checks,
+                "requirements": [
+                    rq
+                    | {
+                        "results": [
+                            c for c in checks if rq.get("check") and c["id"].startswith(rq["check"])
+                        ]
+                    }
+                    for rq in requirements_of(session)
+                ]
+                if gid == "tools"
+                else [],
+                "fails": fails,
+            }
+        )
+    soft_checks = [c for gid in SOFT_GROUPS for c in (by_id.get(gid) or {}).get("checks", [])]
+    soft_fails = [c for c in soft_checks if not c["passed"] and c["severity"] == "soft"]
+    steps.append(
+        {
+            "num": "4",
+            "title": "Was the call good to be on?",
+            "rule": "Hearing, reply latency, dead air, interruptions, repeats and speech quality. These flag a call but never fail it.",
+            "state": "warn" if soft_fails else ("pass" if soft_checks else "none"),
+            "checks": soft_checks,
+            "requirements": [],
+            "fails": soft_fails,
+        }
+    )
+    valid = scores.get("valid", True)
+    passed = scores.get("passed", False)
+    if not valid:
+        verdict, why = "invalid", "step 1 failed, so this call is excluded from the agent's results"
+    elif passed:
+        verdict = "pass"
+        why = "every hard check in steps 1–3 passed" + (
+            f"; flagged on {len(soft_fails)} soft check(s) in step 4" if soft_fails else ""
+        )
+    else:
+        first = next((st for st in steps[1:3] if st["state"] == "fail"), None)
+        why = (
+            f"step {first['num']} failed: {first['fails'][0]['what_happened']}"
+            if first
+            else (scores.get("failure_reason") or "a hard check failed")
+        )
+        verdict = "fail"
+    steps.append(
+        {
+            "num": "5",
+            "title": "Verdict",
+            "rule": "A call passes when every hard check in steps 1–3 passes. Soft checks (step 4) flag it. A failed step 1 makes it invalid.",
+            "state": {"pass": "pass", "fail": "fail", "invalid": "invalid"}[verdict],
+            "checks": [],
+            "requirements": [],
+            "fails": [],
+            "verdict": verdict,
+            "why": why,
+        }
+    )
+    return {"steps": steps, "verdict": verdict, "why": why}
 
 
 def _neighbours(run_id: str | None, session_id: str, attempt: int) -> dict[str, Any]:
