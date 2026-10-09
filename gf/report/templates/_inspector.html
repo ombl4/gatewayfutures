@@ -24,7 +24,6 @@
   <div class="tabs" data-tabs="inspector">
     {% set first = 'transcript' %}
     <button type="button" data-tab="transcript" class="on">Transcript</button>
-    <button type="button" data-tab="timeline">Timeline</button>
     <button type="button" data-tab="latency">Latency{% if c.latency_turns.summary.heard_ms.p95 %}<b>p95 {{ c.latency_turns.summary.heard_ms.p95|ms }}</b>{% endif %}</button>
     <button type="button" data-tab="spans">Spans{% if c.spans.summary.slow or c.spans.summary.errors %}<b{% if c.spans.summary.errors %} style="background:var(--red-bg);color:var(--red)"{% endif %}>{{ c.spans.summary.slow + c.spans.summary.errors }}</b>{% endif %}</button>
     <button type="button" data-tab="grading">Grading{% if c.n_fail %}<b style="background:var(--red-bg);color:var(--red)">{{ c.n_fail }} failed</b>{% endif %}{% if c.n_warn %}<b style="background:var(--amber-bg);color:var(--amber)">{{ c.n_warn }} flagged</b>{% endif %}</button>
@@ -115,16 +114,6 @@
       {% endfor %}
       </div>
         {% else %}<p class="small muted">The agent made no tool calls in this call.</p>{% endif %}
-      </div>
-
-      <div class="pane" data-pane="timeline" hidden>
-        <canvas id="insp-tl" class="tl" height="150"></canvas>
-        <div class="tablewrap" style="margin-top:10px"><table>
-        <tr><th>time</th><th>event</th><th>what happened</th><th>judged by</th></tr>
-        {% for it in c.turns %}
-        <tr class="tlrow" data-t="{{ it.t_ms }}" style="cursor:pointer"><td class="mono">{{ it.t_ms|clock }}</td><td>{{ {'caller':'caller turn','agent':'agent turn','tool':'tool call','dead_air':'dead air'}[it.kind] }}</td><td class="small">{% if it.kind == 'tool' %}<span class="mono">{{ it.tool }}</span> {{ it.status }} · {{ it.duration_ms }} ms{% elif it.kind == 'dead_air' %}{{ it.gap_ms|ms }} of silence{% else %}{{ it.text[:120] }}{% endif %}</td><td>{% for t in it.tests %}<span class="tag {{ t.state }}" title="{{ t.label }}: {{ t.text }}"><span class="m">{{ {'pass':'✓','fail':'✗','warn':'!','info':'·'}[t.state] }}</span><code>{{ t.tag }}</code></span> {% endfor %}</td></tr>
-        {% endfor %}
-        </table></div>
       </div>
 
       <div class="pane" data-pane="latency" hidden id="latency">
@@ -310,7 +299,6 @@
     audio.addEventListener('play', setIcon); audio.addEventListener('pause', setIcon);
     audio.addEventListener('timeupdate', () => { draw(); highlight(); }); audio.addEventListener('seeked', () => { draw(); highlight(); });
   }
-  root.addEventListener('click', e => { if (e.target.closest('[data-tab="timeline"]')) setTimeout(draw, 0); });
   window.addEventListener('resize', draw);
   draw();
   const start = {{ start_ms if (start_ms is defined and start_ms is not none) else 'null' }};

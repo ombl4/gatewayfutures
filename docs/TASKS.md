@@ -93,7 +93,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 - [x] T6.21 Grading walkthrough per call: numbered steps (simulation sound → did what the session asks → honest → good to be on → verdict rule) as a Grading tab in the inspector; session page shows what passing looks like
 - [x] T6.23 Call flow view — built, then removed from the UI on review (too noisy next to the annotated transcript); the `call_flow` builder and its unit test stay for a later, calmer rendering (`call_flow` in the report model; was: Call flow tab: six lanes × exchanges, numbered cards with SVG connectors, zoom, expand, click seeks and selects the tool event; default on the call page; unit + route + browser tests): swimlanes (caller, agent heard, agent decision, tools, agent response, evaluator) × exchanges, numbered cards with connectors, zoom, click-to-seek; default tab on the call page
 - [ ] T6.34 Spans as stacked reply breakdowns with hover popups; Latency tab merged into Spans
-- [ ] T6.33 Timeline tab removed
+- [x] T6.33 Timeline tab removed (2026-10-09)
 - [x] T6.32 Tool calls under Grading, tab removed (2026-10-09)
 - [x] T6.31 Negative controls on the Runs page (2026-10-09) — form moved from Scoring to the bottom of Runs with a jump button and the verdicts of previous control runs
 - [x] T6.30 Runs list with the latest run expanded (2026-10-09) — rows expand to the run's sessions (`/runs/<run>/sessions`), latest open on load; run page stripped of the overview blocks
