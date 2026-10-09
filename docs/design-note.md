@@ -51,3 +51,13 @@ The runner already treats the agent as a black box reached through a room: it cr
 3. **Event capture.** The provider's tool calls are read from the mock backend's log (unchanged, as long as the provider's tools call it with the call id), and its transcripts from the provider's call-end webhook or API instead of the data channel. Checks that depend only on the backend log and the audio work immediately; the agent-reported latency breakdown is the only provider-specific metric.
 
 Scoring, the record schema and the UI do not change: they only ever see a record folder.
+
+The UI already shows this: the header's provider menu lists LiveKit as current and the providers above as "next week", and the Providers page (`/providers`) carries the registry and the plan below.
+
+### The week, day by day
+
+1. **Day 1, lift the seam out of the runner.** Move what `gf/runner/call.py` does today behind the `Provider` protocol in `gf/providers/base.py`; the runner only uses the protocol. A `FakeProvider` in the tests proves the orchestration (folder layout, manifest, retry) without any network. Nothing a user sees changes.
+2. **Day 2, reach the new provider's agent with real audio.** Pipecat: run the bot on the LiveKit transport so it joins the caller's room. Telephony (Vapi, Retell, Bland): attach a SIP trunk to the caller's room and dial the agent's number. The caller, its audio conditions and the stereo recording are untouched, so every audio-based check (latency heard, dead air, talk-over, barge-in, WER) works on day two.
+3. **Day 3, point the provider's tools at the order system.** Register the four tools as webhooks to the mock backend, carrying the call id. The backend log and final state then grade the call exactly as today: required calls, order, forbidden calls, final-state assertions and claimed-without-acting need nothing else.
+4. **Day 4, collect the provider's transcript and events.** Implement `collect()`: fetch the call-end webhook or call API (transcript with timestamps, tool-call records) and write `agent_events.jsonl` in the record format. Where the provider reports its own latency, map it to the heard-vs-reported breakdown; where it does not, that breakdown is simply absent for the provider.
+5. **Day 5, config hash, environment tag, first like-for-like run.** `agent_config()` hashes the assistant definition fetched from the provider's API, so the env tag changes when someone edits the agent in the vendor console. Run the core suite three times, compare with the LiveKit baseline on the same session set, and mark the provider runnable in the registry.

@@ -241,6 +241,27 @@ def shell_info() -> dict[str, Any]:
         "tts": cfg.models.tts.model,
         "tools": list(cfg.tools),
         "hash": cfg.config_hash,
+        "providers": providers_rows(),
+    }
+
+
+def providers_rows() -> list[dict[str, Any]]:
+    from gf.providers import providers
+
+    return providers()
+
+
+def providers_page() -> dict[str, Any]:
+    """The Providers page (T4.6a): the registry with the current one marked, and the
+    day-by-day plan for adding one."""
+    from gf.providers import WEEK_PLAN, providers
+
+    rows = providers()
+    cur = next((p for p in rows if p["current"]), None)
+    return {
+        "providers": rows,
+        "current": cur,
+        "plan": [{"day": d, "title": t, "what": w} for d, t, w in WEEK_PLAN],
     }
 
 

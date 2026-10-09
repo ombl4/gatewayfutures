@@ -95,6 +95,7 @@ def test_pages_render(env):
         "/runs/t1",
         "/runs/t1/7c994c348001/1",
         "/runs/t1/ef113fc07616/2",
+        "/providers",
     ):
         r = c.get(path)
         assert r.status_code == 200, (path, r.status_code)
@@ -171,6 +172,13 @@ def test_run_page_content(env):
     assert "Environments" in envs and "t1" in envs  # untagged fixture run is listed as such
     assert "set-" in r  # the run page carries the session-set tag even for untagged runs
     assert env["client"].get("/api/environments").status_code == 200
+    # the provider menu (T4.6a): current provider named, designed-for ones listed, add link
+    home_html = env["client"].get("/").text
+    assert 'id="provider-menu"' in home_html and 'id="btn-add-provider"' in home_html
+    assert "LiveKit Agents" in home_html and "Pipecat" in home_html
+    prov = env["client"].get("/providers").text
+    assert 'id="add"' in prov and "Day 1" in prov and "Day 5" in prov
+    assert env["client"].get("/api/providers").json()["current"]["key"] == "livekit"
     home = env["client"].get("/?run=t1").text
     assert 'id="run-select"' in home and 'value="t1" selected' in home
     assert env["client"].get("/?run=nope").status_code == 200  # unknown run falls back to latest
@@ -339,5 +347,7 @@ def test_static_report_renders(env, tmp_path):
     assert (out / "call-7c994c348001-1.html").exists()
     assert "Refund for a broken blender, clean line" in (out / "index.html").read_text()
     assert (out / "sessions.html").exists() and (out / "scoring.html").exists()
+    assert "Day 1" in (out / "providers.html").read_text()
+    assert 'href="providers.html#add"' in (out / "index.html").read_text()
     page = (out / "call-7c994c348001-1.html").read_text()
     assert 'href="index.html"' in page and "lookup_order" in page

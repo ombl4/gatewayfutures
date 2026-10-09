@@ -173,6 +173,21 @@ def test_navigation_and_header(site, page):
         assert urlparse(page.url).path == path
         assert crumb in page.locator(".crumbs").inner_text()
         assert label in page.locator("aside.nav .item.active").inner_text()
+    # provider menu (T4.6a): opens from the pill, names the current provider, closes on an
+    # outside click, and "Add a provider" reaches the Providers page
+    menu = page.locator("#provider-menu .menu")
+    assert not menu.is_visible()
+    page.click("#provider-menu summary")
+    assert menu.is_visible()
+    assert "current" in menu.locator(".mi.cur").inner_text()
+    assert menu.locator(".mi").count() >= 3
+    page.mouse.click(640, 600)  # anywhere outside the menu
+    assert not menu.is_visible()
+    page.click("#provider-menu summary")
+    page.click("#btn-add-provider")
+    assert urlparse(page.url).path == "/providers" and page.locator("#add").is_visible()
+    assert "Providers" in page.locator(".crumbs").inner_text()
+    page.goto(site["base"] + "/")
     # agent block rows reach the agent page anchors
     page.click("aside.nav a.row:has-text('Tools')")
     assert page.url.endswith("/agent#tools") and page.locator("#tools").is_visible()

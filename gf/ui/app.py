@@ -200,6 +200,11 @@ def environments():
     return page("environments.html", e=model.environments_page())
 
 
+@app.get("/providers", response_class=HTMLResponse)
+def providers():
+    return page("providers.html", p=model.providers_page())
+
+
 @app.get("/sessions", response_class=HTMLResponse)
 def sessions():
     return page("sessions.html", p=model.sessions_page())
@@ -478,6 +483,11 @@ def api_call(run_id: str, session_id: str, attempt: int):
 @app.get("/api/environments")
 def api_environments():
     return model.environments_page()
+
+
+@app.get("/api/providers")
+def api_providers():
+    return model.providers_page()
 
 
 @app.get("/api/sessions")

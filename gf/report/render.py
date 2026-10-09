@@ -45,6 +45,9 @@ class Links:
     def environments(self) -> str:
         return "/environments" if self.mode == "live" else "environments.html"
 
+    def providers(self) -> str:
+        return "/providers" if self.mode == "live" else "providers.html"
+
     def sessions(self) -> str:
         return "/sessions" if self.mode == "live" else "sessions.html"
 

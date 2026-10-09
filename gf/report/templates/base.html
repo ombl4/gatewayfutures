@@ -75,6 +75,17 @@ a.pill:hover{text-decoration:none;filter:brightness(.95)}
 .status-pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600;background:#fff;color:var(--ink)}
 .status-pill i{width:7px;height:7px;border-radius:50%;background:#c4c8cf}
 .status-pill.ok i{background:var(--green)}.status-pill.bad i{background:var(--red)}
+.status-pill .chev{width:10px;height:10px;margin-left:2px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+details.pmenu{position:relative}details.pmenu>summary{list-style:none;cursor:pointer;user-select:none}details.pmenu>summary::-webkit-details-marker{display:none}
+details.pmenu .menu{position:absolute;right:0;top:calc(100% + 6px);z-index:6;min-width:280px;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.1);padding:6px}
+.pmenu .hd{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:6px 10px 4px;font-weight:600}
+.pmenu .mi{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;font-size:12.5px;color:var(--ink);text-decoration:none;white-space:nowrap}
+.pmenu .mi:hover{background:var(--grey-bg);text-decoration:none}
+.pmenu .mi i{width:7px;height:7px;border-radius:50%;background:#c4c8cf;flex:none}
+.pmenu .mi.cur i{background:var(--green)}.pmenu .mi.cur.bad i{background:var(--red)}
+.pmenu .mi em{margin-left:auto;font-style:normal;font-size:11px;color:var(--muted);padding-left:12px}
+.pmenu .mi.add{border-top:1px solid var(--line);margin-top:4px;border-radius:0 0 7px 7px;color:var(--accent-ink);font-weight:600}
+ol.plan{padding-left:20px}ol.plan li{margin:0 0 10px}
 .btn{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:7px;border:1px solid var(--line);background:#fff;font:inherit;font-weight:600;font-size:12.5px;cursor:pointer;color:var(--ink);text-decoration:none;line-height:1.4}
 .btn:hover{background:var(--grey-bg);text-decoration:none}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn.primary:hover{background:#4338ca}
@@ -142,7 +153,7 @@ details.srow summary::-webkit-details-marker{display:none}
 details.srow summary:hover{background:#fafafa}
 details.srow summary .chev{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:2;transition:transform .15s}
 details.srow[open] summary .chev{transform:rotate(90deg)}
-details.srow summary .ttl{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+details.srow summary .ttl{font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 details.srow summary .ttl .chip{font-weight:400}
 .bar{height:6px;background:var(--grey-bg);border-radius:3px;overflow:hidden;display:flex;min-width:60px}
 .bar i{display:block;height:100%}
@@ -321,7 +332,17 @@ details.srow summary .ttl .chip{font-weight:400}
 <header class="top">
   <div class="crumbs"><a href="{{ links.overview() }}">Voice agent evaluation</a><i>›</i>{% block crumbs %}<b>Overview</b>{% endblock %}</div>
   <div class="right">
-    <span class="status-pill {{ provider_state or '' }}" title="{{ provider_detail or shell.provider }}"><i></i>{{ shell.provider }}{% if provider_state == 'ok' %} · connected{% elif provider_state == 'bad' %} · unreachable{% endif %}</span>
+    {% set cur = (shell.providers|selectattr('current')|list)|first if shell.providers else none %}
+    <details class="pmenu" id="provider-menu">
+      <summary class="status-pill {{ provider_state or '' }}" title="{{ provider_detail or shell.provider }}"><i></i>{{ cur.name if cur else shell.provider }}{% if provider_state == 'ok' %} · connected{% elif provider_state == 'bad' %} · unreachable{% endif %}<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></summary>
+      <div class="menu">
+        <div class="hd">Voice agent provider</div>
+        {% for p in shell.providers %}
+        <a class="mi {% if p.current %}cur {{ provider_state or '' }}{% endif %}" href="{{ links.providers() }}#{{ p.key }}"><i></i><span>{{ p.name }}</span><em>{% if p.current %}current{% elif p.runnable %}available{% else %}next week{% endif %}</em></a>
+        {% endfor %}
+        <a class="mi add" href="{{ links.providers() }}#add" id="btn-add-provider">＋ Add a provider</a>
+      </div>
+    </details>
     {% if mode == 'live' %}
     <a class="btn" href="/sessions/new" id="btn-new-session">+ New session</a>
     <a class="btn primary" href="/runs#run" id="btn-run">▶ Run evaluation</a>
@@ -365,6 +386,9 @@ document.addEventListener('click', e => {
   s.classList.toggle('on'); t.classList.toggle(s.dataset.toggle, !s.classList.contains('on'));
 });
 // "Run evaluation" opens the start-run card when it is on this page
+document.addEventListener('click', e => {
+  document.querySelectorAll('details.pmenu[open]').forEach(d => { if (!d.contains(e.target)) d.removeAttribute('open'); });
+});
 document.addEventListener('click', e => {
   const a = e.target.closest('#btn-run'); if (!a) return;
   const d = document.getElementById('run'); if (d && d.tagName === 'DETAILS') { e.preventDefault(); d.open = true; d.scrollIntoView({behavior:'smooth', block:'start'}); }

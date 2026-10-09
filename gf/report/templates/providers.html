@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% set page='providers' %}
+{% block title %}Providers · Call simulator{% endblock %}
+{% block crumbs %}<b>Providers</b>{% endblock %}
+{% block content %}
+<h1>Voice agent providers</h1>
+<p class="sub">The agent under test runs on a provider. The simulator only ever needs three things from one: a way for the caller to reach the agent with real audio, the agent's tool calls and transcript, and a hash of its configuration. Everything else (sessions, scoring, reports) never sees the provider.</p>
+
+{% for p in p.providers %}
+<div class="card" style="margin-bottom:12px" id="{{ p.key }}">
+  <h3><span>{{ p.name }}
+    {% if p.current %}<span class="status-pill {{ provider_state or '' }}" style="margin-left:8px"><i></i>current{% if provider_state == 'ok' %} · connected{% elif provider_state == 'bad' %} · unreachable{% endif %}</span>
+    {% elif p.runnable %}<span class="pill green" style="margin-left:8px">available</span>
+    {% else %}<span class="pill grey" style="margin-left:8px">next week</span>{% endif %}
+  </span><span class="small muted mono">{{ p.module }}</span></h3>
+  <div class="kv small" style="margin-top:8px">
+    <span class="k">reach the agent</span><span>{{ p.reach }}</span>
+    <span class="k">tool calls, transcript</span><span>{{ p.events }}</span>
+    <span class="k">config hash</span><span>{{ p.config_hash }}</span>
+    {% if p.note %}<span class="k">note</span><span class="muted">{{ p.note }}</span>{% endif %}
+  </div>
+</div>
+{% endfor %}
+
+<h2 id="add">Adding a provider: the week, day by day</h2>
+<p class="small muted">The provider is chosen in <code>gf/agent/config.yaml</code> (<code>provider:</code>), so switching is a config change that gets its own environment tag, never a click. Adding one is a new module behind the same three methods, not a rewrite.</p>
+<ol class="plan">
+{% for step in p.plan %}
+  <li><b>{{ step.day }} · {{ step.title }}</b><br><span class="small">{{ step.what }}</span></li>
+{% endfor %}
+</ol>
+<p class="small muted">The full reasoning is in <code>docs/design-note.md</code>, “Adding a second provider”.</p>
+{% endblock %}

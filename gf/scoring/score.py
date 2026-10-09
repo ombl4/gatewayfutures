@@ -91,7 +91,7 @@ def score_attempt(folder: str | Path, session: Session) -> dict[str, Any]:
         "passed": valid and not fails,
         "hard_fails": [c.id for c in fails],
         "soft_flags": [c.id for c in soft],
-        "failure_reason": "invalid: " + "; ".join(c.what_happened for c in validity_fails)
+        "failure_reason": "invalid: " + "; ".join(_unique(c.what_happened for c in validity_fails))
         if not valid
         else (fails[0].what_happened if fails else ""),
         "ended_by": record.ended_by,
@@ -253,3 +253,14 @@ def check_livekit_judge(record, session) -> list[Check]:
             value=(lk.get("metrics") or {}).get("overall_score"),
         )
     ]
+
+
+def _unique(items) -> list[str]:
+    """Reasons in order, each once: a hearing fault is on both the hearing check and the
+    validity check, and must read once in the invalid reason."""
+    out: list[str] = []
+    for text in items:
+        for part in text.split("; "):
+            if part and part not in out:
+                out.append(part)
+    return out
