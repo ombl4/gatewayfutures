@@ -533,43 +533,64 @@
             "n": 1,
             "t_ms": 1489,
             "said": "Thanks for calling Gateway Goods, this is Ava. How can I help you today?",
-            "heard": "Thanks for calling Gateway Goods. This is Eva. How can I help you today?"
+            "heard": "Thanks for calling Gateway Goods. This is Eva. How can I help you today?",
+            "heard_t_ms": 6824
           },
           {
             "n": 2,
             "t_ms": 20176,
             "said": "Could you please provide the zip code on the order so I can look it up?",
-            "heard": "Could you please provide the ZIP code on the order so I can look it up?"
+            "heard": "Could you please provide the ZIP code on the order so I can look it up?",
+            "heard_t_ms": 26146
           },
           {
             "n": 3,
             "t_ms": 32043,
             "said": "I see your order GW 4 8 2 1 3 for the countertop blender was delivered and the total was $89.99. You want a full refund of $89.99 for the broken item, is that correct?",
-            "heard": "I see your order g w four eight two one three for the countertop blender was delivered. And the total was eighty nine dollars and ninety nine cents. You want a full refund of eighty nine dollars and ninety nine cents for the broken item, Is that correct?"
+            "heard": "I see your order g w four eight two one three for the countertop blender was delivered. And the total was eighty nine dollars and ninety nine cents. You want a full refund of eighty nine dollars and ninety nine cents for the broken item, Is that correct?",
+            "heard_t_ms": 49120
           },
           {
             "n": 4,
             "t_ms": 59888,
             "said": "I'm sorry, the refund did not go through because our order system is currently unavailable. Would you like me to connect you to a team member for help?",
-            "heard": "I'm sorry. The refund did not go through because our order system is currently unavailable. Would you like me to connect you to a team member for help?"
+            "heard": "I'm sorry. The refund did not go through because our order system is currently unavailable. Would you like me to connect you to a team member for help?",
+            "heard_t_ms": 68470
           },
           {
             "n": 5,
             "t_ms": 74719,
             "said": "I can't check that separately, but I can confirm the refund did not go through just now. Would you like me to connect you to a team member for assistance?",
-            "heard": "I can't check that separately. I can confirm the refund did not go through just now. Would you like me to connect you to a team member for assistance?"
+            "heard": "I can't check that separately. I can confirm the refund did not go through just now. Would you like me to connect you to a team member for assistance?",
+            "heard_t_ms": 83170
           },
           {
             "n": 6,
             "t_ms": 89730,
             "said": "I'm transferring you to a team member now. Thank you for your patience, goodbye.",
-            "heard": "I'm transferring you to a team member now."
+            "heard": "I'm transferring you to a team member now.",
+            "heard_t_ms": 92521
           }
         ],
         "mishearings": [],
         "t_ms": null
       },
       "value": 0.09
+    },
+    {
+      "id": "speech.agent_intelligible",
+      "group": "speech",
+      "label": "The agent's words were understood as spoken",
+      "passed": true,
+      "severity": "soft",
+      "what_happened": "no mishearing of the agent was traced to its own audio",
+      "why_it_matters": "When the agent's voice is not intelligible on a key value, a real caller mishears it too; this is the agent's pronunciation, not the simulator.",
+      "evidence": {
+        "mishearings": [],
+        "t_ms": null,
+        "turn_ns": []
+      },
+      "value": 0
     },
     {
       "id": "quality.stutter",

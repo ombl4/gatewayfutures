@@ -1287,6 +1287,7 @@ def _empty_summary(man: dict[str, Any]) -> dict[str, Any]:
 SOFT_LABELS = {
     "speech.entities": "a key fact was misheard",
     "speech.misheard_to_tool": "misheard value reached a tool",
+    "speech.agent_intelligible": "agent's words misheard",
     "ux.latency_p95": "slow replies",
     "ux.dead_air": "dead air",
     "ux.talk_over": "talked over the caller",
@@ -2007,11 +2008,22 @@ def annotate_turns(
             for n_turn in ev.get("turn_ns") or []:
                 target = by_caller_turn if cid == "ux.repeats" else by_agent_turn
                 target.setdefault(int(n_turn), []).append(note(c, c["what_happened"]))
-        if cid == "speech.caller_hearing":
+        if cid in ("speech.caller_hearing", "speech.agent_intelligible"):
             for m in ev.get("mishearings") or []:
+                if cid == "speech.caller_hearing" and m.get("side") == "agent":
+                    continue  # reported under the agent's own check
                 txt = f"heard '{m.get('heard')}' for '{m.get('said')}'" + (
                     ", and acted on it" if m.get("acted_on") else ", not acted on"
                 )
+                if m.get("side") == "simulator":
+                    txt += "; a second recogniser hears the agent correctly: simulator fault"
+                elif m.get("side") == "agent":
+                    txt += (
+                        f"; a second recogniser hears the agent's audio the same way "
+                        f'("{(m.get("second_opinion") or "")[:60]}"): the agent\'s pronunciation'
+                    )
+                elif m.get("acted_on"):
+                    txt += "; not verified by a second recogniser"
                 st = "fail" if m.get("acted_on") else "warn"
                 at_time.append(
                     (int(m.get("t_ms") or 0), {**note(c, txt), "state": st, "kind": "heard"})

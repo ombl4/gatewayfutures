@@ -586,49 +586,71 @@
             "n": 1,
             "t_ms": 1585,
             "said": "Thanks for calling Gateway Goods, this is Ava. How can I help you today?",
-            "heard": "Thanks for calling Gateway Goods. This is Eva. How can I help you today?"
+            "heard": "Thanks for calling Gateway Goods. This is Eva. How can I help you today?",
+            "heard_t_ms": 6786
           },
           {
             "n": 2,
             "t_ms": 20333,
             "said": "I can help with that. Could you please provide the zip code on the order? I need it along with the order number to look it up.",
-            "heard": "I can help with that. Could you please provide the ZIP code on the order? Need it along with the order number to look it up."
+            "heard": "I can help with that. Could you please provide the ZIP code on the order? Need it along with the order number to look it up.",
+            "heard_t_ms": 27187
           },
           {
             "n": 3,
             "t_ms": 35347,
             "said": "Your order GW 4",
-            "heard": "Your order g w"
+            "heard": "Your order g w",
+            "heard_t_ms": 39612
           },
           {
             "n": 4,
             "t_ms": 40450,
             "said": "I didn't catch that. Could",
-            "heard": null
+            "heard": null,
+            "heard_t_ms": null
           },
           {
             "n": 5,
             "t_ms": 43730,
             "said": "I read back your order GW 4 8 2 1 3 with a total of $89.99 for a countertop blender. Should I proceed with the full refund? Please confirm with yes.",
-            "heard": "I didn't catch that. I read back your order g w four eight two one three. With a total of eighty nine dollars and ninety nine cents for a countertop blender. Should I proceed with the full refund? Please confirm with yes."
+            "heard": "I didn't catch that. I read back your order g w four eight two one three. With a total of eighty nine dollars and ninety nine cents for a countertop blender. Should I proceed with the full refund? Please confirm with yes.",
+            "heard_t_ms": 58489
           },
           {
             "n": 6,
             "t_ms": 65843,
             "said": "The full refund of $89.99 for order GW 4 8 2 1 3 has been issued. Is there anything else I can help you with?",
-            "heard": "The full refund of eighty nine dollars and ninety nine cents for order GW four eight two one three has been issued. Is there anything else I can help you with?"
+            "heard": "The full refund of eighty nine dollars and ninety nine cents for order GW four eight two one three has been issued. Is there anything else I can help you with?",
+            "heard_t_ms": 75690
           },
           {
             "n": 7,
             "t_ms": 81463,
             "said": "You're welcome. Have a",
-            "heard": null
+            "heard": null,
+            "heard_t_ms": null
           }
         ],
         "mishearings": [],
         "t_ms": null
       },
       "value": 0.109
+    },
+    {
+      "id": "speech.agent_intelligible",
+      "group": "speech",
+      "label": "The agent's words were understood as spoken",
+      "passed": true,
+      "severity": "soft",
+      "what_happened": "no mishearing of the agent was traced to its own audio",
+      "why_it_matters": "When the agent's voice is not intelligible on a key value, a real caller mishears it too; this is the agent's pronunciation, not the simulator.",
+      "evidence": {
+        "mishearings": [],
+        "t_ms": null,
+        "turn_ns": []
+      },
+      "value": 0
     },
     {
       "id": "quality.stutter",

@@ -29,7 +29,7 @@ WER_SOFT_FLAG = 0.4  # numbers read as words vs written inflate plain WER
 MIN_ENTITY_DIGITS = 3
 
 
-def pair_turns(record: CallRecord) -> list[dict[str, Any]]:
+def pair_turns(record: CallRecord) -> list[dict[str, Any]]:  # noqa: D417
     """Agent turn → the caller's transcript of it. A heard turn (timestamped when the caller's
     speech recognition finalised it) belongs to the latest agent turn that started before it."""
     starts = [_agent_start(at, record.t0_ms) for at in record.agent_turns]
@@ -49,6 +49,7 @@ def pair_turns(record: CallRecord) -> list[dict[str, Any]]:
             "t_ms": starts[idx],
             "said": at.text,
             "heard": heard_for[idx]["text"] if idx in heard_for else None,
+            "heard_t_ms": heard_for[idx]["t_ms"] if idx in heard_for else None,
         }
         for idx, at in enumerate(record.agent_turns)
     ]
@@ -149,8 +150,40 @@ def _words_to_int(group: list[str]) -> int:
     return total + cur
 
 
-def check_hearing(record: CallRecord) -> tuple[list[Check], list[str]]:
-    """(checks, validity reasons). A misheard entity the caller acted on is a validity reason."""
+def attribute(
+    record: CallRecord, timeline: dict[str, Any], pairs: list[dict[str, Any]], acted: list[dict]
+) -> None:
+    """Whose fault is each acted-on mishearing (T5.14)? Ask an independent recogniser what the
+    agent's audio for that turn says. Sets m["side"] to "simulator" (the second opinion hears
+    what the agent meant), "agent" (it hears what the caller heard, or not what the agent meant)
+    or "unverified"; m["second_opinion"] carries the transcript."""
+    from gf.scoring.second_opinion import second_opinion
+
+    by_turn = {p["n"]: p for p in pairs}
+    for m in acted:
+        p = by_turn.get(m["turn"])
+        m["side"], m["second_opinion"] = "unverified", None
+        if not p or p.get("heard_t_ms") is None:
+            continue
+        text = second_opinion(record, timeline, m["turn"], p["t_ms"], p["heard_t_ms"])
+        if text is None:
+            continue
+        m["second_opinion"] = text
+        if m.get("kind") == "word":
+            words = set(normalize(text).split())
+            said_ok, heard_too = m["said"] in words, m["heard"] in words
+        else:
+            runs = _numeric_runs(text)
+            said_ok, heard_too = m["said"] in runs, m["heard"] in runs
+        m["side"] = "simulator" if said_ok and not heard_too else "agent"
+
+
+def check_hearing(
+    record: CallRecord, timeline: dict[str, Any] | None = None
+) -> tuple[list[Check], list[str]]:
+    """(checks, validity reasons). A misheard entity the caller acted on is a validity reason
+    when the simulator's recogniser is at fault; when the agent's own audio is heard the same
+    way by an independent recogniser, it is the agent's failure (T5.14)."""
     pairs = pair_turns(record)
     refs, hyps = [], []
     mishearings = []
@@ -212,9 +245,18 @@ def check_hearing(record: CallRecord) -> tuple[list[Check], list[str]]:
                 m["caller_turn"] = t.n
                 break
     wer = jiwer.wer(refs, hyps) if refs else None
-    acted = [m for m in mishearings if m["acted_on"]]
+    acted_all = [m for m in mishearings if m["acted_on"]]
+    attribute(record, timeline or {}, pairs, acted_all)
+    acted = [m for m in acted_all if m["side"] != "agent"]  # the simulator's (or unverified)
+    agent_side = [m for m in acted_all if m["side"] == "agent"]
     reasons = [
-        f"simulator misheard the agent: agent said {m['said']} in turn {m['turn']}, the caller heard {m['heard']} and used it in its turn {m.get('caller_turn')}"
+        f"simulator misheard the agent: agent said {m['said']} in turn {m['turn']}, the caller "
+        f"heard {m['heard']} and used it in its turn {m.get('caller_turn')}"
+        + (
+            " (a second recogniser hears the agent correctly)"
+            if m["side"] == "simulator"
+            else " (not verified by a second recogniser)"
+        )
         for m in acted
     ]
     soft = wer is not None and wer > WER_SOFT_FLAG and not acted
@@ -246,8 +288,35 @@ def check_hearing(record: CallRecord) -> tuple[list[Check], list[str]]:
                 "t_ms": acted[0]["t_ms"] if acted else None,
             },
             value=round(wer, 3) if wer is not None else None,
-        )
+        ),
     ]
+    checks.append(
+        Check(
+            id="speech.agent_intelligible",
+            group="speech",
+            label="The agent's words were understood as spoken",
+            passed=not agent_side,
+            severity="hard" if agent_side else "soft",
+            what_happened="; ".join(
+                f"the agent meant {m['said']} in turn {m['turn']} but its audio is heard as "
+                f"{m['heard']} by the caller and by an independent recogniser "
+                f'("{(m.get("second_opinion") or "")[:80]}"); the caller argued about it in '
+                f"its turn {m.get('caller_turn')}"
+                for m in agent_side
+            )
+            or "no mishearing of the agent was traced to its own audio",
+            why_it_matters=(
+                "When the agent's voice is not intelligible on a key value, a real caller "
+                "mishears it too; this is the agent's pronunciation, not the simulator."
+            ),
+            evidence={
+                "mishearings": agent_side,
+                "t_ms": agent_side[0]["t_ms"] if agent_side else None,
+                "turn_ns": [m["turn"] for m in agent_side],
+            },
+            value=len(agent_side),
+        )
+    )
     return checks, reasons
 
 

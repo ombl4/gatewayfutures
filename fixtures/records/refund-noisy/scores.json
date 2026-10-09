@@ -517,37 +517,57 @@
             "n": 1,
             "t_ms": 1359,
             "said": "Thanks for calling Gateway Goods, this is Ava. How can I help you today?",
-            "heard": "Thanks for calling Gateway Goods. This is Eva. How could I help you today?"
+            "heard": "Thanks for calling Gateway Goods. This is Eva. How could I help you today?",
+            "heard_t_ms": 6583
           },
           {
             "n": 2,
             "t_ms": 18405,
             "said": "I can help with that. Can you please provide the zip code on the order?",
-            "heard": "Can help with that. Can you please provide the ZIP code on the order?"
+            "heard": "Can help with that. Can you please provide the ZIP code on the order?",
+            "heard_t_ms": 22736
           },
           {
             "n": 3,
             "t_ms": 27899,
             "said": "Your order GW 4 8 2 1 3 for the countertop blender was delivered and the total was $89.99. Do you confirm you want a full refund of $89.99 for the broken item?",
-            "heard": "Your order GW four eight two one three. For the countertop blender was delivered. And the total was eighty nine dollars and ninety nine cents. Do you confirm you want a full refund of eighty nine dollars and ninety nine cents for the broken item?"
+            "heard": "Your order GW four eight two one three. For the countertop blender was delivered. And the total was eighty nine dollars and ninety nine cents. Do you confirm you want a full refund of eighty nine dollars and ninety nine cents for the broken item?",
+            "heard_t_ms": 43035
           },
           {
             "n": 4,
             "t_ms": 50907,
             "said": "The full refund of $89.99 for your broken countertop blender has been issued. Is there anything else I can assist you with?",
-            "heard": "The full refund of eighty nine dollars and ninety nine cents for your broken countertop blender has been issued. Is there anything else I can assist you with?"
+            "heard": "The full refund of eighty nine dollars and ninety nine cents for your broken countertop blender has been issued. Is there anything else I can assist you with?",
+            "heard_t_ms": 59635
           },
           {
             "n": 5,
             "t_ms": 66634,
             "said": "You're",
-            "heard": null
+            "heard": null,
+            "heard_t_ms": null
           }
         ],
         "mishearings": [],
         "t_ms": null
       },
       "value": 0.096
+    },
+    {
+      "id": "speech.agent_intelligible",
+      "group": "speech",
+      "label": "The agent's words were understood as spoken",
+      "passed": true,
+      "severity": "soft",
+      "what_happened": "no mishearing of the agent was traced to its own audio",
+      "why_it_matters": "When the agent's voice is not intelligible on a key value, a real caller mishears it too; this is the agent's pronunciation, not the simulator.",
+      "evidence": {
+        "mishearings": [],
+        "t_ms": null,
+        "turn_ns": []
+      },
+      "value": 0
     },
     {
       "id": "quality.stutter",

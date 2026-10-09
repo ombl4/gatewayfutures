@@ -52,7 +52,7 @@ def score_attempt(folder: str | Path, session: Session) -> dict[str, Any]:
     checks += check_speech(record, session)
     checks += check_ux(record, session, timeline, th)
     checks += check_livekit_judge(record, session)
-    hearing_checks, hearing_reasons = check_hearing(record)
+    hearing_checks, hearing_reasons = check_hearing(record, timeline)
     checks += hearing_checks
     if hearing_reasons:
         validity = next((c for c in checks if c.id == "validity.simulation"), None)
