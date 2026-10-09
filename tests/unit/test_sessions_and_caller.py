@@ -136,7 +136,7 @@ def test_recorder_sample_rate_is_16k():
 
 
 def test_prompt_contains_facts_goal_and_rules():
-    s = Session.load(SESSIONS / "refund-noisy-cafe.yaml")
+    s = Session.load(SESSIONS / "retired" / "refund-noisy-cafe.yaml")
     p = build_prompt(s.caller)
     assert "GW-48213" in p and "94110" in p and "Maria Lopez" in p
     assert "end_call" in p and "Never mention that you are an AI" in p

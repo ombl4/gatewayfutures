@@ -14,8 +14,8 @@
     <div class="two" style="grid-template-columns:minmax(0,1fr) 260px">
       <div>
         <div class="small" style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:6px" id="pick">
-          <label><input type="radio" name="pick" value="all" checked onchange="gfPick(this)"> <b>All {{ sessions|length }} sessions</b></label>
-          {% for su in suites %}<label><input type="radio" name="pick" value="suite:{{ su }}" onchange="gfPick(this)"> suite <b>{{ su }}</b></label>{% endfor %}
+          {% for su in suites %}<label><input type="radio" name="pick" value="suite:{{ su }}" {% if su == 'core' %}checked{% endif %} onchange="gfPick(this)"> suite <b>{{ su }}</b>{% if su == 'core' %} <span class="muted">(default)</span>{% endif %}</label>{% endfor %}
+          <label><input type="radio" name="pick" value="all" {% if 'core' not in suites %}checked{% endif %} onchange="gfPick(this)"> <b>All {{ sessions|length }} sessions</b></label>
           <label><input type="radio" name="pick" value="pick" onchange="gfPick(this)"> pick sessions</label>
         </div>
         <script>function gfPick(el){ const pick = el.value === 'pick'; document.querySelectorAll('.sessionpick input').forEach(i => i.disabled = !pick); }</script>
@@ -24,12 +24,6 @@
         </div>
       </div>
       <div>
-        <label class="small muted">Callers</label>
-        <div class="small" style="display:grid;gap:4px;margin:2px 0 8px">
-          <label><input type="radio" name="personas" value="" checked> as written in each session</label>
-          {% for g, n in persona_groups %}<label><input type="radio" name="personas" value="{{ g }}"> × persona group <b>{{ g }}</b> ({{ n }})</label>{% endfor %}
-          <label><input type="radio" name="personas" value="all"> × all {{ persona_groups|map(attribute=1)|sum }} personas</label>
-        </div>
         <label class="small muted">Repeats per session</label><input class="input" type="number" name="repeat" value="3" min="1" max="10">
         <label class="small muted">Concurrency</label><input class="input" type="number" name="concurrency" value="4" min="1" max="8">
         <label class="small muted">Run id (optional)</label><input class="input" type="text" name="run_id" placeholder="auto">

@@ -32,7 +32,7 @@ def test_basic_refund_passes_every_hard_check(tmp_path: Path):
 
 def test_fault_escalated_path_is_honest_and_passes():
     r = score_attempt(
-        REC / "refund-fault-escalated", Session.load(SESS / "refund-backend-fault.yaml")
+        REC / "refund-fault-escalated", Session.load(SESS / "retired" / "refund-backend-fault.yaml")
     )
     assert r["valid"] and r["passed"], r["hard_fails"]
     assert by_id(r, "claims.honest_about_failure")["passed"]
@@ -42,7 +42,7 @@ def test_fault_escalated_path_is_honest_and_passes():
 
 def test_fault_retried_path_passes():
     r = score_attempt(
-        REC / "refund-fault-retried", Session.load(SESS / "refund-backend-fault.yaml")
+        REC / "refund-fault-retried", Session.load(SESS / "retired" / "refund-backend-fault.yaml")
     )
     assert r["passed"], r["hard_fails"]
     assert [tuple(t) for t in r["tool_calls"]] == [
@@ -53,7 +53,9 @@ def test_fault_retried_path_passes():
 
 
 def test_noisy_call_passes_but_flags_ux():
-    r = score_attempt(REC / "refund-noisy", Session.load(SESS / "refund-noisy-cafe.yaml"))
+    r = score_attempt(
+        REC / "refund-noisy", Session.load(SESS / "retired" / "refund-noisy-cafe.yaml")
+    )
     assert r["passed"], r["hard_fails"]
     assert by_id(r, "speech.wer")["value"] is not None
 

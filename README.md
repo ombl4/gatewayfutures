@@ -147,7 +147,7 @@ Every call carries a `cost` block in `scores.json`, priced from the providers' o
 
 ## CI
 
-`ci.yml` runs lint, unit tests and the Playwright dashboard suite on every push without keys. `calls.yml` makes real calls and needs the platform's keys as repository secrets (without them it ends with a notice): on every pull request, LiveKit text-mode simulations over the exported sessions (LLM, tools and conversation logic, no audio); nightly and on demand, the smoke suite over real audio, scored and gated with `gf gate --min-pass 0.5`. Text on every change, audio nightly, is the split LiveKit recommends.
+`ci.yml` runs lint, unit tests and the Playwright dashboard suite on every push without keys. Real calls are never started automatically: runs are started by a person from the UI or the CLI (`gf run --suite core`), and `gf gate <run>` can be used as a release check on a finished run.
 
 ## Hosting the UI
 

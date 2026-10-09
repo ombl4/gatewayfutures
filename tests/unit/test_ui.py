@@ -53,7 +53,7 @@ def env(tmp_path, monkeypatch):
             {
                 "id": "ef113fc07616",
                 "title": "Refund, noisy cafe",
-                "path": str(sess / "refund-noisy-cafe.yaml"),
+                "path": str(sess / "retired" / "refund-noisy-cafe.yaml"),
             },
         ],
         "calls": calls,
@@ -266,7 +266,7 @@ def test_rerun_starts_a_child_run_without_touching_the_parent(env, monkeypatch):
     monkeypatch.setattr(jobs, "start", fake_start)
     r = env["client"].post("/runs/t1/rerun", follow_redirects=False)
     assert r.status_code == 303 and r.headers["location"] == "/runs/child-1"
-    assert calls[-1] == (["7c994c348001", "ef113fc07616"], 2, 2, "t1")
+    assert calls[-1] == (["7c994c348001"], 2, 2, "t1")  # the retired session is skipped
     r = env["client"].post(
         "/runs/t1/rerun", data={"session": "7c994c348001"}, follow_redirects=False
     )

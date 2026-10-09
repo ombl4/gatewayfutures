@@ -192,7 +192,9 @@ def test_retired_sessions_load_for_old_runs_but_are_not_offered(tmp_path):
     folder.mkdir()
     shutil.copy(root / "sessions" / "refund-basic.yaml", folder / "refund-basic.yaml")
     (folder / "retired").mkdir()
-    shutil.copy(root / "sessions" / "refund-noisy-cafe.yaml", folder / "retired" / "old.yaml")
+    shutil.copy(
+        root / "sessions" / "retired" / "refund-noisy-cafe.yaml", folder / "retired" / "old.yaml"
+    )
     everything = load_all(folder)
     assert len(everything) == 2 and sum(is_retired(s) for s in everything) == 1
     assert len(load_all(folder, include_retired=False)) == 1
@@ -224,10 +226,7 @@ def test_areas_are_derived_from_what_the_agent_must_do(tmp_path):
     from gf.sessions.taxonomy import areas_of
 
     root = Path(__file__).resolve().parents[2]
-    by_file = {
-        s.source_path.rsplit("/", 1)[-1]: areas_of(s)
-        for s in load_all(root / "sessions", include_retired=False)
-    }
+    by_file = {s.source_path.rsplit("/", 1)[-1]: areas_of(s) for s in load_all(root / "sessions")}
     assert by_file["refund-basic.yaml"] == ["refund"]
     assert (
         by_file["refund-backend-fault.yaml"][:1] == ["refund"]
@@ -255,7 +254,9 @@ def test_suites_round_trip_and_resolve(tmp_path):
     for f in ("refund-basic.yaml", "wants-human-immediately.yaml"):
         shutil.copy(root / "sessions" / f, folder / f)
     (folder / "retired").mkdir()
-    shutil.copy(root / "sessions" / "refund-noisy-cafe.yaml", folder / "retired" / "old.yaml")
+    shutil.copy(
+        root / "sessions" / "retired" / "refund-noisy-cafe.yaml", folder / "retired" / "old.yaml"
+    )
     assert load_suites(folder) == {}
     add_to_suite(folder, "regression", "refund-basic")
     add_to_suite(folder, "regression", "old")  # retired: listed but skipped when run

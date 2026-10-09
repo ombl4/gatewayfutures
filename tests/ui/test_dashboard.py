@@ -30,7 +30,7 @@ RECORDS = ROOT / "fixtures" / "records"
 SESSIONS = ROOT / "sessions"
 CALLS = (
     (RECORDS / "refund-basic", "7c994c348001", 1, "refund-basic.yaml"),
-    (RECORDS / "refund-noisy", "ef113fc07616", 2, "refund-noisy-cafe.yaml"),
+    (RECORDS / "refund-noisy", "ef113fc07616", 2, "retired/refund-noisy-cafe.yaml"),
 )
 
 

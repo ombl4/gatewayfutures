@@ -2,78 +2,72 @@
 # smoke: a quick check; regression: sessions that have failed before and must run
 # every time. Edit here or from a session's page in the UI. Never lists session ids,
 # so an edited session keeps its membership.
+adversarial:
+- adversarial-claims-to-be-staff
+- adversarial-privacy-probe-other-order
+- adversarial-prompt-injection-admin-mode
+- adversarial-rude-sarcastic
+- out-of-scope-new-order
+- refund-wrong-customer-pressure
+core:
+- address-change-backend-error-retry
+- address-change-processing
+- address-change-shipped-escalate
+- address-change-then-transfer
+- adversarial-prompt-injection-admin-mode
+- escalation-tool-fails-first
+- no-transfer-when-not-asked
+- out-of-scope-new-order
+- refund-already-refunded-declined
+- refund-backend-error-retry
+- refund-basic
+- refund-double-fault-escalate
+- refund-impatient-street
+- refund-interrupting-caller
+- refund-not-delivered-shipped
+- refund-over-limit
+- refund-rejected-by-policy-escalate
+- refund-wrong-zip-first
+- wants-human-immediately
+denial:
+- address-change-denied-on-shipped-order-caller-escalates
+- address-change-shipped-caller-insists
+- address-change-shipped-escalate
+- refund-already-refunded-declined
+- refund-not-delivered-shipped
+- refund-over-limit
+edge:
+- address-change-correction-on-readback
+- refund-angry-wants-compensation
+- refund-digits-spoken-grouped
+- refund-multi-intent-two-orders
+- refund-partial-then-full
+- refund-slow-lookup-and-slow-refund
+- refund-wrong-customer-pressure
+- refund-wrong-zip-first
+escalation:
+- address-change-denied-on-shipped-order-caller-escalates
+- address-change-shipped-escalate
+- address-change-then-transfer
+- escalation-tool-fails-first
+- no-transfer-when-not-asked
+- out-of-scope-new-order
+- refund-double-fault-escalate
+- refund-rejected-by-policy-escalate
+- wants-human-immediately
+faults:
+- address-change-backend-error-retry
+- escalation-tool-fails-first
+- refund-backend-error-retry
+- refund-double-fault-escalate
+- refund-rejected-by-policy-escalate
+- refund-slow-lookup-and-slow-refund
 regression:
 - address-change-processing
 - refund-already-refunded-declined
 - refund-backend-error-retry
-- refund-backend-fault
 - refund-impatient-street
 - refund-over-limit
 smoke:
 - refund-basic
 - wants-human-immediately
-edge:
-- refund-wrong-zip-first
-- refund-not-delivered-shipped
-- refund-wrong-customer-pressure
-- out-of-scope-new-order
-- refund-multi-intent-two-orders
-- refund-backend-slow-lookup
-- refund-rejected-by-policy-escalate
-- address-change-correction-on-readback
-core:
-- address-change-british-phone-line
-- address-change-processing
-- address-change-shipped-escalate
-- refund-already-refunded-declined
-- refund-already-refunded
-- refund-backend-error-retry
-- refund-backend-fault
-- refund-basic
-- refund-impatient-street
-- refund-interrupting-caller
-- refund-noisy-cafe
-- refund-over-limit
-- refund-partial-slow-caller
-- wants-human-immediately
-- address-change-denied-on-shipped-order-caller-escalates
-personas:
-- refund-noisy-cafe
-- refund-interrupting-caller
-- refund-partial-slow-caller
-- address-change-british-phone-line
-- refund-spouse-calling-on-behalf
-- refund-non-native-phone-line
-- refund-australian-busy-street
-- refund-british-cafe-low-quality-mic
-- refund-elderly-asks-to-repeat
-- refund-rambling-long-story
-- refund-digits-spoken-grouped
-- refund-partial-then-full
-- refund-angry-wants-compensation
-- refund-asks-if-bot
-adversarial:
-- adversarial-prompt-injection-admin-mode
-- adversarial-claims-to-be-staff
-- adversarial-privacy-probe-other-order
-- adversarial-rude-sarcastic
-- refund-wrong-customer-pressure
-- out-of-scope-new-order
-faults:
-- refund-backend-fault
-- refund-backend-error-retry
-- refund-double-fault-escalate
-- address-change-backend-error-retry
-- escalation-tool-fails-first
-- refund-backend-slow-lookup
-- refund-slow-lookup-and-slow-refund
-- refund-rejected-by-policy-escalate
-denial:
-- address-change-denied-on-shipped-order-caller-escalates
-- refund-not-delivered-shipped
-- refund-over-limit
-- refund-already-refunded
-- refund-already-refunded-declined
-- refund-already-refunded-insists-not-received
-- address-change-shipped-escalate
-- address-change-shipped-caller-insists

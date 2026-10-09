@@ -19,7 +19,7 @@ def test_every_active_session_is_in_a_suite_and_every_entry_resolves():
         "regression",
         "core",
         "edge",
-        "personas",
+        "escalation",
         "adversarial",
         "faults",
         "denial",

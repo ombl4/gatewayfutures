@@ -1,12 +1,39 @@
 # Why each retired session was taken out of the active set (by file name, without .yaml).
 # Retired sessions still load so earlier runs open and rescore; they are never run again.
-refund-request-fails-first-attempt-due-to-backend-error-then: >-
-  Generated expectation contradicts the agent's policy: it demands a second issue_refund after
-  the session's own injected 500 and forbids escalation, but the agent is specified to report a
-  failed write truthfully and offer escalation, which it did. Replaced by refund-backend-error-retry (expects the retry the policy
-  prescribes; the agent's instructions now make that retry explicit).
-refund-request-on-already-refunded-order-agent-denies-refund: >-
-  Generated final-state assertion is impossible: it expects refunds[GW-48911].amount for a
-  refund that predates the call; the fixture records that as orders[GW-48911].refunded. The
-  agent behaved correctly (lookup only, refund denied). Replaced by refund-already-refunded-declined (asserts refunds[GW-48911]
-  not exists and orders[GW-48911].refunded == true).
+address-change-british-phone-line: address-change-processing over a phone line with a British voice; the
+  line and voice are personas organised-british / cafe-phone-line.
+refund-already-refunded: Duplicate of refund-already-refunded-declined with an Australian voice; the voice
+  is a persona.
+refund-already-refunded-insists-not-received: Third variant of the already-refunded denial; the declined
+  session keeps the behaviour, the persistence is a persona trait.
+refund-asks-if-bot: Observation only (no expectation on the answer); persona suspicious-distrustful asks
+  the same question on any session.
+refund-australian-busy-street: Same scenario as refund-impatient-street on a different voice and line;
+  expressed by persona brisk-australian / street-impatient in the persona library.
+refund-backend-fault: Tolerant expectation (honest failure or retry) superseded by refund-backend-error-retry,
+  refund-double-fault-escalate and refund-rejected-by-policy-escalate, which each pin one path.
+refund-backend-slow-lookup: refund-slow-lookup-and-slow-refund is the same test with both tools slow;
+  keeping the harder one.
+refund-british-cafe-low-quality-mic: refund-noisy-cafe with a poor microphone; expressed by persona cafe-phone-line
+  / poor-mic-packet-loss.
+refund-elderly-asks-to-repeat: Persona elderly-slow-line carries the slow, repeat-asking style; the repeat
+  checks fire on any session.
+refund-noisy-cafe: The cafe line is persona cafe-phone-line; refund-impatient-street keeps a hard-line
+  refund in core.
+refund-non-native-phone-line: A refund on an 8 kHz line with packet loss; the line is persona poor-mic-packet-loss,
+  the accent persona friendly-filipino.
+refund-partial-slow-caller: Slow caller on a poor mic; persona elderly-slow-line covers it and refund-partial-then-full
+  covers the partial amount.
+refund-rambling-long-story: Persona rambling-chatty carries the behaviour; nothing else in the expectation
+  differs from refund-basic.
+refund-request-fails-first-attempt-due-to-backend-error-then: 'Generated expectation contradicts the agent''s
+  policy: it demands a second issue_refund after the session''s own injected 500 and forbids escalation,
+  but the agent is specified to report a failed write truthfully and offer escalation, which it did. Replaced
+  by refund-backend-error-retry (expects the retry the policy prescribes; the agent''s instructions now
+  make that retry explicit).'
+refund-request-on-already-refunded-order-agent-denies-refund: 'Generated final-state assertion is impossible:
+  it expects refunds[GW-48911].amount for a refund that predates the call; the fixture records that as
+  orders[GW-48911].refunded. The agent behaved correctly (lookup only, refund denied). Replaced by refund-already-refunded-declined
+  (asserts refunds[GW-48911] not exists and orders[GW-48911].refunded == true).'
+refund-spouse-calling-on-behalf: Verification is order number plus zip, so the name mismatch is never
+  tested by the backend; indistinguishable from refund-basic in the record.

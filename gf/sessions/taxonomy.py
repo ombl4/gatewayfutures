@@ -18,7 +18,7 @@ import yaml
 from gf.sessions.schema import Session, load_all
 
 SUITES_FILE = "suites.yaml"
-PRIMARY_AREAS = ("refund", "address change", "escalation", "denial")
+PRIMARY_AREAS = ("refund", "address change", "escalation", "adversarial", "denial")
 MODIFIER_AREAS = ("fault handling", "hard line", "interruptions", "impatient")
 IMPATIENT_WORDS = ("impatient", "hurried", "annoyed", "brisk", "talks fast", "wants it done")
 
@@ -29,8 +29,13 @@ def areas_of(session: Session) -> list[str]:
     tc = session.expected.tool_calls
     required = [r.tool for r in tc.required]
     goal = session.caller.goal.lower()
+    outcome = session.expected.outcome.lower()
     out: list[str] = []
-    if "refund" in goal or "money back" in goal or "issue_refund" in required:
+    if any(w in outcome for w in ("resisted", "held", "privacy", "injection")) or (
+        Path(session.source_path or "").stem.startswith("adversarial-")
+    ):
+        out.append("adversarial")
+    elif "refund" in goal or "money back" in goal or "issue_refund" in required:
         out.append("refund")
     elif "address" in goal or "update_shipping_address" in required:
         out.append("address change")
