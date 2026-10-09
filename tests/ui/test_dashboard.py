@@ -309,52 +309,36 @@ def test_inspector_controls(site, page):
     verdict = page.locator("#grading .card").nth(4).locator(".pill").first.inner_text().lower()
     header = page.locator("#agent-pill").inner_text().lower()
     assert verdict.split()[0] in header
-    for tab in ("latency", "spans", "grading", "details", "transcript"):
+    for tab in ("spans", "grading", "details", "transcript"):
         page.click(f'#inspector [data-tab="{tab}"]')
         assert page.locator(f'#inspector [data-pane="{tab}"]').is_visible()
         others = page.locator("#inspector .pane:not([hidden])")
         assert others.count() == 1
-    # latency tab: one row per agent turn, clicking a row seeks
-    page.click('#inspector [data-tab="latency"]')
-    rows = page.locator("#latency-table tr.latrow")
-    assert rows.count() == page.locator("#transcript .turn.agent").count()
-    rows.nth(1).click()
-    assert page.evaluate("document.getElementById('insp-audio').currentTime") > 0
-    # spans tab (T6.24): a tree with bars; filters hide rows, a bar click seeks, double-click zooms,
-    # a name click folds the reply's children and opens the span panel
+    # spans tab (T6.34): one row per agent turn, stacked blocks, numbers only in the hover popup
+    assert page.locator('#inspector [data-tab="latency"]').count() == 0
     page.click('#inspector [data-tab="spans"]')
-    sp = page.locator("#spans .sp")
-    assert sp.count() > 10 and sp.first.get_attribute("data-kind") == "call"
-    assert page.locator("#spans .sp.k-reply").count() >= 2
-    crit = page.locator("#spans .sp.crit").count()
-    assert 0 < crit <= page.locator("#spans .sp.k-reply .mark").count()
+    rows = page.locator("#spans .sp")
+    assert rows.count() == page.locator("#transcript .turn.agent").count()
+    assert (
+        page.locator("#spans .sp .seg").count() >= 4
+        and page.locator("#spans .sp .htick").count() >= 1
+    )
+    assert "ms" not in page.locator("#spans .sp").first.inner_text()  # no printed numbers
+    assert page.locator("#spans-tip").is_hidden()
+    page.locator("#spans .sp .seg").first.hover()
+    assert (
+        page.locator("#spans-tip").is_visible() and "ms" in page.locator("#spans-tip").inner_text()
+    )
+    page.locator("#spans .sp .htick").first.hover()
+    assert "Heard" in page.locator("#spans-tip").inner_text()
     page.check('#spans [data-sf="slow"]')
-    assert page.locator("#spans .sp:not([hidden]) .bar").count() < sp.count()
     assert page.locator('#spans .sp:not([hidden])[data-status="ok"]').count() == 0
     page.uncheck('#spans [data-sf="slow"]')
-    page.select_option("#spans-kind", "tool_call")
-    assert (
-        page.locator("#spans .sp:not([hidden])").count()
-        == page.locator('#spans .sp[data-kind="tool_call"]').count()
-    )
-    page.select_option("#spans-kind", "")
-    reply = page.locator("#spans .sp.k-reply:has(.mark)").first  # a reply with a measured wait
+    assert page.locator("#spans .sp:not([hidden])").count() == rows.count()
     page.evaluate("document.getElementById('insp-audio').currentTime = 0")
-    reply.locator(".lane").click()
+    rows.nth(1).click()
     assert page.evaluate("document.getElementById('insp-audio').currentTime") > 0
-    assert (
-        page.locator("#spans-detail").is_visible()
-        and "heard ms" in page.locator("#spans-detail").inner_text()
-    )
-    reply.dblclick()
-    assert page.locator("#spans-fit").is_visible()
-    page.click("#spans-fit")
-    assert not page.locator("#spans-fit").is_visible()
-    reply.locator(".nm").click()
-    rid = reply.get_attribute("data-id")
-    assert page.locator(f'#spans .sp[data-parent="{rid}"]:not([hidden])').count() == 0
-    reply.locator(".nm").click()
-    assert page.locator(f'#spans .sp[data-parent="{rid}"]:not([hidden])').count() >= 2
+    assert page.locator("#latency-glossary").count() == 1
     page.click('#inspector [data-tab="transcript"]')
     # compact check tags on the transcript: ? opens one popover at a time with the explanation
     assert page.locator('#inspector [data-pane="checks"]').count() == 0  # the Checks tab is gone
@@ -396,7 +380,9 @@ def test_inspector_controls(site, page):
     page.click(f'.tev[data-tev="{tid}"] [data-tab="resp"]')
     assert page.locator(f'#tev-{tid} [data-pane="resp"]').is_visible()
     assert page.locator(f'#tev-{tid} [data-pane="args"]').is_hidden()
-    assert page.locator('#inspector [data-pane="grading"]').is_visible()  # the outer tab is untouched
+    assert page.locator(
+        '#inspector [data-pane="grading"]'
+    ).is_visible()  # the outer tab is untouched
     page.click('#inspector [data-tab="transcript"]')
     # seeking: transcript turn, check jump, lanes click, play button
     t = int(insp.locator("#transcript .turn").nth(2).get_attribute("data-t"))
@@ -465,7 +451,10 @@ def test_add_session_to_regression_suite_from_the_ui(site, page):
     shown = page.locator("#sessionpick label:visible")
     assert 1 <= shown.count() < page.locator("#sessionpick label").count()
     page.select_option("select[name=pick]", "pick")
-    assert page.locator("#sessionpick label:not([hidden])").count() == page.locator("#sessionpick label").count()
+    assert (
+        page.locator("#sessionpick label:not([hidden])").count()
+        == page.locator("#sessionpick label").count()
+    )
     assert page.locator("#sessionpick input").first.is_enabled()
     _no_errors(page)
 

@@ -24,8 +24,7 @@
   <div class="tabs" data-tabs="inspector">
     {% set first = 'transcript' %}
     <button type="button" data-tab="transcript" class="on">Transcript</button>
-    <button type="button" data-tab="latency">Latency{% if c.latency_turns.summary.heard_ms.p95 %}<b>p95 {{ c.latency_turns.summary.heard_ms.p95|ms }}</b>{% endif %}</button>
-    <button type="button" data-tab="spans">Spans{% if c.spans.summary.slow or c.spans.summary.errors %}<b{% if c.spans.summary.errors %} style="background:var(--red-bg);color:var(--red)"{% endif %}>{{ c.spans.summary.slow + c.spans.summary.errors }}</b>{% endif %}</button>
+    <button type="button" data-tab="spans">Spans{% if c.latency_turns.summary.heard_ms.p95 %}<b{% if c.spans.summary.errors or c.spans.summary.over_fail %} style="background:var(--red-bg);color:var(--red)"{% elif c.spans.summary.slow %} style="background:var(--amber-bg);color:var(--amber)"{% endif %}>p95 {{ c.latency_turns.summary.heard_ms.p95|ms }}</b>{% endif %}</button>
     <button type="button" data-tab="grading">Grading{% if c.n_fail %}<b style="background:var(--red-bg);color:var(--red)">{{ c.n_fail }} failed</b>{% endif %}{% if c.n_warn %}<b style="background:var(--amber-bg);color:var(--amber)">{{ c.n_warn }} flagged</b>{% endif %}</button>
     {% if not embedded %}<button type="button" data-tab="details">Details</button>{% endif %}
     {% if c.engine == 'gf-caller' %}<label class="sw on" data-toggle="heard-off" data-target="#inspector" id="insp-heard"><span class="tg"></span>Show what the agent heard</label>{% else %}<span class="sw" style="cursor:default" title="this engine does not export the caller's exact words">agent transcript only</span>{% endif %}
@@ -116,65 +115,39 @@
         {% else %}<p class="small muted">The agent made no tool calls in this call.</p>{% endif %}
       </div>
 
-      <div class="pane" data-pane="latency" hidden id="latency">
-        {% set L = c.latency_turns %}
-        {% set colors = {'eou_ms':'#94a3b8','stt_ms':'#60a5fa','llm_ttft_ms':'#a78bfa','tts_ttfb_ms':'#34d399','playback_ms':'#fbbf24','unaccounted_ms':'#e5e7eb'} %}
+      <div class="pane" data-pane="spans" hidden id="spans">
+        {% set L = c.latency_turns %}{% set S = c.spans %}
         {% set vals = L.turns|map(attribute='heard_ms')|reject('none')|list + L.turns|map(attribute='reported_sum_ms')|reject('none')|list %}
         {% set scale = (vals|max) if vals else 1 %}
-        <p class="small muted" style="margin:6px 0 10px">Per agent turn: what the caller waited (<b>heard</b>, from the recording) and where the agent's own clock says the time went. Hover a segment for the stage.</p>
-        <div class="legend" style="padding:0 0 8px">{% for k, label, d in L.stages %}<span><i style="background:{{ colors[k] }};border-radius:2px"></i>{{ label }}</span>{% endfor %}<span><i style="background:{{ colors['unaccounted_ms'] }};border-radius:2px;border:1px solid #d1d5db"></i>Unaccounted</span><span><i style="background:transparent;border-left:2px solid var(--ink);border-radius:0;width:0"></i>heard</span></div>
-        <div class="tablewrap"><table class="small" id="latency-table">
-        <tr><th>turn</th><th style="width:38%">breakdown</th><th>heard</th>{% for k, label, d in L.stages %}<th title="{{ d }}">{{ label|replace('End-of-turn detection','end of turn')|replace('Transcription','transcript')|replace('LLM first token','LLM TTFT')|replace('TTS first byte','TTS TTFB')|replace('Playback','playback') }}</th>{% endfor %}<th>reported e2e</th><th>tokens</th></tr>
-        {% for t in L.turns %}
-        <tr class="latrow" data-t="{{ t.t_ms }}" style="cursor:pointer">
-          <td class="mono">{{ t.t_ms|clock }} <span class="muted">#{{ t.n }}</span>{% if t.greeting %} <span class="chip">greeting</span>{% endif %}{% if t.interrupted %} <span class="chip">interrupted</span>{% endif %}</td>
-          <td>
-            <div style="position:relative;height:14px;background:#f8fafc;border-radius:3px;overflow:hidden">
-              <div style="display:flex;height:100%">{% for k, label, d in L.stages %}{% if t[k] %}<i title="{{ label }}: {{ t[k] }} ms" style="display:block;height:100%;width:{{ (100 * t[k] / scale)|round(2) }}%;background:{{ colors[k] }}"></i>{% endif %}{% endfor %}{% if t.unaccounted_ms and t.unaccounted_ms > 0 %}<i title="Unaccounted: {{ t.unaccounted_ms }} ms" style="display:block;height:100%;width:{{ (100 * t.unaccounted_ms / scale)|round(2) }}%;background:{{ colors['unaccounted_ms'] }}"></i>{% endif %}</div>
-              {% if t.heard_ms %}<b title="heard: {{ t.heard_ms }} ms" style="position:absolute;top:0;bottom:0;left:{{ (100 * t.heard_ms / scale)|round(2) }}%;width:2px;background:var(--ink)"></b>{% endif %}
-            </div>
-          </td>
-          <td>{% if t.heard_ms is not none %}<span class="pill {{ 'green' if t.heard_ms <= c.thresholds.latency_p95_warn_s * 1000 else ('amber' if t.heard_ms <= c.thresholds.latency_p95_fail_s * 1000 else 'red') }}">{{ t.heard_ms|ms }}</span>{% else %}<span class="muted">–</span>{% endif %}</td>
-          {% for k, label, d in L.stages %}<td class="num">{{ t[k] ~ ' ms' if t[k] is not none else '–' }}</td>{% endfor %}
-          <td class="num">{{ t.e2e_ms ~ ' ms' if t.e2e_ms is not none else '–' }}</td>
-          <td class="num muted">{% if t.llm_tokens_in %}{{ t.llm_tokens_in }} → {{ t.llm_tokens_out }}{% else %}–{% endif %}</td>
-        </tr>
-        {% endfor %}
-        <tr style="font-weight:600"><td>p50 / p95</td><td class="small muted" style="font-weight:400">over {{ L.summary.heard_ms.n }} replies with a measured wait</td>
-          <td>{{ L.summary.heard_ms.p50|ms }} / {{ L.summary.heard_ms.p95|ms }}</td>
-          {% for k, label, d in L.stages %}<td class="num">{{ L.summary[k].p50 ~ ' / ' ~ L.summary[k].p95 if L.summary[k].p50 is not none else '–' }}</td>{% endfor %}
-          <td class="num">{{ L.summary.e2e_ms.p50 ~ ' / ' ~ L.summary.e2e_ms.p95 if L.summary.e2e_ms.p50 is not none else '–' }}</td><td></td></tr>
-        </table></div>
-        <details style="margin-top:10px"><summary>What each latency means</summary>
-          <div class="kv small" style="margin-top:8px">{% for label, d in L.glossary %}<span class="k">{{ label }}</span><span>{{ d }}</span>{% endfor %}</div>
-          <p class="small muted" style="margin:8px 0 0">The stages come from the agent's own metrics (LiveKit Agents: EOU, STT, LLM and TTS events), so they are what the pipeline saw. "Heard" is measured on the stereo recording and is the number to optimise; the stages say which part of the agent to look at. The greeting has no wait because nobody spoke before it.</p>
-        </details>
-      </div>
-
-      <div class="pane" data-pane="spans" hidden id="spans" data-dur="{{ c.spans.summary.duration_ms }}" data-warn="{{ c.spans.summary.warn_ms }}" data-fail="{{ c.spans.summary.fail_ms }}">
-        {% set S = c.spans %}
-        {% set parents = S.spans|map(attribute='parent')|reject('none')|list %}
-        <p class="small muted" style="margin:6px 0 8px">The call as a trace: every reply is a span from the caller's last word to the agent's last, with the agent's own stages laid end to end inside it, tool calls where they happened, and the recording's dead air, talk-over and interruptions. The longest stage of each reply is outlined (critical path). <span class="mono">|</span> on a reply marks the {{ (S.summary.warn_ms / 1000)|round(1) }} s warn line. Click a name to fold, a bar to seek, double-click a row to zoom.</p>
+        {% set warn = c.thresholds.latency_p95_warn_s * 1000 %}{% set fail = c.thresholds.latency_p95_fail_s * 1000 %}
         <div class="spans-bar">
-          <span class="small"><b>{{ S.summary.replies }}</b> replies · <span class="{{ 'red' if S.summary.slow else '' }}">{{ S.summary.slow }} slow</span>{% if S.summary.over_fail %} ({{ S.summary.over_fail }} over the fail bar){% endif %} · <span class="{{ 'red' if S.summary.errors else '' }}">{{ S.summary.errors }} tool error{{ '' if S.summary.errors == 1 else 's' }}</span> · {{ S.summary.dead_air }} dead air{% if S.summary.critical_stages %} · critical path mostly <b>{{ S.stage_labels[S.summary.critical_stages[0][0]]|lower }}</b> ({{ S.summary.critical_stages[0][1] }}/{{ S.summary.replies }}){% endif %}</span>
-          <input type="search" id="spans-q" placeholder="find a span" class="small">
+          <span class="small"><b>{{ S.summary.replies }}</b> replies · <span class="{{ 'red' if S.summary.slow else '' }}">{{ S.summary.slow }} slow</span>{% if S.summary.over_fail %} ({{ S.summary.over_fail }} over the fail bar){% endif %} · <span class="{{ 'red' if S.summary.errors else '' }}">{{ S.summary.errors }} tool error{{ '' if S.summary.errors == 1 else 's' }}</span>{% if S.summary.critical_stages %} · time mostly in <b>{{ S.stage_labels[S.summary.critical_stages[0][0]]|lower }}</b>{% endif %} · hover a block for its time</span>
           <label class="small"><input type="checkbox" data-sf="slow"> slow</label>
           <label class="small"><input type="checkbox" data-sf="error"> errors</label>
-          <select id="spans-kind" class="small"><option value="">all kinds</option>{% for k in S.kinds if k != 'call' %}<option value="{{ k }}">{{ S.stage_labels[k] if k in S.stage_labels else k|replace('_', ' ') }}</option>{% endfor %}</select>
-          <button type="button" class="btn sm" id="spans-fit" hidden>fit whole call</button>
         </div>
-        <div class="spans-head"><span>span</span><span class="axis" id="spans-axis"></span><span class="num">ms</span></div>
+        <div class="legend" style="padding:0 0 8px">{% for k, label, d in L.stages %}<span><i class="sq k-{{ k[:-3] }}"></i>{{ label }}</span>{% endfor %}<span><i class="sq k-unaccounted"></i>Unaccounted</span><span><i class="sq k-tool"></i>tool call</span><span><i class="sq k-heard"></i>heard</span></div>
         <div id="spans-rows">
-          {% for s in S.spans %}
-          <div class="sp d{{ s.depth }} k-{{ s.kind }} st-{{ s.status }}{% if s.attrs.critical %} crit{% endif %}" data-id="{{ s.id }}" data-parent="{{ s.parent or '' }}" data-t0="{{ s.t0_ms }}" data-t1="{{ s.t1_ms }}" data-kind="{{ s.kind }}" data-status="{{ s.status }}" data-name="{{ s.name|lower }}" data-attrs='{{ s.attrs|tojson|forceescape }}'{% if s.turn is not none %} data-turn="{{ s.turn }}"{% endif %}>
-            <span class="nm" style="padding-left:{{ 6 + s.depth * 14 }}px">{% if s.id in parents %}<i class="tg">▾</i>{% else %}<i class="tg" style="visibility:hidden">▾</i>{% endif %}{{ s.name }}{% if s.status == 'error' %} <span class="pill red" style="font-size:10px">error</span>{% elif s.status == 'slow' and s.kind == 'reply' %} <span class="pill {{ 'red' if s.attrs.over_fail else 'amber' }}" style="font-size:10px">{{ s.attrs.heard_ms|ms }} wait</span>{% endif %}</span>
-            <span class="lane"><i class="bar"></i>{% if s.kind == 'reply' and s.attrs.heard_ms is defined %}<b class="mark" title="warn line"></b>{% endif %}</span>
-            <span class="num mono">{{ s.duration_ms }}</span>
+          {% for t in L.turns %}
+          {% set rs = S.spans|selectattr('kind','equalto','reply')|selectattr('turn','equalto',t.n)|list %}{% set r0 = rs[0] if rs else none %}
+          {% set tools = S.spans|selectattr('kind','equalto','tool_call')|selectattr('turn','equalto',t.n)|list %}
+          {% set status = 'error' if (r0 and r0.status == 'error') else ('fail' if (t.heard_ms is not none and t.heard_ms > fail) else ('slow' if (t.heard_ms is not none and t.heard_ms > warn) else 'ok')) %}
+          <div class="sp st-{{ status }}" data-t="{{ t.t_ms }}" data-end="{{ t.t_ms + (t.duration_ms or 0) }}" data-status="{{ 'error' if status == 'error' else ('slow' if status in ('slow','fail') else 'ok') }}" data-n="{{ t.n }}">
+            <span class="nm"><span class="mono">{{ t.t_ms|clock }}</span> <span class="muted">#{{ t.n }}</span>{% if t.greeting %} <span class="chip">greeting</span>{% endif %}{% if t.interrupted %} <span class="chip">interrupted</span>{% endif %}</span>
+            <span class="lane">
+              <span class="stack">{% for k, label, d in L.stages %}{% if t[k] %}<i class="seg k-{{ k[:-3] }}" style="width:{{ (100 * t[k] / scale)|round(2) }}%" data-tip="{{ label }} · {{ t[k] }} ms"></i>{% endif %}{% endfor %}{% if t.unaccounted_ms and t.unaccounted_ms > 0 %}<i class="seg k-unaccounted" style="width:{{ (100 * t.unaccounted_ms / scale)|round(2) }}%" data-tip="Unaccounted · {{ t.unaccounted_ms }} ms (network, buffering, VAD look-back)"></i>{% endif %}</span>
+              {% if r0 %}{% for tc in tools %}<i class="tmark {{ tc.status }}" style="left:{{ ([100, (100 * (tc.t0_ms - r0.t0_ms) / scale)]|min)|round(2) }}%" data-tip="{{ tc.attrs.tool }} · {{ 'failed ' ~ tc.attrs.http_status if tc.status == 'error' else 'ok ' ~ tc.attrs.http_status }} · {{ tc.duration_ms }} ms"></i>{% endfor %}{% endif %}
+              {% if t.heard_ms is not none %}<b class="htick" style="left:{{ ([100, 100 * t.heard_ms / scale]|min)|round(2) }}%" data-tip="Heard · {{ t.heard_ms }} ms from the caller's last word to the agent's first sound{% if t.e2e_ms %} · agent's own end-to-end {{ t.e2e_ms }} ms{% endif %}"></b>{% endif %}
+            </span>
+            <span class="st">{% if status == 'error' %}<span class="pill red">tool error</span>{% elif status == 'fail' %}<span class="pill red">slow</span>{% elif status == 'slow' %}<span class="pill amber">slow</span>{% elif t.heard_ms is none %}<span class="muted small">no wait measured</span>{% endif %}</span>
           </div>
           {% endfor %}
-          <i id="spans-play"></i>
         </div>
-        <div id="spans-detail" class="small" hidden></div>
+        <div id="spans-tip" hidden></div>
+        <p class="small muted" style="margin:10px 0 0">Over {{ L.summary.heard_ms.n }} replies with a measured wait: heard p50 {{ L.summary.heard_ms.p50|ms }} · p95 {{ L.summary.heard_ms.p95|ms }}{% if L.summary.e2e_ms.p50 is not none %} · agent-reported end-to-end p50 {{ L.summary.e2e_ms.p50 }} ms{% endif %}. Flag over {{ c.thresholds.latency_p95_warn_s }} s, fail over {{ c.thresholds.latency_p95_fail_s }} s. Blocks share one scale, so widths compare across replies.</p>
+        <details style="margin-top:10px" id="latency-glossary"><summary>What each latency means</summary>
+          <div class="kv small" style="margin-top:8px">{% for label, d in L.glossary %}<span class="k">{{ label }}</span><span>{{ d }}</span>{% endfor %}</div>
+          <p class="small muted" style="margin:8px 0 0">The stages come from the agent's own metrics (LiveKit Agents: EOU, STT, LLM and TTS events), so they are what the pipeline saw. "Heard" is measured on the stereo recording and is the number to optimise. <code>gf spans &lt;record&gt; --otlp</code> exports the same call as a trace for Jaeger or Tempo.</p>
+        </details>
       </div>
 
       {% if not embedded %}
@@ -310,69 +283,23 @@
 </script>
 <script>
 (function(){
-  // Spans tab (spec T6.24): fold, filter, zoom, seek, playhead. Bars are % of the view window.
+  // Spans tab (T6.34): hover popups carry the numbers; filters; row click seeks; the playing row is lit.
   const pane = document.getElementById('spans'); if (!pane) return;
-  const rows = [...pane.querySelectorAll('.sp')], axis = document.getElementById('spans-axis'), play = document.getElementById('spans-play'), detail = document.getElementById('spans-detail'), fit = document.getElementById('spans-fit'), box = document.getElementById('spans-rows');
-  const dur = +pane.dataset.dur || 1, warn = +pane.dataset.warn;
-  let v0 = 0, v1 = dur;
-  const byId = {}, kids = {}; rows.forEach(r => { byId[r.dataset.id] = r; if (r.dataset.parent) (kids[r.dataset.parent] = kids[r.dataset.parent] || []).push(r); });
-  const folded = new Set(), filters = { q: '', slow: false, error: false, kind: '' };
-  const pct = ms => Math.max(0, Math.min(100, (ms - v0) / (v1 - v0) * 100));
-  function underFold(r){ let p = r.dataset.parent; while (p) { if (folded.has(p)) return true; p = byId[p].dataset.parent; } return false; }
-  function matches(r){
-    if (filters.kind && r.dataset.kind !== filters.kind) return false;
-    if (filters.slow && r.dataset.status === 'ok') return false;
-    if (filters.error && r.dataset.status !== 'error') return false;
-    return !filters.q || r.dataset.name.includes(filters.q);
-  }
-  function layout(){
-    const filtering = filters.q || filters.slow || filters.error || filters.kind;
-    rows.forEach(r => {
-      const t0 = +r.dataset.t0, t1 = +r.dataset.t1;
-      r.hidden = filtering ? !matches(r) : underFold(r);
-      const bar = r.querySelector('.bar'); bar.style.left = pct(t0) + '%'; bar.style.width = Math.max(0.15, pct(t1) - pct(t0)) + '%';
-      const m = r.querySelector('.mark'); if (m) { const x = t0 + warn; m.style.left = pct(x) + '%'; m.hidden = x < v0 || x > v1; }
-    });
-    axis.innerHTML = ''; const span = v1 - v0, step = span > 60000 ? 10000 : span > 20000 ? 5000 : span > 5000 ? 1000 : 500;
-    for (let t = Math.ceil(v0 / step) * step; t <= v1; t += step) { const i = document.createElement('i'); i.style.left = pct(t) + '%'; i.textContent = (t / 1000).toFixed(step < 1000 ? 1 : 0) + 's'; axis.appendChild(i); }
-    fit.hidden = v0 === 0 && v1 === dur;
-  }
-  function show(r){
-    rows.forEach(x => x.classList.toggle('sel', x === r));
-    let attrs = {}; try { attrs = JSON.parse(r.dataset.attrs || '{}'); } catch (e) {}
-    const t0 = +r.dataset.t0, t1 = +r.dataset.t1, esc = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-    let html = `<b>${esc(r.dataset.name)}</b> <span class="muted">${(t0 / 1000).toFixed(2)} s → ${(t1 / 1000).toFixed(2)} s · ${t1 - t0} ms · ${r.dataset.status}</span>`;
-    const parts = Object.entries(attrs).map(([k, v]) => `<span class="k">${esc(k.replace(/_/g, ' '))}</span><span>${esc(v)}</span>`);
-    const ch = (kids[r.dataset.id] || []).map(c => c.dataset.name).join(', '); if (ch) parts.push(`<span class="k">children</span><span>${esc(ch)}</span>`);
-    detail.innerHTML = parts.length ? html + `<div class="kv">${parts.join('')}</div>` : html; detail.hidden = false;
-  }
-  pane.addEventListener('click', e => {
-    const r = e.target.closest('.sp'); if (!r) return;
-    if (e.target.closest('.nm')) {
-      if (kids[r.dataset.id]) { folded.has(r.dataset.id) ? folded.delete(r.dataset.id) : folded.add(r.dataset.id); r.classList.toggle('folded', folded.has(r.dataset.id)); layout(); }
-      show(r); return;
-    }
-    if (e.target.closest('.lane')) { if (window.gfInspector) window.gfInspector.seek(+r.dataset.t0); show(r); }
-  });
-  pane.addEventListener('dblclick', e => {
-    const r = e.target.closest('.sp'); if (!r) return; e.preventDefault();
-    const t0 = +r.dataset.t0, t1 = Math.max(+r.dataset.t1, t0 + 200), pad = (t1 - t0) * 0.08;
-    v0 = Math.max(0, t0 - pad); v1 = Math.min(dur, t1 + pad); layout();
-  });
-  fit.addEventListener('click', () => { v0 = 0; v1 = dur; layout(); });
-  pane.querySelector('#spans-q').addEventListener('input', e => { filters.q = e.target.value.trim().toLowerCase(); layout(); });
+  const rows = [...pane.querySelectorAll('.sp')], tip = document.getElementById('spans-tip');
+  const filters = { slow: false, error: false };
+  function layout(){ rows.forEach(r => { r.hidden = (filters.slow && r.dataset.status === 'ok') || (filters.error && r.dataset.status !== 'error'); }); }
   pane.querySelectorAll('[data-sf]').forEach(cb => cb.addEventListener('change', () => { filters[cb.dataset.sf] = cb.checked; layout(); }));
-  pane.querySelector('#spans-kind').addEventListener('change', e => { filters.kind = e.target.value; layout(); });
+  pane.addEventListener('mouseover', e => {
+    const el = e.target.closest('[data-tip]'); if (!el) { tip.hidden = true; return; }
+    tip.textContent = el.dataset.tip; tip.hidden = false;
+    const pr = pane.getBoundingClientRect(), er = el.getBoundingClientRect();
+    tip.style.left = Math.max(0, Math.min(er.left - pr.left + er.width / 2 - tip.offsetWidth / 2, pr.width - tip.offsetWidth - 4)) + 'px';
+    tip.style.top = (er.top - pr.top - tip.offsetHeight - 8) + 'px';
+  });
+  pane.addEventListener('mouseleave', () => { tip.hidden = true; });
+  pane.addEventListener('click', e => { const r = e.target.closest('.sp'); if (!r) return; rows.forEach(x => x.classList.toggle('sel', x === r)); if (window.gfInspector) window.gfInspector.seek(+r.dataset.t); });
   const audio = document.getElementById('insp-audio');
-  if (audio) {
-    const tick = () => {
-      const ms = audio.currentTime * 1000, lane = rows[0] && rows[0].querySelector('.lane');
-      if (!lane || pane.hidden || ms < v0 || ms > v1) { play.style.display = 'none'; return; }
-      play.style.display = 'block'; play.style.left = (lane.offsetLeft + pct(ms) / 100 * lane.offsetWidth) + 'px';
-    };
-    audio.addEventListener('timeupdate', tick); audio.addEventListener('seeked', tick);
-  }
+  if (audio) { const tick = () => { const ms = audio.currentTime * 1000; rows.forEach(r => r.classList.toggle('cur', ms >= +r.dataset.t && ms < +r.dataset.end)); }; audio.addEventListener('timeupdate', tick); audio.addEventListener('seeked', tick); }
   layout();
-  window.gfSpans = { layout, zoomTo: (t0, t1) => { v0 = t0; v1 = t1; layout(); } };
 })();
 </script>

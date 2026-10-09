@@ -105,7 +105,7 @@ def test_pages_render(env):
     assert c.get("/api/nope").json()["error"]
     assert c.get("/runs/t1/zzz/1").status_code == 404
     call = c.get("/runs/t1/7c994c348001/1").text
-    assert 'data-pane="spans"' in call and 'data-kind="reply"' in call  # T6.24
+    assert 'data-pane="spans"' in call and 'class="seg k-' in call  # T6.24/T6.34
     # T6.25: the run pages carry no inspector; each attempt's Details loads it from here
     assert 'id="inspector"' not in c.get("/runs/t1").text
     assert (
@@ -131,7 +131,10 @@ def test_run_page_content(env):
     assert (
         "Grading" in call and 'data-pane="checks"' not in call and 'data-tab="transcript"' in call
     )
-    assert 'data-tab="latency"' in call and "What each latency means" in call
+    assert (
+        'data-tab="latency"' not in call and "What each latency means" in call
+    )  # T6.34: inside Spans
+    assert 'data-tab="spans"' in call and 'id="latency-glossary"' in call
     assert 'data-tab="grading"' in call
     assert 'data-pane="tools"' not in call and 'id="tool-calls"' in call  # T6.32
     assert 'id="caller-pill"' in call and 'id="agent-pill"' in call
