@@ -3,7 +3,7 @@
 {% endif %}
 {% if o.runs %}
 <div class="tablewrap"><table>
-  <tr><th>run</th><th>started</th><th>sessions × repeat</th><th>calls</th><th>passed</th><th>95% interval</th><th>invalid</th><th>flaky</th><th>p95 latency</th><th>environment</th><th>session set</th></tr>
+  <tr><th>run</th><th>started</th><th>sessions × repeat</th><th>calls</th><th>passed</th><th title="Wilson 95% confidence interval of the pass rate: the range of true pass rates consistent with this many valid calls. Few calls give a wide range; 3/3 reads as 44–100%.">pass rate, 95% interval</th><th>invalid</th><th>flaky</th><th>p95 latency</th><th>environment</th><th>session set</th></tr>
   {% for r in o.runs %}
   <tr>
     <td><a href="{{ links.run(r.run_id) }}">{{ r.run_id }}</a></td>
