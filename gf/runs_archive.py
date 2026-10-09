@@ -4,6 +4,7 @@ drop them from the environment registry; `restore` reverses it."""
 from __future__ import annotations
 
 import json
+import re
 import shutil
 from pathlib import Path
 
@@ -84,3 +85,74 @@ def archived() -> list[Path]:
     return (
         sorted(p for p in root.iterdir() if (p / "manifest.json").exists()) if root.exists() else []
     )
+
+
+NUMBERED = re.compile(r"^(.*-)(\d{3,})$")
+RUN_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
+
+
+def next_run_id(parent: str) -> str:
+    """`base-001` → `base-002`, the first number not used by a run or an archived run; a
+    parent without a numbered suffix gets "" (the caller falls back to the dated id)."""
+    m = NUMBERED.match(parent)
+    if not m:
+        return ""
+    root = settings().runs_dir
+    stem, digits = m.group(1), m.group(2)
+    n = int(digits) + 1
+    while True:
+        cand = f"{stem}{n:0{len(digits)}d}"
+        if not (root / cand).exists() and not (root / ARCHIVE_DIR / cand).exists():
+            return cand
+        n += 1
+
+
+def rename(old: str, new: str) -> Path:
+    """Move runs/<old> to runs/<new> and rewrite the id wherever the run is named: its
+    manifest, summary, environment stamp and job file, the environment registry, and the
+    `parent_run` of any run started from it. Call records are untouched (they never name
+    the run)."""
+    root = settings().runs_dir
+    src, dst = root / old, root / new
+    if not (src / "manifest.json").exists():
+        raise ValueError(f"no run {old!r} under {root}")
+    if not RUN_ID.match(new):
+        raise ValueError(f"run id {new!r}: letters, digits, '.', '_' and '-' only")
+    if dst.exists() or (root / ARCHIVE_DIR / new).exists():
+        raise ValueError(f"a run named {new!r} already exists")
+    man = json.loads((src / "manifest.json").read_text())
+    if (src / "job.json").exists() and man.get("duration_s") is None:
+        job = json.loads((src / "job.json").read_text())
+        if job.get("pid"):
+            raise ValueError(f"run {old!r} may still be running; wait for it to finish")
+    shutil.move(str(src), str(dst))
+    for name in ("manifest.json", "summary.json", "environment.json", "job.json"):
+        f = dst / name
+        if f.exists():
+            text = f.read_text()
+            text = text.replace(f'"run_id": "{old}"', f'"run_id": "{new}"')
+            text = text.replace(f"/{old}/", f"/{new}/").replace(f'/{old}"', f'/{new}"')
+            f.write_text(text)
+    reg = root / REGISTRY_DIR
+    if reg.exists():
+        for f in reg.glob("env-*.json"):
+            try:
+                entry = json.loads(f.read_text())
+            except (OSError, ValueError):
+                continue
+            hit = False
+            for r in entry.get("runs", []):
+                if r.get("run_id") == old:
+                    r["run_id"] = new
+                    hit = True
+            if hit:
+                f.write_text(json.dumps(entry, indent=2, default=str))
+    for f in root.glob("*/manifest.json"):
+        try:
+            child = json.loads(f.read_text())
+        except (OSError, ValueError):
+            continue
+        if child.get("parent_run") == old:
+            child["parent_run"] = new
+            f.write_text(json.dumps(child, indent=2, default=str))
+    return dst

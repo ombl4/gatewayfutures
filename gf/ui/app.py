@@ -395,11 +395,13 @@ async def run_rerun(run_id: str, request: Request):
     if not ids:
         raise HTTPException(400, "none of this run's sessions are still active (all retired)")
     try:
+        from gf.runs_archive import next_run_id
+
         new_id = jobs.start(
             ids,
             int(man.get("repeat") or 3),
             int(man.get("concurrency") or 4),
-            "",
+            next_run_id(run_id),  # base-001 -> base-002; other names keep the dated id
             suite=man.get("suite"),
             parent_run=run_id,
         )

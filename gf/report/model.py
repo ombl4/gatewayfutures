@@ -430,8 +430,12 @@ def persona_matrix(man: dict[str, Any], rows: list[dict[str, Any]]) -> dict[str,
     return {"personas": personas, "rows": grid, "totals": totals}
 
 
-def by_area(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Pass rate per area over the valid attempts of the sessions in that area."""
+def by_area(
+    rows: list[dict[str, Any]], report: dict[str, Any] | None = None
+) -> list[dict[str, Any]]:
+    """Pass rate per area over the valid attempts of the sessions in that area, and (given the
+    run report) the area's failures, invalid calls and flagged passes, each pointing at a call
+    (T6.28: the area pill is the way into the issues)."""
     from gf.sessions.taxonomy import MODIFIER_AREAS, PRIMARY_AREAS
 
     order = list(PRIMARY_AREAS) + ["other"] + list(MODIFIER_AREAS)
@@ -457,8 +461,38 @@ def by_area(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "ci_low": lo,
                 "ci_high": hi,
                 "rate_class": rate_class(rate) if d["n"] else "grey",
+                "issues": [],
+                "flagged": [],
             }
         )
+    if report is not None:
+        areas_of_session = {x["session_id"]: x.get("areas", []) for x in rows}
+        items = [i for i in issues_for(report, limit=10**6)["items"] if not i.get("summary")]
+        for entry in out:
+            a = entry["area"]
+            entry["issues"] = [i for i in items if a in areas_of_session.get(i["session_id"], [])]
+            entry["flagged"] = [
+                {
+                    "session_id": x["session_id"],
+                    "session_title": x.get("title", x["session_id"]),
+                    "attempt": x["attempt"],
+                    "t_ms": x.get("issue_t_ms"),
+                    "flags": [SOFT_LABELS.get(f, f) for f in x.get("soft_flags", [])],
+                }
+                for x in report.get("flagged", [])
+                if a in areas_of_session.get(x["session_id"], [])
+            ]
+            entry["n_fail"] = sum(
+                len(i.get("attempts") or [1])
+                for i in entry["issues"]
+                if i["severity"] != "simulation"
+            )
+            entry["n_invalid"] = sum(
+                len(i.get("attempts") or [1])
+                for i in entry["issues"]
+                if i["severity"] == "simulation"
+            )
+            entry["n_flagged"] = len(entry["flagged"])
     return out
 
 
@@ -990,11 +1024,11 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
     out["simulation"] = simulation_quality(summ)
     out["personas"] = man.get("personas") or []
     out["matrix"] = persona_matrix(man, rows) if out["personas"] else None
-    out["by_area"] = by_area(rows)
     out["suite"] = man.get("suite")
     out["kpis"] = kpi_cards(run_id, summ, prev) if man.get("kind", "run") == "run" else []
     out["time_breakdown"] = time_breakdown(summ)
     out["issues"] = issues_for(out)
+    out["by_area"] = by_area(rows, out)  # after issues: the areas carry the issue tiles
     out["valid_count"] = sum(1 for a in summ.get("attempts", []) if a.get("valid"))
     return out
 

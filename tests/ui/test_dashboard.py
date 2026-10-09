@@ -224,14 +224,20 @@ def test_overview_is_the_performance_page(site, page):
     assert page.locator("#kpis .kpi").count() == 4
     assert "first run" in page.locator("#kpis").inner_text()
     assert page.locator("details.srow").count() == 0 and page.locator("#flow").count() == 0
-    assert (
-        page.locator("#by-area .pill").count() >= 1
-        and page.locator("#runs-table, table").count() >= 1
-    )
-    cards = page.locator("#issues a.issue")
-    assert cards.count() >= 1
-    target = cards.first.get_attribute("data-issue")
-    cards.first.click()
+    assert page.locator("#by-area .area").count() >= 1 and page.locator("table").count() >= 1
+    assert page.locator("#issues").count() == 0  # T6.28: the area pills carry the issues
+    area = page.locator("#by-area .area:has(.dots)").first  # an area with something to show
+    assert not area.locator(".pop").is_visible()
+    area.locator(".pill").hover()
+    assert area.locator(".pop").is_visible()
+    tiles = area.locator(".itile")
+    assert tiles.count() >= 1
+    target = tiles.first.get_attribute("data-issue")
+    page.mouse.move(5, 5)
+    assert not area.locator(".pop").is_visible()
+    area.locator(".pill").click()  # click pins it
+    assert area.locator(".pop").is_visible()
+    tiles.first.click()
     page.wait_for_selector(".callbox #inspector")
     assert urlparse(page.url).path == "/runs/t1" and f"call={target}" in page.url
     assert page.locator("#inspector").get_attribute("data-call") == target
@@ -275,12 +281,12 @@ def test_kpis_accordion_and_issues(site, page):
     assert page.locator("#inspector").count() == 1
     b2.click()  # toggles closed
     assert page.locator("#inspector").count() == 0
-    assert "has-call" not in page.locator(".work").get_attribute("class")
-    # issue cards open the right attempt's dropdown at that moment
-    cards = page.locator("#issues a.issue")
-    assert cards.count() >= 1
-    target = cards.first.get_attribute("data-issue")
-    page.click("#issues a.issue >> nth=0")
+    # area tiles open the right attempt's dropdown at that moment
+    area = page.locator("#by-area .area:has(.dots)").first
+    area.locator(".pill").click()
+    tile = area.locator(".itile").first
+    target = tile.get_attribute("data-issue")
+    tile.click()
     page.wait_for_selector(".callbox #inspector")
     assert page.locator("#inspector").get_attribute("data-call") == target
     assert f"call={target}" in page.url
@@ -498,7 +504,10 @@ def test_run_page_actions_present(site, page):
     page.goto(site["base"] + "/runs/t1")
     assert page.locator("#btn-rescore").is_visible() and page.locator("#btn-prove").is_visible()
     assert page.locator("#every-call").is_visible()
-    page.click("#issues a.issue >> nth=0")
+    assert page.locator("#issues").count() == 0  # T6.28: issues live on the area pills here too
+    area = page.locator("#by-area .area:has(.dots)").first
+    area.locator(".pill").click()
+    area.locator(".itile").first.click()
     page.wait_for_selector(".callbox #inspector")
     assert "call=" in page.url and page.locator("#inspector").is_visible()
     _no_errors(page)
@@ -561,7 +570,9 @@ def test_static_report_works_from_disk(site, page):
     assert page.locator("#kpis .kpi").count() == 4
     assert page.locator("details.srow").count() == 2
     assert page.locator("#btn-run").count() == 0  # live-only controls are absent
-    page.click("#issues a.issue >> nth=0")
+    area = page.locator("#by-area .area:has(.dots)").first
+    area.locator(".pill").click()
+    area.locator(".itile").first.click()  # static tiles link to the call page
     assert page.url.startswith("file://") and "call-" in page.url
     page.wait_for_selector("#inspector")
     page.click('#inspector [data-tab="grading"]')

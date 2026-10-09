@@ -38,7 +38,7 @@
 {% endif %}
 
 {% if r.kpis %}{{ rb.kpis(r) }}{% endif %}
-{{ rb.by_area(r) }}
+{{ rb.by_area(r, issue_link) }}
 {% if r.matrix %}
 <div class="card" id="persona-matrix" style="padding:12px 16px;margin:0 0 14px">
   <div class="hd"><h3 style="margin:0">Session × persona</h3><span class="small muted">{{ r.personas|length }} personas · each cell is one derived session; the session's facts, goal and expectations are unchanged, the persona's voice and line replace its own</span></div>
@@ -57,9 +57,8 @@
 {% if tb %}
 <p class="meta" id="time-breakdown" style="margin:-6px 0 14px"><span class="muted">Where the time goes (median over valid calls):</span>{% for b in tb %}<span title="{{ b.label }}"><b>{{ b.label|lower }}</b> {{ b.p50 }} ms</span>{% if not loop.last %}<i>·</i>{% endif %}{% endfor %}</p>
 {% endif %}
-<div class="work">
+<div class="work has-call">
   {{ rb.sessions(r) }}
-  {{ rb.issues(r, issue_link) }}
 </div>
 
 {% if r.top_failures %}

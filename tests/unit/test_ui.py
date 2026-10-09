@@ -365,3 +365,80 @@ def test_static_report_renders(env, tmp_path):
     page = (out / "call-7c994c348001-1.html").read_text()
     assert 'href="index.html"' in page and "lookup_order" in page
     assert 'data-pane="spans"' in page
+
+
+def test_area_pills_carry_their_sessions_issues(env):
+    """T6.28: an area's tiles are exactly the failing, invalid and flagged attempts of the
+    sessions in that area, each pointing at a call."""
+    from gf.report import model
+
+    r = model.run_report("t1")
+    areas = {a["area"]: a for a in r["by_area"]}
+    assert areas
+    for a in areas.values():
+        in_area = {s["session_id"] for s in r["sessions"] if a["area"] in s.get("areas", [])}
+        for i in a["issues"]:
+            assert i["session_id"] in in_area and i["severity"] in (
+                "critical",
+                "high",
+                "simulation",
+            )
+            assert "attempt" in i and "t_ms" in i
+        for f in a["flagged"]:
+            assert f["session_id"] in in_area and f["flags"]
+        assert a["n_fail"] + a["n_invalid"] == sum(
+            len(i.get("attempts") or [1]) for i in a["issues"]
+        )
+    seen = {
+        (i["session_id"], n)
+        for a in areas.values()
+        for i in a["issues"]
+        for n in (i.get("attempts") or [i["attempt"]])
+    }
+    for x in r["failing"] + r["invalid"]:
+        assert (x["session_id"], x["attempt"]) in seen
+    html = env["client"].get("/").text
+    assert 'class="area"' in html and "itile" in html and 'id="issues"' not in html
+
+
+def test_rename_run_rewrites_every_reference(env):
+    """T7.5: the folder moves and the id changes in the manifest, summary, registry and a
+    child's parent_run; the renamed run still renders."""
+    import json
+
+    from gf.config import settings
+    from gf.runs_archive import next_run_id, rename
+
+    root = settings().runs_dir
+    reg = root / "_environments"
+    reg.mkdir(exist_ok=True)
+    (reg / "env-deadbeef.json").write_text(
+        json.dumps({"env_tag": "env-deadbeef", "runs": [{"run_id": "t1", "set_tag": "set-1"}]})
+    )
+    from gf.scoring.score import score_run
+
+    score_run("t1")  # a real summary.json, so the renamed run renders
+    child = root / "child"
+    child.mkdir()
+    (child / "manifest.json").write_text(
+        json.dumps({"run_id": "child", "parent_run": "t1", "sessions": [], "calls": []})
+    )
+    dst = rename("t1", "base-001")
+    assert dst.name == "base-001" and not (root / "t1").exists()
+    man = json.loads((dst / "manifest.json").read_text())
+    assert man["run_id"] == "base-001" and "/t1" not in man["folder"]
+    assert all("/t1/" not in c["record_dir"] for c in man["calls"])
+    assert json.loads((dst / "summary.json").read_text())["run_id"] == "base-001"
+    assert json.loads((reg / "env-deadbeef.json").read_text())["runs"][0]["run_id"] == "base-001"
+    assert json.loads((child / "manifest.json").read_text())["parent_run"] == "base-001"
+    assert env["client"].get("/runs/base-001").status_code == 200
+    assert env["client"].get("/runs/t1").status_code == 404
+    assert next_run_id("base-001") == "base-002"
+    (root / "base-002").mkdir()
+    assert next_run_id("base-001") == "base-003" and next_run_id("t1") == ""
+    import pytest
+
+    with pytest.raises(ValueError):
+        rename("base-001", "base-002")
+    with pytest.raises(ValueError):
+        rename("nope", "x")

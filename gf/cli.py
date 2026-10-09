@@ -511,6 +511,19 @@ runs_app = typer.Typer(help="Manage run folders.", no_args_is_help=True)
 app.add_typer(runs_app, name="runs")
 
 
+@runs_app.command("rename")
+def runs_rename(old: str, new: str) -> None:
+    """Rename a run (folder, manifest, summary, environment registry, children's parent)."""
+    from gf.runs_archive import rename
+
+    try:
+        dst = rename(old, new)
+    except ValueError as e:
+        typer.echo(f"error: {e}")
+        raise typer.Exit(1) from None
+    typer.echo(f"renamed {old} -> {new} ({dst})")
+
+
 @runs_app.command("archive")
 def runs_archive(
     run_ids: list[str] = typer.Argument(None, help="Run ids to archive (default: --all)."),  # noqa: B008

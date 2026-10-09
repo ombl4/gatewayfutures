@@ -143,7 +143,15 @@ textarea.input{font-family:var(--mono);font-size:12px;line-height:1.45}
 /* workspace: sessions + issues */
 .work{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start;margin-bottom:16px}
 .work.has-call{grid-template-columns:minmax(0,1fr)}
-.issues-wide{margin-bottom:16px}.issues-wide .issues{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:8px}
+.area{position:relative;display:inline-block;outline:0}.area .pill{cursor:default}.area .dots{display:inline-flex;gap:3px;margin-left:5px;vertical-align:middle}.area .d{width:6px;height:6px;border-radius:50%;display:inline-block}.area .d.f{background:var(--red)}.area .d.x{background:#9ca3af}.area .d.w{background:var(--amber)}
+.area .pop{display:none;position:absolute;z-index:7;top:calc(100% + 6px);left:0;width:380px;max-width:calc(100vw - 32px);background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.1);padding:10px 12px;font-size:12px;font-weight:400;white-space:normal;text-align:left;color:var(--ink)}
+.area .pop::before{content:'';position:absolute;top:-8px;left:0;right:0;height:8px}
+.area:hover .pop,.area:focus-within .pop,.area.open .pop{display:block}.area.right .pop{left:auto;right:0}
+.area .pop>b{font-size:12.5px;text-transform:capitalize}.area .pop .clean{display:block;margin-top:6px;color:var(--muted)}
+.itile{display:block;margin-top:6px;border:1px solid var(--line);border-left:3px solid var(--line);border-radius:6px;padding:6px 8px;color:var(--ink);text-decoration:none}.itile:hover{border-color:var(--accent);border-left-color:var(--accent);text-decoration:none}
+.itile.fail{border-left-color:var(--red)}.itile.sim{border-left-color:#9ca3af}.itile.warn{border-left-color:var(--amber)}
+.itile .tt{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.itile .tm{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}.itile .tm em{font-style:normal;font-weight:600}
+.itile.fail .tm em{color:var(--red)}.itile.warn .tm em{color:var(--amber)}.itile.sim .tm em{color:var(--grey)}.area .pop .more{display:block;margin-top:8px;font-size:12px}
 @media (max-width:1100px){.work{grid-template-columns:1fr}}
 .acc{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}
 .acc .hd{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line)}
@@ -404,6 +412,16 @@ document.addEventListener('click', e => {
 document.addEventListener('click', e => {
   document.querySelectorAll('details.pmenu[open]').forEach(d => { if (!d.contains(e.target)) d.removeAttribute('open'); });
 });
+// area pills (T6.28): hover shows the popover; click/tap pins it; the popover flips left near the right edge
+document.addEventListener('click', e => {
+  const pill = e.target.closest('.area .pill');
+  document.querySelectorAll('.area.open').forEach(x => { if (!x.contains(e.target)) x.classList.remove('open'); });
+  if (pill) pill.closest('.area').classList.toggle('open');
+});
+document.addEventListener('mouseover', e => {
+  const area = e.target.closest('.area'); if (!area) return;
+  const r = area.getBoundingClientRect(); area.classList.toggle('right', r.left + 380 > window.innerWidth - 16);
+});
 // Details dropdown under an attempt row (T6.25): loads that call's inspector inline, one at a time.
 window.gfCalls = (function(){
   let cur = null;
@@ -426,7 +444,7 @@ window.gfCalls = (function(){
   }
   document.addEventListener('click', e => {
     const b = e.target.closest('.callbtn'); if (b) { e.preventDefault(); open(b); return; }
-    const a = e.target.closest('a.issue[data-issue]'); if (!a) return;
+    const a = e.target.closest('a.issue[data-issue], a.itile[data-issue]'); if (!a) return;
     const btn = document.querySelector('.callbtn[data-call="' + a.dataset.issue + '"]'); if (!btn) return;
     e.preventDefault(); const row = btn.closest('details'); if (row) row.open = true;
     open(btn, a.dataset.t ? +a.dataset.t : null); btn.closest('.att').scrollIntoView({behavior:'smooth', block:'start'});

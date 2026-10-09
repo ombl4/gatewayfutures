@@ -5,7 +5,7 @@
 {% block crumbs %}<b>Overview</b>{% if r %}<i>›</i><span>run {{ r.run_id }}</span>{% endif %}{% endblock %}
 {% block content %}
 <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-<h1>Agent performance</h1>
+<h1>Agent Performance</h1>
 {% if r %}
 <label class="small muted" style="display:flex;align-items:center;gap:8px">Run
   {% if mode == 'live' %}
@@ -29,13 +29,10 @@
 
 {% if r %}
 {{ rb.kpis(r) }}
-{{ rb.by_area(r) }}
+{{ rb.by_area(r, issue_link) }}
 {{ rb.simulation(r) }}
 {% if r.previous and not r.previous.like_for_like %}<p class="small muted" style="margin:-8px 0 12px">* compared with {{ r.previous.run_id }}: {% if r.previous.env_same is sameas false %}different environment{% endif %}{% if r.previous.env_same is sameas false and r.previous.set_same is sameas false %} and {% endif %}{% if r.previous.set_same is sameas false %}different session set{% endif %}{% if r.previous.env_same is none %}environment unknown for the older run{% endif %}; treat the change as indicative.</p>{% endif %}
-<div class="issues-wide">
-  {{ rb.issues(r, issue_link) }}
-</div>
-<p class="small muted" style="margin:-4px 0 16px">Every practice session with its three attempts, and the call inspector, are on the <a href="{{ links.run(r.run_id) }}">run page</a>.</p>
+<p class="small muted" style="margin:-4px 0 16px">Hover an area for its failures, invalid calls and flagged passes; a tile opens that call. Every practice session with its attempts is on the <a href="{{ links.run(r.run_id) }}">run page</a>.</p>
 {% endif %}
 
 
