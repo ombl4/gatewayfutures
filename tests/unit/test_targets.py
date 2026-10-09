@@ -168,3 +168,35 @@ def test_run_batch_runs_every_call_against_the_target(tdir, tmp_path, monkeypatc
     assert man["env_components"]["agent_config_hash"] == "target:acme@v3"
     on_disk = json.loads((tmp_path / "runs" / "t-acme" / "manifest.json").read_text())
     assert on_disk["target"]["reference"] is False and "api_key" not in json.dumps(on_disk)
+
+
+def test_connection_test_verdicts_and_stored_result(tdir):
+    """T9.3: the verdict names the first failed step; a target without secrets fails without
+    touching the network; the result is stored next to the target."""
+    import asyncio
+
+    from gf import targets_check as C
+
+    assert C.verdict(
+        credentials=False, room_created=False, dispatched=False, joined_ms=None, spoke_ms=None
+    ) == (False, "no_credentials")
+    assert C.verdict(
+        credentials=True, room_created=False, dispatched=False, joined_ms=None, spoke_ms=None
+    ) == (False, "api_refused")
+    assert C.verdict(
+        credentials=True, room_created=True, dispatched=False, joined_ms=None, spoke_ms=None
+    ) == (False, "dispatch_refused")
+    assert C.verdict(
+        credentials=True, room_created=True, dispatched=True, joined_ms=None, spoke_ms=None
+    ) == (False, "never_joined")
+    assert C.verdict(
+        credentials=True, room_created=True, dispatched=True, joined_ms=900, spoke_ms=None
+    ) == (False, "joined_silent")
+    assert C.verdict(
+        credentials=True, room_created=True, dispatched=True, joined_ms=900, spoke_ms=2100
+    ) == (True, "ok")
+    targets.save(targets.Target(id="acme", name="Acme", agent_name="a"))
+    r = asyncio.run(C.connection_test(targets.load("acme"), timeout_s=1))
+    assert r["ok"] is False and r["reason"] == "no_credentials" and "acme" in r["error"]
+    assert C.last_result("acme")["reason"] == "no_credentials"
+    assert C.last_result("reference") is None

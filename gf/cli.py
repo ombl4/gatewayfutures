@@ -577,6 +577,29 @@ def targets_remove(target_id: str) -> None:
     typer.echo(f"removed {target_id}")
 
 
+@targets_app.command("test")
+def targets_test(target_id: str, timeout: float = 20.0) -> None:
+    """Connection test: create a room in the target's project, dispatch its agent, wait for
+    it to join and speak. Prints the verdict and stores it next to the target."""
+    import logging
+
+    from gf import targets
+    from gf.targets_check import connection_test_sync
+
+    logging.getLogger("livekit").setLevel(logging.WARNING)
+    r = connection_test_sync(targets.load(target_id), timeout_s=timeout)
+    mark = "OK " if r["ok"] else "FAIL"
+    typer.echo(f"{mark} {target_id}: {r['message']}")
+    if r.get("agent_identity"):
+        typer.echo(
+            f"     agent {r['agent_identity']} joined after {r['joined_ms']} ms"
+            + (f", spoke after {r['spoke_ms']} ms" if r.get("spoke_ms") is not None else "")
+        )
+    if r.get("error"):
+        typer.echo(f"     {r['error']}")
+    raise typer.Exit(0 if r["ok"] else 1)
+
+
 @targets_app.command("use")
 def targets_use(target_id: str) -> None:
     """Make a target the active one (what runs and the header use by default)."""
