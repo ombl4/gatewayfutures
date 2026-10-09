@@ -181,6 +181,16 @@ def import_export(
         "calls": calls,
         "duration_s": _duration(run),
     }
+    from gf.environment import stamp
+
+    stamp(
+        run_id,
+        run_dir,
+        manifest,
+        [x["id"] for x in manifest.get("sessions", [])],
+        engine=ENGINE,
+    )
+
     (run_dir / "manifest.json").write_text(json.dumps(manifest, indent=2, default=str))
     return manifest
 

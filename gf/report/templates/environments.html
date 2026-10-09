@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% set page='environments' %}
+{% block title %}Environments · Call simulator{% endblock %}
+{% block crumbs %}<b>Environments</b>{% endblock %}
+{% block content %}
+<h1>Environments</h1>
+<p class="meta"><span>Every run carries two tags. <b>env-…</b> hashes the agent config and variant, the STT/LLM/TTS models, the engine, the scoring method with its thresholds, and the library and Python versions. <b>set-…</b> hashes the session files run. Two runs are like-for-like when both tags match.</span></p>
+{% for e in e.environments %}
+<div class="card" style="margin-bottom:12px" id="{{ e.env_tag }}">
+  <h3><span><span class="pill indigo mono">{{ e.env_tag }}</span> <span class="small muted">first seen {{ e.first_seen|dt }} · {{ e.runs|length }} run{{ '' if e.runs|length == 1 else 's' }}</span></span></h3>
+  <div class="two" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr);margin-top:8px">
+    <div class="kv small">
+      <span class="k">agent config</span><span class="mono">{{ e.components.agent_config_hash }}{% if e.components.agent_variant %} <span class="pill grey">variant {{ e.components.agent_variant }}</span>{% endif %}</span>
+      <span class="k">models</span><span>{{ e.components.models.stt }} → {{ e.components.models.llm }} → {{ e.components.models.tts }}</span>
+      <span class="k">engine</span><span>{{ e.components.engine }}</span>
+      <span class="k">scoring</span><span class="mono">{{ e.components.scoring_method }}</span>
+      <span class="k">python</span><span>{{ e.components.python }}</span>
+      <span class="k">libraries</span><span class="mono">{% for k, v in e.components.libraries.items() %}{{ k }} {{ v }}{% if not loop.last %} · {% endif %}{% endfor %}</span>
+      {% if e.details.git_commit %}<span class="k">code</span><span class="mono">{{ e.details.git_commit }}{% if e.details.git_dirty %} (uncommitted changes){% endif %} · {{ e.details.platform }}</span>{% endif %}
+    </div>
+    <div class="tablewrap"><table class="small">
+      <tr><th>run</th><th>session set</th><th>started</th></tr>
+      {% for r in e.runs %}<tr><td><a href="{{ links.run(r.run_id) }}">{{ r.run_id }}</a></td><td class="mono">{{ r.set_tag }}</td><td>{{ r.started_at|dt }}</td></tr>{% endfor %}
+    </table></div>
+  </div>
+</div>
+{% else %}
+<p class="muted">No tagged runs yet. Tags are written when a run starts; <code>gf env</code> prints the tag a run would carry now.</p>
+{% endfor %}
+{% if e.untagged %}
+<h2>Runs made before tags existed</h2>
+<p class="small muted">These predate the tag (their manifests lack library versions), so they show as <span class="mono">env-?</span> and are never like-for-like with tagged runs: {% for r in e.untagged %}<a href="{{ links.run(r.run_id) }}">{{ r.run_id }}</a>{% if not loop.last %}, {% endif %}{% endfor %}.</p>
+{% endif %}
+{% endblock %}

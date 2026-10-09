@@ -69,6 +69,8 @@ footer{color:var(--muted);font-size:11.5px;text-align:center;margin-top:36px}
 .pill.green,.pill.pass{background:var(--green-bg);color:var(--green)}.pill.amber{background:var(--amber-bg);color:var(--amber)}
 .pill.red,.pill.fail{background:var(--red-bg);color:var(--red)}.pill.grey,.pill.invalid{background:var(--grey-bg);color:var(--grey)}
 .pill.indigo{background:var(--accent-bg);color:var(--accent-ink)}
+a.pill:hover{text-decoration:none;filter:brightness(.95)}
+.pill.mono{font-family:var(--mono);font-weight:600;font-size:11px}
 .chip{display:inline-block;padding:0 7px;border:1px solid var(--line);border-radius:6px;font-size:11.5px;color:var(--muted);background:#fff;margin:1px 3px 1px 0;white-space:nowrap}
 .status-pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600;background:#fff;color:var(--ink)}
 .status-pill i{width:7px;height:7px;border-radius:50%;background:#c4c8cf}
@@ -274,6 +276,7 @@ details.srow summary .ttl .chip{font-weight:400}
   <a class="item " href="sessions.html"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Practice sessions</a>
   <a class="item active" href="index.html"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h12M3 18h6"/></svg>Runs</a>
   <a class="item " href="scoring.html"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16"/><path d="M8 15l4-5 3 3 5-6"/></svg>Scoring</a>
+  <a class="item " href="environments.html"><svg viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4 8 4 8-4z"/><path d="M4 7v10l8 4 8-4V7"/><path d="M12 11v10"/></svg>Environments</a>
   <a class="item " href="agent.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Agent settings</a>
   <div class="sec">Support agent</div>
   <a class="agentbox" href="agent.html" style="text-decoration:none;color:inherit"><div class="av">A</div><div><div class="nm">Gateway Goods support line</div><div class="st"><i></i>livekit</div></div></a>
@@ -283,7 +286,7 @@ details.srow summary .ttl .chip{font-weight:400}
   <a class="row" href="agent.html#models"><span>Model</span><span>gpt-4.1-mini</span></a>
   <a class="row" href="backend.html"><span>Order system</span><span>mock</span></a>
   <a class="row" href="caller.html"><span>Simulated caller</span><span>gf-caller</span></a>
-  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-08 23:58 UTC</div>
+  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-09 00:11 UTC</div>
 </aside>
 <div class="wrap">
 <header class="top">
@@ -296,7 +299,7 @@ details.srow summary .ttl .chip{font-weight:400}
 <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
 <h1>Run full-3</h1>
 </div>
-<p class="meta"><span>2026-10-08 23:37 UTC</span><i>·</i><span>15 sessions × 3</span><i>·</i><span>45 calls (44 valid, 1 invalid) in 16.7 min</span><i>·</i><span>compared with <a href="index.html">full-1</a> (not like-for-like)</span></p>
+<p class="meta"><span>2026-10-08 23:37 UTC</span><i>·</i><span>15 sessions × 3</span><i>·</i><span>45 calls (44 valid, 1 invalid) in 16.7 min</span><i>·</i><span>compared with <a href="index.html">full-1</a> (not like-for-like)</span><i>·</i><span><a class="pill indigo mono" href="environments.html#env-cc3bc997" title="environment: agent config, models, engine, scoring, library versions">env-cc3bc997</a> <span class="pill grey mono" title="session set: the session files run">set-4d233ef8</span></span></p>
 
 
 <div class="kpis" id="kpis">
@@ -306,7 +309,7 @@ details.srow summary .ttl .chip{font-weight:400}
     <div class="v">82%</div>
     <div class="d">36 / 44 valid calls · CI 68%–90%</div>
     <div class="trend"><svg viewBox="0 0 72 28" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#b45309" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" points="2.0,26.0 24.7,4.0 47.3,6.1 70.0,12.0 "/></svg>
-<span class="vs regressed" title="sessions or agent changed since full-1: not like-for-like">-13 pts vs full-1 *</span></div>
+<span class="vs regressed" title="environment or session set changed since full-1: not like-for-like">-13 pts vs full-1 *</span></div>
   </div>
   <div class="kpi amber" data-kpi="tool_rate" title="Judged on the order system&#39;s log, never on what the agent said.">
     <div class="ic"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.1-2.1z"/></svg></div>
@@ -314,7 +317,7 @@ details.srow summary .ttl .chip{font-weight:400}
     <div class="v">82%</div>
     <div class="d">of valid calls, from the backend log</div>
     <div class="trend"><svg viewBox="0 0 72 28" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#b45309" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" points="2.0,4.0 24.7,4.0 47.3,9.8 70.0,26.0 "/></svg>
-<span class="vs regressed" title="sessions or agent changed since full-1: not like-for-like">-13 pts vs full-1 *</span></div>
+<span class="vs regressed" title="environment or session set changed since full-1: not like-for-like">-13 pts vs full-1 *</span></div>
   </div>
   <div class="kpi green" data-kpi="wer" title="What the caller said vs what the agent&#39;s speech recognition produced.">
     <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 12h2l2-6 3 12 3-9 2 5 2-2h4"/></svg></div>
@@ -322,7 +325,7 @@ details.srow summary .ttl .chip{font-weight:400}
     <div class="v">7%</div>
     <div class="d">lower is better · caller&#39;s words vs agent&#39;s transcript</div>
     <div class="trend"><svg viewBox="0 0 72 28" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#15803d" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" points="2.0,4.0 24.7,24.9 47.3,26.0 70.0,21.6 "/></svg>
-<span class="vs regressed" title="sessions or agent changed since full-1: not like-for-like">+4 pts vs full-1 *</span></div>
+<span class="vs regressed" title="environment or session set changed since full-1: not like-for-like">+4 pts vs full-1 *</span></div>
   </div>
   <div class="kpi amber" data-kpi="p95_ms" title="Measured from the recording: caller stops speaking → agent audio starts.">
     <div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
@@ -330,10 +333,10 @@ details.srow summary .ttl .chip{font-weight:400}
     <div class="v">2.6 s</div>
     <div class="d">median session · flag over 2 s</div>
     <div class="trend"><svg viewBox="0 0 72 28" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="#b45309" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" points="2.0,4.0 24.7,22.9 47.3,25.7 70.0,26.0 "/></svg>
-<span class="vs same" title="sessions or agent changed since full-1: not like-for-like">0.0 s vs full-1 *</span></div>
+<span class="vs same" title="environment or session set changed since full-1: not like-for-like">0.0 s vs full-1 *</span></div>
   </div>
 </div>
-<p class="small muted" style="margin:-8px 0 12px">* compared with full-1, which used a different session set or agent configuration; treat the change as indicative.</p><p class="meta" id="time-breakdown" style="margin:-6px 0 14px"><span class="muted">Where the time goes (median over valid calls):</span><span title="End-of-turn detection"><b>end-of-turn detection</b> 577 ms</span><i>·</i><span title="Transcription"><b>transcription</b> 234 ms</span><i>·</i><span title="LLM first token"><b>llm first token</b> 498 ms</span><i>·</i><span title="TTS first byte"><b>tts first byte</b> 181 ms</span><i>·</i><span title="Playback"><b>playback</b> 16 ms</span><i>·</i><span title="Reported end-to-end"><b>reported end-to-end</b> 1617 ms</span><i>·</i><span title="Heard"><b>heard</b> 2260 ms</span><i>·</i><span title="Unaccounted"><b>unaccounted</b> 632 ms</span></p>
+<p class="small muted" style="margin:-8px 0 12px">* compared with full-1: different environment and different session set; treat the change as indicative.</p><p class="meta" id="time-breakdown" style="margin:-6px 0 14px"><span class="muted">Where the time goes (median over valid calls):</span><span title="End-of-turn detection"><b>end-of-turn detection</b> 577 ms</span><i>·</i><span title="Transcription"><b>transcription</b> 234 ms</span><i>·</i><span title="LLM first token"><b>llm first token</b> 498 ms</span><i>·</i><span title="TTS first byte"><b>tts first byte</b> 181 ms</span><i>·</i><span title="Playback"><b>playback</b> 16 ms</span><i>·</i><span title="Reported end-to-end"><b>reported end-to-end</b> 1617 ms</span><i>·</i><span title="Heard"><b>heard</b> 2260 ms</span><i>·</i><span title="Unaccounted"><b>unaccounted</b> 632 ms</span></p>
 <div class="work">
   <div class="acc" id="sessions">
   <div class="hd"><h3>Practice sessions <span class="muted" style="font-weight:500">(15)</span></h3><span class="small muted">3 attempts each · click a row to expand</span></div>
@@ -829,10 +832,10 @@ details.srow summary .ttl .chip{font-weight:400}
     </summary>
     <div class="sbody">
       <div class="cols4" style="margin:8px 0 10px">
-        <div><div class="h">Persona</div><span class="muted">from the engine's scenario</span></div>
-        <div><div class="h">Goal</div></div>
+        <div><div class="h">Persona</div><b>Maria Lopez</b><div class="muted">chatty · en-US</div></div>
+        <div><div class="h">Goal</div>Get a full refund of $89.99 for order GW-48213, despite a backend error on first refund attempt.</div>
         <div><div class="h">Conditions</div><span class="chip">clean line</span></div>
-        <div><div class="h">Expected</div><span class="chip">refunded</span><div class="muted mono" style="margin-top:3px"></div></div>
+        <div><div class="h">Expected</div><span class="chip">refunded</span><div class="muted mono" style="margin-top:3px">lookup_order → issue_refund → issue_refund</div></div>
       </div>
       <div class="att">
         <span class="pill fail">fail</span>
@@ -861,32 +864,32 @@ details.srow summary .ttl .chip{font-weight:400}
       <span class="ttl">Refund request on already refunded order, agent denies refund</span>
       <span class="bar" title="0 pass · 3 fail · 0 invalid"><i class="p" style="width:0.0%"></i><i class="f" style="width:100.0%"></i><i class="x" style="width:0.0%"></i></span>
       <span class="cnt"><b class="f">0/3</b> pass</span>
-      <span class="cnt"><span class="strip"><a class="dot fail" href="call-a0e4e5e8d324-1.html" title="attempt 1: fail — actual value: None"></a><a class="dot fail" href="call-a0e4e5e8d324-2.html" title="attempt 2: fail — actual value: None"></a><a class="dot fail" href="call-a0e4e5e8d324-3.html" title="attempt 3: fail — actual value: None"></a></span>
+      <span class="cnt"><span class="strip"><a class="dot fail" href="call-a0e4e5e8d324-1.html" title="attempt 1: fail — refunds[GW-48911].amount == 15.00 does not hold: the backend has None (no such refund was issued; a pre-existing refund shows as orders[...].refunded)"></a><a class="dot fail" href="call-a0e4e5e8d324-2.html" title="attempt 2: fail — refunds[GW-48911].amount == 15.00 does not hold: the backend has None (no such refund was issued; a pre-existing refund shows as orders[...].refunded)"></a><a class="dot fail" href="call-a0e4e5e8d324-3.html" title="attempt 3: fail — refunds[GW-48911].amount == 15.00 does not hold: the backend has None (no such refund was issued; a pre-existing refund shows as orders[...].refunded)"></a></span>
 </span>
     </summary>
     <div class="sbody">
       <div class="cols4" style="margin:8px 0 10px">
-        <div><div class="h">Persona</div><span class="muted">from the engine's scenario</span></div>
-        <div><div class="h">Goal</div></div>
+        <div><div class="h">Persona</div><b>Maria Lopez</b><div class="muted">confused · en-US</div></div>
+        <div><div class="h">Goal</div>Request a refund on order GW-48911 which was already refunded, and accept denial.</div>
         <div><div class="h">Conditions</div><span class="chip">clean line</span></div>
-        <div><div class="h">Expected</div><span class="chip">refund_denied_already_refunded</span><div class="muted mono" style="margin-top:3px"></div></div>
+        <div><div class="h">Expected</div><span class="chip">refund_denied_already_refunded</span><div class="muted mono" style="margin-top:3px">lookup_order</div></div>
       </div>
       <div class="att">
         <span class="pill fail">fail</span>
         <span><button class="play" data-src="audio/a0e4e5e8d324-1.mp3" data-label="Refund request on already refunded order, agent denies refund #1" title="replay the original recording"><span class="ic">▶</span><span class="t">0:42</span></button></span>
-        <span class="rs" title="actual value: None">#1 · 0:42 · p95 2.6 s · actual value: None</span>
+        <span class="rs" title="refunds[GW-48911].amount == 15.00 does not hold: the backend has None (no such refund was issued; a pre-existing refund shows as orders[...].refunded)">#1 · 0:42 · p95 2.6 s · refunds[GW-48911].amount == 15.00 does not hold: the backend has None (no such refund was issued; a pre-existing refund shows as orders[...].refunded)</span>
         <a href="call-a0e4e5e8d324-1.html">Open call →</a>
       </div>
       <div class="att">
         <span class="pill fail">fail</span>
         <span><button class="play" data-src="audio/a0e4e5e8d324-2.mp3" data-label="Refund request on already refunded order, agent denies refund #2" title="replay the original recording"><span class="ic">▶</span><span class="t">0:43</span></button></span>
-        <span class="rs" title="actual value: None">#2 · 0:43 · p95 2.3 s · actual value: None</span>
+        <span class="rs" title="refunds[GW-48911].amount == 15.00 does not hold: the backend has None (no such refund was issued; a pre-existing refund shows as orders[...].refunded)">#2 · 0:43 · p95 2.3 s · refunds[GW-48911].amount == 15.00 does not hold: the backend has None (no such refund was issued; a pre-existing refund shows as orders[...].refunded)</span>
         <a href="call-a0e4e5e8d324-2.html">Open call →</a>
       </div>
       <div class="att">
         <span class="pill fail">fail</span>
         <span><button class="play" data-src="audio/a0e4e5e8d324-3.mp3" data-label="Refund request on already refunded order, agent denies refund #3" title="replay the original recording"><span class="ic">▶</span><span class="t">0:41</span></button></span>
-        <span class="rs" title="actual value: None">#3 · 0:41 · p95 2.7 s · actual value: None</span>
+        <span class="rs" title="refunds[GW-48911].amount == 15.00 does not hold: the backend has None (no such refund was issued; a pre-existing refund shows as orders[...].refunded)">#3 · 0:41 · p95 2.7 s · refunds[GW-48911].amount == 15.00 does not hold: the backend has None (no such refund was issued; a pre-existing refund shows as orders[...].refunded)</span>
         <a href="call-a0e4e5e8d324-3.html">Open call →</a>
       </div>
       <div class="small" style="margin-top:8px"><a href="session-a0e4e5e8d324.html">Session definition and history →</a> <span class="muted">· worst p95 reply 2.7 s</span></div>
@@ -902,15 +905,15 @@ details.srow summary .ttl .chip{font-weight:400}
       <div class="m">Caller asks for more than the order total, should settle on the full amount · attempt 2</div>
     </a>
     <a class="issue high" href="call-a0e4e5e8d324-1.html#t=18500" data-issue="a0e4e5e8d324/1" data-t="18500">
-      <div class="t"><span>Actual value: None</span><span class="sev high">high</span></div>
+      <div class="t"><span>Refunds[GW-48911].amount == 15.00 does not hold: the backend has None…</span><span class="sev high">high</span></div>
       <div class="m">Refund request on already refunded order, agent denies refund · attempt 1 · at <span class="mono">0:18</span></div>
     </a>
     <a class="issue high" href="call-a0e4e5e8d324-2.html#t=18780" data-issue="a0e4e5e8d324/2" data-t="18780">
-      <div class="t"><span>Actual value: None</span><span class="sev high">high</span></div>
+      <div class="t"><span>Refunds[GW-48911].amount == 15.00 does not hold: the backend has None…</span><span class="sev high">high</span></div>
       <div class="m">Refund request on already refunded order, agent denies refund · attempt 2 · at <span class="mono">0:18</span></div>
     </a>
     <a class="issue high" href="call-a0e4e5e8d324-3.html#t=35487" data-issue="a0e4e5e8d324/3" data-t="35487">
-      <div class="t"><span>Actual value: None</span><span class="sev high">high</span></div>
+      <div class="t"><span>Refunds[GW-48911].amount == 15.00 does not hold: the backend has None…</span><span class="sev high">high</span></div>
       <div class="m">Refund request on already refunded order, agent denies refund · attempt 3 · at <span class="mono">0:35</span></div>
     </a>
     <a class="issue high" href="call-a8d032bb2a4c-2.html#t=0" data-issue="a8d032bb2a4c/2" data-t="">
@@ -1144,7 +1147,7 @@ details.srow summary .ttl .chip{font-weight:400}
 <span></span>        </div>
         <div class="check fail open">
           <span class="ic">✗</span>
-          <div><div>Final state: refunds[GW-48213].amount == 89.99</div><div class="what">actual value: None</div><div class="why">The backend&#39;s end state is the ground truth for the outcome.</div></div>
+          <div><div>Final state: refunds[GW-48213].amount == 89.99</div><div class="what">refunds[GW-48213].amount == 89.99 does not hold: the backend has None (no such refund was issued; a pre-existing refund shows as orders[...].refunded)</div><div class="why">The backend&#39;s end state is the ground truth for the outcome.</div></div>
 <span></span>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
@@ -1507,7 +1510,7 @@ issue_refund was never called      </div>
             <span class="pop"><b>Must not call update_shipping_address</b><span class="what">update_shipping_address was not called</span><span class="why">A forbidden action means the agent took a path the scenario rules out.</span></span>
           </span>
           <span class="tag fail" data-check="state.refunds_gw_48213_amount_89_99"><span class="m">✗</span><code>refunds_gw_48213_amount_89_99</code><button type="button" class="q" aria-label="explain refunds_gw_48213_amount_89_99">?</button>
-            <span class="pop"><b>Final state: refunds[GW-48213].amount == 89.99</b><span class="what">actual value: None</span><span class="why">The backend&#39;s end state is the ground truth for the outcome.</span></span>
+            <span class="pop"><b>Final state: refunds[GW-48213].amount == 89.99</b><span class="what">refunds[GW-48213].amount == 89.99 does not hold: the backend has None (no such refund was issued; a pre-existing refund shows as orders[...].refunded)</span><span class="why">The backend&#39;s end state is the ground truth for the outcome.</span></span>
           </span>
           <span class="tag pass" data-check="tools.wrong_write"><span class="m">✓</span><code>wrong_write</code><button type="button" class="q" aria-label="explain wrong_write">?</button>
             <span class="pop"><b>No writes to orders the caller did not ask about</b><span class="what">none</span><span class="why">A write nobody asked for is the most expensive kind of mistake.</span></span>
@@ -1673,7 +1676,7 @@ issue_refund was never called      </div>
 })();
 </script>
 <div class="card" style="margin-bottom:12px"><b>Why calls failed:</b>
-<ul class="list" style="margin:4px 0 0"><li>issue_refund was called but not as expected: it returned HTTP 500 (internal_error) <span class="muted">× 3</span></li><li>actual value: None <span class="muted">× 3</span></li><li>issue_refund was never called <span class="muted">× 2</span></li></ul></div>
+<ul class="list" style="margin:4px 0 0"><li>issue_refund was called but not as expected: it returned HTTP 500 (internal_error) <span class="muted">× 3</span></li><li>refunds[GW-48911].amount == 15.00 does not hold: the backend has None (no such refund was issued; a pre-existing refund shows as orders[...].refunded) <span class="muted">× 3</span></li><li>issue_refund was never called <span class="muted">× 2</span></li></ul></div>
 
 <h2>Since the previous comparable run</h2>
 <div class="card">
@@ -2048,7 +2051,7 @@ issue_refund was never called      </div>
   <td>1</td>
   <td><button class="play" data-src="audio/a0e4e5e8d324-1.mp3" data-label="Refund request on already refunded order, agent denies refund #1" title="replay the original recording"><span class="ic">▶</span><span class="t">0:42</span></button></td>
   <td><span class="pill fail">fail</span></td>
-  <td class="small">actual value: None</td>
+  <td class="small">refunds[GW-48911].amount == 15.00 does not hold: the backend has None (no such refund was issued; a pre-existing refund shows as orders[...].refunded)</td>
   <td>42.5 s</td><td>2.6 s</td><td>18%</td><td>3.3 s</td><td class="small">caller</td>
   <td class="mono small">lookup_order</td>
 </tr>
@@ -2075,7 +2078,7 @@ issue_refund was never called      </div>
   <td>3</td>
   <td><button class="play" data-src="audio/a0e4e5e8d324-3.mp3" data-label="Refund request on already refunded order, agent denies refund #3" title="replay the original recording"><span class="ic">▶</span><span class="t">0:41</span></button></td>
   <td><span class="pill fail">fail</span></td>
-  <td class="small">actual value: None</td>
+  <td class="small">refunds[GW-48911].amount == 15.00 does not hold: the backend has None (no such refund was issued; a pre-existing refund shows as orders[...].refunded)</td>
   <td>41.2 s</td><td>2.7 s</td><td>18%</td><td>0.0 s</td><td class="small">caller</td>
   <td class="mono small">lookup_order</td>
 </tr>
@@ -2084,7 +2087,7 @@ issue_refund was never called      </div>
   <td>2</td>
   <td><button class="play" data-src="audio/a0e4e5e8d324-2.mp3" data-label="Refund request on already refunded order, agent denies refund #2" title="replay the original recording"><span class="ic">▶</span><span class="t">0:43</span></button></td>
   <td><span class="pill fail">fail</span></td>
-  <td class="small">actual value: None</td>
+  <td class="small">refunds[GW-48911].amount == 15.00 does not hold: the backend has None (no such refund was issued; a pre-existing refund shows as orders[...].refunded)</td>
   <td>43.2 s</td><td>2.3 s</td><td>13%</td><td>3.2 s</td><td class="small">caller</td>
   <td class="mono small">lookup_order</td>
 </tr>
@@ -2093,6 +2096,7 @@ issue_refund was never called      </div>
 
 <details><summary>Reproducibility: what this run was produced with</summary>
 <div class="kv small" style="margin-top:8px">
+  <span class="k">tags</span><span><a class="pill indigo mono" href="environments.html#env-cc3bc997" title="environment: agent config, models, engine, scoring, library versions">env-cc3bc997</a> <span class="pill grey mono" title="session set: the session files run">set-4d233ef8</span> <span class="muted">env = agent config + variant, models, engine, scoring method, library and Python versions · set = session files</span> · <a href="environments.html">environments</a></span>
   <span class="k">stamp</span><span class="mono">a7c6a425319d+4d233ef82a00+score-v1+claims-regex-v1+th-73c54200 <span class="muted">= agent config hash + session set hash + scoring method (incl. thresholds)</span></span>
   <span class="k">agent config</span><span class="mono">a7c6a425319d</span>
   <span class="k">session set</span><span class="mono">4d233ef82a00 (15 sessions, each id = hash of its file)</span>
@@ -2101,7 +2105,7 @@ issue_refund was never called      </div>
 <span class="k">gf</span><span class="mono">0.1.0</span><span class="k">git_commit</span><span class="mono">9632de7</span><span class="k">git_dirty</span><span class="mono">False</span><span class="k">python</span><span class="mono">3.12.15</span><span class="k">platform</span><span class="mono">macOS-26.6-arm64-arm-64bit</span><span class="k">livekit-agents</span><span class="mono">1.8.5</span><span class="k">livekit-plugins-deepgram</span><span class="mono">1.8.5</span><span class="k">livekit-plugins-openai</span><span class="mono">1.8.5</span><span class="k">livekit-plugins-silero</span><span class="mono">1.8.5</span><span class="k">livekit-plugins-turn-detector</span><span class="mono">1.8.5</span><span class="k">livekit-plugins-noise-cancellation</span><span class="mono">0.3.2</span><span class="k">openai</span><span class="mono">2.54.0</span><span class="k">jiwer</span><span class="mono">4.0.0</span></div>
 <p class="small muted" style="margin:8px 0 0">The agent's own LLM and the live speech services are the only sources of variation, by design: the agent is the thing under test. Repeats and confidence intervals account for that.</p>
 </details>
-<footer>gatewayfutures 0.1.0 · static report generated 2026-10-08 23:58 UTC</footer>
+<footer>gatewayfutures 0.1.0 · static report generated 2026-10-09 00:11 UTC</footer>
 </main>
 </div>
 <div id="player"><span class="lbl"></span><audio controls preload="none"></audio><button class="btn sm" onclick="gfPlayer.close()">✕</button></div>

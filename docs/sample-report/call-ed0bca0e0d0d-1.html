@@ -69,6 +69,8 @@ footer{color:var(--muted);font-size:11.5px;text-align:center;margin-top:36px}
 .pill.green,.pill.pass{background:var(--green-bg);color:var(--green)}.pill.amber{background:var(--amber-bg);color:var(--amber)}
 .pill.red,.pill.fail{background:var(--red-bg);color:var(--red)}.pill.grey,.pill.invalid{background:var(--grey-bg);color:var(--grey)}
 .pill.indigo{background:var(--accent-bg);color:var(--accent-ink)}
+a.pill:hover{text-decoration:none;filter:brightness(.95)}
+.pill.mono{font-family:var(--mono);font-weight:600;font-size:11px}
 .chip{display:inline-block;padding:0 7px;border:1px solid var(--line);border-radius:6px;font-size:11.5px;color:var(--muted);background:#fff;margin:1px 3px 1px 0;white-space:nowrap}
 .status-pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600;background:#fff;color:var(--ink)}
 .status-pill i{width:7px;height:7px;border-radius:50%;background:#c4c8cf}
@@ -274,6 +276,7 @@ details.srow summary .ttl .chip{font-weight:400}
   <a class="item " href="sessions.html"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Practice sessions</a>
   <a class="item active" href="index.html"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h12M3 18h6"/></svg>Runs</a>
   <a class="item " href="scoring.html"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16"/><path d="M8 15l4-5 3 3 5-6"/></svg>Scoring</a>
+  <a class="item " href="environments.html"><svg viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4 8 4 8-4z"/><path d="M4 7v10l8 4 8-4V7"/><path d="M12 11v10"/></svg>Environments</a>
   <a class="item " href="agent.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Agent settings</a>
   <div class="sec">Support agent</div>
   <a class="agentbox" href="agent.html" style="text-decoration:none;color:inherit"><div class="av">A</div><div><div class="nm">Gateway Goods support line</div><div class="st"><i></i>livekit</div></div></a>
@@ -283,7 +286,7 @@ details.srow summary .ttl .chip{font-weight:400}
   <a class="row" href="agent.html#models"><span>Model</span><span>gpt-4.1-mini</span></a>
   <a class="row" href="backend.html"><span>Order system</span><span>mock</span></a>
   <a class="row" href="caller.html"><span>Simulated caller</span><span>gf-caller</span></a>
-  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-08 23:58 UTC</div>
+  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-09 00:11 UTC</div>
 </aside>
 <div class="wrap">
 <header class="top">
@@ -556,7 +559,7 @@ details.srow summary .ttl .chip{font-weight:400}
 <span></span>        </div>
         <div class="check fail open">
           <span class="ic">✗</span>
-          <div><div>Final state: refunds[GW-48213].amount == 89.99</div><div class="what">actual value: None</div><div class="why">The backend&#39;s end state is the ground truth for the outcome.</div></div>
+          <div><div>Final state: refunds[GW-48213].amount == 89.99</div><div class="what">refunds[GW-48213].amount == 89.99 does not hold: the backend has None (no such refund was issued; a pre-existing refund shows as orders[...].refunded)</div><div class="why">The backend&#39;s end state is the ground truth for the outcome.</div></div>
 <span></span>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
@@ -665,7 +668,7 @@ details.srow summary .ttl .chip{font-weight:400}
               <span class="k">facts</span><span class="mono">{"order_id":"GW-48213","zip":"94110","amount":89.99,"item":"countertop blender"}</span>
               <span class="k">voice</span><span>aura-2-arcas-en at pace 1.1</span>
               <span class="k">brain</span><span>gpt-4.1-mini t=0.0 seed 405</span>
-              <span class="k">line</span><span></span>
+              <span class="k">line</span><span><span class="chip">clean line</span></span>
 <span class="k">measured</span><span class="mono">{"noise":null,"phone_line":false,"packet_loss":0.0,"low_quality_mic":false,"frames":107,"dropped_frames":0,"measured_snr_db":null}</span>              <span class="k">caller's view</span><span>unresolved</span>
               <span class="k">ended</span><span>room_closed: room closed</span>
             </div>
@@ -993,7 +996,7 @@ issue_refund was called but not as expected: it returned HTTP 500 (internal_erro
             <span class="pop"><b>Must not call update_shipping_address</b><span class="what">update_shipping_address was not called</span><span class="why">A forbidden action means the agent took a path the scenario rules out.</span></span>
           </span>
           <span class="tag fail" data-check="state.refunds_gw_48213_amount_89_99"><span class="m">✗</span><code>refunds_gw_48213_amount_89_99</code><button type="button" class="q" aria-label="explain refunds_gw_48213_amount_89_99">?</button>
-            <span class="pop"><b>Final state: refunds[GW-48213].amount == 89.99</b><span class="what">actual value: None</span><span class="why">The backend&#39;s end state is the ground truth for the outcome.</span></span>
+            <span class="pop"><b>Final state: refunds[GW-48213].amount == 89.99</b><span class="what">refunds[GW-48213].amount == 89.99 does not hold: the backend has None (no such refund was issued; a pre-existing refund shows as orders[...].refunded)</span><span class="why">The backend&#39;s end state is the ground truth for the outcome.</span></span>
           </span>
           <span class="tag pass" data-check="tools.wrong_write"><span class="m">✓</span><code>wrong_write</code><button type="button" class="q" aria-label="explain wrong_write">?</button>
             <span class="pop"><b>No writes to orders the caller did not ask about</b><span class="what">none</span><span class="why">A write nobody asked for is the most expensive kind of mistake.</span></span>
@@ -1160,7 +1163,7 @@ issue_refund was called but not as expected: it returned HTTP 500 (internal_erro
   if (t0 !== null && t0 !== undefined && audio) { seek(t0, false); scrollToTime(t0); draw(); highlight(); if (hashT !== undefined) root.scrollIntoView({block:'start'}); }
   window.gfInspector = { seek, selectTool, draw };
 })();
-</script><footer>gatewayfutures 0.1.0 · static report generated 2026-10-08 23:58 UTC</footer>
+</script><footer>gatewayfutures 0.1.0 · static report generated 2026-10-09 00:11 UTC</footer>
 </main>
 </div>
 <div id="player"><span class="lbl"></span><audio controls preload="none"></audio><button class="btn sm" onclick="gfPlayer.close()">✕</button></div>

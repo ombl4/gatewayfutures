@@ -186,6 +186,11 @@ def scoring():
     )
 
 
+@app.get("/environments", response_class=HTMLResponse)
+def environments():
+    return page("environments.html", e=model.environments_page())
+
+
 @app.get("/sessions", response_class=HTMLResponse)
 def sessions():
     return page("sessions.html", p=model.sessions_page())
@@ -392,6 +397,11 @@ def api_call(run_id: str, session_id: str, attempt: int):
     c = model.call_report(run_id, session_id, attempt)
     c.pop("envelopes", None)
     return c
+
+
+@app.get("/api/environments")
+def api_environments():
+    return model.environments_page()
 
 
 @app.get("/api/sessions")

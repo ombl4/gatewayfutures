@@ -166,6 +166,7 @@ def test_navigation_and_header(site, page):
         ("Practice sessions", "/sessions", "Practice sessions"),
         ("Runs", "/runs", "Runs"),
         ("Scoring", "/scoring", "Scoring"),
+        ("Environments", "/environments", "Environments"),
         ("Agent settings", "/agent", "Agent settings"),
     ):
         page.click(f"aside.nav a.item:has-text('{label}')")

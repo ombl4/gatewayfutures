@@ -121,6 +121,10 @@ def test_run_page_content(env):
     assert call.count('class="tag ') >= 10 and 'data-check="ux.latency_p95"' in call
     assert 'aria-label="explain latency_p95"' in call
     assert 'id="time-breakdown"' in r
+    envs = env["client"].get("/environments").text
+    assert "Environments" in envs and "t1" in envs  # untagged fixture run is listed as such
+    assert "set-" in r  # the run page carries the session-set tag even for untagged runs
+    assert env["client"].get("/api/environments").status_code == 200
     home = env["client"].get("/?run=t1").text
     assert 'id="run-select"' in home and 'value="t1" selected' in home
     assert env["client"].get("/?run=nope").status_code == 200  # unknown run falls back to latest

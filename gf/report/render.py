@@ -39,6 +39,9 @@ class Links:
     def scoring(self) -> str:
         return "/scoring" if self.mode == "live" else "scoring.html"
 
+    def environments(self) -> str:
+        return "/environments" if self.mode == "live" else "environments.html"
+
     def sessions(self) -> str:
         return "/sessions" if self.mode == "live" else "sessions.html"
 

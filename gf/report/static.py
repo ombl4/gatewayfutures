@@ -72,6 +72,9 @@ def render_run(run_id: str, out: Path | None = None, *, bundle_audio: bool = Fal
     (out / "scoring.html").write_text(
         render("scoring.html", links, s=model.scoring_page(), **common)
     )
+    (out / "environments.html").write_text(
+        render("environments.html", links, e=model.environments_page(), **common)
+    )
     sp = model.sessions_page()
     (out / "sessions.html").write_text(render("sessions.html", links, p=sp, **common))
     for s in sp["sessions"]:

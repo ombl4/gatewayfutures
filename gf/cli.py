@@ -28,6 +28,42 @@ def doctor() -> None:
     raise typer.Exit(code=run_doctor())
 
 
+@app.command()
+def env(
+    as_json: bool = typer.Option(False, "--json", help="Machine-readable output."),
+    variant: str = typer.Option("", "--variant", help="Agent variant the run would use."),
+    backfill: bool = typer.Option(
+        False, "--backfill", help="Tag earlier runs that recorded versions but no tag."
+    ),
+) -> None:
+    """Print the environment tag a run started now would carry, and its components."""
+    from gf.environment import backfill as _backfill
+    from gf.environment import current
+
+    if backfill:
+        for rid in _backfill():
+            typer.echo(f"tagged {rid}")
+    cur = current(agent_variant=variant or None)
+    if as_json:
+        typer.echo(json.dumps(cur, indent=2))
+        return
+    typer.echo(f"{cur['env_tag']}")
+    c = cur["components"]
+    typer.echo(
+        f"  agent config   {c['agent_config_hash']}{' +' + c['agent_variant'] if c['agent_variant'] else ''}"
+    )
+    typer.echo(
+        f"  models         {c['models']['stt']} → {c['models']['llm']} → {c['models']['tts']}"
+    )
+    typer.echo(f"  engine         {c['engine']}")
+    typer.echo(f"  scoring        {c['scoring_method']}")
+    typer.echo("  libraries      " + ", ".join(f"{k} {v}" for k, v in c["libraries"].items()))
+    typer.echo(f"  python         {c['python']}")
+    typer.echo(
+        "Sessions get their own tag (set-…) per run; two runs are like-for-like when both match."
+    )
+
+
 @app.command(context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
 def agent(ctx: typer.Context) -> None:
     """Run the support agent worker: `gf agent dev|start|console|download-files`."""

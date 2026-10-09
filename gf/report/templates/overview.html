@@ -10,7 +10,7 @@
 <label class="small muted" style="display:flex;align-items:center;gap:8px">Run
   {% if mode == 'live' %}
   <select id="run-select" class="input" style="width:auto;margin:0;min-width:200px" onchange="location.href='/?run=' + encodeURIComponent(this.value)">
-    {% for x in o.runs %}<option value="{{ x.run_id }}" {% if x.run_id == r.run_id %}selected{% endif %}>{{ x.run_id }} · {{ x.started_at|dt }}{% if x.scored %} · {{ x.passed }}/{{ x.n }}{% endif %}</option>{% endfor %}
+    {% for x in o.runs %}<option value="{{ x.run_id }}" {% if x.run_id == r.run_id %}selected{% endif %}>{{ x.run_id }} · {{ x.started_at|dt }}{% if x.scored %} · {{ x.passed }}/{{ x.n }}{% endif %}{% if x.env_tag %} · {{ x.env_tag }}{% endif %}</option>{% endfor %}
     {% if o.checks %}<optgroup label="Detector checks">{% for x in o.checks %}<option value="{{ x.run_id }}" {% if x.run_id == r.run_id %}selected{% endif %}>{{ x.run_id }}</option>{% endfor %}</optgroup>{% endif %}
   </select>
   {% else %}<span class="chip">{{ r.run_id }}</span>{% endif %}
@@ -18,7 +18,7 @@
 {% endif %}
 </div>
 {% if r %}
-<p class="meta"><span>Run <a href="{{ links.run(r.run_id) }}">{{ r.run_id }}</a></span><i>·</i><span>{{ r.started_at|dt }}</span><i>·</i><span>{{ r.sessions|length }} practice sessions</span><i>·</i><span>{{ r.summary.calls }} calls ({{ r.valid_count }} valid, {{ r.invalid_count }} invalid)</span></p>
+<p class="meta"><span>Run <a href="{{ links.run(r.run_id) }}">{{ r.run_id }}</a></span><i>·</i><span>{{ r.started_at|dt }}</span><i>·</i><span>{{ r.sessions|length }} practice sessions</span><i>·</i><span>{{ r.summary.calls }} calls ({{ r.valid_count }} valid, {{ r.invalid_count }} invalid)</span><i>·</i><span>{{ rb.tags(r.tags) }}</span></p>
 {% else %}
 <p class="meta"><span>No completed run yet.</span></p>
 {% endif %}
@@ -38,7 +38,7 @@
 
 {% if r %}
 {{ rb.kpis(r) }}
-{% if r.previous and not r.previous.like_for_like %}<p class="small muted" style="margin:-8px 0 12px">* compared with {{ r.previous.run_id }}, which used a different session set or agent configuration; treat the change as indicative.</p>{% endif %}
+{% if r.previous and not r.previous.like_for_like %}<p class="small muted" style="margin:-8px 0 12px">* compared with {{ r.previous.run_id }}: {% if r.previous.env_same is sameas false %}different environment{% endif %}{% if r.previous.env_same is sameas false and r.previous.set_same is sameas false %} and {% endif %}{% if r.previous.set_same is sameas false %}different session set{% endif %}{% if r.previous.env_same is none %}environment unknown for the older run{% endif %}; treat the change as indicative.</p>{% endif %}
 <div class="work">
   {{ rb.sessions(r) }}
   {{ rb.issues(r, issue_link) }}

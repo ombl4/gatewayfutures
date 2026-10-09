@@ -112,6 +112,10 @@ expected:
 
 The customers and orders available are listed on the UI's **Order system** page. Sessions are never deleted: to stop running one, move its file to `sessions/retired/` (it stays loadable so earlier runs still open and rescore). Keep every number the caller needs inside `facts`: a caller that says a number outside its facts makes the call invalid rather than counting against the agent.
 
+## Environment tags
+
+Every run carries two short tags you can quote: `env-…` hashes everything that shapes the agent and the measurement except the sessions (agent config and variant, STT/LLM/TTS models, engine, scoring method with thresholds, versions of livekit-agents, the LiveKit SDK, the OpenAI and Deepgram plugins, Python), and `set-…` hashes the session files run. Two runs are like-for-like when both match; otherwise the KPI deltas are marked with an asterisk. The tags are stored in the run's `manifest.json` and `environment.json`, and every environment seen is kept under `runs/_environments/<env-tag>.json` with its components and the runs that used it (the **Environments** page in the UI). `gf env` prints the tag a run would carry right now; `gf env --backfill` tags earlier runs that recorded versions but no tag.
+
 ## Latency, per turn
 
 Every agent reply shows two latencies in the call inspector's **Latency** tab: what the caller heard (last caller word → first agent sound, measured on the recording) and where the agent's own clock says the time went: end-of-turn detection, transcription, LLM time to first token, TTS time to first byte, playback, with the rest shown as unaccounted (network and buffering). The run page aggregates the medians so a slow run can be attributed to one stage.

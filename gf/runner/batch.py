@@ -70,6 +70,9 @@ async def run_batch(
         "sessions": [{"id": s.id, "title": s.title, "path": s.source_path} for s in sessions],
         "calls": [],
     }
+    from gf.environment import stamp
+
+    stamp(run_id, folder, manifest, [s.id for s in sessions], agent_variant=v.name if v else None)
     (folder / "manifest.json").write_text(json.dumps(manifest, indent=2))
 
     sem = asyncio.Semaphore(concurrency)

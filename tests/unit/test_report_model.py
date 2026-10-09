@@ -247,3 +247,33 @@ def test_delta_is_against_the_previous_run_even_when_not_like_for_like(tmp_path,
     assert r["previous"]["run_id"] == "r1" and r["previous"]["like_for_like"] is False
     card = {c["id"]: c for c in r["kpis"]}["rate"]
     assert card["delta"] == 1.0 and card["prev_id"] == "r1" and card["like_for_like"] is False
+
+
+def test_environment_tag_is_stable_and_sensitive_to_the_right_things(tmp_path, monkeypatch):
+    from gf import environment as E
+
+    info = {"python": "3.12.15", "livekit-agents": "1.8.5", "openai": "2.54.0", "jiwer": "4.0.0"}
+    c1 = E.components(info=info)
+    c2 = E.components(info=info)
+    assert E.env_tag(c1) == E.env_tag(c2) and E.env_tag(c1).startswith("env-")
+    assert E.env_tag(E.components(info=info, agent_variant="dishonest")) != E.env_tag(c1)
+    assert E.env_tag(E.components(info=info | {"livekit-agents": "1.9.0"})) != E.env_tag(c1)
+    assert E.env_tag(E.components(info=info | {"jiwer": "9.9"})) == E.env_tag(c1)  # not tagged
+    assert E.set_tag(["a", "b"]) == E.set_tag(["b", "a"]) and E.set_tag(["a"]) != E.set_tag(["b"])
+    # stamp writes manifest fields, environment.json and the registry
+    runs = tmp_path / "runs"
+    monkeypatch.setenv("RUNS_DIR", str(runs))
+    folder = runs / "r1"
+    folder.mkdir(parents=True)
+    man = {"started_at": "2026-10-08T10:00:00+00:00", "environment": info}
+    rec = E.stamp("r1", folder, man, ["a", "b"])
+    assert man["env_tag"] == rec["env_tag"] and man["set_tag"] == E.set_tag(["a", "b"])
+    assert (folder / "environment.json").exists()
+    reg = E.registry()
+    assert len(reg) == 1 and reg[0]["runs"][0]["run_id"] == "r1"
+    E.stamp("r2", folder, dict(man), ["a"])
+    assert len(E.registry()) == 1 and len(E.registry()[0]["runs"]) == 2
+    assert E.tags_of({"agent_config_hash": "x", "sessions": [{"id": "a"}]}) == {
+        "env_tag": "env-?",
+        "set_tag": E.set_tag(["a"]),
+    }

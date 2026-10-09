@@ -18,6 +18,7 @@ import soundfile as sf
 
 from gf.agent.config import agent_config
 from gf.config import ROOT, settings, thresholds
+from gf.environment import registry, tags_of
 from gf.record.latency import STAGES, turn_latency
 from gf.record.model import CallRecord
 from gf.runner.batch import list_runs
@@ -165,6 +166,24 @@ def overview() -> dict[str, Any]:
         "checks": [r for r in runs if r["kind"] != "run"],
         "latest": next((r for r in runs if r["kind"] == "run"), None),
     }
+
+
+def environments_page() -> dict[str, Any]:
+    """Every environment tag seen, its components and the runs made with it."""
+    rows = []
+    for e in registry():
+        rows.append(
+            e
+            | {
+                "runs": sorted(
+                    e.get("runs", []), key=lambda r: r.get("started_at") or "", reverse=True
+                )
+            }
+        )
+    untagged = [
+        r for r in (run_row(p.name) for p in list_runs()) if r.get("env_tag") in (None, "env-?")
+    ]
+    return {"environments": rows, "untagged": untagged}
 
 
 def shell_info() -> dict[str, Any]:
@@ -562,6 +581,7 @@ def run_row(run_id: str) -> dict[str, Any]:
         "flaky": len((summ or {}).get("flaky_sessions") or []),
         "kind": man.get("kind", "run"),
         "variant": man.get("agent_variant"),
+        **tags_of(man),
     }
 
 
@@ -589,6 +609,7 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
     # fixed / regressed marks are shown with confidence
     prev = None
     prev_like = False
+    prev_env_same = prev_set_same = None
     if man.get("kind", "run") == "run":
         for p in list_runs():
             if p.name == run_id:
@@ -599,7 +620,15 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
             ps = _json(p / "summary.json")
             if ps and ps.get("started_at", "") < summ.get("started_at", ""):
                 prev = ps
-                prev_like = ps.get("stamp") == summ.get("stamp")
+                prev_tags, cur_tags = tags_of(pm), tags_of(man)
+                known = {prev_tags["env_tag"], cur_tags["env_tag"]}.isdisjoint({None, "env-?"})
+                prev_like = (
+                    known
+                    and prev_tags["env_tag"] == cur_tags["env_tag"]
+                    and prev_tags["set_tag"] == cur_tags["set_tag"]
+                ) or (bool(summ.get("stamp")) and ps.get("stamp") == summ.get("stamp"))
+                prev_env_same = prev_tags["env_tag"] == cur_tags["env_tag"]
+                prev_set_same = prev_tags["set_tag"] == cur_tags["set_tag"]
                 break
     prev_rows = {r["session_id"]: r for r in (prev or {}).get("sessions", [])}
 
@@ -710,6 +739,8 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
             "run_id": prev.get("run_id"),
             "rate": prev["overall"].get("rate"),
             "like_for_like": prev_like,
+            "env_same": prev_env_same,
+            "set_same": prev_set_same,
         }
         if prev
         else None,
@@ -720,6 +751,8 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
         "planned_calls": len(man.get("sessions", [])) * int(man.get("repeat") or 0),
         "kind": man.get("kind", "run"),
         "variant": man.get("agent_variant"),
+        "tags": tags_of(man),
+        "env_components": man.get("env_components"),
         "detector": _detector_verdict(man, summ, rows)
         if man.get("kind") == "detector_check"
         else None,

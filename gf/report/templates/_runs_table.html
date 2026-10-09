@@ -3,7 +3,7 @@
 {% endif %}
 {% if o.runs %}
 <div class="tablewrap"><table>
-  <tr><th>run</th><th>started</th><th>sessions × repeat</th><th>calls</th><th>passed</th><th>95% interval</th><th>invalid</th><th>flaky</th><th>p95 latency</th><th>stamp</th></tr>
+  <tr><th>run</th><th>started</th><th>sessions × repeat</th><th>calls</th><th>passed</th><th>95% interval</th><th>invalid</th><th>flaky</th><th>p95 latency</th><th>environment</th><th>session set</th></tr>
   {% for r in o.runs %}
   <tr>
     <td><a href="{{ links.run(r.run_id) }}">{{ r.run_id }}</a></td>
@@ -15,7 +15,8 @@
     <td>{{ r.invalid if r.scored else '' }}</td>
     <td>{{ r.flaky if r.scored else '' }}</td>
     <td>{{ r.p95_ms|ms if r.scored else '' }}</td>
-    <td class="mono muted">{{ r.stamp or '' }}</td>
+    <td>{% if r.env_tag %}<a class="pill indigo mono" href="{{ links.environments() }}#{{ r.env_tag }}">{{ r.env_tag }}</a>{% endif %}</td>
+    <td>{% if r.set_tag %}<span class="pill grey mono">{{ r.set_tag }}</span>{% endif %}</td>
   </tr>
   {% endfor %}
 </table></div>

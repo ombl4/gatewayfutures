@@ -14,7 +14,7 @@
 </span>
 {% endif %}
 </div>
-<p class="meta"><span>{{ r.started_at|dt }}</span><i>·</i><span>{{ r.sessions|length }} sessions × {{ r.repeat }}</span><i>·</i><span>{{ r.summary.calls }} calls ({{ r.valid_count }} valid, {{ r.invalid_count }} invalid){% if r.duration_s %} in {{ (r.duration_s/60)|round(1) }} min{% endif %}</span>{% if r.previous %}<i>·</i><span>compared with <a href="{{ links.run(r.previous.run_id) }}">{{ r.previous.run_id }}</a>{% if not r.previous.like_for_like %} (not like-for-like){% endif %}</span>{% endif %}</p>
+<p class="meta"><span>{{ r.started_at|dt }}</span><i>·</i><span>{{ r.sessions|length }} sessions × {{ r.repeat }}</span><i>·</i><span>{{ r.summary.calls }} calls ({{ r.valid_count }} valid, {{ r.invalid_count }} invalid){% if r.duration_s %} in {{ (r.duration_s/60)|round(1) }} min{% endif %}</span>{% if r.previous %}<i>·</i><span>compared with <a href="{{ links.run(r.previous.run_id) }}">{{ r.previous.run_id }}</a>{% if not r.previous.like_for_like %} (not like-for-like){% endif %}</span>{% endif %}<i>·</i><span>{{ rb.tags(r.tags) }}</span></p>
 
 {% if r.detector %}
 <div class="banner" style="border-color:{{ '#86efac' if r.detector.caught else ('#fecaca' if r.detector.missed else '#fde68a') }};background:{{ 'var(--green-bg)' if r.detector.caught else ('var(--red-bg)' if r.detector.missed else 'var(--amber-bg)') }}">
@@ -37,7 +37,7 @@
 {% endif %}
 
 {% if r.kpis %}{{ rb.kpis(r) }}{% endif %}
-{% if r.previous and not r.previous.like_for_like %}<p class="small muted" style="margin:-8px 0 12px">* compared with {{ r.previous.run_id }}, which used a different session set or agent configuration; treat the change as indicative.</p>{% endif %}
+{% if r.previous and not r.previous.like_for_like %}<p class="small muted" style="margin:-8px 0 12px">* compared with {{ r.previous.run_id }}: {% if r.previous.env_same is sameas false %}different environment{% endif %}{% if r.previous.env_same is sameas false and r.previous.set_same is sameas false %} and {% endif %}{% if r.previous.set_same is sameas false %}different session set{% endif %}{% if r.previous.env_same is none %}environment unknown for the older run{% endif %}; treat the change as indicative.</p>{% endif %}
 {% set tb = r.time_breakdown|selectattr('p50')|list %}
 {% if tb %}
 <p class="meta" id="time-breakdown" style="margin:-6px 0 14px"><span class="muted">Where the time goes (median over valid calls):</span>{% for b in tb %}<span title="{{ b.label }}"><b>{{ b.label|lower }}</b> {{ b.p50 }} ms</span>{% if not loop.last %}<i>·</i>{% endif %}{% endfor %}</p>
@@ -92,6 +92,7 @@
 {% if r.manifest.environment or r.stamp %}
 <details><summary>Reproducibility: what this run was produced with</summary>
 <div class="kv small" style="margin-top:8px">
+  <span class="k">tags</span><span>{{ rb.tags(r.tags) }} <span class="muted">env = agent config + variant, models, engine, scoring method, library and Python versions · set = session files</span> · <a href="{{ links.environments() }}">environments</a></span>
   <span class="k">stamp</span><span class="mono">{{ r.stamp }} <span class="muted">= agent config hash + session set hash + scoring method (incl. thresholds)</span></span>
   <span class="k">agent config</span><span class="mono">{{ r.manifest.agent_config_hash }}</span>
   <span class="k">session set</span><span class="mono">{{ r.manifest.sessions_hash }} ({{ r.sessions|length }} sessions, each id = hash of its file)</span>

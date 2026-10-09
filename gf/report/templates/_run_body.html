@@ -1,4 +1,8 @@
 {# Shared pieces of the overview and the run page (spec T6.12 / T6.13). Context: r = run report. #}
+{% macro tags(t) %}
+{% if t and t.env_tag %}<a class="pill indigo mono" href="{{ links.environments() }}#{{ t.env_tag }}" title="environment: agent config, models, engine, scoring, library versions">{{ t.env_tag }}</a>{% endif %}{% if t and t.set_tag %} <span class="pill grey mono" title="session set: the session files run">{{ t.set_tag }}</span>{% endif %}
+{% endmacro %}
+
 {% macro replay(run_id, a, title=None) %}
 {% if a.has_audio is not defined or a.has_audio %}<button class="play" data-src="{{ links.audio(run_id, a.session_id, a.attempt) }}" data-label="{{ title or a.title or a.session_id }} #{{ a.attempt }}" title="replay the original recording"><span class="ic">▶</span><span class="t">{{ a.duration_ms|clock if a.duration_ms else '' }}</span></button>{% endif %}
 {% endmacro %}
@@ -29,7 +33,7 @@
     <div class="k">{{ k.label }}</div>
     <div class="v">{{ k.value }}</div>
     <div class="d">{{ k.sub }}</div>
-    <div class="trend">{{ spark(k.series, k.cls) }}{% if k.delta_text %}<span class="vs {{ k.delta_class }}" title="{{ 'same sessions and agent' if k.like_for_like else 'sessions or agent changed since ' ~ k.prev_id ~ ': not like-for-like' }}">{{ k.delta_text }} vs {{ k.prev_id }}{% if not k.like_for_like %} *{% endif %}</span>{% elif not k.comparable %}<span class="vs none">first run</span>{% else %}<span class="vs same" title="{{ 'same sessions and agent' if k.like_for_like else 'sessions or agent changed: not like-for-like' }}">no change vs {{ k.prev_id }}{% if not k.like_for_like %} *{% endif %}</span>{% endif %}</div>
+    <div class="trend">{{ spark(k.series, k.cls) }}{% if k.delta_text %}<span class="vs {{ k.delta_class }}" title="{{ 'same environment and session set' if k.like_for_like else 'environment or session set changed since ' ~ k.prev_id ~ ': not like-for-like' }}">{{ k.delta_text }} vs {{ k.prev_id }}{% if not k.like_for_like %} *{% endif %}</span>{% elif not k.comparable %}<span class="vs none">first run</span>{% else %}<span class="vs same" title="{{ 'same sessions and agent' if k.like_for_like else 'sessions or agent changed: not like-for-like' }}">no change vs {{ k.prev_id }}{% if not k.like_for_like %} *{% endif %}</span>{% endif %}</div>
   </div>
 {% endfor %}
 </div>
