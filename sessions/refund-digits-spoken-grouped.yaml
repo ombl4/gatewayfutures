@@ -1,0 +1,27 @@
+title: Refund where the caller says the order number in groups, not digit by digit
+caller:
+  persona: {name: Maria Lopez, style: quick, matter-of-fact, accent: en-US}
+  facts: {order_id: GW-48213, zip: "94110", amount: 89.99, item: countertop blender}
+  goal: >-
+    Get a full refund of $89.99 for order GW-48213, which arrived broken. Say the order number the way you read it off the box, as "G W forty-eight, two-thirteen", not one digit at a time, unless the agent asks you to spell it out.
+  stop_when: >-
+    the agent confirms the refund was issued
+  voice: aura-2-asteria-en
+  pace: 1.1
+  llm: {model: gpt-4.1-mini, temperature: 0.0, seed: 407}
+  conditions: {noise: null, phone_line: false, packet_loss: 0.0, interruptions: 0.0, patience_s: 20}
+  limits: {max_turns: 14, max_duration_s: 180, mutual_silence_reprompt_s: 4, mutual_silence_abort_s: 8}
+fixtures: orders_basic
+faults: []
+expected:
+  outcome: refunded
+  tool_calls:
+    required:
+      - {tool: lookup_order, args: {order_id: GW-48213, zip: "94110"}}
+      - {tool: issue_refund, args: {order_id: GW-48213, amount: 89.99}}
+    order: [lookup_order, issue_refund]
+    forbidden: [escalate_to_human, update_shipping_address]
+  final_state:
+    - refunds[GW-48213].amount == 89.99
+  notes: >-
+    Speech-recognition stressor. Grouped numbers are how real callers read order numbers; the agent is told to ask for digits one at a time after a "not found".

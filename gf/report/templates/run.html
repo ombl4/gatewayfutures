@@ -15,7 +15,7 @@
 </span>
 {% endif %}
 </div>
-<p class="meta"><span>{{ r.started_at|dt }}</span><i>·</i><span>{{ r.sessions|length }} sessions × {{ r.repeat }}</span><i>·</i><span>{{ r.summary.calls }} calls ({{ r.valid_count }} valid, {{ r.invalid_count }} invalid){% if r.duration_s %} in {{ (r.duration_s/60)|round(1) }} min{% endif %}</span>{% if r.parent_run %}<i>·</i><span>re-run of <a href="{{ links.run(r.parent_run) }}">{{ r.parent_run }}</a></span>{% endif %}{% if r.previous %}<i>·</i><span>compared with <a href="{{ links.run(r.previous.run_id) }}">{{ r.previous.run_id }}</a>{% if not r.previous.like_for_like %} (not like-for-like){% endif %}</span>{% endif %}<i>·</i><span>{{ rb.tags(r.tags) }}</span></p>
+<p class="meta"><span>{{ r.started_at|dt }}</span><i>·</i><span>{{ r.sessions|length }} sessions × {{ r.repeat }}</span><i>·</i><span>{{ r.summary.calls }} calls ({{ r.valid_count }} valid, {{ r.invalid_count }} invalid){% if r.duration_s %} in {{ (r.duration_s/60)|round(1) }} min{% endif %}</span>{% if r.cost and r.cost.usd is not none %}<i>·</i><span title="priced from the providers' usage events with pricing.yaml: agent ${{ '%.2f'|format(r.cost.agent_usd) }}, caller ${{ '%.2f'|format(r.cost.caller_usd) }}, {{ r.cost.llm_tokens }} tokens, {{ r.cost.audio_minutes }} audio min{% if r.cost.unpriced %}; unpriced: {{ r.cost.unpriced|join(', ') }}{% endif %}">${{ '%.2f'|format(r.cost.usd) }}{% if r.cost.per_call_usd %} (${{ '%.3f'|format(r.cost.per_call_usd) }}/call){% endif %}</span>{% endif %}{% if r.partial %}<i>·</i><span class="pill amber" title="{{ r.stopped_reason }}">partial: {{ r.skipped|length }} calls skipped, {{ r.stopped_reason }}</span>{% endif %}{% if r.demo %}<i>·</i><span class="pill amber" title="built by `gf demo-run` from the committed real call records with synthesised audio; timing checks describe the tones, not the calls">demo data</span>{% endif %}{% if r.parent_run %}<i>·</i><span>re-run of <a href="{{ links.run(r.parent_run) }}">{{ r.parent_run }}</a></span>{% endif %}{% if r.previous %}<i>·</i><span>compared with <a href="{{ links.run(r.previous.run_id) }}">{{ r.previous.run_id }}</a>{% if not r.previous.like_for_like %} (not like-for-like){% endif %}</span>{% endif %}<i>·</i><span>{{ rb.tags(r.tags) }}</span></p>
 
 {% if r.detector %}
 <div class="banner" style="border-color:{{ '#86efac' if r.detector.caught else ('#fecaca' if r.detector.missed else '#fde68a') }};background:{{ 'var(--green-bg)' if r.detector.caught else ('var(--red-bg)' if r.detector.missed else 'var(--amber-bg)') }}">
@@ -39,6 +39,18 @@
 
 {% if r.kpis %}{{ rb.kpis(r) }}{% endif %}
 {{ rb.by_area(r) }}
+{% if r.matrix %}
+<div class="card" id="persona-matrix" style="padding:12px 16px;margin:0 0 14px">
+  <div class="hd"><h3 style="margin:0">Session × persona</h3><span class="small muted">{{ r.personas|length }} personas · each cell is one derived session; the session's facts, goal and expectations are unchanged, the persona's voice and line replace its own</span></div>
+  <div class="tablewrap" style="overflow-x:auto"><table class="small" style="width:100%;border-collapse:collapse">
+    <thead><tr><th style="text-align:left">session</th>{% for p in r.matrix.personas %}<th style="text-align:left">{{ p }}</th>{% endfor %}</tr></thead>
+    <tbody>
+    {% for row in r.matrix.rows %}<tr><td>{{ row.title }}</td>{% for c in row.cells %}<td>{% if c %}<a class="pill {{ c.rate_class }}" href="{{ links.session(c.session_id) }}" title="{{ c.passed }}/{{ c.n }} valid calls passed{% if c.invalid %}, {{ c.invalid }} invalid{% endif %}">{{ c.passed }}/{{ c.n }}</a>{% else %}<span class="muted">·</span>{% endif %}</td>{% endfor %}</tr>{% endfor %}
+    <tr><td><b>all sessions</b></td>{% for t in r.matrix.totals %}<td><span class="pill {{ t.rate_class }}"><b>{{ t.passed }}/{{ t.n }}</b></span></td>{% endfor %}</tr>
+    </tbody>
+  </table></div>
+</div>
+{% endif %}
 {{ rb.simulation(r) }}
 {% if r.previous and not r.previous.like_for_like %}<p class="small muted" style="margin:-8px 0 12px">* compared with {{ r.previous.run_id }}: {% if r.previous.env_same is sameas false %}different environment{% endif %}{% if r.previous.env_same is sameas false and r.previous.set_same is sameas false %} and {% endif %}{% if r.previous.set_same is sameas false %}different session set{% endif %}{% if r.previous.env_same is none %}environment unknown for the older run{% endif %}; treat the change as indicative.</p>{% endif %}
 {% set tb = r.time_breakdown|selectattr('p50')|list %}

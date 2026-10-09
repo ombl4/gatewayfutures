@@ -1,0 +1,93 @@
+# Real-call checks. Both jobs need the platform's keys as repository secrets
+# (LIVEKIT_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET, DEEPGRAM_API_KEY, OPENAI_API_KEY);
+# without them the jobs end early with a notice instead of failing, so forks and
+# key-less branches stay green. Unit and browser tests live in ci.yml.
+name: calls
+on:
+  pull_request:
+  schedule:
+    - cron: "0 3 * * *"   # nightly audio matrix, 03:00 UTC
+  workflow_dispatch:
+
+env:
+  LIVEKIT_URL: ${{ secrets.LIVEKIT_URL }}
+  LIVEKIT_API_KEY: ${{ secrets.LIVEKIT_API_KEY }}
+  LIVEKIT_API_SECRET: ${{ secrets.LIVEKIT_API_SECRET }}
+  DEEPGRAM_API_KEY: ${{ secrets.DEEPGRAM_API_KEY }}
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  BACKEND_URL: http://127.0.0.1:8080
+  GF_PERSONA_JUDGE: "0"
+
+jobs:
+  # Every pull request: LiveKit text-mode simulations (LLM + tools + conversation logic,
+  # no audio, cheap). The agent worker runs here and registers with LiveKit Cloud.
+  text-simulations:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - id: keys
+        run: |
+          if [ -z "$LIVEKIT_API_KEY" ]; then echo "::notice::no LiveKit secrets; text simulations skipped"; echo "ok=false" >> "$GITHUB_OUTPUT"; else echo "ok=true" >> "$GITHUB_OUTPUT"; fi
+      - if: steps.keys.outputs.ok == 'true'
+        uses: astral-sh/setup-uv@v5
+        with: { version: "0.12.x" }
+      - if: steps.keys.outputs.ok == 'true'
+        run: uv python install 3.12 && uv sync --frozen
+      - if: steps.keys.outputs.ok == 'true'
+        run: curl -sSL https://get.livekit.io/cli | bash
+      - if: steps.keys.outputs.ok == 'true'
+        name: Start the order system and the agent worker
+        run: |
+          nohup uv run uvicorn gf.backend.app:app --port 8080 > backend.log 2>&1 &
+          nohup uv run gf agent start > agent.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8080/health && break; sleep 1; done
+          sleep 15
+      - if: steps.keys.outputs.ok == 'true'
+        name: Export sessions as scenarios and run them in text mode
+        run: |
+          uv run gf sessions export-simulate --out scenarios.yaml
+          lk agent simulate text --agent-name gf-support-agent --scenarios scenarios.yaml
+      - if: always() && steps.keys.outputs.ok == 'true'
+        uses: actions/upload-artifact@v4
+        with: { name: text-simulation-logs, path: "*.log" }
+
+  # Nightly and on demand: the smoke suite over real audio, scored and gated.
+  nightly-audio:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - id: keys
+        run: |
+          if [ -z "$LIVEKIT_API_KEY" ]; then echo "::notice::no LiveKit secrets; audio run skipped"; echo "ok=false" >> "$GITHUB_OUTPUT"; else echo "ok=true" >> "$GITHUB_OUTPUT"; fi
+      - if: steps.keys.outputs.ok == 'true'
+        uses: astral-sh/setup-uv@v5
+        with: { version: "0.12.x" }
+      - if: steps.keys.outputs.ok == 'true'
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg libsndfile1 && uv python install 3.12 && uv sync --frozen
+      - if: steps.keys.outputs.ok == 'true'
+        name: Start the order system and the agent worker
+        run: |
+          nohup uv run uvicorn gf.backend.app:app --port 8080 > backend.log 2>&1 &
+          nohup uv run gf agent start > agent.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8080/health && break; sleep 1; done
+          sleep 15
+      - if: steps.keys.outputs.ok == 'true'
+        name: Run the smoke suite, score it, gate it
+        run: |
+          uv run gf run --suite smoke --repeat 2 --concurrency 2 --run-id nightly-${{ github.run_number }} --max-cost 3
+          uv run gf score nightly-${{ github.run_number }}
+          uv run gf gate nightly-${{ github.run_number }} --min-pass 0.5
+      - if: always() && steps.keys.outputs.ok == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-run
+          path: |
+            runs/nightly-*/manifest.json
+            runs/nightly-*/summary.json
+            runs/nightly-*/**/scores.json
+            *.log

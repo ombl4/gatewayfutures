@@ -52,6 +52,7 @@ class Caller(BaseModel):
     llm: CallerLLM = Field(default_factory=CallerLLM)
     conditions: Conditions = Field(default_factory=Conditions)
     limits: Limits = Field(default_factory=Limits)
+    persona_ref: str | None = None  # personas/<name>.yaml this caller was filled from
 
 
 class ExpectedCall(BaseModel):
@@ -80,12 +81,18 @@ class Session(BaseModel):
     faults: list[dict[str, Any]] = Field(default_factory=list)
     expected: Expected
     engine: Literal["gf-caller", "livekit-simulate"] = "gf-caller"
+    base_session: str | None = None  # for a persona-matrix variant: the session it was derived from
     source_path: str = ""
 
     def content_hash(self) -> str:
         """Hash of the parsed session (defaults filled in), so a file written back out with
         every default spelled out hashes the same as the original."""
         body = self.model_dump(exclude={"id", "source_path"})
+        # fields added after the first runs are left out while unset, so earlier ids hold
+        if body.get("base_session") is None:
+            body.pop("base_session", None)
+        if body["caller"].get("persona_ref") is None:
+            body["caller"].pop("persona_ref", None)
         canon = yaml.safe_dump(body, sort_keys=True, allow_unicode=True)
         return hashlib.sha256(canon.encode()).hexdigest()[:12]
 
@@ -108,6 +115,11 @@ class Session(BaseModel):
         raw = yaml.safe_load(path.read_text())
         stored = raw.pop("id", None)
         raw["source_path"] = str(path)
+        ref = (raw.get("caller") or {}).get("persona_ref")
+        if ref:
+            from gf.sessions.personas import apply_to_raw, get_persona
+
+            apply_to_raw(raw["caller"], get_persona(ref))
         session = cls(**raw)
         expected_id = session.content_hash()
         if verify_id and stored and stored != expected_id:

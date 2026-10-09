@@ -16,6 +16,7 @@ from gf.scoring import METHOD_VERSION
 from gf.scoring.caller import check_caller
 from gf.scoring.checks import Check, first_evidence_ms, hard_fails
 from gf.scoring.claims import check_claims
+from gf.scoring.cost import call_cost, run_cost
 from gf.scoring.hearing import check_hearing
 from gf.scoring.persona import judge_persona
 from gf.scoring.speech import check_speech
@@ -110,6 +111,7 @@ def score_attempt(folder: str | Path, session: Session) -> dict[str, Any]:
         "latency_breakdown": breakdown_medians(record, timeline),
         "tool_ok": all(c.passed for c in checks if c.group == "tools" and c.severity == "hard"),
         "issue_t_ms": first_evidence_ms(checks),
+        "cost": call_cost(record),
         "checks": [c.model_dump() for c in checks],
         "method_version": method_version(),
     }
@@ -204,6 +206,7 @@ def score_run(run_id: str) -> dict[str, Any]:
         },
         "top_failures": reasons.most_common(3),
         "flaky_sessions": [s["session_id"] for s in per_session if s["flaky"]],
+        "cost": run_cost(attempts),
         "sessions": per_session,
         "attempts": [{k: v for k, v in a.items() if k != "checks"} for a in attempts],
     }

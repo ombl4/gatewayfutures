@@ -369,6 +369,45 @@ def kpi_cards(
     ]
 
 
+def persona_matrix(man: dict[str, Any], rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """Session × persona grid for a matrix run: one cell per derived session, with the
+    pass count, the interval class and a column total per persona."""
+    personas = list(man.get("personas") or [])
+    by_sid = {r["session_id"]: r for r in rows}
+    base_title: dict[str, str] = {}
+    cells: dict[tuple[str, str], dict[str, Any]] = {}
+    for m in man.get("sessions", []):
+        base = m.get("base_session") or m["id"]
+        if base not in base_title:
+            base_title[base] = (m.get("title") or base).split(" · as ")[0]
+        r = by_sid.get(m["id"])
+        if r is not None:
+            cells[(base, m.get("persona") or "")] = {
+                "session_id": m["id"],
+                "n": r["n"],
+                "passed": r["passed"],
+                "rate_class": r["rate_class"],
+                "invalid": r.get("invalid", 0),
+            }
+    grid = [
+        {
+            "base": base,
+            "title": title,
+            "cells": [cells.get((base, p)) for p in personas],
+        }
+        for base, title in base_title.items()
+    ]
+    totals = []
+    for p in personas:
+        col = [c for (_b, pp), c in cells.items() if pp == p]
+        n = sum(c["n"] for c in col)
+        k = sum(c["passed"] for c in col)
+        totals.append(
+            {"persona": p, "n": n, "passed": k, "rate_class": rate_class(k / n if n else None)}
+        )
+    return {"personas": personas, "rows": grid, "totals": totals}
+
+
 def by_area(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Pass rate per area over the valid attempts of the sessions in that area."""
     from gf.sessions.taxonomy import MODIFIER_AREAS, PRIMARY_AREAS
@@ -628,8 +667,41 @@ def sessions_page() -> dict[str, Any]:
     }
 
 
+def _run_sessions(run_id: str | None) -> dict[str, Session]:
+    """Persona-matrix sessions written under runs/<run_id>/sessions/ (none for other runs)."""
+    if not run_id:
+        return {}
+    folder = settings().runs_dir / run_id / "sessions"
+    if not folder.exists():
+        return {}
+    out = {}
+    for p in sorted(folder.glob("*.yaml")):
+        try:
+            x = Session.load(p)
+            out[x.id] = x
+        except (OSError, ValueError):
+            continue
+    return out
+
+
+def _derived_session(session_id: str) -> Session | None:
+    """A matrix session by id, searched across every run's sessions/ folder."""
+    for run in list_runs():
+        p = run / "sessions" / f"{session_id}.yaml"
+        if p.exists():
+            try:
+                return Session.load(p)
+            except (OSError, ValueError):
+                return None
+    return None
+
+
 def session_page(session_id: str) -> dict[str, Any]:
-    s = next(x for x in load_all(settings().sessions_dir) if x.id == session_id)
+    s = next(
+        (x for x in load_all(settings().sessions_dir) if x.id == session_id), None
+    ) or _derived_session(session_id)
+    if s is None:
+        raise StopIteration(session_id)
     yaml_text = (
         Path(s.source_path).read_text() if s.source_path and Path(s.source_path).exists() else ""
     )
@@ -697,6 +769,9 @@ def run_row(run_id: str) -> dict[str, Any]:
         "flaky": len((summ or {}).get("flaky_sessions") or []),
         "kind": man.get("kind", "run"),
         "variant": man.get("agent_variant"),
+        "cost_usd": ((summ or {}).get("cost") or {}).get("usd"),
+        "partial": bool(man.get("partial")),
+        "demo": bool(man.get("demo")),
         **tags_of(man),
     }
 
@@ -719,7 +794,7 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
 
         summ = score_run(run_id) if man.get("calls") else _empty_summary(man)
     attempts = {(a["session_id"], a["attempt"]): a for a in summ["attempts"]}
-    sessions = {s.id: s for s in load_all(settings().sessions_dir)}
+    sessions = {s.id: s for s in load_all(settings().sessions_dir)} | _run_sessions(run_id)
 
     # previous real run: the baseline for deltas; "comparable" (same stamp) decides whether
     # fixed / regressed marks are shown with confidence
@@ -735,8 +810,8 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
             if p.name == run_id:
                 continue
             pm = _json(p / "manifest.json", {})
-            if pm.get("kind", "run") != "run":
-                continue  # detector checks are never a baseline
+            if pm.get("kind", "run") != "run" or pm.get("demo"):
+                continue  # detector checks and demo runs are never a baseline
             ps = _json(p / "summary.json")
             if ps and ps.get("started_at", "") < summ.get("started_at", ""):
                 prev = ps
@@ -810,6 +885,10 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
                 "areas": areas_of(sess) if sess else [],
                 "retired": is_retired(sess) if sess else False,
                 "retired_reason": retired_reason(sess) if sess else "",
+                "persona_name": next(
+                    (m.get("persona") for m in man.get("sessions", []) if m["id"] == sid), None
+                ),
+                "base_session": sess.base_session if sess else None,
             }
         )
 
@@ -877,11 +956,18 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
         "tags": tags_of(man),
         "parent_run": man.get("parent_run"),
         "env_components": man.get("env_components"),
+        "cost": summ.get("cost"),
+        "partial": bool(man.get("partial")),
+        "stopped_reason": man.get("stopped_reason"),
+        "skipped": man.get("skipped") or [],
+        "demo": bool(man.get("demo")),
         "detector": _detector_verdict(man, summ, rows)
         if man.get("kind") == "detector_check"
         else None,
     }
     out["simulation"] = simulation_quality(summ)
+    out["personas"] = man.get("personas") or []
+    out["matrix"] = persona_matrix(man, rows) if out["personas"] else None
     out["by_area"] = by_area(rows)
     out["suite"] = man.get("suite")
     out["kpis"] = kpi_cards(run_id, summ, prev) if man.get("kind", "run") == "run" else []
@@ -1055,7 +1141,7 @@ def call_report_from_folder(
     record = CallRecord.load(folder)
     scores = _json(folder / "scores.json")
     timeline = _json(folder / "timeline.json")
-    sessions = {s.id: s for s in load_all(settings().sessions_dir)}
+    sessions = {s.id: s for s in load_all(settings().sessions_dir)} | _run_sessions(run_id)
     session = sessions.get(record.session_id)
     if scores is None or timeline is None:
         from gf.record.timeline import write_timeline
@@ -1164,6 +1250,7 @@ def call_report_from_folder(
         "n_fail": sum(g["n_fail"] for g in groups),
         "n_warn": sum(g["n_warn"] for g in groups),
         "n_tools_bad": sum(1 for t in record.tool_calls if not t.ok),
+        "cost": scores.get("cost"),
     }
 
 

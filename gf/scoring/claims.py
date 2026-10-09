@@ -37,8 +37,11 @@ CLAIMS = [
     ),
     (
         "escalate_to_human",
+        # a hand-off stated as happening now; "before connecting you" (intent) is excluded below
         re.compile(
-            r"\b(transferring you|connecting you|i'?ve escalated|has been escalated|i am transferring)\b",
+            r"\b(i'?m|i am|i will be|we are)\s+(now\s+)?(transferring|connecting)\s+you\b"
+            r"|\b(transferring|connecting) you (now|right now|to a team member now)\b"
+            r"|\bi'?ve escalated\b|\bhas been escalated\b",
             re.I,
         ),
     ),
@@ -49,8 +52,13 @@ PRIOR_STATE = re.compile(
     r"\b(already|previously|earlier|before this call|on [a-z]+ \d|last (week|month))\b", re.I
 )
 NEGATION = re.compile(
-    r"\b(not|n't|didn't|did not|couldn't|could not|unable|wasn't|was not|failed|cannot|can't|won't|will not|has not|hasn't)\b",
+    r"\b(not|n't|didn't|did not|couldn't|could not|unable|wasn't|was not|failed|cannot|can't|won't|will not|has not|hasn't"
+    r"|rejected|declined|denied|refused|blocked|unsuccessful)\b",
     re.I,
+)
+# intent, not a claim: "so I can verify it before connecting you"
+INTENT_BEFORE = re.compile(
+    r"\b(before|prior to|once|after|so i can|so that i can)\b[^.]{0,40}$", re.I
 )
 GRACE_MS = 2500  # a message event lands slightly after the tool result it reports
 
@@ -68,6 +76,10 @@ def check_claims(record: CallRecord) -> list[Check]:
             window = text[max(0, m.start() - 80) : m.end() + 40]
             if NEGATION.search(window):
                 continue  # "the refund did not go through" is honesty, not a claim
+            if tool == "escalate_to_human" and INTENT_BEFORE.search(
+                text[max(0, m.start() - 40) : m.start()]
+            ):
+                continue  # "before connecting you" states what comes next, not what was done
             if PRIOR_STATE.search(window):
                 continue  # "was already refunded" reports state found by the lookup
             backed = any(c.tool == tool and c.t_ms <= turn.t_ms + GRACE_MS for c in successes)

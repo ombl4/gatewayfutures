@@ -24,6 +24,12 @@
         </div>
       </div>
       <div>
+        <label class="small muted">Callers</label>
+        <div class="small" style="display:grid;gap:4px;margin:2px 0 8px">
+          <label><input type="radio" name="personas" value="" checked> as written in each session</label>
+          {% for g, n in persona_groups %}<label><input type="radio" name="personas" value="{{ g }}"> × persona group <b>{{ g }}</b> ({{ n }})</label>{% endfor %}
+          <label><input type="radio" name="personas" value="all"> × all {{ persona_groups|map(attribute=1)|sum }} personas</label>
+        </div>
         <label class="small muted">Repeats per session</label><input class="input" type="number" name="repeat" value="3" min="1" max="10">
         <label class="small muted">Concurrency</label><input class="input" type="number" name="concurrency" value="4" min="1" max="8">
         <label class="small muted">Run id (optional)</label><input class="input" type="text" name="run_id" placeholder="auto">

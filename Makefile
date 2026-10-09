@@ -1,4 +1,4 @@
-.PHONY: install test test-ui test-live smoke lint doctor up down ui report sample-report
+.PHONY: install test test-ui test-live smoke lint doctor up down ui demo report sample-report
 
 install:        ## Create the venv and install everything
 	uv sync
@@ -30,6 +30,9 @@ down:
 
 ui:             ## Live UI on http://127.0.0.1:8090 (reads runs/ and sessions/)
 	uv run gf ui
+
+demo:           ## Seed runs/demo from the committed real call records (no keys needed)
+	uv run gf demo-run
 
 report:         ## Static report folder for a run: make report RUN=full-1
 	uv run gf report $(RUN)

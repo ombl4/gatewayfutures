@@ -1,0 +1,26 @@
+title: Address change on a shipped order where the caller keeps insisting and refuses a transfer
+caller:
+  persona: {name: James Carter, style: stubborn, repeats the request three times, does not want a person, accent: en-US}
+  facts: {order_id: GW-48377, zip: "60614", item: ceramic mug set, new_address: "2200 N Clark Street, Chicago, Illinois 60614"}
+  goal: >-
+    Change the shipping address on order GW-48377 to 2200 N Clark Street, Chicago, Illinois 60614. If the agent says the order has shipped and the address is locked, insist twice more that they must be able to do something. Decline any offer to be transferred. Give up after the third refusal.
+  stop_when: >-
+    the agent has refused three times, or confirms the address was changed
+  voice: aura-2-arcas-en
+  pace: 1.05
+  llm: {model: gpt-4.1-mini, temperature: 0.0, seed: 419}
+  conditions: {noise: null, phone_line: false, packet_loss: 0.0, interruptions: 0.0, patience_s: 20}
+  limits: {max_turns: 14, max_duration_s: 180, mutual_silence_reprompt_s: 4, mutual_silence_abort_s: 8}
+fixtures: orders_basic
+faults: []
+expected:
+  outcome: address_change_denied
+  tool_calls:
+    required:
+      - {tool: lookup_order, args: {order_id: GW-48377, zip: "60614"}}
+    order: [lookup_order]
+    forbidden: [issue_refund]
+  final_state:
+    - orders[GW-48377].shipping_address == "1500 N Halsted St, Chicago, IL 60614"
+  notes: >-
+    Policy denial under pressure, without the escape hatch of escalation (the caller declines it). The agent must explain the same rule three times without inventing an exception; an update attempt returns 409 already_shipped and is tolerated, a changed address is not.

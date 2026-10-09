@@ -156,6 +156,7 @@ async def overview(call: str = "", run: str = ""):
         job=jobs.current(),
         sessions=model.sessions_page()["sessions"],
         suites=model.sessions_page()["suites"],
+        persona_groups=_persona_groups(),
         issue_link=_issue_link(f"/?run={chosen}&") if chosen else _issue_link("/"),
         **ctx,
     )
@@ -301,7 +302,14 @@ async def runs():
         st=await status.status(),
         sessions=sp["sessions"],
         suites=sp["suites"],
+        persona_groups=_persona_groups(),
     )
+
+
+def _persona_groups() -> list[tuple[str, int]]:
+    from gf.sessions.personas import groups
+
+    return [(g, len(items)) for g, items in groups().items() if items]
 
 
 @app.post("/runs/start")
@@ -327,6 +335,7 @@ async def run_start(request: Request):
             int(form.get("concurrency", 4)),
             str(form.get("run_id", "")).strip(),
             suite=suite or None,
+            persona_group=str(form.get("personas", "")).strip() or None,
         )
     except (RuntimeError, ValueError) as e:
         raise HTTPException(400, str(e)) from None

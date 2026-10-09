@@ -44,7 +44,7 @@ Use a dedicated LiveKit Cloud project for this platform. The agent registers und
 make up                       # docker compose: order system (:8080), agent worker, UI (http://localhost:8090)
 ```
 
-Then open http://localhost:8090, check the "Can a run start?" panel, and press **Start run**. The run page shows calls as they finish; each call opens to its timeline, transcript, tool calls and checks.
+Then open http://localhost:8090, check the "Can a run start?" panel, and press **Start run**. Without keys, `uv run gf demo-run` (or `make demo`) seeds a run from the committed real call records so every page has content; it is marked "demo data" and is never used as a comparison baseline. If port 8090 is taken, start the UI on another port (`gf ui --port 8091`) or override the compose port mapping. The run page shows calls as they finish; each call opens to its timeline, transcript, tool calls and checks.
 
 ### Without Docker
 
@@ -68,9 +68,12 @@ uv run gf sessions export-simulate --out scenarios.yaml             # same sessi
 lk agent simulate audio --agent-name gf-support-agent --scenarios scenarios.yaml   # then: lk agent simulate export <run-id> > lk.json
 uv run gf import-simulate lk.json --run-id lk-1    # LiveKit's results as a run, with its verdict next to our checks
 uv run gf probe                                    # scripted caller, no LLM: checks the audio path
+uv run gf run --suite smoke --repeat 2 --max-cost 3   # stop scheduling calls once the priced cost passes $3 (default GF_MAX_COST_USD=10)
+uv run gf gate <run_id> --min-pass 0.7             # CI decision: exit 1 on claimed-without-acting, wrong write, >20% invalid, or an interval below the floor
+uv run gf demo-run                                 # no keys: a run built from the committed real call records, so the UI has something to show
 ```
 
-A full run of 11 sessions × 3 takes about 12 minutes at concurrency 4.
+A full run of 11 sessions × 3 takes about 12 minutes at concurrency 4; the set is 43 sessions as of 2026-10-09 (42 hand-written, 1 generated); `gf run --suite smoke` for a quick check, `--suite adversarial` or `--suite faults` for one family.
 
 ## Adding a practice session
 
@@ -112,9 +115,15 @@ expected:
 
 The customers and orders available are listed on the UI's **Order system** page. Sessions are never deleted: to stop running one, move its file to `sessions/retired/` (it stays loadable so earlier runs still open and rescore). Keep every number the caller needs inside `facts`: a caller that says a number outside its facts makes the call invalid rather than counting against the agent.
 
+## Personas
+
+A persona is how a caller talks and what the line sounds like, never who they are: the name and the facts stay with the session because they belong to the order. `personas/*.yaml` holds twelve, in three even groups of four so a matrix run compares like with like: `standard` (cooperative callers on a clean line, the control group), `hard-line` (the same cooperation on noise, a phone line, packet loss, a poor microphone, slow speech) and `difficult` (clean line, hard behaviour: angry and interrupting, pushy, rambling, suspicious). `gf personas` lists them.
+
+A session can reference one with `caller.persona_ref: elderly-slow-line`; the persona fills style, accent, voice, pace and line conditions for every field the session does not set itself, and the session's content hash covers the resolved values, so editing a persona changes the id of every session that uses it. To run the same scenarios as different callers, `gf run --suite core --persona-group hard-line` (or `--persona cafe-phone-line,angry-interrupting`, or `--persona-group all`) runs each selected session once per persona as a derived session: same facts, goal and expectations, the persona's voice and line, its own id, written under `runs/<run_id>/sessions/`. The run page then shows a session × persona grid with a pass count per cell and a total per persona, so a drop in one column is a persona (accent, line) problem and a drop in one row is a scenario (policy) problem. The start-run form has the same picker. A matrix multiplies the call count, so set `--max-cost`.
+
 ## Suites and areas
 
-Every session has **areas** derived from its content: what the agent must do (`refund`, `address change`, `escalation`, `denial`) and what makes the call hard (`fault handling`, `hard line`, `interruptions`, `impatient`). Run pages show the pass rate per area. **Suites** are named lists in `sessions/suites.yaml` referencing session files by name: `smoke` for a quick check, `regression` for sessions that have failed before and must run every time, plus any you define. Add a session to a suite from its page in the UI or by editing the file; run one with `gf run --suite regression` or the suite picker in the start-run form; `gf sessions suites` lists them. Suites never touch the session files, so ids and the session-set tag stay stable.
+Every session has **areas** derived from its content: what the agent must do (`refund`, `address change`, `escalation`, `denial`) and what makes the call hard (`fault handling`, `hard line`, `interruptions`, `impatient`). Run pages show the pass rate per area. **Suites** are named lists in `sessions/suites.yaml` referencing session files by name: `smoke` for a quick check, `regression` for sessions that have failed before and must run every time, `core` (the 15 sessions that correspond to the published runs; its set tag differs from `full-4`'s because two generated sessions were retired and replaced after that run) and, added 2026-10-09 and not yet run, `edge` (verification problems, multi-intent, read-back correction), `personas` (accents, lines, elderly, rambling, angry, partial-then-full, grouped digits, "are you a bot"), `adversarial` (prompt injection, staff impersonation, privacy probe, wrong-customer pressure, out-of-scope, rude caller), `faults` (500s, double failure, slow tools, policy rejection, failing escalation) and `denial` (shipped, over limit, already refunded, caller insists), plus any you define. One session can be in several suites, and a unit test fails when an active session is in none. Add a session to a suite from its page in the UI or by editing the file; run one with `gf run --suite regression` or the suite picker in the start-run form; `gf sessions suites` lists them. Suites never touch the session files, so ids and the session-set tag stay stable.
 
 ## Environment tags
 
@@ -131,6 +140,14 @@ Every agent reply shows two latencies in the call inspector's **Latency** tab: w
 ## What a call record contains
 
 `runs/<run_id>/<session_id>/<attempt>/`: `audio.wav` (stereo: left caller, right agent) and `audio.json`, `caller.json` and `caller_events.jsonl` (what the caller said, heard and decided), `agent_events.jsonl` and `agent_session_report.json` (the agent's transcripts, replies, tool calls and per-turn metrics), `backend_log.json` and `backend_state.json`, `meta.json`, then `timeline.json` and `scores.json` after scoring.
+
+## Cost and budget
+
+Every call carries a `cost` block in `scores.json`, priced from the providers' own usage events (the agent's session report: OpenAI tokens including cached ones, Deepgram TTS characters and STT seconds; the caller's metric events for its side) with the prices in `pricing.yaml`. The run page, the runs table and the call page show it; a run of 45 one-minute calls is a few dollars. Prices never affect a verdict, so changing them changes no tag. `gf run --max-cost N` (default `GF_MAX_COST_USD=10`) stops scheduling new calls once the priced cost of the finished ones passes the budget; the run is marked **partial**, the skipped calls are listed in the manifest, and `gf gate` fails it. LiveKit Cloud minutes and the persona judge are not metered and are listed as such.
+
+## CI
+
+`ci.yml` runs lint, unit tests and the Playwright dashboard suite on every push without keys. `calls.yml` makes real calls and needs the platform's keys as repository secrets (without them it ends with a notice): on every pull request, LiveKit text-mode simulations over the exported sessions (LLM, tools and conversation logic, no audio); nightly and on demand, the smoke suite over real audio, scored and gated with `gf gate --min-pass 0.5`. Text on every change, audio nightly, is the split LiveKit recommends.
 
 ## Hosting the UI
 
@@ -153,4 +170,4 @@ make test-live   # tests that call the real LLM (agent behaviours in text mode)
 make lint
 ```
 
-Thresholds for every flag live in `thresholds.yaml`. Scoring is deterministic; re-scoring never re-runs calls.
+Thresholds for every flag live in `thresholds.yaml`. Scoring is deterministic; re-scoring never re-runs calls, and a change to a scoring rule bumps `METHOD_VERSION` so runs scored under different rules are never compared as like-for-like. The caller's mutual-silence re-prompt (4 s) and abort (8 s) are floors: once two replies have been heard they scale with the agent's median reply latency (1.5× and 2.5×), so a slow agent is not re-prompted in the middle of starting its reply.

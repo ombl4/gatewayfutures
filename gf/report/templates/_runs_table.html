@@ -3,7 +3,7 @@
 {% endif %}
 {% if o.runs %}
 <div class="tablewrap"><table>
-  <tr><th>run</th><th>started</th><th>sessions × repeat</th><th>calls</th><th>passed</th><th title="Observed pass rate over valid calls. Underneath: the range of true pass rates consistent with this many calls (Wilson 95% interval). Few calls give a wide range: 9/9 is 100% observed but could still be a 70% agent.">pass rate</th><th>invalid</th><th>flaky</th><th>p95 latency</th><th>environment</th><th>session set</th></tr>
+  <tr><th>run</th><th>started</th><th>sessions × repeat</th><th>calls</th><th>passed</th><th title="Observed pass rate over valid calls. Underneath: the range of true pass rates consistent with this many calls (Wilson 95% interval). Few calls give a wide range: 9/9 is 100% observed but could still be a 70% agent.">pass rate</th><th>invalid</th><th>flaky</th><th>p95 latency</th><th title="priced from the providers' usage events with pricing.yaml">cost</th><th>environment</th><th>session set</th></tr>
   {% for r in o.runs %}
   <tr>
     <td><a href="{{ links.run(r.run_id) }}">{{ r.run_id }}</a></td>
@@ -15,6 +15,7 @@
     <td>{{ r.invalid if r.scored else '' }}</td>
     <td>{{ r.flaky if r.scored else '' }}</td>
     <td>{{ r.p95_ms|ms if r.scored else '' }}</td>
+    <td>{% if r.cost_usd is not none %}${{ '%.2f'|format(r.cost_usd) }}{% endif %}{% if r.partial %} <span class="pill amber" title="stopped by the cost budget">partial</span>{% endif %}{% if r.demo %} <span class="pill amber">demo</span>{% endif %}</td>
     <td>{% if r.env_tag %}<a class="pill indigo mono" href="{{ links.environments() }}#{{ r.env_tag }}">{{ r.env_tag }}</a>{% endif %}</td>
     <td>{% if r.set_tag %}<a class="pill grey mono" href="{{ links.session_set(r.set_tag) }}">{{ r.set_tag }}</a>{% endif %}</td>
   </tr>

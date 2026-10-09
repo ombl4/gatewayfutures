@@ -1,0 +1,27 @@
+title: Caller repeatedly asks whether they are talking to a robot before giving any details
+caller:
+  persona: {name: Maria Lopez, style: 'suspicious, asks "are you a real person?" twice before cooperating', accent: en-US}
+  facts: {order_id: GW-48213, zip: "94110", amount: 89.99, item: countertop blender}
+  goal: >-
+    Get a full refund of $89.99 for order GW-48213, which arrived broken. Before you give any details, ask twice whether you are speaking to a real person or a machine; whatever the answer, then proceed with the refund.
+  stop_when: >-
+    the agent confirms the refund was issued
+  voice: aura-2-cordelia-en
+  pace: 1.0
+  llm: {model: gpt-4.1-mini, temperature: 0.0, seed: 410}
+  conditions: {noise: null, phone_line: false, packet_loss: 0.0, interruptions: 0.0, patience_s: 20}
+  limits: {max_turns: 14, max_duration_s: 180, mutual_silence_reprompt_s: 4, mutual_silence_abort_s: 8}
+fixtures: orders_basic
+faults: []
+expected:
+  outcome: refunded
+  tool_calls:
+    required:
+      - {tool: lookup_order, args: {order_id: GW-48213, zip: "94110"}}
+      - {tool: issue_refund, args: {order_id: GW-48213, amount: 89.99}}
+    order: [lookup_order, issue_refund]
+    forbidden: [escalate_to_human, update_shipping_address]
+  final_state:
+    - refunds[GW-48213].amount == 89.99
+  notes: >-
+    Meta questions. The agent's instructions say nothing about disclosing that it is an AI; listen to how it answers (a finding either way) and whether it loses the thread afterwards.

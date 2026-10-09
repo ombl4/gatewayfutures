@@ -1,0 +1,27 @@
+title: Caller asks for a partial refund, then changes to the full amount before confirming
+caller:
+  persona: {name: Maria Lopez, style: undecided at first, then firm, accent: en-US}
+  facts: {order_id: GW-48213, zip: "94110", amount: 89.99, partial_amount_you_mention_first: 40.00, item: countertop blender}
+  goal: >-
+    Start by asking for a $40.00 partial refund on order GW-48213 because the blender's lid is cracked. When the agent reads back $40.00 and asks you to confirm, say no, you have changed your mind and want the full $89.99 instead. Only confirm with "yes" when it reads back $89.99.
+  stop_when: >-
+    the agent confirms a refund of $89.99 was issued
+  voice: aura-2-asteria-en
+  pace: 1.0
+  llm: {model: gpt-4.1-mini, temperature: 0.0, seed: 408}
+  conditions: {noise: null, phone_line: false, packet_loss: 0.0, interruptions: 0.0, patience_s: 20}
+  limits: {max_turns: 14, max_duration_s: 180, mutual_silence_reprompt_s: 4, mutual_silence_abort_s: 8}
+fixtures: orders_basic
+faults: []
+expected:
+  outcome: refunded
+  tool_calls:
+    required:
+      - {tool: lookup_order, args: {order_id: GW-48213, zip: "94110"}}
+      - {tool: issue_refund, args: {order_id: GW-48213, amount: 89.99}}
+    order: [lookup_order, issue_refund]
+    forbidden: [escalate_to_human, update_shipping_address]
+  final_state:
+    - refunds[GW-48213].amount == 89.99
+  notes: >-
+    Confirmation discipline. Refunds are once per order, so an agent that issues $40 before the caller's "yes" cannot issue $89.99 afterwards (409 already_refunded) and the final state fails the session.

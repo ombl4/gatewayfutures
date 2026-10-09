@@ -181,6 +181,7 @@
             <div class="kv small">
               {% for k, m in c.agent_models.items() %}<span class="k">{{ k }}</span><span>{{ m.vendor }} {{ m.model }}</span>{% endfor %}
               <span class="k">room</span><span class="mono">{{ c.room }}</span>
+              {% if c.cost %}<span class="k">cost</span><span title="from the providers' usage events, priced with pricing.yaml">${{ '%.3f'|format(c.cost.usd) }} · agent ${{ '%.3f'|format(c.cost.agent.usd) }} ({{ c.cost.agent.llm_in }} in / {{ c.cost.agent.llm_out }} out tokens, {{ c.cost.agent.tts_chars }} TTS chars, {{ (c.cost.agent.stt_s/60)|round(1) }} STT min) · caller ${{ '%.3f'|format(c.cost.caller.usd) }}{% if c.cost.unpriced %} · unpriced: {{ c.cost.unpriced|join(', ') }}{% endif %} · not metered: {{ c.cost.not_metered|join(', ') }}</span>{% endif %}
               <span class="k">heard correctly</span><span>{% if c.wer is not none %}{{ '%.0f%%'|format((1-c.wer)*100) }} of words{% else %}not measured{% endif %}</span>
               <span class="k">dead air</span><span>{{ c.dead_air_total_ms|ms }} · {{ c.talk_over }} talk-over{{ '' if c.talk_over==1 else 's' }} · {{ c.barge_in|length }} interruption{{ '' if c.barge_in|length==1 else 's' }}</span>
             </div>

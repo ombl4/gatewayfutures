@@ -47,6 +47,41 @@
   },
   "tool_ok": true,
   "issue_t_ms": 33340,
+  "cost": {
+    "usd": 0.0649,
+    "agent": {
+      "llm_model": "gpt-4.1-mini",
+      "llm_in": 11204,
+      "llm_cached": 3328,
+      "llm_out": 299,
+      "tts_model": "aura-2-luna-en",
+      "tts_chars": 704,
+      "tts_audio_s": 38.76025,
+      "stt_model": "nova-3",
+      "stt_s": 85.24999999999982,
+      "source": "agent_session_report.usage",
+      "usd": 0.036
+    },
+    "caller": {
+      "llm_model": "gpt-4.1-mini",
+      "llm_in": 9434,
+      "llm_cached": 0,
+      "llm_out": 487,
+      "tts_model": "aura-2-asteria-en",
+      "tts_chars": 444,
+      "tts_audio_s": 29.560249999999993,
+      "stt_model": "nova-3",
+      "stt_s": 85.77,
+      "source": "caller metric events",
+      "usd": 0.0289
+    },
+    "unpriced": [],
+    "not_metered": [
+      "LiveKit Cloud minutes",
+      "persona judge"
+    ],
+    "pricing": "pricing.yaml"
+  },
   "checks": [
     {
       "id": "validity.simulation",
@@ -585,5 +620,5 @@
       "value": null
     }
   ],
-  "method_version": "score-v1+claims-regex-v1+th-73c54200"
+  "method_version": "score-v2+claims-regex-v2+th-73c54200"
 }

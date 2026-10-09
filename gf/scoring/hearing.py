@@ -177,6 +177,8 @@ def check_hearing(record: CallRecord) -> tuple[list[Check], list[str]]:
                 }
             )
         for said_w, heard_w in word_substitutions(p["said"], p["heard"]):
+            if _is_number_word(said_w) or _is_number_word(heard_w):
+                continue  # "eighty" vs "eight": digits are compared as runs above, never as words
             mishearings.append(
                 {
                     "turn": p["n"],
@@ -201,7 +203,10 @@ def check_hearing(record: CallRecord) -> tuple[list[Check], list[str]]:
             if m.get("kind") == "word":
                 hit = m["heard"] in set(normalize(t.text).split())
             else:
-                hit = m["heard"] in "".join(_numeric_runs(t.text))
+                runs = _numeric_runs(t.text)
+                # the wrong number said as a number of its own, and the right one not said:
+                # "4 8 2 1 3" contains "4821" but is the caller giving the correct order id
+                hit = m["heard"] in runs and m["said"] not in runs
             if hit:
                 m["acted_on"] = True
                 m["caller_turn"] = t.n
@@ -244,6 +249,12 @@ def check_hearing(record: CallRecord) -> tuple[list[Check], list[str]]:
         )
     ]
     return checks, reasons
+
+
+def _is_number_word(w: str) -> bool:
+    from gf.scoring.speech import WORD2DIGIT
+
+    return w in WORD2DIGIT or w in TENS or w in TEENS or w in ("hundred", "thousand")
 
 
 def _nearest_run(target: str, runs: list[str]) -> str | None:
