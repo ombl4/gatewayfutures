@@ -554,12 +554,15 @@ def sessions_page() -> dict[str, Any]:
         session_card(s) | {"history": history.get(s.id, []), "suites": suites_of(s, suites)}
         for s in sessions
     ]
-    areas = sorted({a for c in cards if not c["retired"] for a in c["areas"]})
+    active = [c for c in cards if not c["retired"]]
+    areas = sorted({a for c in active for a in c["areas"]})
     return {
-        "sessions": [c for c in cards if not c["retired"]],
+        "sessions": active,
         "retired": [c for c in cards if c["retired"]],
         "suites": sorted(suites),
         "areas": areas,
+        "suite_counts": {su: sum(1 for c in active if su in c["suites"]) for su in suites},
+        "area_counts": {a: sum(1 for c in active if a in c["areas"]) for a in areas},
     }
 
 

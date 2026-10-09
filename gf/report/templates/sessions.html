@@ -21,16 +21,21 @@
 {% endif %}
 <div class="small" id="filters" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 10px">
   <span class="muted">Show:</span>
-  <button type="button" class="btn sm on" data-filter="" onclick="gfFilter(this)">all</button>
-  {% for su in p.suites %}<button type="button" class="btn sm" data-filter="suite:{{ su }}" onclick="gfFilter(this)">suite {{ su }}</button>{% endfor %}
-  {% for a in p.areas %}<button type="button" class="btn sm" data-filter="area:{{ a }}" onclick="gfFilter(this)">{{ a }}</button>{% endfor %}
+  <button type="button" class="btn sm on" data-filter="" data-label="All sessions" onclick="gfFilter(this)">all <span class="muted">{{ p.sessions|length }}</span></button>
+  {% for su in p.suites %}<button type="button" class="btn sm" data-filter="suite:{{ su }}" data-label="Suite {{ su }}" onclick="gfFilter(this)">suite {{ su }} <span class="muted">{{ p.suite_counts[su] }}</span></button>{% endfor %}
+  {% for a in p.areas %}<button type="button" class="btn sm" data-filter="area:{{ a }}" data-label="Area {{ a }}" onclick="gfFilter(this)">{{ a }} <span class="muted">{{ p.area_counts[a] }}</span></button>{% endfor %}
 </div>
 <script>
-function gfFilter(btn){ document.querySelectorAll('#filters .btn').forEach(b => b.classList.toggle('on', b === btn)); const f = btn.dataset.filter;
-  document.querySelectorAll('#sessions details.srow').forEach(d => { const tags = (d.dataset.tags || '').split('|'); d.hidden = !!f && !tags.includes(f); }); }
+function gfFilter(btn){
+  document.querySelectorAll('#filters .btn').forEach(b => b.classList.toggle('on', b === btn));
+  const f = btn.dataset.filter; let shown = 0, total = 0;
+  document.querySelectorAll('#sessions details.srow').forEach(d => { total++; const tags = (d.dataset.tags || '').split('|'); const hide = !!f && !tags.includes(f); d.hidden = hide; if (!hide) shown++; });
+  document.getElementById('sessions-title').textContent = btn.dataset.label;
+  document.getElementById('sessions-count').textContent = f ? '(' + shown + ' of ' + total + ')' : '(' + total + ')';
+}
 </script>
 <div class="acc" id="sessions">
-  <div class="hd"><h3>All sessions <span class="muted" style="font-weight:500">({{ p.sessions|length }})</span></h3><span class="small muted">history: pass count per run, oldest → newest</span></div>
+  <div class="hd"><h3><span id="sessions-title">All sessions</span> <span class="muted" id="sessions-count" style="font-weight:500">({{ p.sessions|length }})</span></h3><span class="small muted">history: pass count per run, oldest → newest</span></div>
   {% for s in p.sessions %}
   {% set done = s.history|selectattr('n')|list %}
   {% set last = done|last if done else None %}
