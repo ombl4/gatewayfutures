@@ -280,14 +280,14 @@ def test_kpis_accordion_and_issues(site, page):
 def test_inspector_controls(site, page):
     page.goto(site["base"] + "/runs/t1/7c994c348001/1")
     insp = page.locator("#inspector")
-    assert insp.locator("#insp-root").count() == 1
+    assert insp.locator("#agent-pill").count() == 1 and insp.locator(".side").count() == 0
     # tabs
     page.click('#inspector [data-tab="grading"]')
     assert page.locator("#grading .card").count() == 5
     verdict = page.locator("#grading .card").nth(4).locator(".pill").first.inner_text().lower()
     header = page.locator("#agent-pill").inner_text().lower()
     assert verdict.split()[0] in header
-    for tab in ("tools", "timeline", "latency", "spans", "checks", "details", "transcript"):
+    for tab in ("tools", "timeline", "latency", "spans", "grading", "details", "transcript"):
         page.click(f'#inspector [data-tab="{tab}"]')
         assert page.locator(f'#inspector [data-pane="{tab}"]').is_visible()
         others = page.locator("#inspector .pane:not([hidden])")
@@ -334,21 +334,22 @@ def test_inspector_controls(site, page):
     reply.locator(".nm").click()
     assert page.locator(f'#spans .sp[data-parent="{rid}"]:not([hidden])').count() >= 2
     page.click('#inspector [data-tab="transcript"]')
-    # compact check tags: ? opens one popover at a time with the full explanation
-    tags = insp.locator("#insp-checks .tag")
-    assert tags.count() >= 10
+    # compact check tags on the transcript: ? opens one popover at a time with the explanation
+    assert page.locator('#inspector [data-pane="checks"]').count() == 0  # the Checks tab is gone
+    tags = insp.locator("#transcript .tag:has(.q)")
+    assert tags.count() >= 4
     tags.nth(0).locator(".q").click()
     assert tags.nth(0).locator(".pop").is_visible()
     assert len(tags.nth(0).locator(".pop .why").inner_text()) > 20
     tags.nth(1).locator(".q").click()
     assert not tags.nth(0).locator(".pop").is_visible() and tags.nth(1).locator(".pop").is_visible()
-    page.click("#insp-root")
-    assert page.locator("#insp-checks .tag.open").count() == 0
+    page.click("#inspector .abar .tm")
+    assert page.locator("#transcript .tag.open").count() == 0
     # transcript annotations: a tool event is tagged with the requirement it met; ? explains it
     tagged = insp.locator("#transcript .toolev .tags.tested .tag").first
     tagged.locator(".q").click()
     assert tagged.locator(".pop").is_visible() and len(tagged.locator(".pop b").inner_text()) > 5
-    page.click("#insp-root")
+    page.click("#inspector .abar .tm")
     assert page.locator("#caller-pill").is_visible() and page.locator("#agent-pill").is_visible()
     # heard switch
     heard = insp.locator("#transcript .heard").first
@@ -363,16 +364,22 @@ def test_inspector_controls(site, page):
     second = tool_cards.nth(1)
     second.click()
     tid = second.get_attribute("data-tool")
+    # the matching tool event card under Tool calls is selected; its own tabs switch independently
+    assert "sel" in page.locator(f'.tev[data-tev="{tid}"]').get_attribute("class")
+    page.click('#inspector [data-tab="tools"]')
     assert page.locator(f'.tev[data-tev="{tid}"]').is_visible()
-    assert page.locator(".tev:not([hidden])").count() == 1
+    assert page.locator(".tev").count() == tool_cards.count()
     page.click(f'.tev[data-tev="{tid}"] [data-tab="resp"]')
     assert page.locator(f'#tev-{tid} [data-pane="resp"]').is_visible()
+    assert page.locator(f'#tev-{tid} [data-pane="args"]').is_hidden()
+    assert page.locator('#inspector [data-pane="tools"]').is_visible()  # the outer tab is untouched
+    page.click('#inspector [data-tab="transcript"]')
     # seeking: transcript turn, check jump, lanes click, play button
     t = int(insp.locator("#transcript .turn").nth(2).get_attribute("data-t"))
     insp.locator("#transcript .turn").nth(2).click()
     assert abs(page.evaluate("document.getElementById('insp-audio').currentTime") - t / 1000) < 0.3
-    page.click('#inspector [data-tab="checks"]')
-    jump = insp.locator('[data-pane="checks"] a.jump').first
+    page.click('#inspector [data-tab="grading"]')
+    jump = insp.locator('[data-pane="grading"] a.jump').first
     jump_ms = int(jump.get_attribute("data-seek"))
     jump.click()
     page.click('#inspector [data-tab="transcript"]')
@@ -538,8 +545,8 @@ def test_static_report_works_from_disk(site, page):
     page.click("#issues a.issue >> nth=0")
     assert page.url.startswith("file://") and "call-" in page.url
     page.wait_for_selector("#inspector")
-    page.click('#inspector [data-tab="checks"]')
-    assert page.locator('#inspector [data-pane="checks"]').is_visible()
+    page.click('#inspector [data-tab="grading"]')
+    assert page.locator('#inspector [data-pane="grading"]').is_visible()
     page.click('#inspector [data-tab="transcript"]')
     page.locator("#transcript .turn").nth(1).click()
     assert page.evaluate("document.getElementById('insp-audio').currentTime") > 0

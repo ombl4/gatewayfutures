@@ -125,7 +125,9 @@ def test_run_page_content(env):
     assert "Every call" in r
     call = env["client"].get("/runs/t1/7c994c348001/1").text
     assert "lookup_order" in call and "issue_refund" in call
-    assert "Checks" in call and 'data-tab="transcript"' in call
+    assert (
+        "Grading" in call and 'data-pane="checks"' not in call and 'data-tab="transcript"' in call
+    )
     assert 'data-tab="latency"' in call and "What each latency means" in call
     assert 'data-tab="grading"' in call
     assert 'id="caller-pill"' in call and 'id="agent-pill"' in call

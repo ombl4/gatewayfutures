@@ -212,8 +212,7 @@ details.srow summary .ttl .chip{font-weight:400}
 .sw .tg{width:30px;height:17px;border-radius:999px;background:#d1d5db;position:relative;transition:background .15s}
 .sw .tg::after{content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:#fff;transition:left .15s}
 .sw.on .tg{background:var(--accent)}.sw.on .tg::after{left:15px}
-.panes{display:grid;grid-template-columns:minmax(0,1fr) 360px}
-@media (max-width:1100px){.panes{grid-template-columns:1fr}}
+.panes{display:grid;grid-template-columns:minmax(0,1fr)}
 .pane{padding:8px 14px 14px;min-width:0}
 .pane[hidden]{display:none!important}
 .side{border-left:1px solid var(--line);padding:12px 14px;min-width:0}
@@ -240,7 +239,7 @@ details.srow summary .ttl .chip{font-weight:400}
 .root.pass{border-color:#bbf7d0;background:#f0fdf4}.root.warn{border-color:#fde68a;background:#fffbeb}.root.invalid{border-color:var(--line);background:#fafafa}
 .root b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
 .root.fail b{color:var(--red)}.root.pass b{color:var(--green)}.root.warn b{color:var(--amber)}.root.invalid b{color:var(--grey)}
-.tev{border:1px solid var(--line);border-radius:8px;margin-bottom:12px;overflow:hidden}
+.tev{border:1px solid var(--line);border-radius:8px;margin-bottom:12px;overflow:hidden}.tev.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-bg)}
 .tev .h{display:flex;gap:8px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line2);font-size:12.5px}
 .tev .h .name{font-family:var(--mono);font-weight:650}
 .tev .h .ms{margin-left:auto;color:var(--muted);font-size:11.5px;white-space:nowrap}
@@ -390,7 +389,9 @@ document.addEventListener('click', e => {
   const b = e.target.closest('[data-tab]'); if (!b) return;
   const root = b.closest('[data-tabs]'); const scope = document.getElementById(root.dataset.tabs) || root.parentNode;
   root.querySelectorAll('[data-tab]').forEach(x => x.classList.toggle('on', x === b));
-  scope.querySelectorAll('[data-pane]').forEach(p => { p.hidden = p.dataset.pane !== b.dataset.tab; });
+  // only this group's panes: a pane nested inside another tab group (a tool event card inside the Tool calls pane) is left alone
+  const scopes = new Set([...document.querySelectorAll('[data-tabs]')].map(r => document.getElementById(r.dataset.tabs) || r.parentNode));
+  scope.querySelectorAll('[data-pane]').forEach(p => { let own = p.parentElement; while (own && !scopes.has(own)) own = own.parentElement; if (own === scope) p.hidden = p.dataset.pane !== b.dataset.tab; });
 });
 // switches: <label class="sw" data-toggle="heard-off" data-target="#id">
 document.addEventListener('click', e => {

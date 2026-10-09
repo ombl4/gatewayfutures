@@ -24,12 +24,11 @@
   <div class="tabs" data-tabs="inspector">
     {% set first = 'transcript' %}
     <button type="button" data-tab="transcript" class="on">Transcript</button>
-    <button type="button" data-tab="grading">Grading</button>
     <button type="button" data-tab="tools">Tool calls<b>{{ c.tool_calls|length }}</b></button>
     <button type="button" data-tab="timeline">Timeline</button>
     <button type="button" data-tab="latency">Latency{% if c.latency_turns.summary.heard_ms.p95 %}<b>p95 {{ c.latency_turns.summary.heard_ms.p95|ms }}</b>{% endif %}</button>
     <button type="button" data-tab="spans">Spans{% if c.spans.summary.slow or c.spans.summary.errors %}<b{% if c.spans.summary.errors %} style="background:var(--red-bg);color:var(--red)"{% endif %}>{{ c.spans.summary.slow + c.spans.summary.errors }}</b>{% endif %}</button>
-    <button type="button" data-tab="checks">Checks{% if c.n_fail %}<b style="background:var(--red-bg);color:var(--red)">{{ c.n_fail }} failed</b>{% endif %}{% if c.n_warn %}<b style="background:var(--amber-bg);color:var(--amber)">{{ c.n_warn }} flagged</b>{% endif %}</button>
+    <button type="button" data-tab="grading">Grading{% if c.n_fail %}<b style="background:var(--red-bg);color:var(--red)">{{ c.n_fail }} failed</b>{% endif %}{% if c.n_warn %}<b style="background:var(--amber-bg);color:var(--amber)">{{ c.n_warn }} flagged</b>{% endif %}</button>
     {% if not embedded %}<button type="button" data-tab="details">Details</button>{% endif %}
     {% if c.engine == 'gf-caller' %}<label class="sw on" data-toggle="heard-off" data-target="#inspector" id="insp-heard"><span class="tg"></span>Show what the agent heard</label>{% else %}<span class="sw" style="cursor:default" title="this engine does not export the caller's exact words">agent transcript only</span>{% endif %}
   </div>
@@ -99,6 +98,25 @@
         {% endfor %}
         </table></div>
         <p class="small muted">Read from the order system's request log, never from the transcript.</p>
+        <h3 style="margin:12px 0 6px">Tool events</h3>
+      <div id="insp-tools">
+      {% set bad_first = (c.turns|selectattr('kind','equalto','tool')|rejectattr('ok')|list|first) %}
+      {% set first_tool = (c.turns|selectattr('kind','equalto','tool')|list|first) %}
+      {% for it in c.turns if it.kind == 'tool' %}
+      <div class="tev" data-tev="{{ it.id }}">
+        <div class="h"><span class="name">{{ it.tool }}()</span><span class="pill {{ 'green' if it.ok else 'red' }}">{{ 'ok' if it.ok else 'failed' }} {{ it.status }}</span><span class="ms">{{ it.t_ms|clock }} · {{ it.duration_ms }} ms</span></div>
+        <div class="tt" data-tabs="tev-{{ it.id }}"><button type="button" data-tab="args" class="on">Arguments</button><button type="button" data-tab="resp">Response</button><button type="button" data-tab="raw">Raw</button></div>
+        <div id="tev-{{ it.id }}">
+          <pre data-pane="args">{{ it.args|pretty }}</pre>
+          <pre data-pane="resp" hidden>{{ it.response|pretty }}</pre>
+          <pre data-pane="raw" hidden>{{ {'tool': it.tool, 'args': it.args, 'status': it.status, 'duration_ms': it.duration_ms, 'fault': it.fault, 'arg_problems': it.arg_problems, 'response': it.response}|pretty }}</pre>
+        </div>
+        {% if it.arg_problems %}<div class="empty" style="color:var(--red)">argument problems: {{ it.arg_problems|join('; ') }}</div>{% endif %}
+      </div>
+      {% else %}
+      <div class="tev"><div class="empty">No tool calls in this call.</div></div>
+      {% endfor %}
+      </div>
         {% else %}<p class="small muted">The agent made no tool calls in this call.</p>{% endif %}
       </div>
 
@@ -173,20 +191,6 @@
         <div id="spans-detail" class="small" hidden></div>
       </div>
 
-      <div class="pane" data-pane="checks" hidden>
-        {% for g in c.groups %}
-        <h3 style="margin:10px 0 4px">{{ g.title }} <span class="pill {{ {'fail':'red','warn':'amber','pass':'green'}[g.state] }}">{{ {'fail': g.n_fail ~ ' failed', 'warn': g.n_warn ~ ' flagged', 'pass': 'ok'}[g.state] }}</span></h3>
-        {% for ch in g.checks %}
-        {% set st = 'pass' if ch.passed else ('fail' if ch.severity=='hard' else ('warn' if ch.severity=='soft' else 'info')) %}
-        <div class="check {{ st }} open">
-          <span class="ic">{{ {'pass':'✓','fail':'✗','warn':'!','info':'·'}[st] }}</span>
-          <div><div>{{ ch.label }}{% if ch.value is not none %} <span class="muted mono">{{ ch.value }}</span>{% endif %}</div><div class="what">{{ ch.what_happened }}</div><div class="why">{{ ch.why_it_matters }}</div></div>
-          {% if ch.jump_ms is not none %}<a class="jump" href="#" data-seek="{{ ch.jump_ms }}">{{ ch.jump_ms|clock }} ↗</a>{% else %}<span></span>{% endif %}
-        </div>
-        {% endfor %}
-        {% endfor %}
-      </div>
-
       {% if not embedded %}
       <div class="pane" data-pane="details" hidden>
         <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
@@ -238,46 +242,6 @@
       {% endif %}
     </div>
 
-    <aside class="side">
-      {% set rc = 'fail' if c.verdict == 'fail' else ('invalid' if c.verdict == 'invalid' else ('warn' if c.soft_flags else 'pass')) %}
-      <div class="root {{ rc }}" id="insp-root"><b>{{ {'fail':'Root cause','invalid':'Why this call does not count','warn':'Passed, with flags','pass':'Outcome'}[rc] }}</b>
-        {% if c.failure_reason %}{{ c.failure_reason|replace('invalid: ', '') }}{% elif c.soft_flags %}{{ c.soft_flags|join(', ') }}{% else %}The order system shows the expected actions and the agent's words matched them.{% endif %}
-      </div>
-      <h3 style="margin-bottom:6px">Tool event</h3>
-      <div id="insp-tools">
-      {% set bad_first = (c.turns|selectattr('kind','equalto','tool')|rejectattr('ok')|list|first) %}
-      {% set first_tool = (c.turns|selectattr('kind','equalto','tool')|list|first) %}
-      {% for it in c.turns if it.kind == 'tool' %}
-      <div class="tev" data-tev="{{ it.id }}" {% if it.id != ((bad_first or first_tool) or {}).get('id') %}hidden{% endif %}>
-        <div class="h"><span class="name">{{ it.tool }}()</span><span class="pill {{ 'green' if it.ok else 'red' }}">{{ 'ok' if it.ok else 'failed' }} {{ it.status }}</span><span class="ms">{{ it.t_ms|clock }} · {{ it.duration_ms }} ms</span></div>
-        <div class="tt" data-tabs="tev-{{ it.id }}"><button type="button" data-tab="args" class="on">Arguments</button><button type="button" data-tab="resp">Response</button><button type="button" data-tab="raw">Raw</button></div>
-        <div id="tev-{{ it.id }}">
-          <pre data-pane="args">{{ it.args|pretty }}</pre>
-          <pre data-pane="resp" hidden>{{ it.response|pretty }}</pre>
-          <pre data-pane="raw" hidden>{{ {'tool': it.tool, 'args': it.args, 'status': it.status, 'duration_ms': it.duration_ms, 'fault': it.fault, 'arg_problems': it.arg_problems, 'response': it.response}|pretty }}</pre>
-        </div>
-        {% if it.arg_problems %}<div class="empty" style="color:var(--red)">argument problems: {{ it.arg_problems|join('; ') }}</div>{% endif %}
-      </div>
-      {% else %}
-      <div class="tev"><div class="empty">No tool calls in this call.</div></div>
-      {% endfor %}
-      </div>
-      <h3 style="margin-bottom:4px">Checks</h3>
-      <div id="insp-checks">
-      {% for g in c.groups %}
-        <div class="ghead"><span>{{ g.title }}</span><span class="pill {{ {'fail':'red','warn':'amber','pass':'green'}[g.state] }}">{{ {'fail': g.n_fail ~ ' failed', 'warn': g.n_warn ~ ' flagged', 'pass': 'ok'}[g.state] }}</span></div>
-        <div class="tags">
-        {% for ch in g.checks %}
-          {% set st = 'pass' if ch.passed else ('fail' if ch.severity=='hard' else ('warn' if ch.severity=='soft' else 'info')) %}
-          <span class="tag {{ st }}" data-check="{{ ch.id }}"><span class="m">{{ {'pass':'✓','fail':'✗','warn':'!','info':'·'}[st] }}</span><code>{{ ch.tag }}</code>{% if ch.brief %}<span class="val">{{ ch.brief }}</span>{% endif %}<button type="button" class="q" aria-label="explain {{ ch.tag }}">?</button>
-            <span class="pop"><b>{{ ch.label }}</b><span class="what">{{ ch.what_happened }}</span><span class="why">{{ ch.why_it_matters }}</span>{% if ch.jump_ms is not none %}<a class="jump" href="#" data-seek="{{ ch.jump_ms }}">go to {{ ch.jump_ms|clock }} ↗</a>{% endif %}</span>
-          </span>
-        {% endfor %}
-        </div>
-      {% endfor %}
-      <p class="small muted" style="margin:4px 0 0">Tags are the check ids in <code>scores.json</code>. Full sentences under the Checks tab.</p>
-      </div>
-    </aside>
   </div>
 </section>
 <script>
@@ -325,7 +289,7 @@
   function draw(){ drawLanes(cv, true); if (big && !big.closest('[data-pane]').hidden) drawLanes(big, false); }
   function seek(ms, play){ if (!audio) return; audio.currentTime = Math.max(0, ms/1000); if (play !== false) audio.play().catch(()=>{}); }
   function selectTool(id){
-    root.querySelectorAll('.tev').forEach(t => { t.hidden = t.dataset.tev !== id; });
+    root.querySelectorAll('.tev').forEach(t => t.classList.toggle('sel', t.dataset.tev === id));
     root.querySelectorAll('.toolev').forEach(t => t.classList.toggle('sel', t.dataset.tool === id));
   }
   function nearestTool(ms){ let best=null; (tl.events||[]).filter(e => e.kind==='tool_call').forEach(e => { if (best===null || Math.abs(e.t_ms-ms) < Math.abs(best.t_ms-ms)) best=e; }); return best && Math.abs(best.t_ms-ms) < dur*0.03 ? best : null; }
