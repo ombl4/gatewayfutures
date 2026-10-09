@@ -285,16 +285,14 @@ def providers_rows() -> list[dict[str, Any]]:
 
 
 def providers_page() -> dict[str, Any]:
-    """The Providers page (T4.6a): the registry with the current one marked, and the
-    day-by-day plan for adding one."""
-    from gf.providers import WEEK_PLAN, providers
+    """The Providers page (T4.6a): the registry with the current one marked."""
+    from gf.providers import providers
 
     rows = providers()
     cur = next((p for p in rows if p["current"]), None)
     return {
         "providers": rows,
         "current": cur,
-        "plan": [{"day": d, "title": t, "what": w} for d, t, w in WEEK_PLAN],
     }
 
 

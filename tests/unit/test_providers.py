@@ -16,9 +16,3 @@ def test_every_provider_states_its_three_obligations():
         assert p.reach and p.events and p.config_hash and p.module, p.key
     assert reg.get("pipecat").kind == reg.DESIGNED
     assert reg.get("nope") is None
-
-
-def test_week_plan_has_five_days_in_order():
-    days = [d for d, _, _ in reg.WEEK_PLAN]
-    assert days == [f"Day {i}" for i in range(1, 6)]
-    assert all(title and what for _, title, what in reg.WEEK_PLAN)

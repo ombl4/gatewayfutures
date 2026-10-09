@@ -198,7 +198,7 @@ def test_run_page_content(env):
     assert 'id="provider-menu"' in home_html and 'id="btn-add-provider"' in home_html
     assert "Gateway Goods support line" in home_html and "Add an agent" in home_html
     prov = env["client"].get("/providers").text
-    assert 'id="add"' in prov and "Day 1" in prov and "Day 5" in prov
+    assert "design-note.md" in prov and "Day 1" not in prov  # no week plan on the page
     assert env["client"].get("/api/providers").json()["current"]["key"] == "livekit"
     home = env["client"].get("/?run=t1").text
     assert 'id="run-select"' in home and 'value="t1" selected' in home
@@ -370,7 +370,7 @@ def test_static_report_renders(env, tmp_path):
     assert (out / "call-7c994c348001-1.html").exists()
     assert "Refund for a broken blender, clean line" in (out / "index.html").read_text()
     assert (out / "sessions.html").exists() and (out / "scoring.html").exists()
-    assert "Day 1" in (out / "providers.html").read_text()
+    assert "Voice agent providers" in (out / "providers.html").read_text()
     assert 'href="agent.html?add=1"' in (out / "index.html").read_text()
     page = (out / "call-7c994c348001-1.html").read_text()
     assert 'href="index.html"' in page and "lookup_order" in page

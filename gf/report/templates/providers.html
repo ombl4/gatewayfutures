@@ -22,12 +22,5 @@
 </div>
 {% endfor %}
 
-<h2 id="add">Adding a provider: the week, day by day</h2>
-<p class="small muted">The provider is chosen in <code>gf/agent/config.yaml</code> (<code>provider:</code>), so switching is a config change that gets its own environment tag, never a click. Adding one is a new module behind the same three methods, not a rewrite.</p>
-<ol class="plan">
-{% for step in p.plan %}
-  <li><b>{{ step.day }} · {{ step.title }}</b><br><span class="small">{{ step.what }}</span></li>
-{% endfor %}
-</ol>
-<p class="small muted">The full reasoning is in <code>docs/design-note.md</code>, “Adding a second provider”.</p>
+<p class="small muted">The provider is chosen in <code>gf/agent/config.yaml</code>, so switching is a config change with its own environment tag. How a new one is added is in <code>docs/design-note.md</code>, “Adding a second provider”.</p>
 {% endblock %}
