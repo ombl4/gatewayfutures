@@ -145,6 +145,10 @@ Every call page has a **Grading** tab with five numbered steps in the order the 
 
 Every agent reply shows two latencies in the call inspector's **Latency** tab: what the caller heard (last caller word → first agent sound, measured on the recording) and where the agent's own clock says the time went: end-of-turn detection, transcription, LLM time to first token, TTS time to first byte, playback, with the rest shown as unaccounted (network and buffering). The run page aggregates the medians so a slow run can be attributed to one stage.
 
+## Spans
+
+The Spans tab in the call inspector shows the call as a trace: one span per reply from the caller's last word to the agent's last, with the agent's own stages (end of turn, transcription, LLM first token, TTS first byte, playback) laid end to end inside it, the unaccounted remainder, the tool calls where they happened, and the recording's dead air, talk-over and interruptions. The longest stage of each reply is outlined, slow replies and failed tool calls are marked, and the view folds, filters, zooms (double-click) and follows the audio. `gf spans runs/<run>/<session>/<n>` writes the same tree as `spans.json`, and `--otlp` writes an OTLP/JSON trace that opens in Jaeger or Tempo. Everything is computed from the record, so it is deterministic and free to recompute.
+
 ## What a call record contains
 
 `runs/<run_id>/<session_id>/<attempt>/`: `audio.wav` (stereo: left caller, right agent) and `audio.json`, `caller.json` and `caller_events.jsonl` (what the caller said, heard and decided), `agent_events.jsonl` and `agent_session_report.json` (the agent's transcripts, replies, tool calls and per-turn metrics), `backend_log.json` and `backend_state.json`, `meta.json`, then `timeline.json` and `scores.json` after scoring.

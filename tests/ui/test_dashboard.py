@@ -262,7 +262,7 @@ def test_inspector_controls(site, page):
     verdict = page.locator("#grading .card").nth(4).locator(".pill").first.inner_text().lower()
     header = page.locator("#agent-pill").inner_text().lower()
     assert verdict.split()[0] in header
-    for tab in ("tools", "timeline", "latency", "checks", "details", "transcript"):
+    for tab in ("tools", "timeline", "latency", "spans", "checks", "details", "transcript"):
         page.click(f'#inspector [data-tab="{tab}"]')
         assert page.locator(f'#inspector [data-pane="{tab}"]').is_visible()
         others = page.locator("#inspector .pane:not([hidden])")
@@ -273,6 +273,41 @@ def test_inspector_controls(site, page):
     assert rows.count() == page.locator("#transcript .turn.agent").count()
     rows.nth(1).click()
     assert page.evaluate("document.getElementById('insp-audio').currentTime") > 0
+    # spans tab (T6.24): a tree with bars; filters hide rows, a bar click seeks, double-click zooms,
+    # a name click folds the reply's children and opens the span panel
+    page.click('#inspector [data-tab="spans"]')
+    sp = page.locator("#spans .sp")
+    assert sp.count() > 10 and sp.first.get_attribute("data-kind") == "call"
+    assert page.locator("#spans .sp.k-reply").count() >= 2
+    crit = page.locator("#spans .sp.crit").count()
+    assert 0 < crit <= page.locator("#spans .sp.k-reply .mark").count()
+    page.check('#spans [data-sf="slow"]')
+    assert page.locator("#spans .sp:not([hidden]) .bar").count() < sp.count()
+    assert page.locator('#spans .sp:not([hidden])[data-status="ok"]').count() == 0
+    page.uncheck('#spans [data-sf="slow"]')
+    page.select_option("#spans-kind", "tool_call")
+    assert (
+        page.locator("#spans .sp:not([hidden])").count()
+        == page.locator('#spans .sp[data-kind="tool_call"]').count()
+    )
+    page.select_option("#spans-kind", "")
+    reply = page.locator("#spans .sp.k-reply:has(.mark)").first  # a reply with a measured wait
+    page.evaluate("document.getElementById('insp-audio').currentTime = 0")
+    reply.locator(".lane").click()
+    assert page.evaluate("document.getElementById('insp-audio').currentTime") > 0
+    assert (
+        page.locator("#spans-detail").is_visible()
+        and "heard ms" in page.locator("#spans-detail").inner_text()
+    )
+    reply.dblclick()
+    assert page.locator("#spans-fit").is_visible()
+    page.click("#spans-fit")
+    assert not page.locator("#spans-fit").is_visible()
+    reply.locator(".nm").click()
+    rid = reply.get_attribute("data-id")
+    assert page.locator(f'#spans .sp[data-parent="{rid}"]:not([hidden])').count() == 0
+    reply.locator(".nm").click()
+    assert page.locator(f'#spans .sp[data-parent="{rid}"]:not([hidden])').count() >= 2
     page.click('#inspector [data-tab="transcript"]')
     # compact check tags: ? opens one popover at a time with the full explanation
     tags = insp.locator("#insp-checks .tag")

@@ -21,6 +21,7 @@ from gf.config import ROOT, settings, thresholds
 from gf.environment import registry, tags_of
 from gf.record.latency import STAGES, turn_latency
 from gf.record.model import CallRecord
+from gf.record.spans import build_spans
 from gf.runner.batch import list_runs
 from gf.scoring.checks import evidence_ms
 from gf.scoring.stats import wilson
@@ -1207,6 +1208,10 @@ def call_report_from_folder(
     turns = _merge_turns(record, timeline)
     annotate_turns(turns, checks, thresholds().model_dump())
     lat_turns = turn_latency(record, timeline)
+    th_ = thresholds()
+    spans = build_spans(
+        record, timeline, warn_s=th_.latency_p95_warn_s, fail_s=th_.latency_p95_fail_s
+    )
     flow = call_flow(turns, lat_turns)
     env = envelopes(record.audio_path) if record.audio_path else None
     meta = record.meta
@@ -1265,6 +1270,7 @@ def call_report_from_folder(
         "folder": str(folder),
         "thresholds": thresholds().model_dump(),
         "latency_turns": lat_turns,
+        "spans": spans,
         "flow": flow,
         "neighbours": _neighbours(run_id, record.session_id, record.attempt),
         "started_at": meta.get("started_at"),

@@ -104,6 +104,8 @@ def test_pages_render(env):
     assert "404" in c.get("/nope").text
     assert c.get("/api/nope").json()["error"]
     assert c.get("/runs/t1/zzz/1").status_code == 404
+    call = c.get("/runs/t1/7c994c348001/1").text
+    assert 'data-pane="spans"' in call and 'data-kind="reply"' in call  # T6.24
 
 
 def test_run_page_content(env):
@@ -351,3 +353,4 @@ def test_static_report_renders(env, tmp_path):
     assert 'href="providers.html#add"' in (out / "index.html").read_text()
     page = (out / "call-7c994c348001-1.html").read_text()
     assert 'href="index.html"' in page and "lookup_order" in page
+    assert 'data-pane="spans"' in page

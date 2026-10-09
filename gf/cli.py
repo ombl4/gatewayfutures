@@ -445,6 +445,20 @@ def sessions_export_simulate(out: str = "scenarios.yaml") -> None:
     typer.echo("run: lk agent simulate audio --agent-name gf-support-agent --scenarios " + out)
 
 
+@app.command("spans")
+def spans(record_folder: str, otlp: bool = False) -> None:
+    """Write the span tree of one call record (spec T6.24): `spans.json`, or with --otlp an
+    OTLP/JSON trace that opens in Jaeger or Tempo."""
+    from gf.config import thresholds
+    from gf.record.spans import export
+
+    th = thresholds()
+    out = export(
+        record_folder, otlp=otlp, warn_s=th.latency_p95_warn_s, fail_s=th.latency_p95_fail_s
+    )
+    typer.echo(f"wrote {out}")
+
+
 @app.command("import-simulate")
 def import_simulate(export_json: str, run_id: str = "") -> None:
     """Import an `lk agent simulate export` JSON as a run (engine livekit-simulate)."""
