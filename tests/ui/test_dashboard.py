@@ -458,7 +458,13 @@ def test_add_session_to_regression_suite_from_the_ui(site, page):
     page.click('#filters [data-filter=""]')
     assert page.locator("#sessions-title").inner_text() == "All sessions"
     page.goto(site["base"] + "/runs")
-    assert page.locator('input[name=pick][value="suite:regression"]').count() == 1
+    assert page.locator('select[name=pick] option[value="suite:regression"]').count() == 1
+    page.select_option("select[name=pick]", "suite:regression")
+    shown = page.locator("#sessionpick label:not([hidden])")
+    assert 1 <= shown.count() < page.locator("#sessionpick label").count()
+    page.select_option("select[name=pick]", "pick")
+    assert page.locator("#sessionpick label:not([hidden])").count() == page.locator("#sessionpick label").count()
+    assert page.locator("#sessionpick input").first.is_enabled()
     _no_errors(page)
 
 
