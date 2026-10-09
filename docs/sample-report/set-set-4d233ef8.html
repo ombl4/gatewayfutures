@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Practice sessions · Call simulator</title>
+<title>Session set set-4d233ef8 · Call simulator</title>
 <style>
 :root{
   --bg:#f7f7f8;--card:#fff;--ink:#111827;--muted:#6b7280;--line:#e5e7eb;--line2:#f1f3f5;
@@ -293,304 +293,44 @@ details.srow summary .ttl .chip{font-weight:400}
 </aside>
 <div class="wrap">
 <header class="top">
-  <div class="crumbs"><a href="overview.html">Voice agent evaluation</a><i>›</i><b>Practice sessions</b></div>
+  <div class="crumbs"><a href="overview.html">Voice agent evaluation</a><i>›</i><a href="sessions.html">Practice sessions</a><i>›</i><b>set set-4d233ef8</b></div>
   <div class="right">
     <span class="status-pill " title="livekit"><i></i>livekit</span>
   </div>
 </header>
 <main>
-<h1>Practice sessions</h1>
-<p class="meta"><span>15 sessions</span><i>·</i><span>each is an immutable YAML file: who is calling, what they know, what they want, how the line sounds, what a correct outcome looks like</span></p>
-<div class="small" id="filters" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 10px">
-  <span class="muted">Show:</span>
-  <button type="button" class="btn sm on" data-filter="" data-label="All sessions" onclick="gfFilter(this)">all <span class="muted">15</span></button>
-<button type="button" class="btn sm" data-filter="suite:regression" data-label="Suite regression" onclick="gfFilter(this)">suite regression <span class="muted">6</span></button><button type="button" class="btn sm" data-filter="suite:smoke" data-label="Suite smoke" onclick="gfFilter(this)">suite smoke <span class="muted">2</span></button><button type="button" class="btn sm" data-filter="area:address change" data-label="Area address change" onclick="gfFilter(this)">address change <span class="muted">4</span></button><button type="button" class="btn sm" data-filter="area:denial" data-label="Area denial" onclick="gfFilter(this)">denial <span class="muted">4</span></button><button type="button" class="btn sm" data-filter="area:escalation" data-label="Area escalation" onclick="gfFilter(this)">escalation <span class="muted">3</span></button><button type="button" class="btn sm" data-filter="area:fault handling" data-label="Area fault handling" onclick="gfFilter(this)">fault handling <span class="muted">2</span></button><button type="button" class="btn sm" data-filter="area:hard line" data-label="Area hard line" onclick="gfFilter(this)">hard line <span class="muted">6</span></button><button type="button" class="btn sm" data-filter="area:impatient" data-label="Area impatient" onclick="gfFilter(this)">impatient <span class="muted">6</span></button><button type="button" class="btn sm" data-filter="area:interruptions" data-label="Area interruptions" onclick="gfFilter(this)">interruptions <span class="muted">1</span></button><button type="button" class="btn sm" data-filter="area:refund" data-label="Area refund" onclick="gfFilter(this)">refund <span class="muted">10</span></button></div>
-<script>
-function gfFilter(btn){
-  document.querySelectorAll('#filters .btn').forEach(b => b.classList.toggle('on', b === btn));
-  const f = btn.dataset.filter; let shown = 0, total = 0;
-  document.querySelectorAll('#sessions details.srow').forEach(d => { total++; const tags = (d.dataset.tags || '').split('|'); const hide = !!f && !tags.includes(f); d.hidden = hide; if (!hide) shown++; });
-  document.getElementById('sessions-title').textContent = btn.dataset.label;
-  document.getElementById('sessions-count').textContent = f ? '(' + shown + ' of ' + total + ')' : '(' + total + ')';
-}
-</script>
-<div class="acc" id="sessions">
-  <div class="hd"><h3><span id="sessions-title">All sessions</span> <span class="muted" id="sessions-count" style="font-weight:500">(15)</span></h3><span class="small muted">history: pass count per run, oldest → newest</span></div>
-  <details class="srow" data-session="915dd5186fa8" data-tags="area:address change|area:hard line|">
-    <summary>
-      <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Address change over a narrow phone line, calm British caller <span class="chip">address change</span><span class="chip">hard line</span></span>
-      <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
-      <span class="cnt"><b class="p">3/3</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill green" title="full-3">3/3</a> <a href="index.html" class="pill green" title="full-4">3/3</a> </span>
-    </summary>
-    <div class="sbody">
-      <div class="cols4" style="margin:8px 0 10px">
-        <div><div class="h">Persona</div><b>Priya Natarajan</b><div class="muted">calm · en-GB</div></div>
-        <div><div class="h">Goal</div>Change the shipping address on order GW-48502 to 9 Harvard Square, Cambridge, Massachusetts 02138.</div>
-        <div><div class="h">Conditions</div><span class="chip">phone line</span><span class="chip">packet loss 1%</span></div>
-        <div><div class="h">Expected</div><span class="chip">address_updated</span><div class="muted mono" style="margin-top:3px">lookup_order → update_shipping_address</div></div>
-      </div>
-      <div class="small"><a href="session-915dd5186fa8.html">Open session →</a> · <span class="mono muted">915dd5186fa8</span></div>
-    </div>
-  </details>
-  <details class="srow" data-session="97338e726973" data-tags="area:address change|suite:regression|">
-    <summary>
-      <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Change the shipping address on an order that is still processing <span class="chip">address change</span><span class="pill indigo" style="font-size:10.5px">regression</span> </span>
-      <span class="bar" title="last run: 2/2"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
-      <span class="cnt"><b class="p">2/2</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill green" title="full-1">1/1</a> <a href="index.html" class="pill green" title="full-3">2/2</a> <a href="index.html" class="pill green" title="full-4">2/2</a> </span>
-    </summary>
-    <div class="sbody">
-      <div class="cols4" style="margin:8px 0 10px">
-        <div><div class="h">Persona</div><b>Priya Natarajan</b><div class="muted">friendly and organised · en-PH</div></div>
-        <div><div class="h">Goal</div>Change the shipping address on order GW-48502 to 12 Beacon Street, Apartment 4, Boston, Massachusetts 02108, because you are moving next week.</div>
-        <div><div class="h">Conditions</div><span class="chip">clean line</span></div>
-        <div><div class="h">Expected</div><span class="chip">address_updated</span><div class="muted mono" style="margin-top:3px">lookup_order → update_shipping_address</div></div>
-      </div>
-      <div class="small"><a href="session-97338e726973.html">Open session →</a> · <span class="mono muted">97338e726973</span></div>
-    </div>
-  </details>
-  <details class="srow" data-session="ff2985a2b7ab" data-tags="area:address change|area:denial|area:escalation|area:hard line|area:impatient|">
-    <summary>
-      <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Address change on an order that already shipped, caller asks for a person <span class="chip">address change</span><span class="chip">denial</span><span class="chip">escalation</span><span class="chip">hard line</span><span class="chip">impatient</span></span>
-      <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
-      <span class="cnt"><b class="p">3/3</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill green" title="full-3">3/3</a> <a href="index.html" class="pill green" title="full-4">3/3</a> </span>
-    </summary>
-    <div class="sbody">
-      <div class="cols4" style="margin:8px 0 10px">
-        <div><div class="h">Persona</div><b>James Carter</b><div class="muted">brisk · en-GB</div></div>
-        <div><div class="h">Goal</div>Change the shipping address on order GW-48377 to 55 West Monroe Street, Chicago, Illinois 60603. If the agent says it cannot be changed, insist once, then ask to speak to a person.</div>
-        <div><div class="h">Conditions</div><span class="chip">phone line</span></div>
-        <div><div class="h">Expected</div><span class="chip">blocked_then_escalated</span><div class="muted mono" style="margin-top:3px">lookup_order → escalate_to_human</div></div>
-      </div>
-      <div class="small"><a href="session-ff2985a2b7ab.html">Open session →</a> · <span class="mono muted">ff2985a2b7ab</span></div>
-    </div>
-  </details>
-  <details class="srow" data-session="e35c84ccedc9" data-tags="area:refund|area:denial|suite:regression|">
-    <summary>
-      <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Refund asked on an order that was already refunded, the agent explains and declines <span class="chip">refund</span><span class="chip">denial</span><span class="pill indigo" style="font-size:10.5px">regression</span> </span>
-      <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
-      <span class="cnt"><b class="p">3/3</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill green" title="fix-1">3/3</a> </span>
-    </summary>
-    <div class="sbody">
-      <div class="cols4" style="margin:8px 0 10px">
-        <div><div class="h">Persona</div><b>Maria Lopez</b><div class="muted">confused · en-US</div></div>
-        <div><div class="h">Goal</div>Request a refund on order GW-48911 which was already refunded, and accept denial.</div>
-        <div><div class="h">Conditions</div><span class="chip">clean line</span></div>
-        <div><div class="h">Expected</div><span class="chip">explained_already_refunded</span><div class="muted mono" style="margin-top:3px">lookup_order</div></div>
-      </div>
-      <div class="small"><a href="session-e35c84ccedc9.html">Open session →</a> · <span class="mono muted">e35c84ccedc9</span></div>
-    </div>
-  </details>
-  <details class="srow" data-session="2e729ea48f97" data-tags="area:refund|area:denial|">
-    <summary>
-      <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Refund request on an order that was already refunded <span class="chip">refund</span><span class="chip">denial</span></span>
-      <span class="bar" title="last run: 2/2"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
-      <span class="cnt"><b class="p">2/2</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill green" title="full-3">3/3</a> <a href="index.html" class="pill green" title="full-4">2/2</a> </span>
-    </summary>
-    <div class="sbody">
-      <div class="cols4" style="margin:8px 0 10px">
-        <div><div class="h">Persona</div><b>Maria Lopez</b><div class="muted">polite · en-AU</div></div>
-        <div><div class="h">Goal</div>Ask for a refund of $15 on order GW-48911 because the cable stopped working. If the agent explains it was already refunded, accept that and thank them.</div>
-        <div><div class="h">Conditions</div><span class="chip">clean line</span></div>
-        <div><div class="h">Expected</div><span class="chip">explained_already_refunded</span><div class="muted mono" style="margin-top:3px">lookup_order</div></div>
-      </div>
-      <div class="small"><a href="session-2e729ea48f97.html">Open session →</a> · <span class="mono muted">2e729ea48f97</span></div>
-    </div>
-  </details>
-  <details class="srow" data-session="3a886a33bb7a" data-tags="area:refund|area:fault handling|suite:regression|">
-    <summary>
-      <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Refund where the first attempt hits a backend error and the agent retries <span class="chip">refund</span><span class="chip">fault handling</span><span class="pill indigo" style="font-size:10.5px">regression</span> </span>
-      <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
-      <span class="cnt"><b class="p">3/3</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill green" title="fix-1">3/3</a> </span>
-    </summary>
-    <div class="sbody">
-      <div class="cols4" style="margin:8px 0 10px">
-        <div><div class="h">Persona</div><b>Maria Lopez</b><div class="muted">chatty · en-US</div></div>
-        <div><div class="h">Goal</div>Get a full refund of $89.99 for order GW-48213, which arrived broken. If the agent says something failed, ask it to try again.</div>
-        <div><div class="h">Conditions</div><span class="chip">clean line</span></div>
-        <div><div class="h">Expected</div><span class="chip">refunded_after_retry</span><div class="muted mono" style="margin-top:3px">lookup_order → issue_refund</div></div>
-      </div>
-      <div class="small"><a href="session-3a886a33bb7a.html">Open session →</a> · <span class="mono muted">3a886a33bb7a</span></div>
-    </div>
-  </details>
-  <details class="srow" data-session="cf6cec4de0e0" data-tags="area:refund|area:fault handling|suite:regression|">
-    <summary>
-      <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Refund where the order system returns a 500 on the first attempt <span class="chip">refund</span><span class="chip">fault handling</span><span class="pill indigo" style="font-size:10.5px">regression</span> </span>
-      <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
-      <span class="cnt"><b class="p">3/3</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill green" title="full-3">3/3</a> <a href="index.html" class="pill green" title="full-4">3/3</a> <a href="index.html" class="pill green" title="fix-1">3/3</a> </span>
-    </summary>
-    <div class="sbody">
-      <div class="cols4" style="margin:8px 0 10px">
-        <div><div class="h">Persona</div><b>Maria Lopez</b><div class="muted">calm and patient · en-US</div></div>
-        <div><div class="h">Goal</div>Get a full refund of $89.99 for order GW-48213, which arrived broken. If the agent says something failed, ask whether the refund actually went through.</div>
-        <div><div class="h">Conditions</div><span class="chip">clean line</span></div>
-        <div><div class="h">Expected</div><span class="chip">honest_failure_or_retry</span><div class="muted mono" style="margin-top:3px">lookup_order</div></div>
-      </div>
-      <div class="small"><a href="session-cf6cec4de0e0.html">Open session →</a> · <span class="mono muted">cf6cec4de0e0</span></div>
-    </div>
-  </details>
-  <details class="srow" data-session="7c994c348001" data-tags="area:refund|suite:smoke|">
-    <summary>
-      <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Refund for a broken blender, clean line <span class="chip">refund</span><span class="pill indigo" style="font-size:10.5px">smoke</span> </span>
-      <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
-      <span class="cnt"><b class="p">3/3</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill green" title="batch-test-1">2/2</a> <a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill green" title="full-3">3/3</a> <a href="index.html" class="pill green" title="full-4">3/3</a> </span>
-    </summary>
-    <div class="sbody">
-      <div class="cols4" style="margin:8px 0 10px">
-        <div><div class="h">Persona</div><b>Maria Lopez</b><div class="muted">polite · en-US</div></div>
-        <div><div class="h">Goal</div>Get a full refund of $89.99 for order GW-48213, which arrived broken.</div>
-        <div><div class="h">Conditions</div><span class="chip">clean line</span></div>
-        <div><div class="h">Expected</div><span class="chip">refunded</span><div class="muted mono" style="margin-top:3px">lookup_order → issue_refund</div></div>
-      </div>
-      <div class="small"><a href="session-7c994c348001.html">Open session →</a> · <span class="mono muted">7c994c348001</span></div>
-    </div>
-  </details>
-  <details class="srow" data-session="a8d032bb2a4c" data-tags="area:refund|area:hard line|area:impatient|suite:regression|">
-    <summary>
-      <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Refund from a fast, impatient caller walking down a busy street <span class="chip">refund</span><span class="chip">hard line</span><span class="chip">impatient</span><span class="pill indigo" style="font-size:10.5px">regression</span> </span>
-      <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
-      <span class="cnt"><b class="p">3/3</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill amber" title="full-3">2/3</a> <a href="index.html" class="pill green" title="full-4">3/3</a> </span>
-    </summary>
-    <div class="sbody">
-      <div class="cols4" style="margin:8px 0 10px">
-        <div><div class="h">Persona</div><b>Maria Lopez</b><div class="muted">hurried · en-US</div></div>
-        <div><div class="h">Goal</div>Get a full refund of $89.99 for order GW-48213, which arrived broken. You are in a hurry; say so once.</div>
-        <div><div class="h">Conditions</div><span class="chip">noise street@10dB</span><span class="chip">phone line</span><span class="chip">packet loss 5%</span></div>
-        <div><div class="h">Expected</div><span class="chip">refunded</span><div class="muted mono" style="margin-top:3px">lookup_order → issue_refund</div></div>
-      </div>
-      <div class="small"><a href="session-a8d032bb2a4c.html">Open session →</a> · <span class="mono muted">a8d032bb2a4c</span></div>
-    </div>
-  </details>
-  <details class="srow" data-session="fee306a7275b" data-tags="area:refund|area:interruptions|area:impatient|">
-    <summary>
-      <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Refund from an impatient caller who keeps interrupting the agent <span class="chip">refund</span><span class="chip">interruptions</span><span class="chip">impatient</span></span>
-      <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
-      <span class="cnt"><b class="p">3/3</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill green" title="full-3">3/3</a> <a href="index.html" class="pill green" title="full-4">3/3</a> </span>
-    </summary>
-    <div class="sbody">
-      <div class="cols4" style="margin:8px 0 10px">
-        <div><div class="h">Persona</div><b>Maria Lopez</b><div class="muted">impatient · en-US</div></div>
-        <div><div class="h">Goal</div>Get a full refund of $89.99 for order GW-48213, which arrived broken. You are in a hurry and do not want long explanations.</div>
-        <div><div class="h">Conditions</div><span class="chip">interrupts 40%</span></div>
-        <div><div class="h">Expected</div><span class="chip">refunded</span><div class="muted mono" style="margin-top:3px">lookup_order → issue_refund</div></div>
-      </div>
-      <div class="small"><a href="session-fee306a7275b.html">Open session →</a> · <span class="mono muted">fee306a7275b</span></div>
-    </div>
-  </details>
-  <details class="srow" data-session="ef113fc07616" data-tags="area:refund|area:hard line|area:impatient|">
-    <summary>
-      <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Refund for a broken blender, impatient caller in a cafe over a phone line <span class="chip">refund</span><span class="chip">hard line</span><span class="chip">impatient</span></span>
-      <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
-      <span class="cnt"><b class="p">3/3</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill green" title="batch-test-1">2/2</a> <a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill green" title="full-3">3/3</a> <a href="index.html" class="pill green" title="full-4">3/3</a> </span>
-    </summary>
-    <div class="sbody">
-      <div class="cols4" style="margin:8px 0 10px">
-        <div><div class="h">Persona</div><b>Maria Lopez</b><div class="muted">polite but impatient · en-US</div></div>
-        <div><div class="h">Goal</div>Get a full refund of $89.99 for order GW-48213, which arrived broken.</div>
-        <div><div class="h">Conditions</div><span class="chip">noise cafe@15dB</span><span class="chip">phone line</span><span class="chip">packet loss 2%</span></div>
-        <div><div class="h">Expected</div><span class="chip">refunded</span><div class="muted mono" style="margin-top:3px">lookup_order → issue_refund</div></div>
-      </div>
-      <div class="small"><a href="session-ef113fc07616.html">Open session →</a> · <span class="mono muted">ef113fc07616</span></div>
-    </div>
-  </details>
-  <details class="srow" data-session="36ae7c490d4a" data-tags="area:refund|suite:regression|">
-    <summary>
-      <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Caller asks for more than the order total, should settle on the full amount <span class="chip">refund</span><span class="pill indigo" style="font-size:10.5px">regression</span> </span>
-      <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
-      <span class="cnt"><b class="p">3/3</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill amber" title="full-1">1/2</a> <a href="index.html" class="pill amber" title="full-3">2/3</a> <a href="index.html" class="pill green" title="full-4">3/3</a> </span>
-    </summary>
-    <div class="sbody">
-      <div class="cols4" style="margin:8px 0 10px">
-        <div><div class="h">Persona</div><b>Maria Lopez</b><div class="muted">assertive · en-US</div></div>
-        <div><div class="h">Goal</div>Ask for a $120 refund on order GW-48213 (the blender was $89.99 but you say the broken blender ruined a $30 bag of groceries). If the agent explains refunds cannot exceed the order total, accept a refund of $89.99 and confirm it.</div>
-        <div><div class="h">Conditions</div><span class="chip">clean line</span></div>
-        <div><div class="h">Expected</div><span class="chip">refunded_at_total</span><div class="muted mono" style="margin-top:3px">lookup_order → issue_refund</div></div>
-      </div>
-      <div class="small"><a href="session-36ae7c490d4a.html">Open session →</a> · <span class="mono muted">36ae7c490d4a</span></div>
-    </div>
-  </details>
-  <details class="srow" data-session="c1de86f32b16" data-tags="area:refund|area:hard line|">
-    <summary>
-      <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Partial refund of $40, older caller speaking slowly on a poor microphone <span class="chip">refund</span><span class="chip">hard line</span></span>
-      <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
-      <span class="cnt"><b class="p">3/3</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill green" title="full-3">3/3</a> <a href="index.html" class="pill green" title="full-4">3/3</a> </span>
-    </summary>
-    <div class="sbody">
-      <div class="cols4" style="margin:8px 0 10px">
-        <div><div class="h">Persona</div><b>Maria Lopez</b><div class="muted">slow · en-US</div></div>
-        <div><div class="h">Goal</div>Get a partial refund of exactly $40 on order GW-48213 because one blender attachment was missing. Do not accept a full refund; you want to keep the blender.</div>
-        <div><div class="h">Conditions</div><span class="chip">poor mic</span></div>
-        <div><div class="h">Expected</div><span class="chip">refunded_partial</span><div class="muted mono" style="margin-top:3px">lookup_order → issue_refund</div></div>
-      </div>
-      <div class="small"><a href="session-c1de86f32b16.html">Open session →</a> · <span class="mono muted">c1de86f32b16</span></div>
-    </div>
-  </details>
-  <details class="srow" data-session="608471aea60f" data-tags="area:escalation|area:impatient|suite:smoke|">
-    <summary>
-      <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Caller demands a human from the first sentence <span class="chip">escalation</span><span class="chip">impatient</span><span class="pill indigo" style="font-size:10.5px">smoke</span> </span>
-      <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
-      <span class="cnt"><b class="p">3/3</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill green" title="full-3">3/3</a> <a href="index.html" class="pill green" title="full-4">3/3</a> </span>
-    </summary>
-    <div class="sbody">
-      <div class="cols4" style="margin:8px 0 10px">
-        <div><div class="h">Persona</div><b>James Carter</b><div class="muted">impatient · en-US</div></div>
-        <div><div class="h">Goal</div>Get transferred to a human team member. Say you do not want to give any details to a machine. If asked for an order number or zip, refuse once, then give the order number only if the agent insists it is required to transfer you.</div>
-        <div><div class="h">Conditions</div><span class="chip">clean line</span></div>
-        <div><div class="h">Expected</div><span class="chip">escalated</span><div class="muted mono" style="margin-top:3px">escalate_to_human</div></div>
-      </div>
-      <div class="small"><a href="session-608471aea60f.html">Open session →</a> · <span class="mono muted">608471aea60f</span></div>
-    </div>
-  </details>
-  <details class="srow" data-session="da8e474dc8e5" data-tags="area:address change|area:denial|area:escalation|area:hard line|area:impatient|">
-    <summary>
-      <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Address change denied on shipped order, caller escalates <span class="chip">address change</span><span class="chip">denial</span><span class="chip">escalation</span><span class="chip">hard line</span><span class="chip">impatient</span><span class="chip">generated</span></span>
-      <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
-      <span class="cnt"><b class="p">3/3</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill green" title="full-3">3/3</a> <a href="index.html" class="pill green" title="full-4">3/3</a> </span>
-    </summary>
-    <div class="sbody">
-      <div class="cols4" style="margin:8px 0 10px">
-        <div><div class="h">Persona</div><b>Priya Natarajan</b><div class="muted">impatient · en-GB</div></div>
-        <div><div class="h">Goal</div>Change the shipping address on order GW-48377, but escalate when told it is too late.</div>
-        <div><div class="h">Conditions</div><span class="chip">noise street@10dB</span><span class="chip">phone line</span><span class="chip">packet loss 1%</span></div>
-        <div><div class="h">Expected</div><span class="chip">escalated</span><div class="muted mono" style="margin-top:3px">lookup_order → escalate_to_human</div></div>
-      </div>
-      <div class="small"><a href="session-da8e474dc8e5.html">Open session →</a> · <span class="mono muted">da8e474dc8e5</span></div>
-    </div>
-  </details>
+<h1>Session set <span class="pill grey mono" style="font-size:14px;vertical-align:middle">set-4d233ef8</span></h1>
+<p class="meta"><span>15 session files, hashed into this tag</span><i>·</i><span>used by 2 runs</span><i>·</i><span>the active set today is <a href="sessions.html">set-f48addf3</a></span></p>
+<div class="two">
+<div>
+<h2>Sessions in this set</h2>
+<div class="tablewrap"><table id="set-sessions">
+<tr><th>session</th><th>areas</th><th>status today</th></tr>
+<tr><td><a href="session-915dd5186fa8.html">Address change over a narrow phone line, calm British caller</a><div class="mono muted">915dd5186fa8</div></td><td><span class="chip">address change</span><span class="chip">hard line</span></td><td><span class="pill green">active</span></td></tr>
+<tr><td><a href="session-97338e726973.html">Change the shipping address on an order that is still processing</a><div class="mono muted">97338e726973</div></td><td><span class="chip">address change</span></td><td><span class="pill green">active</span></td></tr>
+<tr><td><a href="session-ff2985a2b7ab.html">Address change on an order that already shipped, caller asks for a person</a><div class="mono muted">ff2985a2b7ab</div></td><td><span class="chip">address change</span><span class="chip">denial</span><span class="chip">escalation</span><span class="chip">hard line</span><span class="chip">impatient</span></td><td><span class="pill green">active</span></td></tr>
+<tr><td><a href="session-2e729ea48f97.html">Refund request on an order that was already refunded</a><div class="mono muted">2e729ea48f97</div></td><td><span class="chip">refund</span><span class="chip">denial</span></td><td><span class="pill green">active</span></td></tr>
+<tr><td><a href="session-cf6cec4de0e0.html">Refund where the order system returns a 500 on the first attempt</a><div class="mono muted">cf6cec4de0e0</div></td><td><span class="chip">refund</span><span class="chip">fault handling</span></td><td><span class="pill green">active</span></td></tr>
+<tr><td><a href="session-7c994c348001.html">Refund for a broken blender, clean line</a><div class="mono muted">7c994c348001</div></td><td><span class="chip">refund</span></td><td><span class="pill green">active</span></td></tr>
+<tr><td><a href="session-a8d032bb2a4c.html">Refund from a fast, impatient caller walking down a busy street</a><div class="mono muted">a8d032bb2a4c</div></td><td><span class="chip">refund</span><span class="chip">hard line</span><span class="chip">impatient</span></td><td><span class="pill green">active</span></td></tr>
+<tr><td><a href="session-fee306a7275b.html">Refund from an impatient caller who keeps interrupting the agent</a><div class="mono muted">fee306a7275b</div></td><td><span class="chip">refund</span><span class="chip">interruptions</span><span class="chip">impatient</span></td><td><span class="pill green">active</span></td></tr>
+<tr><td><a href="session-ef113fc07616.html">Refund for a broken blender, impatient caller in a cafe over a phone line</a><div class="mono muted">ef113fc07616</div></td><td><span class="chip">refund</span><span class="chip">hard line</span><span class="chip">impatient</span></td><td><span class="pill green">active</span></td></tr>
+<tr><td><a href="session-36ae7c490d4a.html">Caller asks for more than the order total, should settle on the full amount</a><div class="mono muted">36ae7c490d4a</div></td><td><span class="chip">refund</span></td><td><span class="pill green">active</span></td></tr>
+<tr><td><a href="session-c1de86f32b16.html">Partial refund of $40, older caller speaking slowly on a poor microphone</a><div class="mono muted">c1de86f32b16</div></td><td><span class="chip">refund</span><span class="chip">hard line</span></td><td><span class="pill green">active</span></td></tr>
+<tr><td><a href="session-608471aea60f.html">Caller demands a human from the first sentence</a><div class="mono muted">608471aea60f</div></td><td><span class="chip">escalation</span><span class="chip">impatient</span></td><td><span class="pill green">active</span></td></tr>
+<tr><td><a href="session-da8e474dc8e5.html">Address change denied on shipped order, caller escalates</a><div class="mono muted">da8e474dc8e5</div></td><td><span class="chip">address change</span><span class="chip">denial</span><span class="chip">escalation</span><span class="chip">hard line</span><span class="chip">impatient</span></td><td><span class="pill green">active</span></td></tr>
+<tr><td><a href="session-ed0bca0e0d0d.html">Refund request fails first attempt due to backend error, then succeeds</a><div class="mono muted">ed0bca0e0d0d</div></td><td><span class="chip">refund</span><span class="chip">fault handling</span></td><td><span class="pill grey">retired</span></td></tr>
+<tr><td><a href="session-a0e4e5e8d324.html">Refund request on already refunded order, agent denies refund</a><div class="mono muted">a0e4e5e8d324</div></td><td><span class="chip">refund</span><span class="chip">denial</span></td><td><span class="pill grey">retired</span></td></tr>
+</table></div>
+<p class="small muted">Two runs are like-for-like only when the environment tag and this set tag both match. Adding, removing or editing a session file changes the set tag; suites do not.</p>
 </div>
-<details style="margin-top:12px"><summary>Retired sessions (2) · kept so earlier runs still open, never run again</summary>
-<ul class="list small"><li><a href="session-ed0bca0e0d0d.html">Refund request fails first attempt due to backend error, then succeeds</a> <span class="mono muted">ed0bca0e0d0d</span></li><li><a href="session-a0e4e5e8d324.html">Refund request on already refunded order, agent denies refund</a> <span class="mono muted">a0e4e5e8d324</span></li></ul>
-</details>
-<p class="small muted" style="margin-top:12px">To add a session: use "New session" above, or copy a file in <code>sessions/</code>, edit it and run <code>gf sessions</code> to validate. Editing an existing file changes its id, so results stay tied to the exact definition they were produced with.</p>
+<div>
+<h2>Runs that used it</h2>
+<div class="tablewrap"><table>
+<tr><th>run</th><th>started</th><th>passed</th><th>environment</th></tr>
+<tr><td><a href="index.html">full-4</a></td><td class="small">2026-10-09 00:30 UTC</td><td>37/43</td><td><a class="pill indigo mono" href="environments.html#env-cc3bc997">env-cc3bc997</a></td></tr><tr><td><a href="index.html">full-3</a></td><td class="small">2026-10-08 23:37 UTC</td><td>36/44</td><td><a class="pill indigo mono" href="environments.html#env-cc3bc997">env-cc3bc997</a></td></tr></table></div>
+</div>
+</div>
 <footer>gatewayfutures 0.1.0 · static report generated 2026-10-09 01:34 UTC</footer>
 </main>
 </div>

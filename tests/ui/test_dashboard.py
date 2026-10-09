@@ -184,6 +184,13 @@ def test_navigation_and_header(site, page):
     page.select_option("#run-select", "t1")
     page.wait_for_url("**/?run=t1")
     assert "t1" in page.locator(".meta").first.inner_text()
+    # the set tag opens the session-set page
+    page.goto(site["base"] + "/runs/t1")
+    page.click(".meta a.pill.grey")
+    assert (
+        urlparse(page.url).path.startswith("/sets/set-")
+        and page.locator("#set-sessions").is_visible()
+    )
     # header buttons
     page.click("#btn-new-session")
     assert urlparse(page.url).path == "/sessions/new"

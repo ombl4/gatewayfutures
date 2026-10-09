@@ -1,6 +1,6 @@
 {# Shared pieces of the overview and the run page (spec T6.12 / T6.13). Context: r = run report. #}
 {% macro tags(t) %}
-{% if t and t.env_tag %}<a class="pill indigo mono" href="{{ links.environments() }}#{{ t.env_tag }}" title="environment: agent config, models, engine, scoring, library versions">{{ t.env_tag }}</a>{% endif %}{% if t and t.set_tag %} <span class="pill grey mono" title="session set: the session files run">{{ t.set_tag }}</span>{% endif %}
+{% if t and t.env_tag %}<a class="pill indigo mono" href="{{ links.environments() }}#{{ t.env_tag }}" title="environment: agent config, models, engine, scoring, library versions">{{ t.env_tag }}</a>{% endif %}{% if t and t.set_tag %} <a class="pill grey mono" href="{{ links.session_set(t.set_tag) }}" title="session set: the session files run; click to see them">{{ t.set_tag }}</a>{% endif %}
 {% endmacro %}
 
 {% macro replay(run_id, a, title=None) %}

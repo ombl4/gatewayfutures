@@ -16,7 +16,7 @@
     <td>{{ r.flaky if r.scored else '' }}</td>
     <td>{{ r.p95_ms|ms if r.scored else '' }}</td>
     <td>{% if r.env_tag %}<a class="pill indigo mono" href="{{ links.environments() }}#{{ r.env_tag }}">{{ r.env_tag }}</a>{% endif %}</td>
-    <td>{% if r.set_tag %}<span class="pill grey mono">{{ r.set_tag }}</span>{% endif %}</td>
+    <td>{% if r.set_tag %}<a class="pill grey mono" href="{{ links.session_set(r.set_tag) }}">{{ r.set_tag }}</a>{% endif %}</td>
   </tr>
   {% endfor %}
 </table></div>

@@ -187,6 +187,14 @@ def scoring():
     )
 
 
+@app.get("/sets/{set_tag}", response_class=HTMLResponse)
+def session_set(set_tag: str):
+    data = model.set_page(set_tag)
+    if data is None:
+        raise HTTPException(404, f"no run used session set {set_tag}")
+    return page("set.html", p=data)
+
+
 @app.get("/environments", response_class=HTMLResponse)
 def environments():
     return page("environments.html", e=model.environments_page())

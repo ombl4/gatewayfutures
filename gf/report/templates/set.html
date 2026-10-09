@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% set page='sessions' %}
+{% block title %}Session set {{ p.set_tag }} · Call simulator{% endblock %}
+{% block crumbs %}<a href="{{ links.sessions() }}">Practice sessions</a><i>›</i><b>set {{ p.set_tag }}</b>{% endblock %}
+{% block content %}
+<h1>Session set <span class="pill grey mono" style="font-size:14px;vertical-align:middle">{{ p.set_tag }}</span></h1>
+<p class="meta"><span>{{ p.sessions|length }} session files, hashed into this tag</span><i>·</i><span>used by {{ p.runs|length }} run{{ '' if p.runs|length == 1 else 's' }}</span><i>·</i><span>{% if p.is_current %}this is the current active set{% else %}the active set today is <a href="{{ links.sessions() }}">{{ p.current_tag }}</a>{% endif %}</span></p>
+<div class="two">
+<div>
+<h2>Sessions in this set</h2>
+<div class="tablewrap"><table id="set-sessions">
+<tr><th>session</th><th>areas</th><th>status today</th></tr>
+{% for s in p.sessions %}
+<tr><td><a href="{{ links.session(s.id) }}">{{ s.title }}</a><div class="mono muted">{{ s.id }}</div></td><td>{% for a in s.areas %}<span class="chip">{{ a }}</span>{% endfor %}</td><td><span class="pill {{ {'active':'green','retired':'grey','missing':'red'}[s.status] }}">{{ s.status }}</span></td></tr>
+{% endfor %}
+</table></div>
+<p class="small muted">Two runs are like-for-like only when the environment tag and this set tag both match. Adding, removing or editing a session file changes the set tag; suites do not.</p>
+</div>
+<div>
+<h2>Runs that used it</h2>
+<div class="tablewrap"><table>
+<tr><th>run</th><th>started</th><th>passed</th><th>environment</th></tr>
+{% for r in p.runs %}<tr><td><a href="{{ links.run(r.run_id) }}">{{ r.run_id }}</a></td><td class="small">{{ r.started_at|dt }}</td><td>{% if r.scored %}{{ r.passed }}/{{ r.n }}{% endif %}</td><td>{% if r.env_tag %}<a class="pill indigo mono" href="{{ links.environments() }}#{{ r.env_tag }}">{{ r.env_tag }}</a>{% endif %}</td></tr>{% endfor %}
+</table></div>
+</div>
+</div>
+{% endblock %}

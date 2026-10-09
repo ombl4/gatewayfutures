@@ -72,6 +72,9 @@ def render_run(run_id: str, out: Path | None = None, *, bundle_audio: bool = Fal
     (out / "scoring.html").write_text(
         render("scoring.html", links, s=model.scoring_page(), **common)
     )
+    st = model.set_page(r["tags"]["set_tag"]) if r.get("tags", {}).get("set_tag") else None
+    if st:
+        (out / f"set-{st['set_tag']}.html").write_text(render("set.html", links, p=st, **common))
     (out / "environments.html").write_text(
         render("environments.html", links, e=model.environments_page(), **common)
     )

@@ -116,7 +116,7 @@ textarea.input{font-family:var(--mono);font-size:12px;line-height:1.45}
 .kpi .ic{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;grid-column:1;grid-row:1/4}
 .kpi .ic svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .kpi.green .ic{background:var(--green-bg);color:var(--green)}.kpi.amber .ic{background:var(--amber-bg);color:var(--amber)}.kpi.red .ic{background:var(--red-bg);color:var(--red)}.kpi.grey .ic{background:var(--grey-bg);color:var(--grey)}
-.kpi .k{grid-column:2;grid-row:1;font-size:12.5px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi .k{grid-column:2;grid-row:1;font-size:12.5px;color:var(--muted);font-weight:600;line-height:1.25}
 .kpi .v{grid-column:2;grid-row:2;font-size:26px;font-weight:700;line-height:1.2;letter-spacing:-.01em;margin:2px 0}
 .kpi .d{grid-column:2;grid-row:3;font-size:11.5px;color:var(--muted);line-height:1.35}
 .kpi .trend{grid-column:3;grid-row:1/4;font-size:11px;color:var(--muted);align-self:center;text-align:center;line-height:1.3}
@@ -289,7 +289,7 @@ details.srow summary .ttl .chip{font-weight:400}
   <a class="row" href="agent.html#models"><span>Model</span><span>gpt-4.1-mini</span></a>
   <a class="row" href="backend.html"><span>Order system</span><span>mock</span></a>
   <a class="row" href="caller.html"><span>Simulated caller</span><span>gf-caller</span></a>
-  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-09 01:30 UTC</div>
+  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-09 01:34 UTC</div>
 </aside>
 <div class="wrap">
 <header class="top">
@@ -302,7 +302,7 @@ details.srow summary .ttl .chip{font-weight:400}
 <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
 <h1>Run full-4</h1>
 </div>
-<p class="meta"><span>2026-10-09 00:30 UTC</span><i>·</i><span>15 sessions × 3</span><i>·</i><span>45 calls (43 valid, 2 invalid) in 17.0 min</span><i>·</i><span>compared with <a href="index.html">full-3</a></span><i>·</i><span><a class="pill indigo mono" href="environments.html#env-cc3bc997" title="environment: agent config, models, engine, scoring, library versions">env-cc3bc997</a> <span class="pill grey mono" title="session set: the session files run">set-4d233ef8</span></span></p>
+<p class="meta"><span>2026-10-09 00:30 UTC</span><i>·</i><span>15 sessions × 3</span><i>·</i><span>45 calls (43 valid, 2 invalid) in 17.0 min</span><i>·</i><span>compared with <a href="index.html">full-3</a></span><i>·</i><span><a class="pill indigo mono" href="environments.html#env-cc3bc997" title="environment: agent config, models, engine, scoring, library versions">env-cc3bc997</a> <a class="pill grey mono" href="set-set-4d233ef8.html" title="session set: the session files run; click to see them">set-4d233ef8</a></span></p>
 
 
 <div class="kpis" id="kpis">
@@ -905,32 +905,23 @@ details.srow summary .ttl .chip{font-weight:400}
 </div>
 
   <div id="issues">
-  <div style="display:flex;justify-content:space-between;align-items:baseline;margin:0 0 8px"><h3 style="margin:0">Issues to investigate <span class="muted" style="font-weight:500">(31)</span></h3><a class="small" href="index.html#every-call">View all</a></div>
+  <div style="display:flex;justify-content:space-between;align-items:baseline;margin:0 0 8px"><h3 style="margin:0">Issues to investigate <span class="muted" style="font-weight:500">(5)</span></h3></div>
   <div class="issues">
     <a class="issue high" href="call-a0e4e5e8d324-1.html#t=36730" data-issue="a0e4e5e8d324/1" data-t="36730">
-      <div class="t"><span>Refunds[GW-48911].amount == 15.00 does not hold: the backend has None…</span><span class="sev high">high</span></div>
-      <div class="m">Refund request on already refunded order, agent denies refund · attempt 1 · at <span class="mono">0:36</span> · <span class="pill grey" title="Generated final-state assertion is impossible: it expects refunds[GW-48911].amount for a refund that predates the call; the fixture records that as orders[GW-48911].refunded. The agent behaved correctly (lookup only, refund denied). Replaced by refund-already-refunded-declined (asserts refunds[GW-48911] not exists and orders[GW-48911].refunded == true).">retired session</span></div>
-    </a>
-    <a class="issue high" href="call-a0e4e5e8d324-2.html#t=35705" data-issue="a0e4e5e8d324/2" data-t="35705">
-      <div class="t"><span>Refunds[GW-48911].amount == 15.00 does not hold: the backend has None…</span><span class="sev high">high</span></div>
-      <div class="m">Refund request on already refunded order, agent denies refund · attempt 2 · at <span class="mono">0:35</span> · <span class="pill grey" title="Generated final-state assertion is impossible: it expects refunds[GW-48911].amount for a refund that predates the call; the fixture records that as orders[GW-48911].refunded. The agent behaved correctly (lookup only, refund denied). Replaced by refund-already-refunded-declined (asserts refunds[GW-48911] not exists and orders[GW-48911].refunded == true).">retired session</span></div>
-    </a>
-    <a class="issue high" href="call-a0e4e5e8d324-3.html#t=35280" data-issue="a0e4e5e8d324/3" data-t="35280">
-      <div class="t"><span>Refunds[GW-48911].amount == 15.00 does not hold: the backend has None…</span><span class="sev high">high</span></div>
-      <div class="m">Refund request on already refunded order, agent denies refund · attempt 3 · at <span class="mono">0:35</span> · <span class="pill grey" title="Generated final-state assertion is impossible: it expects refunds[GW-48911].amount for a refund that predates the call; the fixture records that as orders[GW-48911].refunded. The agent behaved correctly (lookup only, refund denied). Replaced by refund-already-refunded-declined (asserts refunds[GW-48911] not exists and orders[GW-48911].refunded == true).">retired session</span></div>
-    </a>
+      <div class="t"><span>refunds[GW-48911].amount == 15.00 does not hold: the backend has None…</span><span class="sev high">high</span></div>
+<div class="m">Refund request on already refunded order, agent denies refund · attempts 1, 3, 2 · at <span class="mono">0:36</span> · <span class="pill grey" title="Generated final-state assertion is impossible: it expects refunds[GW-48911].amount for a refund that predates the call; the fixture records that as orders[GW-48911].refunded. The agent behaved correctly (lookup only, refund denied). Replaced by refund-already-refunded-declined (asserts refunds[GW-48911] not exists and orders[GW-48911].refunded == true).">retired session</span></div>    </a>
     <a class="issue high" href="call-ed0bca0e0d0d-1.html#t=42896" data-issue="ed0bca0e0d0d/1" data-t="42896">
       <div class="t"><span>issue_refund was called but not as expected: it returned HTTP 500…</span><span class="sev high">high</span></div>
-      <div class="m">Refund request fails first attempt due to backend error, then succeeds · attempt 1 · at <span class="mono">0:42</span> · <span class="pill grey" title="Generated expectation contradicts the agent&#39;s policy: it demands a second issue_refund after the session&#39;s own injected 500 and forbids escalation, but the agent is specified to report a failed write truthfully and offer escalation, which it did. Replaced by refund-backend-error-retry (expects the retry the policy prescribes; the agent&#39;s instructions now make that retry explicit).">retired session</span></div>
-    </a>
-    <a class="issue high" href="call-ed0bca0e0d0d-2.html#t=47101" data-issue="ed0bca0e0d0d/2" data-t="47101">
-      <div class="t"><span>issue_refund was called but not as expected: it returned HTTP 500…</span><span class="sev high">high</span></div>
-      <div class="m">Refund request fails first attempt due to backend error, then succeeds · attempt 2 · at <span class="mono">0:47</span> · <span class="pill grey" title="Generated expectation contradicts the agent&#39;s policy: it demands a second issue_refund after the session&#39;s own injected 500 and forbids escalation, but the agent is specified to report a failed write truthfully and offer escalation, which it did. Replaced by refund-backend-error-retry (expects the retry the policy prescribes; the agent&#39;s instructions now make that retry explicit).">retired session</span></div>
-    </a>
-    <a class="issue high" href="call-ed0bca0e0d0d-3.html#t=123110" data-issue="ed0bca0e0d0d/3" data-t="123110">
-      <div class="t"><span>issue_refund was called but not as expected: it returned HTTP 500…</span><span class="sev high">high</span></div>
-      <div class="m">Refund request fails first attempt due to backend error, then succeeds · attempt 3 · at <span class="mono">2:03</span> · <span class="pill grey" title="Generated expectation contradicts the agent&#39;s policy: it demands a second issue_refund after the session&#39;s own injected 500 and forbids escalation, but the agent is specified to report a failed write truthfully and offer escalation, which it did. Replaced by refund-backend-error-retry (expects the retry the policy prescribes; the agent&#39;s instructions now make that retry explicit).">retired session</span></div>
-    </a>
+<div class="m">Refund request fails first attempt due to backend error, then succeeds · attempts 1, 2, 3 · at <span class="mono">0:42</span> · <span class="pill grey" title="Generated expectation contradicts the agent&#39;s policy: it demands a second issue_refund after the session&#39;s own injected 500 and forbids escalation, but the agent is specified to report a failed write truthfully and offer escalation, which it did. Replaced by refund-backend-error-retry (expects the retry the policy prescribes; the agent&#39;s instructions now make that retry explicit).">retired session</span></div>    </a>
+    <a class="issue simulation" href="call-2e729ea48f97-1.html#t=14260" data-issue="2e729ea48f97/1" data-t="14260">
+      <div class="t"><span>Turn 3: spoke a 5-digit number not in its facts (94011)</span><span class="sev simulation">invalid sim</span></div>
+<div class="m">Refund request on an order that was already refunded · attempt 1 · at <span class="mono">0:14</span></div>    </a>
+    <a class="issue simulation" href="call-97338e726973-1.html#t=70065" data-issue="97338e726973/1" data-t="70065">
+      <div class="t"><span>Simulator misheard the agent: agent said boston in turn 5, the caller…</span><span class="sev simulation">invalid sim</span></div>
+<div class="m">Change the shipping address on an order that is still processing · attempt 1 · at <span class="mono">1:10</span></div>    </a>
+    <a class="issue medium" href="call-915dd5186fa8-3.html#t=12160" data-issue="915dd5186fa8/3" data-t="12160">
+      <div class="t"><span>23 calls passed with flags</span><span class="sev medium">flagged</span></div>
+<div class="m">dead air ×12, stutter ×10, slow replies ×8, caller had to repeat ×6, a real caller would hang up ×4, a key fact was misheard ×3, misheard value reached a tool ×2, malformed tool arguments ×1 · none of these fail a call; the first is opened below</div>    </a>
   </div>
 </div>
 
@@ -2138,7 +2129,7 @@ refunds[GW-48911].amount == 15.00 does not hold: the backend has None (no such r
 
 <details><summary>Reproducibility: what this run was produced with</summary>
 <div class="kv small" style="margin-top:8px">
-  <span class="k">tags</span><span><a class="pill indigo mono" href="environments.html#env-cc3bc997" title="environment: agent config, models, engine, scoring, library versions">env-cc3bc997</a> <span class="pill grey mono" title="session set: the session files run">set-4d233ef8</span> <span class="muted">env = agent config + variant, models, engine, scoring method, library and Python versions · set = session files</span> · <a href="environments.html">environments</a></span>
+  <span class="k">tags</span><span><a class="pill indigo mono" href="environments.html#env-cc3bc997" title="environment: agent config, models, engine, scoring, library versions">env-cc3bc997</a> <a class="pill grey mono" href="set-set-4d233ef8.html" title="session set: the session files run; click to see them">set-4d233ef8</a> <span class="muted">env = agent config + variant, models, engine, scoring method, library and Python versions · set = session files</span> · <a href="environments.html">environments</a></span>
   <span class="k">stamp</span><span class="mono">a7c6a425319d+4d233ef82a00+score-v1+claims-regex-v1+th-73c54200 <span class="muted">= agent config hash + session set hash + scoring method (incl. thresholds)</span></span>
   <span class="k">agent config</span><span class="mono">a7c6a425319d</span>
   <span class="k">session set</span><span class="mono">4d233ef82a00 (15 sessions, each id = hash of its file)</span>
@@ -2147,7 +2138,7 @@ refunds[GW-48911].amount == 15.00 does not hold: the backend has None (no such r
 <span class="k">gf</span><span class="mono">0.1.0</span><span class="k">git_commit</span><span class="mono">bc750e1</span><span class="k">git_dirty</span><span class="mono">True</span><span class="k">python</span><span class="mono">3.12.15</span><span class="k">platform</span><span class="mono">macOS-26.6-arm64-arm-64bit</span><span class="k">livekit-agents</span><span class="mono">1.8.5</span><span class="k">livekit-plugins-deepgram</span><span class="mono">1.8.5</span><span class="k">livekit-plugins-openai</span><span class="mono">1.8.5</span><span class="k">livekit-plugins-silero</span><span class="mono">1.8.5</span><span class="k">livekit-plugins-turn-detector</span><span class="mono">1.8.5</span><span class="k">livekit-plugins-noise-cancellation</span><span class="mono">0.3.2</span><span class="k">openai</span><span class="mono">2.54.0</span><span class="k">jiwer</span><span class="mono">4.0.0</span></div>
 <p class="small muted" style="margin:8px 0 0">The agent's own LLM and the live speech services are the only sources of variation, by design: the agent is the thing under test. Repeats and confidence intervals account for that.</p>
 </details>
-<footer>gatewayfutures 0.1.0 · static report generated 2026-10-09 01:30 UTC</footer>
+<footer>gatewayfutures 0.1.0 · static report generated 2026-10-09 01:34 UTC</footer>
 </main>
 </div>
 <div id="player"><span class="lbl"></span><audio controls preload="none"></audio><button class="btn sm" onclick="gfPlayer.close()">✕</button></div>

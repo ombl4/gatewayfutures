@@ -20,7 +20,7 @@
     </div>
     <div class="tablewrap"><table class="small">
       <tr><th>run</th><th>session set</th><th>started</th></tr>
-      {% for r in e.runs %}<tr><td><a href="{{ links.run(r.run_id) }}">{{ r.run_id }}</a></td><td class="mono">{{ r.set_tag }}</td><td>{{ r.started_at|dt }}</td></tr>{% endfor %}
+      {% for r in e.runs %}<tr><td><a href="{{ links.run(r.run_id) }}">{{ r.run_id }}</a></td><td><a class="pill grey mono" href="{{ links.session_set(r.set_tag) }}">{{ r.set_tag }}</a></td><td>{{ r.started_at|dt }}</td></tr>{% endfor %}
     </table></div>
   </div>
 </div>

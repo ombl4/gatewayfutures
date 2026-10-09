@@ -156,6 +156,17 @@ def test_run_page_content(env):
         "/sessions/7c994c348001/suite", data={"suite": "regression", "action": "remove"}
     )
     assert env["client"].post("/sessions/zzz/suite", data={"suite": "x"}).status_code == 404
+    from gf.environment import set_tag
+
+    tag = set_tag(["7c994c348001", "ef113fc07616"])
+    setp = env["client"].get(f"/sets/{tag}").text
+    assert (
+        'id="set-sessions"' in setp
+        and "Refund for a broken blender, clean line" in setp
+        and "t1" in setp
+    )
+    assert env["client"].get("/sets/set-00000000").status_code == 404
+    assert f'href="/sets/{tag}"' in r
     envs = env["client"].get("/environments").text
     assert "Environments" in envs and "t1" in envs  # untagged fixture run is listed as such
     assert "set-" in r  # the run page carries the session-set tag even for untagged runs

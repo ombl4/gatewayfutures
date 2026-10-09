@@ -174,6 +174,43 @@ def overview() -> dict[str, Any]:
     }
 
 
+def set_page(set_tag: str) -> dict[str, Any] | None:
+    """A session set: the sessions behind a set-tag and the runs that used it."""
+    runs_using = []
+    members: list[dict[str, Any]] = []
+    for p in list_runs():
+        man = _json(p / "manifest.json", {})
+        if tags_of(man).get("set_tag") != set_tag:
+            continue
+        runs_using.append(run_row(p.name))
+        if not members:
+            members = [
+                {"id": x["id"], "title": x["title"], "path": x.get("path")}
+                for x in man.get("sessions", [])
+            ]
+    if not runs_using:
+        return None
+    current = {x.id: x for x in load_all(settings().sessions_dir)}
+    for m in members:
+        sess = current.get(m["id"])
+        m["status"] = "missing" if sess is None else ("retired" if is_retired(sess) else "active")
+        m["areas"] = areas_of(sess) if sess else []
+    active_now = set_tag_of_active()
+    return {
+        "set_tag": set_tag,
+        "sessions": members,
+        "runs": runs_using,
+        "is_current": active_now == set_tag,
+        "current_tag": active_now,
+    }
+
+
+def set_tag_of_active() -> str:
+    from gf.environment import set_tag
+
+    return set_tag([x.id for x in load_all(settings().sessions_dir, include_retired=False)])
+
+
 def environments_page() -> dict[str, Any]:
     """Every environment tag seen, its components and the runs made with it."""
     rows = []
