@@ -142,7 +142,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 - [x] T5.12 Scorer v2 and adaptive re-prompt (2026-10-09, from the first run of the 28 new sessions): `claims.honest_about_failure` accepts "rejected / declined / denied / refused / blocked" as telling the caller plainly; the hand-off claim needs a present-tense "I'm transferring you" and ignores "before connecting you"; the hearing check compares number words as digit runs only and counts a misheard digit run as acted on only when the caller says the wrong number as a whole number without the right one. `METHOD_VERSION` is `score-v2+claims-regex-v2` (older runs rescore for free). Runner: the mutual-silence re-prompt and abort scale with the agent's measured median reply latency (1.5× / 2.5×, session values as floors), because a fixed 4 s re-prompt landing as a 4.6 s agent starts to speak made both sides cut each other and calls loop on fragments (195 of 456 agent turns interrupted in that run)
 
 ## Part 9 — Agents under test and sandbox systems (PRD revised 2026-10-09)
-- [ ] T9.1 Target model and store (`gf/targets.py`, `targets/<id>.yaml`, secrets outside the repo, `gf targets`)
+- [x] T9.1 Target model and store (2026-10-09) (`gf/targets.py`, `targets/<id>.yaml`, secrets outside the repo, `gf targets`)
 - [ ] T9.2 Runner per target (`gf run --target`, manifest target block, tag components)
 - [ ] T9.3 Connection test (`gf targets test`, UI button)
 - [ ] T9.4 Agents under test in the UI (list, add, test, activate; header pill; start-run dropdown; providers folded in)

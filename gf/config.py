@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     backend_url: str = "http://localhost:8080"
     runs_dir: Path = ROOT / "runs"
     sessions_dir: Path = ROOT / "sessions"
+    targets_dir: Path = ROOT / "targets"
 
     agent_name: str = "gf-support-agent"
     caller_name: str = "gf-sim-caller"
@@ -61,7 +62,7 @@ def settings() -> Settings:
     # the UI's child processes can point at other folders after import.
     overrides = {
         k: os.environ[k.upper()]
-        for k in ("runs_dir", "sessions_dir", "backend_url")
+        for k in ("runs_dir", "sessions_dir", "targets_dir", "backend_url")
         if os.environ.get(k.upper())
     }
     return Settings(**overrides)

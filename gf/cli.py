@@ -510,6 +510,81 @@ def sessions_suites() -> None:
 runs_app = typer.Typer(help="Manage run folders.", no_args_is_help=True)
 app.add_typer(runs_app, name="runs")
 
+targets_app = typer.Typer(help="Agents under test (spec Part 9).", no_args_is_help=True)
+app.add_typer(targets_app, name="targets")
+
+
+@targets_app.command("list")
+def targets_list() -> None:
+    """The registered agents under test; the active one is marked."""
+    from gf import targets
+
+    act = targets.active_id()
+    for t in targets.load_all():
+        r = t.redacted()
+        mark = "*" if t.id == act else " "
+        typer.echo(
+            f"{mark} {t.id:<16} {t.kind:<8} {r['server_host'] or '(no url)':<32} "
+            f"agent={t.agent_name:<20} version={r['version_label']} "
+            f"secrets={'yes' if r['has_secrets'] else 'MISSING'}  {t.name}"
+        )
+
+
+@targets_app.command("show")
+def targets_show(target_id: str) -> None:
+    """One target's record (never its secrets)."""
+    import json as _json
+
+    from gf import targets
+
+    typer.echo(_json.dumps(targets.load(target_id).redacted(), indent=2))
+
+
+@targets_app.command("add")
+def targets_add(
+    target_id: str,
+    name: str = typer.Option(..., help="how the UI names this agent"),
+    url: str = typer.Option(..., help="LiveKit server URL (wss://...)"),
+    agent_name: str = typer.Option(..., help="agent name to dispatch"),
+    api_key: str = typer.Option(..., prompt=True, hide_input=True),
+    api_secret: str = typer.Option(..., prompt=True, hide_input=True),
+    version: str = typer.Option("", help="a version label the owner maintains"),
+    notes: str = typer.Option(""),
+) -> None:
+    """Register a LiveKit agent under test; secrets go to targets/secrets.yaml."""
+    from gf import targets
+
+    t = targets.Target(
+        id=target_id, name=name, server_url=url, agent_name=agent_name, version=version, notes=notes
+    )
+    p = targets.save(t, api_key=api_key, api_secret=api_secret)
+    typer.echo(f"registered {target_id} -> {p} (secrets in {p.parent / 'secrets.yaml'})")
+
+
+@targets_app.command("remove")
+def targets_remove(target_id: str) -> None:
+    from gf import targets
+
+    try:
+        targets.remove(target_id)
+    except ValueError as e:
+        typer.echo(f"error: {e}")
+        raise typer.Exit(1) from None
+    typer.echo(f"removed {target_id}")
+
+
+@targets_app.command("use")
+def targets_use(target_id: str) -> None:
+    """Make a target the active one (what runs and the header use by default)."""
+    from gf import targets
+
+    try:
+        targets.set_active(target_id)
+    except FileNotFoundError as e:
+        typer.echo(f"error: {e}")
+        raise typer.Exit(1) from None
+    typer.echo(f"active target: {target_id}")
+
 
 @runs_app.command("rename")
 def runs_rename(old: str, new: str) -> None:

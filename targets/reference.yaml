@@ -1,0 +1,16 @@
+# The reference agent: the support line in this repository, registered as the first agent
+# under test. Its LiveKit credentials come from the repository's own .env (LIVEKIT_*).
+id: reference
+name: Gateway Goods support line (reference agent)
+kind: livekit
+server_url: ""
+agent_name: gf-support-agent
+metadata_template:
+  call_id: "{call_id}"
+  record_dir: "{record_dir}"
+  agent_variant: "{agent_variant}"
+  sandbox_url: "{sandbox_url}"
+version: ""
+notes: Runs from gf/agent/config.yaml; its version is that file's hash. Negative controls run against it.
+secrets_from: livekit_env
+reference: true
