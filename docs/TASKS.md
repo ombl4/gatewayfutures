@@ -115,6 +115,8 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 - [~] Gate 6 — pages verified in headless Chrome; human review pending
 - Scoring fixes found while building the report (2026-10-08): digit groups in the in-character check are read per numeric phrase (was merging "$89.99 … GW-48213" into a fake 5-digit number → 4 false invalids); "already refunded" is prior state, not a claim (2 false fails); the "key fact misheard" flag only checks numeric facts the caller spoke as digits (was firing on every call). `full-1` after the fixes: 20/22, 0 invalid, 2 real failures
 
+- [x] T7.5 Persona library (2026-10-09) — `personas/*.yaml`, 12 in three even groups (`standard`, `hard-line`, `difficult`); `caller.persona_ref` fills unset fields and is covered by the content hash (existing ids unchanged, tested); `gf run --persona a,b` / `--persona-group g|all` derives session × persona variants with their own ids under `runs/<id>/sessions/`; run page grid with per-persona totals; picker in the start-run form; `gf personas`; 3 unit tests. Not yet run on real calls
+
 ## Part 8 — Second engine: LiveKit's own simulator
 - [x] T8.1 `gf import-simulate` — export JSON → run folder (records from the worker's own events + backend log, timeline from message timestamps), LiveKit verdict + metrics on the run and call pages; engine-aware scoring (recording-based checks "not measured"); fixture `fixtures/livekit/export-audio.json` + 2 tests
 - [x] T8.2 `gf sessions export-simulate` — sessions → `--scenarios` YAML (label = session title so imports map back); tested

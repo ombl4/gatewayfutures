@@ -169,6 +169,12 @@ def run(
     max_cost: float = typer.Option(
         0.0, "--max-cost", help="USD budget for this run (default: GF_MAX_COST_USD, else 10)."
     ),
+    persona: str = typer.Option(
+        "", help="Comma-separated persona names: run each session once per persona (matrix)."
+    ),
+    persona_group: str = typer.Option(
+        "", "--persona-group", help="A persona group (standard, hard-line, difficult, or all)."
+    ),
 ) -> None:
     """Run sessions N times each, concurrently, into runs/<run_id>/ with a manifest."""
     import asyncio
@@ -189,6 +195,15 @@ def run(
         logging.getLogger(noisy).setLevel(logging.WARNING)
     if not sessions and not all_sessions:
         raise typer.BadParameter("give session paths or --all")
+    personas = [x.strip() for x in persona.split(",") if x.strip()]
+    if persona_group:
+        from gf.sessions.personas import GROUPS, in_group
+
+        groups = list(GROUPS) if persona_group == "all" else [persona_group]
+        try:
+            personas += [n for g in groups for n in in_group(g)]
+        except ValueError as e:
+            raise typer.BadParameter(str(e)) from None
     manifest = asyncio.run(
         run_batch(
             sessions or [],
@@ -200,6 +215,7 @@ def run(
             suite=suite or None,
             parent_run=parent or None,
             max_cost_usd=max_cost or None,
+            personas=personas or None,
         )
     )
     typer.echo(
@@ -301,6 +317,31 @@ def gate(
         f"{verdict['invalid']} invalid · ${verdict['cost_usd']:.2f}"
     )
     raise typer.Exit(code=0 if verdict["ok"] else 1)
+
+
+@app.command()
+def personas() -> None:
+    """List the persona library by group (personas/*.yaml)."""
+    from gf.sessions.personas import groups
+
+    for group, items in groups().items():
+        typer.echo(f"{group} ({len(items)})")
+        for p in items:
+            c = p.conditions
+            line = ", ".join(
+                x
+                for x in (
+                    c.noise or "",
+                    "phone line" if c.phone_line else "",
+                    f"loss {c.packet_loss:.0%}" if c.packet_loss else "",
+                    "poor mic" if c.low_quality_mic else "",
+                    f"interrupts {c.interruptions:.0%}" if c.interruptions else "",
+                    f"patience {c.patience_s:.0f}s",
+                )
+                if x
+            )
+            typer.echo(f"  {p.name:24} {p.accent}  {p.voice:20} pace {p.pace}  {line}")
+            typer.echo(f"  {'':24} {p.style}")
 
 
 @app.command("demo-run")

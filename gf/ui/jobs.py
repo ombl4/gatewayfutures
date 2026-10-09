@@ -100,6 +100,7 @@ def start(
     variant: str | None = None,
     suite: str | None = None,
     parent_run: str | None = None,
+    persona_group: str | None = None,
 ) -> str:
     if current():
         raise RuntimeError("a run is already in progress")
@@ -127,6 +128,7 @@ def start(
         *(["--variant", variant] if variant else []),
         *(["--suite", suite] if suite else []),
         *(["--parent", parent_run] if parent_run else []),
+        *(["--persona-group", persona_group] if persona_group else []),
     ]
     env = os.environ | {"PYTHONWARNINGS": "ignore", "PYTHONUNBUFFERED": "1"}
     log = open(run_dir / "run.log", "ab")  # noqa: SIM115 - handed to the child

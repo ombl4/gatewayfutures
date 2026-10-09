@@ -39,6 +39,18 @@
 
 {% if r.kpis %}{{ rb.kpis(r) }}{% endif %}
 {{ rb.by_area(r) }}
+{% if r.matrix %}
+<div class="card" id="persona-matrix" style="padding:12px 16px;margin:0 0 14px">
+  <div class="hd"><h3 style="margin:0">Session × persona</h3><span class="small muted">{{ r.personas|length }} personas · each cell is one derived session; the session's facts, goal and expectations are unchanged, the persona's voice and line replace its own</span></div>
+  <div class="tablewrap" style="overflow-x:auto"><table class="small" style="width:100%;border-collapse:collapse">
+    <thead><tr><th style="text-align:left">session</th>{% for p in r.matrix.personas %}<th style="text-align:left">{{ p }}</th>{% endfor %}</tr></thead>
+    <tbody>
+    {% for row in r.matrix.rows %}<tr><td>{{ row.title }}</td>{% for c in row.cells %}<td>{% if c %}<a class="pill {{ c.rate_class }}" href="{{ links.session(c.session_id) }}" title="{{ c.passed }}/{{ c.n }} valid calls passed{% if c.invalid %}, {{ c.invalid }} invalid{% endif %}">{{ c.passed }}/{{ c.n }}</a>{% else %}<span class="muted">·</span>{% endif %}</td>{% endfor %}</tr>{% endfor %}
+    <tr><td><b>all sessions</b></td>{% for t in r.matrix.totals %}<td><span class="pill {{ t.rate_class }}"><b>{{ t.passed }}/{{ t.n }}</b></span></td>{% endfor %}</tr>
+    </tbody>
+  </table></div>
+</div>
+{% endif %}
 {{ rb.simulation(r) }}
 {% if r.previous and not r.previous.like_for_like %}<p class="small muted" style="margin:-8px 0 12px">* compared with {{ r.previous.run_id }}: {% if r.previous.env_same is sameas false %}different environment{% endif %}{% if r.previous.env_same is sameas false and r.previous.set_same is sameas false %} and {% endif %}{% if r.previous.set_same is sameas false %}different session set{% endif %}{% if r.previous.env_same is none %}environment unknown for the older run{% endif %}; treat the change as indicative.</p>{% endif %}
 {% set tb = r.time_breakdown|selectattr('p50')|list %}

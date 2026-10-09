@@ -41,6 +41,7 @@ async def run_batch(
     suite: str | None = None,
     parent_run: str | None = None,
     max_cost_usd: float | None = None,
+    personas: list[str] | None = None,
 ) -> dict:
     """`max_cost_usd` (default: GF_MAX_COST_USD, else 10): once the priced cost of the finished
     calls exceeds it, no new call is scheduled; the run is marked partial and the skipped calls
@@ -62,6 +63,22 @@ async def run_batch(
     run_id = run_id or new_run_id()
     folder = settings().runs_dir / run_id
     folder.mkdir(parents=True, exist_ok=True)
+    if personas:
+        # session × persona matrix: each cell is a derived session with its own id, written
+        # under the run so scoring and the pages load it by path like any other session
+        from gf.sessions.personas import derive
+
+        derived_dir = folder / "sessions"
+        derived_dir.mkdir(exist_ok=True)
+        cells = []
+        for base in sessions:
+            for name in personas:
+                d = derive(base, name)
+                path = derived_dir / f"{d.id}.yaml"
+                path.write_text(d.dump())
+                d.source_path = str(path)
+                cells.append(d)
+        sessions = cells
     cfg = agent_config()
     sessions_hash = hashlib.sha256("".join(sorted(s.id for s in sessions)).encode()).hexdigest()[
         :12
@@ -85,7 +102,17 @@ async def run_batch(
         "partial": False,
         "skipped": [],
         "environment": environment_info(),
-        "sessions": [{"id": s.id, "title": s.title, "path": s.source_path} for s in sessions],
+        "personas": personas or [],
+        "sessions": [
+            {
+                "id": s.id,
+                "title": s.title,
+                "path": s.source_path,
+                "base_session": s.base_session,
+                "persona": s.caller.persona_ref if personas else None,
+            }
+            for s in sessions
+        ],
         "calls": [],
     }
     from gf.environment import stamp
