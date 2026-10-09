@@ -168,10 +168,15 @@ async def overview(call: str = "", run: str = ""):
 
 @app.get("/agent", response_class=HTMLResponse)
 @app.get("/agents", response_class=HTMLResponse)
-def agent(tested: str = "", error: str = ""):
+def agent(tested: str = "", error: str = "", add: str = ""):
     """Agents under test (T9.4): the registered targets and the reference agent's config."""
     return page(
-        "agent.html", a=model.agent_page(), p=model.targets_page(), tested=tested, error=error
+        "agent.html",
+        a=model.agent_page(),
+        p=model.targets_page(),
+        tested=tested,
+        error=error,
+        add=bool(add),
     )
 
 

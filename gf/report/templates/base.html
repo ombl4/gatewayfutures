@@ -403,7 +403,7 @@ details.srow summary .ttl .chip{font-weight:400}
         {% for x in shell.targets %}
         <a class="mi {% if x.active %}cur {{ tstate or '' }}{% endif %}" href="{{ links.agent() }}#{{ x.id }}"><i></i><span>{{ x.name }}</span><em>{% if x.active %}active{% elif x.check and x.check.ok %}connected{% elif x.check %}check failed{% else %}not tested{% endif %}</em></a>
         {% endfor %}
-        <a class="mi add" href="{{ links.agent() }}#add" id="btn-add-provider">＋ Add an agent</a>
+        <a class="mi add" href="{{ links.agent() }}?add=1" id="btn-add-provider">＋ Add an agent</a>
       </div>
     </details>
     {% if mode == 'live' %}

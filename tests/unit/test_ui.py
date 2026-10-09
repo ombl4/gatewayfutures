@@ -371,7 +371,7 @@ def test_static_report_renders(env, tmp_path):
     assert "Refund for a broken blender, clean line" in (out / "index.html").read_text()
     assert (out / "sessions.html").exists() and (out / "scoring.html").exists()
     assert "Day 1" in (out / "providers.html").read_text()
-    assert 'href="agent.html#add"' in (out / "index.html").read_text()
+    assert 'href="agent.html?add=1"' in (out / "index.html").read_text()
     page = (out / "call-7c994c348001-1.html").read_text()
     assert 'href="index.html"' in page and "lookup_order" in page
     assert 'data-pane="spans"' in page

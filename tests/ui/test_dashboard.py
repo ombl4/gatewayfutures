@@ -190,7 +190,12 @@ def test_navigation_and_header(site, page):
     assert not menu.is_visible()
     page.click("#provider-menu summary")
     page.click("#btn-add-provider")
+    # lands at the top of the page with the add form already open (B9)
     assert urlparse(page.url).path == "/agent" and page.locator("#add").is_visible()
+    assert page.locator("#add").get_attribute("open") is not None
+    assert page.locator("#add-target input[name=id]").is_visible()
+    assert page.evaluate("window.scrollY") == 0
+    assert page.locator("h1").bounding_box()["y"] >= 0
     assert "Agents under test" in page.locator(".crumbs").inner_text()
     page.goto(site["base"] + "/")
     # agent block rows reach the agent page anchors
@@ -691,9 +696,8 @@ def test_static_report_works_from_disk(site, page):
 def test_register_an_agent_under_test_from_the_ui(site, page):
     """T9.4: the add form registers a target, it appears in the list and the start form, Use
     makes it the header's agent, Remove takes it away; secrets never show."""
-    page.goto(site["base"] + "/agent")
+    page.goto(site["base"] + "/agent?add=1")
     assert page.locator("#targets tr.target-row").count() == 1
-    page.locator("#add summary").click()
     page.fill("#add-target input[name=id]", "acme")
     page.fill("#add-target input[name=name]", "Acme support line")
     page.fill("#add-target input[name=url]", "wss://acme.livekit.cloud")
