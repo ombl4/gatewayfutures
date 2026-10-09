@@ -122,3 +122,39 @@ def test_required_call_message_names_an_injected_fault():
     sess = Session.load(root / "sessions" / "refund-backend-error-retry.yaml")
     assert _injected_fault(sess, "issue_refund", 1) == "error_500 on call #1 of issue_refund"
     assert _injected_fault(sess, "lookup_order", 1) is None
+
+
+def test_caller_score_rules():
+    from gf.record.model import CallRecord
+    from gf.scoring.caller import check_caller
+    from gf.sessions.schema import Session
+
+    root = Path(__file__).resolve().parents[2]
+    rec = CallRecord.load(root / "fixtures" / "records" / "refund-basic")
+    sess = Session.load(root / "sessions" / "refund-basic.yaml")
+    by = {c.id: c for c in check_caller(rec, sess)}
+    assert (
+        by["caller.goal_stated_early"].passed and by["caller.goal_stated_early"].severity == "soft"
+    )
+    assert by["caller.ended_legitimately"].passed
+    rec2 = rec.model_copy(update={"ended_by": "max_turns", "end_reason": "turn limit reached"})
+    assert not {c.id: c for c in check_caller(rec2, sess)}["caller.ended_legitimately"].passed
+    quiet = [t.model_copy(update={"text": "hello there"}) for t in rec.caller_turns[:2]] + list(
+        rec.caller_turns[2:]
+    )
+    rec3 = rec.model_copy(update={"caller_turns": quiet})
+    assert not {c.id: c for c in check_caller(rec3, sess)}["caller.goal_stated_early"].passed
+
+
+def test_caller_flags_are_kept_apart_from_agent_flags(tmp_path):
+    import shutil
+
+    from gf.scoring.score import score_attempt
+    from gf.sessions.schema import Session
+
+    root = Path(__file__).resolve().parents[2]
+    folder = tmp_path / "rec"
+    shutil.copytree(root / "fixtures" / "records" / "refund-basic", folder)
+    scores = score_attempt(folder, Session.load(root / "sessions" / "refund-basic.yaml"))
+    assert "caller_ok" in scores and isinstance(scores["caller_flags"], list)
+    assert not any(f.startswith(("caller.", "validity.")) for f in scores["soft_flags"])

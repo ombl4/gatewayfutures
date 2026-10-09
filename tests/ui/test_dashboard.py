@@ -238,7 +238,7 @@ def test_inspector_controls(site, page):
     page.click('#inspector [data-tab="grading"]')
     assert page.locator("#grading .card").count() == 5
     verdict = page.locator("#grading .card").nth(4).locator(".pill").first.inner_text().lower()
-    header = page.locator("#inspector .hd .pill").first.inner_text().lower()
+    header = page.locator("#agent-pill").inner_text().lower()
     assert verdict.split()[0] in header
     for tab in ("tools", "timeline", "latency", "checks", "details", "transcript"):
         page.click(f'#inspector [data-tab="{tab}"]')
@@ -262,6 +262,12 @@ def test_inspector_controls(site, page):
     assert not tags.nth(0).locator(".pop").is_visible() and tags.nth(1).locator(".pop").is_visible()
     page.click("#insp-root")
     assert page.locator("#insp-checks .tag.open").count() == 0
+    # transcript annotations: a tool event is tagged with the requirement it met; ? explains it
+    tagged = insp.locator("#transcript .toolev .tags.tested .tag").first
+    tagged.locator(".q").click()
+    assert tagged.locator(".pop").is_visible() and len(tagged.locator(".pop b").inner_text()) > 5
+    page.click("#insp-root")
+    assert page.locator("#caller-pill").is_visible() and page.locator("#agent-pill").is_visible()
     # heard switch
     heard = insp.locator("#transcript .heard").first
     assert heard.is_visible()

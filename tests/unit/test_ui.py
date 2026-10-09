@@ -119,8 +119,12 @@ def test_run_page_content(env):
     assert "Checks" in call and 'data-tab="transcript"' in call
     assert 'data-tab="latency"' in call and "What each latency means" in call
     assert 'data-tab="grading"' in call
+    assert 'id="caller-pill"' in call and 'id="agent-pill"' in call
+    assert 'class="tags tested"' in call and 'data-check="tools.required.issue_refund"' in call
+    assert 'data-check="ux.latency_p95"' in call
+    assert 'id="simulation-quality"' in r
     for step in (
-        "Step 1 · Was the simulation sound?",
+        "Step 1 · Simulated caller: did it do its job?",
         "Step 2 · Did the agent do what the session asks?",
         "Step 3 · Was the agent honest?",
         "Step 4 · Was the call good to be on?",

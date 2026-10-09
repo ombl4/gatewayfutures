@@ -26,6 +26,9 @@
       200
     ]
   ],
+  "caller_ok": true,
+  "caller_flags": [],
+  "hearing_fault": false,
   "latency_breakdown": {
     "eou_ms": 577,
     "stt_ms": 181,
@@ -59,7 +62,7 @@
       "label": "Persona judge (LLM, advisory)",
       "passed": true,
       "severity": "info",
-      "what_happened": "skipped (set GF_PERSONA_JUDGE=1 to run)",
+      "what_happened": "skipped (GF_PERSONA_JUDGE=0 or no OPENAI_API_KEY)",
       "why_it_matters": "",
       "evidence": {},
       "value": null
@@ -543,6 +546,37 @@
         "turn_ns": []
       },
       "value": 0
+    },
+    {
+      "id": "caller.goal_stated_early",
+      "group": "caller",
+      "label": "The caller stated its goal within its first two turns",
+      "passed": true,
+      "severity": "soft",
+      "what_happened": "goal mentioned early",
+      "why_it_matters": "A caller that wanders before asking makes the call a weaker test of the agent.",
+      "evidence": {
+        "turn_ns": [
+          1,
+          2
+        ],
+        "kind": "refund"
+      },
+      "value": null
+    },
+    {
+      "id": "caller.ended_legitimately",
+      "group": "caller",
+      "label": "The call ended for a reason, not a limit",
+      "passed": true,
+      "severity": "soft",
+      "what_happened": "ended by caller: Refund of eighty-nine ninety-nine dollars confirmed for broken countertop blender, order G W 4 8 2 1 3.",
+      "why_it_matters": "A call cut by a turn or time limit may have been about to resolve; it says less about the agent.",
+      "evidence": {
+        "ended_by": "caller",
+        "end_reason": "Refund of eighty-nine ninety-nine dollars confirmed for broken countertop blender, order G W 4 8 2 1 3."
+      },
+      "value": null
     }
   ],
   "method_version": "score-v1+claims-regex-v1+th-73c54200"

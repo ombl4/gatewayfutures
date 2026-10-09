@@ -3,7 +3,7 @@
 <section class="insp" id="inspector" data-call="{{ c.session_id }}/{{ c.attempt }}">
   <div class="hd">
     <h2>Call inspector</h2>
-    <div class="meta"><span class="ttl" title="{{ c.title }}">{{ c.title }}</span><i>·</i><span class="pill {{ c.verdict }}">{{ {'pass':'Passed','fail':'Failed','invalid':'Invalid simulation'}[c.verdict] }}</span><i>·</i><span>{{ c.duration_ms|clock }}</span>{% if c.started_at %}<i>·</i><span>{{ c.started_at|dt }}</span>{% endif %}</div>
+    <div class="meta"><span class="ttl" title="{{ c.title }}">{{ c.title }}</span><i>·</i><span class="pill {{ {'ok':'green','flagged':'amber','broken':'grey'}[c.caller_score.state] }}" id="caller-pill" title="{{ c.caller_score.text }}">Caller: {{ {'ok':'in character','flagged':'flagged','broken':'broke'}[c.caller_score.state] }}</span><i>·</i><span class="pill {{ c.verdict }}" id="agent-pill">Agent: {{ {'pass':'passed','fail':'failed','invalid':'not counted'}[c.verdict] }}</span><i>·</i><span>{{ c.duration_ms|clock }}</span>{% if c.started_at %}<i>·</i><span>{{ c.started_at|dt }}</span>{% endif %}</div>
     <div class="nav">
       <span class="small muted">ended by {{ c.ended_by }}{% if c.engine != 'gf-caller' %} · {{ c.engine }}{% endif %}</span>
       {% if nb.prev %}<a class="btn sm" href="{{ links.call(c.run_id, c.session_id, nb.prev) }}" id="insp-prev" title="previous attempt">‹</a>{% else %}<span class="btn sm" style="opacity:.4">‹</span>{% endif %}
@@ -34,6 +34,7 @@
 
   <div class="panes">
     <div>
+      {% macro tested(tests) %}{% if tests %}<div class="tags tested">{% for t in tests %}<span class="tag {{ t.state }}" data-check="{{ t.check_id }}"><span class="m">{{ {'pass':'✓','fail':'✗','warn':'!','info':'·'}[t.state] }}</span><code>{{ t.tag }}</code><button type="button" class="q" aria-label="explain {{ t.tag }}">?</button><span class="pop"><b>{{ t.label }}</b><span class="what">{{ t.text }}</span>{% if t.why %}<span class="why">{{ t.why }}</span>{% endif %}</span></span>{% endfor %}</div>{% endif %}{% endmacro %}
       <div class="pane" data-pane="transcript" id="transcript">
       {% for it in c.turns %}
         {% if it.kind == 'caller' %}
@@ -41,6 +42,7 @@
           <div class="t">{{ it.t_ms|clock }}</div><div class="av">C</div>
           <div><div class="who">{{ c.caller.persona.name if c.caller.persona else 'Caller' }}{% if it.interruption %}<span class="chip" style="color:#b45309;border-color:#fde68a">interrupts</span>{% endif %}</div>
             <div>{{ it.text }}</div>
+            {{ tested(it.tests) }}
             {% if it.heard and c.engine == 'gf-caller' %}<div class="heard" title="what the agent's speech recognition produced">agent heard: “{% for m in it.heard_marks %}{% if m.bad %}<mark>{{ m.w }}</mark>{% else %}{{ m.w }}{% endif %}{% if not loop.last %} {% endif %}{% endfor %}”</div>{% endif %}
           </div>
         </div>
@@ -49,15 +51,17 @@
           <div class="t">{{ it.t_ms|clock }}</div><div class="av">A</div>
           <div><div class="who">Agent{% if it.latency_ms is not none %}<span class="pill {{ it.latency_class }} lat" title="caller stopped → agent audio started">{{ it.latency_ms|ms }}</span>{% endif %}{% if it.interrupted %}<span class="chip">interrupted</span>{% endif %}</div>
             <div>{{ it.text }}</div>
+            {{ tested(it.tests) }}
           </div>
         </div>
         {% elif it.kind == 'tool' %}
         <div class="toolev {{ '' if it.ok else 'bad' }}" data-tool="{{ it.id }}" data-t="{{ it.t_ms }}">
           <span class="muted mono" style="font-size:11px">{{ it.t_ms|clock }}</span><span class="name">{{ it.tool }}()</span><span class="args">{% for k, v in it.args.items() %}{{ k }}: {{ v|tojson_compact }}{% if not loop.last %}, {% endif %}{% endfor %}</span>
           <span class="pill {{ 'green' if it.ok else 'red' }}">{{ it.status }}</span><span class="muted small">{{ it.duration_ms }} ms{% if it.fault %} · injected fault: {{ it.fault }}{% endif %}</span><span class="small">→ {{ it.response_short }}</span>
+          {{ tested(it.tests) }}
         </div>
         {% elif it.kind == 'dead_air' %}
-        <div class="deadair" data-t="{{ it.t_ms }}">{{ it.t_ms|clock }} · {{ it.gap_ms|ms }} of silence from both sides</div>
+        <div class="deadair" data-t="{{ it.t_ms }}">{{ it.t_ms|clock }} · {{ it.gap_ms|ms }} of silence from both sides{% for t in it.tests %} · <code>{{ t.tag }}</code> {{ {'pass':'✓','fail':'✗','warn':'!','info':'·'}[t.state] }}{% endfor %}</div>
         {% endif %}
       {% endfor %}
       </div>
@@ -99,9 +103,9 @@
       <div class="pane" data-pane="timeline" hidden>
         <canvas id="insp-tl" class="tl" height="150"></canvas>
         <div class="tablewrap" style="margin-top:10px"><table>
-        <tr><th>time</th><th>event</th><th>detail</th></tr>
-        {% for e in c.timeline.events %}
-        <tr class="tlrow" data-t="{{ e.t_ms }}" style="cursor:pointer"><td class="mono">{{ e.t_ms|clock }}</td><td>{{ e.kind|replace('_',' ') }}</td><td class="small">{% if e.kind == 'tool_call' %}<span class="mono">{{ e.tool }}</span> {{ 'ok' if e.ok else 'failed' }} · {{ (e.end_ms - e.t_ms) }} ms{% elif e.text %}{{ e.text[:140] }}{% elif e.end_ms %}{{ (e.end_ms - e.t_ms)|ms }}{% endif %}</td></tr>
+        <tr><th>time</th><th>event</th><th>what happened</th><th>judged by</th></tr>
+        {% for it in c.turns %}
+        <tr class="tlrow" data-t="{{ it.t_ms }}" style="cursor:pointer"><td class="mono">{{ it.t_ms|clock }}</td><td>{{ {'caller':'caller turn','agent':'agent turn','tool':'tool call','dead_air':'dead air'}[it.kind] }}</td><td class="small">{% if it.kind == 'tool' %}<span class="mono">{{ it.tool }}</span> {{ it.status }} · {{ it.duration_ms }} ms{% elif it.kind == 'dead_air' %}{{ it.gap_ms|ms }} of silence{% else %}{{ it.text[:120] }}{% endif %}</td><td>{% for t in it.tests %}<span class="tag {{ t.state }}" title="{{ t.label }}: {{ t.text }}"><span class="m">{{ {'pass':'✓','fail':'✗','warn':'!','info':'·'}[t.state] }}</span><code>{{ t.tag }}</code></span> {% endfor %}</td></tr>
         {% endfor %}
         </table></div>
       </div>

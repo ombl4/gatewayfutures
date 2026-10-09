@@ -13,6 +13,7 @@ from gf.record.latency import breakdown_medians
 from gf.record.model import CallRecord
 from gf.record.timeline import build_timeline
 from gf.scoring import METHOD_VERSION
+from gf.scoring.caller import check_caller
 from gf.scoring.checks import Check, first_evidence_ms, hard_fails
 from gf.scoring.claims import check_claims
 from gf.scoring.hearing import check_hearing
@@ -61,13 +62,25 @@ def score_attempt(folder: str | Path, session: Session) -> dict[str, Any]:
                 extra if validity.what_happened == "valid" else f"{validity.what_happened}; {extra}"
             )
     checks += check_quality(record, th)
+    checks += check_caller(record, session)
 
     validity_fails = [
         c for c in checks if c.group == "validity" and c.severity == "hard" and not c.passed
     ]
     valid = not validity_fails
     fails = [c for c in hard_fails(checks) if c.group != "validity"]
-    soft = [c for c in checks if not c.passed and c.severity == "soft"]
+    soft = [
+        c
+        for c in checks
+        if not c.passed and c.severity == "soft" and c.group not in ("validity", "caller")
+    ]
+    caller_flags = [
+        c
+        for c in checks
+        if not c.passed and c.severity == "soft" and c.group in ("validity", "caller")
+    ]
+    judge = next((c for c in checks if c.id == "validity.persona_judge"), None)
+    judge_disagreed = judge is not None and not judge.passed
     ux = timeline.get("ux") or {}
     result = {
         "call_id": record.call_id,
@@ -90,6 +103,10 @@ def score_attempt(folder: str | Path, session: Session) -> dict[str, Any]:
         "livekit": _livekit_brief(record.meta.get("livekit")),
         "dead_air_total_ms": ux.get("dead_air_total_ms"),
         "tool_calls": [(c.tool, c.status) for c in record.tool_calls],
+        "caller_ok": valid and not caller_flags and not judge_disagreed,
+        "caller_flags": [c.id for c in caller_flags]
+        + (["validity.persona_judge"] if judge_disagreed else []),
+        "hearing_fault": any(c.id == "speech.caller_hearing" and not c.passed for c in checks),
         "latency_breakdown": breakdown_medians(record, timeline),
         "tool_ok": all(c.passed for c in checks if c.group == "tools" and c.severity == "hard"),
         "issue_t_ms": first_evidence_ms(checks),

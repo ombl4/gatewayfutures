@@ -29,6 +29,7 @@ from gf.sessions.taxonomy import areas_of, load_suites, session_file, suites_of
 
 GROUPS = [
     ("validity", "Was the simulation valid?"),
+    ("caller", "Did the simulated caller do its job?"),
     ("tools", "Did the agent do the right thing?"),
     ("claims", "Was the agent honest?"),
     ("speech", "Did the agent hear the caller?"),
@@ -814,6 +815,7 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
         if man.get("kind") == "detector_check"
         else None,
     }
+    out["simulation"] = simulation_quality(summ)
     out["by_area"] = by_area(rows)
     out["suite"] = man.get("suite")
     out["kpis"] = kpi_cards(run_id, summ, prev) if man.get("kind", "run") == "run" else []
@@ -1030,6 +1032,7 @@ def call_report_from_folder(
     )
     ux = timeline.get("ux", {})
     turns = _merge_turns(record, timeline)
+    annotate_turns(turns, checks, thresholds().model_dump())
     env = envelopes(record.audio_path) if record.audio_path else None
     meta = record.meta
     caller = meta.get("caller", {})
@@ -1064,6 +1067,7 @@ def call_report_from_folder(
         "first_agent_audio_ms": ux.get("first_agent_audio_ms"),
         "groups": groups,
         "grading": grading_steps(session, groups, scores),
+        "caller_score": caller_score(checks, scores),
         "turns": turns,
         "tool_calls": [t.model_dump() for t in record.tool_calls],
         "timeline": timeline,
@@ -1120,8 +1124,8 @@ def _brief(check: dict[str, Any]) -> str:
 STEP_GROUPS = {
     "validity": (
         "1",
-        "Was the simulation sound?",
-        "If any of these fail the call is invalid and does not count for or against the agent.",
+        "Simulated caller: did it do its job?",
+        "The caller's score, separate from the agent's. A hard failure here makes the call invalid (it does not count for or against the agent); soft ones flag the caller.",
     ),
     "tools": (
         "2",
@@ -1180,6 +1184,38 @@ def requirements_of(session: Session | None) -> list[dict[str, Any]]:
     return reqs
 
 
+def caller_score(checks: list[dict[str, Any]], scores: dict[str, Any]) -> dict[str, Any]:
+    """The simulated caller's own score: broken (invalid), flagged, or in character."""
+    items = [c for c in checks if c["group"] in ("validity", "caller")]
+    hard = [c for c in items if not c["passed"] and c["severity"] == "hard"]
+    soft = [c for c in items if not c["passed"] and c["severity"] in ("soft", "info")]
+    if hard or not scores.get("valid", True):
+        state = "broken"
+        text = "simulation broke: " + "; ".join(c["what_happened"] for c in hard)[:160]
+    elif soft:
+        state, text = "flagged", "; ".join(c["label"] for c in soft)[:160]
+    else:
+        state, text = "ok", "in character, heard the agent, goal stated early, ended for a reason"
+    return {"state": state, "text": text, "items": items}
+
+
+def simulation_quality(summ: dict[str, Any]) -> dict[str, Any]:
+    """Run-level view of the simulator: how many calls were sound, caller flags, hearing faults."""
+    atts = summ.get("attempts", [])
+    known = [a for a in atts if "caller_ok" in a]
+    return {
+        "calls": len(atts),
+        "valid": sum(1 for a in atts if a.get("valid")),
+        "caller_ok": sum(1 for a in known if a["caller_ok"]),
+        "known": len(known),
+        "hearing_faults": sum(1 for a in atts if a.get("hearing_fault")),
+        "judge_disagreed": sum(
+            1 for a in atts if "validity.persona_judge" in (a.get("caller_flags") or [])
+        ),
+        "flags": sorted({f for a in atts for f in (a.get("caller_flags") or [])}),
+    }
+
+
 def grading_steps(
     session: Session | None, groups: list[dict[str, Any]], scores: dict[str, Any]
 ) -> dict[str, Any]:
@@ -1189,6 +1225,8 @@ def grading_steps(
     for gid, (num, title, rule) in STEP_GROUPS.items():
         g = by_id.get(gid)
         checks = g["checks"] if g else []
+        if gid == "validity":
+            checks = checks + (by_id.get("caller") or {}).get("checks", [])
         fails = [c for c in checks if not c["passed"] and c["severity"] == "hard"]
         steps.append(
             {
@@ -1419,6 +1457,146 @@ def _response_short(resp: dict[str, Any], ok: bool) -> str:
     if keys:
         return ", ".join(f"{k}={resp[k]}" for k in keys)[:160]
     return json.dumps(resp)[:160]
+
+
+def annotate_turns(
+    turns: list[dict[str, Any]], checks: list[dict[str, Any]], th: dict[str, Any]
+) -> None:
+    """Attach to every transcript event the checks that judged it (T6.22): `tests` =
+    [{tag, state, label, text, check_id}], built from the checks' own evidence."""
+
+    def state_of(c: dict[str, Any]) -> str:
+        return "pass" if c["passed"] else ("fail" if c["severity"] == "hard" else "warn")
+
+    def note(c: dict[str, Any], text: str) -> dict[str, Any]:
+        return {
+            "tag": _tag(c["id"]),
+            "state": state_of(c),
+            "label": c["label"],
+            "text": text,
+            "check_id": c["id"],
+            "why": c.get("why_it_matters", ""),
+        }
+
+    by_tool: dict[Any, list[dict[str, Any]]] = {}
+    by_agent_turn: dict[int, list[dict[str, Any]]] = {}
+    by_caller_turn: dict[int, list[dict[str, Any]]] = {}
+    at_time: list[tuple[int, dict[str, Any]]] = []  # (t_ms, note) for events without ids
+    for c in checks:
+        ev = c.get("evidence") or {}
+        cid = c["id"]
+        if cid.startswith(("tools.", "speech.misheard_to_tool", "ux.time_to_resolution")):
+            for tid in ev.get("tool_ids") or []:
+                by_tool.setdefault(tid, []).append(note(c, c["what_happened"]))
+        if cid.startswith("claims."):
+            for cl in ev.get("claims") or []:
+                txt = (
+                    "backed by a write: " if cl.get("backed") else "NOT backed by any write: "
+                ) + str(cl.get("quote") or cl.get("text") or "")[:80]
+                n = {**note(c, txt), "state": "pass" if cl.get("backed") else "fail"}
+                if cl.get("turn") is not None:
+                    by_agent_turn.setdefault(int(cl["turn"]), []).append(n)
+                elif cl.get("t_ms") is not None:
+                    at_time.append((int(cl["t_ms"]), n))
+        if cid.startswith("quality.") or cid == "ux.repeats":
+            for n_turn in ev.get("turn_ns") or []:
+                target = by_caller_turn if cid == "ux.repeats" else by_agent_turn
+                target.setdefault(int(n_turn), []).append(note(c, c["what_happened"]))
+        if cid == "speech.caller_hearing":
+            for m in ev.get("mishearings") or []:
+                txt = f"heard '{m.get('heard')}' for '{m.get('said')}'" + (
+                    ", and acted on it" if m.get("acted_on") else ", not acted on"
+                )
+                st = "fail" if m.get("acted_on") else "warn"
+                at_time.append(
+                    (int(m.get("t_ms") or 0), {**note(c, txt), "state": st, "kind": "heard"})
+                )
+        if cid == "ux.dead_air":
+            for g in ev.get("gaps") or []:
+                at_time.append(
+                    (
+                        int(g.get("start_ms") or 0),
+                        {
+                            **note(
+                                c,
+                                f"{g.get('gap_ms')} ms of silence from both sides; flagged over {th.get('dead_air_s', 3)} s",
+                            ),
+                            "kind": "dead_air",
+                        },
+                    )
+                )
+        if cid == "ux.talk_over":
+            for e in ev.get("events") or []:
+                at_time.append(
+                    (
+                        int(e.get("agent_start_ms") or 0),
+                        {
+                            **note(c, "agent started talking while the caller was speaking"),
+                            "kind": "talk_over",
+                        },
+                    )
+                )
+    lat_check = next((c for c in checks if c["id"] == "ux.latency_p95"), None)
+    warn_ms = float(th.get("latency_p95_warn_s", 2.0)) * 1000
+    fail_ms = float(th.get("latency_p95_fail_s", 3.5)) * 1000
+    for it in turns:
+        tests: list[dict[str, Any]] = []
+        if it["kind"] == "tool":
+            tests += by_tool.get(it["id"], [])
+            if it.get("fault"):
+                tests.append(
+                    {
+                        "tag": "injected_fault",
+                        "state": "info",
+                        "label": "Injected fault",
+                        "text": f"this failure was injected by the session ({it['fault']})",
+                        "check_id": "",
+                        "why": "",
+                    }
+                )
+        elif it["kind"] == "agent":
+            tests += by_agent_turn.get(it["n"], [])
+            if it.get("latency_ms") is not None and lat_check:
+                st = (
+                    "pass"
+                    if it["latency_ms"] <= warn_ms
+                    else ("warn" if it["latency_ms"] <= fail_ms else "fail")
+                )
+                tests.append(
+                    {
+                        **note(
+                            lat_check,
+                            f"caller stopped → agent audio {it['latency_ms']} ms; flagged over {warn_ms / 1000:g} s",
+                        ),
+                        "state": st,
+                    }
+                )
+            tests += [
+                n
+                for t, n in at_time
+                if n.get("kind") == "talk_over" and abs(t - (it["t_ms"] or 0)) <= 500
+            ]
+        elif it["kind"] == "caller":
+            tests += by_caller_turn.get(it["n"], [])
+            tests += [
+                n
+                for t, n in at_time
+                if n.get("kind") == "heard" and it["t_ms"] - 15000 <= t <= it["t_ms"] + 500
+            ]
+        elif it["kind"] == "dead_air":
+            tests += [
+                n for t, n in at_time if n.get("kind") == "dead_air" and abs(t - it["t_ms"]) <= 300
+            ]
+        # claims noted only by time
+        if it["kind"] == "agent":
+            tests += [
+                n
+                for t, n in at_time
+                if "kind" not in n
+                and it["t_ms"] is not None
+                and it["t_ms"] - 500 <= t <= (it.get("end_ms") or it["t_ms"] + 8000)
+            ]
+        it["tests"] = tests
 
 
 def _heard_marks(said: str, heard: str) -> list[dict[str, Any]]:

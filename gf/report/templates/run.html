@@ -38,6 +38,7 @@
 
 {% if r.kpis %}{{ rb.kpis(r) }}{% endif %}
 {{ rb.by_area(r) }}
+{{ rb.simulation(r) }}
 {% if r.previous and not r.previous.like_for_like %}<p class="small muted" style="margin:-8px 0 12px">* compared with {{ r.previous.run_id }}: {% if r.previous.env_same is sameas false %}different environment{% endif %}{% if r.previous.env_same is sameas false and r.previous.set_same is sameas false %} and {% endif %}{% if r.previous.set_same is sameas false %}different session set{% endif %}{% if r.previous.env_same is none %}environment unknown for the older run{% endif %}; treat the change as indicative.</p>{% endif %}
 {% set tb = r.time_breakdown|selectattr('p50')|list %}
 {% if tb %}

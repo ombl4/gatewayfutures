@@ -3,7 +3,7 @@
 One small LLM call per attempt (OpenAI, temperature 0, structured output). It never decides
 validity on its own: the deterministic `caller_in_character` check does that. The judge's
 verdict is recorded as an info check so disagreements can be reviewed and labelled.
-Enabled with GF_PERSONA_JUDGE=1 (off by default to keep scoring free and fast).
+On by default; GF_PERSONA_JUDGE=0 turns it off (unit tests do), and it never runs without a key.
 """
 
 from __future__ import annotations
@@ -29,7 +29,9 @@ class PersonaVerdict(BaseModel):
 
 
 def enabled() -> bool:
-    return os.environ.get("GF_PERSONA_JUDGE", "") == "1"
+    """On by default; GF_PERSONA_JUDGE=0 disables it, and it never runs without a key."""
+    flag = os.environ.get("GF_PERSONA_JUDGE", "1")
+    return flag not in ("0", "false", "no") and bool(os.environ.get("OPENAI_API_KEY"))
 
 
 def judge_persona(record: CallRecord, session: Session) -> Check:
@@ -40,7 +42,7 @@ def judge_persona(record: CallRecord, session: Session) -> Check:
             label="Persona judge (LLM, advisory)",
             passed=True,
             severity="info",
-            what_happened="skipped (set GF_PERSONA_JUDGE=1 to run)",
+            what_happened="skipped (GF_PERSONA_JUDGE=0 or no OPENAI_API_KEY)",
         )
     from openai import OpenAI
 

@@ -95,6 +95,12 @@
 </div>
 {% endmacro %}
 
+{% macro simulation(r) %}
+{% if r.simulation and r.simulation.known %}
+<p class="meta" id="simulation-quality" style="margin:-6px 0 14px"><span class="muted">Simulated caller:</span><span><b>{{ r.simulation.caller_ok }}/{{ r.simulation.known }}</b> in character and on task</span><i>·</i><span>{{ r.simulation.calls - r.simulation.valid }} invalid</span><i>·</i><span>{{ r.simulation.hearing_faults }} hearing fault{{ '' if r.simulation.hearing_faults == 1 else 's' }}</span><i>·</i><span>{{ r.simulation.judge_disagreed }} persona-judge disagreement{{ '' if r.simulation.judge_disagreed == 1 else 's' }}</span>{% if r.simulation.flags %}<i>·</i><span class="muted">flags: {{ r.simulation.flags|map('replace', 'caller.', '')|map('replace', 'validity.', '')|join(', ') }}</span>{% endif %}</p>
+{% endif %}
+{% endmacro %}
+
 {% macro by_area(r) %}
 {% if r.by_area %}
 <div class="meta" id="by-area" style="margin:-6px 0 14px;gap:8px"><span class="muted">By area:</span>{% for a in r.by_area %}<span class="pill {{ a.rate_class }}" title="{{ a.area }} · {{ a.sessions }} session{{ '' if a.sessions == 1 else 's' }} · {{ a.passed }}/{{ a.n }} valid calls passed{% if a.rate is not none %} · 95% interval {{ a.ci_low|pct }}–{{ a.ci_high|pct }}{% endif %}" style="font-weight:500">{{ a.area }} <b>{{ a.passed }}/{{ a.n }}</b></span>{% endfor %}{% if r.suite %}<i>·</i><span>suite <span class="chip">{{ r.suite }}</span></span>{% endif %}</div>
