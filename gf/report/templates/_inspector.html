@@ -115,39 +115,51 @@
         {% else %}<p class="small muted">The agent made no tool calls in this call.</p>{% endif %}
       </div>
 
-      <div class="pane" data-pane="spans" hidden id="spans">
-        {% set L = c.latency_turns %}{% set S = c.spans %}
-        {% set vals = L.turns|map(attribute='heard_ms')|reject('none')|list + L.turns|map(attribute='reported_sum_ms')|reject('none')|list %}
-        {% set scale = (vals|max) if vals else 1 %}
-        {% set warn = c.thresholds.latency_p95_warn_s * 1000 %}{% set fail = c.thresholds.latency_p95_fail_s * 1000 %}
-        <div class="spans-bar">
-          <span class="small"><b>{{ S.summary.replies }}</b> replies · <span class="{{ 'red' if S.summary.slow else '' }}">{{ S.summary.slow }} slow</span>{% if S.summary.over_fail %} ({{ S.summary.over_fail }} over the fail bar){% endif %} · <span class="{{ 'red' if S.summary.errors else '' }}">{{ S.summary.errors }} tool error{{ '' if S.summary.errors == 1 else 's' }}</span>{% if S.summary.critical_stages %} · time mostly in <b>{{ S.stage_labels[S.summary.critical_stages[0][0]]|lower }}</b>{% endif %} · hover a block for its time</span>
-          <label class="small"><input type="checkbox" data-sf="slow"> slow</label>
-          <label class="small"><input type="checkbox" data-sf="error"> errors</label>
-        </div>
-        <div class="legend" style="padding:0 0 8px">{% for k, label, d in L.stages %}<span><i class="sq k-{{ k[:-3] }}"></i>{{ label }}</span>{% endfor %}<span><i class="sq k-unaccounted"></i>Unaccounted</span><span><i class="sq k-tool"></i>tool call</span><span><i class="sq k-heard"></i>heard</span></div>
-        <div id="spans-rows">
-          {% for t in L.turns %}
-          {% set rs = S.spans|selectattr('kind','equalto','reply')|selectattr('turn','equalto',t.n)|list %}{% set r0 = rs[0] if rs else none %}
-          {% set tools = S.spans|selectattr('kind','equalto','tool_call')|selectattr('turn','equalto',t.n)|list %}
-          {% set status = 'error' if (r0 and r0.status == 'error') else ('fail' if (t.heard_ms is not none and t.heard_ms > fail) else ('slow' if (t.heard_ms is not none and t.heard_ms > warn) else 'ok')) %}
-          <div class="sp st-{{ status }}" data-t="{{ t.t_ms }}" data-end="{{ t.t_ms + (t.duration_ms or 0) }}" data-status="{{ 'error' if status == 'error' else ('slow' if status in ('slow','fail') else 'ok') }}" data-n="{{ t.n }}">
-            <span class="nm"><span class="mono">{{ t.t_ms|clock }}</span> <span class="muted">#{{ t.n }}</span>{% if t.greeting %} <span class="chip">greeting</span>{% endif %}{% if t.interrupted %} <span class="chip">interrupted</span>{% endif %}</span>
-            <span class="lane">
-              <span class="stack">{% for k, label, d in L.stages %}{% if t[k] %}<i class="seg k-{{ k[:-3] }}" style="width:{{ (100 * t[k] / scale)|round(2) }}%" data-tip="{{ label }} · {{ t[k] }} ms"></i>{% endif %}{% endfor %}{% if t.unaccounted_ms and t.unaccounted_ms > 0 %}<i class="seg k-unaccounted" style="width:{{ (100 * t.unaccounted_ms / scale)|round(2) }}%" data-tip="Unaccounted · {{ t.unaccounted_ms }} ms (network, buffering, VAD look-back)"></i>{% endif %}</span>
-              {% if r0 %}{% for tc in tools %}<i class="tmark {{ tc.status }}" style="left:{{ ([100, (100 * (tc.t0_ms - r0.t0_ms) / scale)]|min)|round(2) }}%" data-tip="{{ tc.attrs.tool }} · {{ 'failed ' ~ tc.attrs.http_status if tc.status == 'error' else 'ok ' ~ tc.attrs.http_status }} · {{ tc.duration_ms }} ms"></i>{% endfor %}{% endif %}
-              {% if t.heard_ms is not none %}<b class="htick" style="left:{{ ([100, 100 * t.heard_ms / scale]|min)|round(2) }}%" data-tip="Heard · {{ t.heard_ms }} ms from the caller's last word to the agent's first sound{% if t.e2e_ms %} · agent's own end-to-end {{ t.e2e_ms }} ms{% endif %}"></b>{% endif %}
+      {% macro span_icon(kind) %}<svg class="si k-{{ kind }}" viewBox="0 0 24 24" aria-hidden="true">{% if kind == 'call' %}<path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 12l9-5M12 12v10M12 12L3 7"/>{% elif kind == 'user_turn' %}<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>{% elif kind in ('end_of_turn','stt','tts') %}<path d="M3 12h2l2-6 3 12 3-9 2 5 2-2h4"/>{% elif kind in ('reasoning','llm') %}<path d="M9 4a3 3 0 0 0-3 3v1a3 3 0 0 0-2 3 3 3 0 0 0 2 3v1a3 3 0 0 0 3 3h1V4z"/><path d="M15 4a3 3 0 0 1 3 3v1a3 3 0 0 1 2 3 3 3 0 0 1-2 3v1a3 3 0 0 1-3 3h-1V4z"/>{% elif kind == 'tool_call' %}<path d="M14 6a4 4 0 0 0 5 5l-9 9a2 2 0 0 1-3-3l9-9z"/><path d="M14 6l4 4"/>{% elif kind == 'backend' %}<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>{% elif kind == 'response' %}<path d="M21 12a8 8 0 0 1-8 8H8l-5 3 1-5a8 8 0 1 1 17-6z"/>{% elif kind == 'playback' %}<path d="M6 4l14 8-14 8z"/>{% elif kind in ('idle','dead_air') %}<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>{% elif kind == 'interruption' %}<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>{% else %}<path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17h.01"/>{% endif %}</svg>{% endmacro %}
+      {% macro status_pill(st) %}<span class="stp {{ st }}">{% if st == 'ok' %}<svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK{% elif st == 'slow' %}<svg viewBox="0 0 24 24"><path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17h.01"/></svg>Slow{% else %}<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>Error{% endif %}</span>{% endmacro %}
+      <div class="pane" data-pane="spans" hidden id="spans" data-dur="{{ c.spans.summary.duration_ms }}" data-p95="{{ c.latency_turns.summary.heard_ms.p95 or '' }}">
+        {% set S = c.spans %}{% set L = c.latency_turns %}
+        {% set parents = S.spans|map(attribute='parent')|reject('none')|list %}
+        {% set dur = S.summary.duration_ms or 1 %}
+        <div class="tr-wrap">
+        <div class="tr-main">
+          <div class="tr-bar">
+            <span class="small"><b>{{ S.summary.replies }}</b> replies · <span class="{{ 'red' if S.summary.slow else '' }}">{{ S.summary.slow }} slow</span> · <span class="{{ 'red' if S.summary.errors else '' }}">{{ S.summary.errors }} tool error{{ '' if S.summary.errors == 1 else 's' }}</span>{% if S.summary.critical_stages and S.summary.critical_stages[0][1] %} · time mostly in <b>{{ S.stage_labels[S.summary.critical_stages[0][0]]|lower }}</b>{% endif %}</span>
+            <span class="tr-right">
+              <span class="zoom"><button type="button" id="tr-zoom-out" title="zoom out">−</button><b id="tr-zoom">100%</b><button type="button" id="tr-zoom-in" title="zoom in">+</button></span>
+              <button type="button" class="btn sm" id="tr-expand"><svg viewBox="0 0 24 24" class="bi"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>Expand all</button>
             </span>
-            <span class="st">{% if status == 'error' %}<span class="pill red">tool error</span>{% elif status == 'fail' %}<span class="pill red">slow</span>{% elif status == 'slow' %}<span class="pill amber">slow</span>{% elif t.heard_ms is none %}<span class="muted small">no wait measured</span>{% endif %}</span>
           </div>
-          {% endfor %}
+          <div class="tr-bar">
+            <span class="tr-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input type="search" id="tr-q" placeholder="Search spans... (e.g., stt, tool, error)"></span>
+            <select id="tr-kind" class="tr-sel"><option value="">All spans</option><option value="user">User turns</option><option value="reasoning">Agent reasoning</option><option value="tool">Tool calls</option><option value="response">Agent responses</option><option value="idle">Idle &amp; dead air</option><option value="events">Interruptions &amp; talk-over</option></select>
+            <select id="tr-status" class="tr-sel"><option value="">All status</option><option value="ok">OK</option><option value="slow">Slow</option><option value="error">Error</option></select>
+            <button type="button" class="btn sm tr-toggle" id="tr-crit">Critical path</button>
+            <label class="sw" id="tr-idle"><span class="tg"></span>Show idle time</label>
+            <label class="sw on" id="tr-group"><span class="tg"></span>Group by parent</label>
+          </div>
+          <div class="tr-table" id="tr-table">
+            <div class="tr-head tr-row"><span class="c-name">Span name</span><span class="c-status">Status</span><span class="c-start">Start time</span><span class="c-dur">Duration</span><span class="c-lane"><span class="axis" id="tr-axis"></span></span></div>
+            <div id="tr-rows">
+            {% for s in S.spans %}
+            <div class="tr-row sp k-{{ s.kind }} st-{{ s.status }} d{{ s.depth }}{% if s.attrs.critical %} crit{% endif %}{% if s.kind in ('idle','dead_air') %} idle{% endif %}" data-id="{{ s.id }}" data-parent="{{ s.parent or '' }}" data-t0="{{ s.t0_ms }}" data-t1="{{ s.t1_ms }}" data-kind="{{ s.kind }}" data-status="{{ s.status }}" data-name="{{ s.name|lower }}" data-depth="{{ s.depth }}"{% if s.id in parents %} data-kids="1"{% endif %}>
+              <span class="c-name" style="--d:{{ s.depth }}" data-tip="{{ s.help }}">{% if s.id in parents %}<i class="tg"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></i>{% else %}<i class="tg none"></i>{% endif %}{{ span_icon(s.kind) }}<span class="nmtxt">{{ s.name }}</span></span>
+              <span class="c-status">{{ status_pill(s.status) }}</span>
+              <span class="c-start mono">{{ '%02d:%02d.%03d'|format((s.t0_ms // 60000), (s.t0_ms // 1000) % 60, s.t0_ms % 1000) }}</span>
+              <span class="c-dur mono">{% if s.duration_ms >= 60000 %}{{ '%d:%02d.%03d'|format(s.duration_ms // 60000, (s.duration_ms // 1000) % 60, s.duration_ms % 1000) }}{% else %}{{ '%.3f'|format(s.duration_ms / 1000) }}s{% endif %}</span>
+              <span class="c-lane"><i class="bar" style="left:{{ (100 * s.t0_ms / dur)|round(3) }}%;width:{{ (100 * s.duration_ms / dur)|round(3) }}%"></i><em class="lbl" style="left:calc({{ (100 * s.t1_ms / dur)|round(3) }}% + 6px)">{% if s.duration_ms >= 60000 %}{{ '%d:%02d.%03d'|format(s.duration_ms // 60000, (s.duration_ms // 1000) % 60, s.duration_ms % 1000) }}s{% else %}{{ '%.3f'|format(s.duration_ms / 1000) }}s{% endif %}</em></span>
+            </div>
+            {% endfor %}
+            <div id="tr-play" hidden><b id="tr-play-lbl"></b></div>
+            </div>
+          </div>
+          <div id="tr-tip" hidden></div>
+          <p class="small muted" style="margin:8px 0 0">Heard p50 {{ L.summary.heard_ms.p50|ms }} · p95 {{ L.summary.heard_ms.p95|ms }} over {{ L.summary.heard_ms.n }} replies · flag over {{ c.thresholds.latency_p95_warn_s }} s, fail over {{ c.thresholds.latency_p95_fail_s }} s · hover a span name for what it measures · <code>gf spans &lt;record&gt; --otlp</code> exports this trace.</p>
         </div>
-        <div id="spans-tip" hidden></div>
-        <p class="small muted" style="margin:10px 0 0">Over {{ L.summary.heard_ms.n }} replies with a measured wait: heard p50 {{ L.summary.heard_ms.p50|ms }} · p95 {{ L.summary.heard_ms.p95|ms }}{% if L.summary.e2e_ms.p50 is not none %} · agent-reported end-to-end p50 {{ L.summary.e2e_ms.p50 }} ms{% endif %}. Flag over {{ c.thresholds.latency_p95_warn_s }} s, fail over {{ c.thresholds.latency_p95_fail_s }} s. Blocks share one scale, so widths compare across replies.</p>
-        <details style="margin-top:10px" id="latency-glossary"><summary>What each latency means</summary>
-          <div class="kv small" style="margin-top:8px">{% for label, d in L.glossary %}<span class="k">{{ label }}</span><span>{{ d }}</span>{% endfor %}</div>
-          <p class="small muted" style="margin:8px 0 0">The stages come from the agent's own metrics (LiveKit Agents: EOU, STT, LLM and TTS events), so they are what the pipeline saw. "Heard" is measured on the stereo recording and is the number to optimise. <code>gf spans &lt;record&gt; --otlp</code> exports the same call as a trace for Jaeger or Tempo.</p>
-        </details>
+        <aside class="tr-panel" id="tr-panel" hidden></aside>
+        </div>
+        <script type="application/json" id="tr-data">{{ S.spans|tojson }}</script>
+        <template id="tr-icons">{% for k in S.kinds %}<span data-kind="{{ k }}">{{ span_icon(k) }}</span>{% endfor %}</template>
       </div>
 
       {% if not embedded %}
@@ -283,23 +295,121 @@
 </script>
 <script>
 (function(){
-  // Spans tab (T6.34): hover popups carry the numbers; filters; row click seeks; the playing row is lit.
+  // Spans tab (T6.35): trace table with tree, filters, critical path, zoom, playhead and a span panel.
   const pane = document.getElementById('spans'); if (!pane) return;
-  const rows = [...pane.querySelectorAll('.sp')], tip = document.getElementById('spans-tip');
-  const filters = { slow: false, error: false };
-  function layout(){ rows.forEach(r => { r.hidden = (filters.slow && r.dataset.status === 'ok') || (filters.error && r.dataset.status !== 'error'); }); }
-  pane.querySelectorAll('[data-sf]').forEach(cb => cb.addEventListener('change', () => { filters[cb.dataset.sf] = cb.checked; layout(); }));
+  const data = JSON.parse(document.getElementById('tr-data').textContent), byId = {}; data.forEach(s => byId[s.id] = s);
+  const rows = [...pane.querySelectorAll('#tr-rows .sp')], rowById = {}; rows.forEach(r => rowById[r.dataset.id] = r);
+  const kids = {}; data.forEach(s => { if (s.parent) (kids[s.parent] = kids[s.parent] || []).push(s); });
+  const dur = +pane.dataset.dur || 1, table = document.getElementById('tr-table'), rowsBox = document.getElementById('tr-rows');
+  const axis = document.getElementById('tr-axis'), panel = document.getElementById('tr-panel'), icons = document.getElementById('tr-icons').content;
+  const GROUPS = { user: ['user_turn','end_of_turn','stt'], reasoning: ['reasoning','llm'], tool: ['tool_call','backend'], response: ['response','tts','playback'], idle: ['idle','dead_air'], events: ['interruption','talk_over'] };
+  const st = { folded: new Set(), q: '', kind: '', status: '', crit: false, idle: false, group: true, zoom: 1, sel: null };
+  const fmtT = ms => { const m = Math.floor(ms / 60000), s = Math.floor(ms / 1000) % 60, r = Math.floor(ms % 1000); return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0') + '.' + String(r).padStart(3,'0'); };
+  const fmtD = ms => ms >= 60000 ? Math.floor(ms/60000) + ':' + String(Math.floor(ms/1000)%60).padStart(2,'0') + '.' + String(ms%1000).padStart(3,'0') + 's' : (ms/1000).toFixed(3) + 's';
+  const fmtClock = ms => { const s = Math.floor(ms/1000); return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); };
+  function underFold(r){ let p = r.dataset.parent; while (p) { if (st.folded.has(p)) return true; p = rowById[p].dataset.parent; } return false; }
+  function matches(r){
+    const k = r.dataset.kind;
+    if (!st.idle && (k === 'idle' || k === 'dead_air')) return false;
+    if (st.kind && !GROUPS[st.kind].includes(k)) return false;
+    if (st.status && r.dataset.status !== st.status) return false;
+    if (st.q && !(r.dataset.name.includes(st.q) || k.includes(st.q) || r.dataset.status.includes(st.q))) return false;
+    return true;
+  }
+  function layout(){
+    const filtering = st.q || st.kind || st.status;
+    rows.forEach(r => { r.hidden = !matches(r) || (st.group && !filtering && underFold(r)); r.classList.toggle('folded', st.folded.has(r.dataset.id)); });
+    table.classList.toggle('flat', !st.group); table.classList.toggle('crit-on', st.crit);
+    if (!st.group) { [...rowsBox.querySelectorAll('.sp')].sort((a, b) => +a.dataset.t0 - +b.dataset.t0 || a.dataset.id.localeCompare(b.dataset.id)).forEach(r => rowsBox.appendChild(r)); }
+    else { data.forEach(s => rowsBox.appendChild(rowById[s.id])); }
+    rowsBox.appendChild(document.getElementById('tr-play'));
+    // axis ticks: about eight across the call
+    axis.innerHTML = ''; const raw = dur / 8, step = [1000,2000,5000,10000,20000,30000,60000,120000,300000].find(x => x >= raw) || 300000;
+    for (let t = 0; t <= dur; t += step) { const i = document.createElement('i'); i.style.left = (100 * t / dur) + '%'; i.textContent = fmtClock(t); axis.appendChild(i); }
+    const base = table.clientWidth - 576; table.style.setProperty('--lanew', Math.max(240, base * st.zoom) + 'px');
+    document.getElementById('tr-zoom').textContent = Math.round(st.zoom * 100) + '%';
+    const allOpen = st.folded.size === 0; document.getElementById('tr-expand').innerHTML = '<svg viewBox="0 0 24 24" class="bi"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>' + (allOpen ? 'Collapse all' : 'Expand all');
+  }
+  function icon(kind){ const n = icons.querySelector('[data-kind="' + kind + '"]'); return n ? n.innerHTML : ''; }
+  function pill(s){ return '<span class="stp ' + s + '">' + (s === 'ok' ? '<svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK' : s === 'slow' ? '<svg viewBox="0 0 24 24"><path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17h.01"/></svg>Slow' : '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>Error') + '</span>'; }
+  const esc = v => String(v).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  function select(id, tab){
+    st.sel = id; rows.forEach(r => r.classList.toggle('sel', r.dataset.id === id));
+    const s = byId[id]; if (!s) { panel.hidden = true; return; }
+    const parent = s.parent ? byId[s.parent] : null, children = kids[id] || [];
+    const avg = (() => { const same = data.filter(x => x.kind === s.kind && x.kind !== 'call'); return same.length ? same.reduce((a, x) => a + x.duration_ms, 0) / same.length : null; })();
+    let alert = '';
+    if (s.status === 'slow') {
+      const top = children.filter(c => c.kind !== 'idle').sort((a, b) => b.duration_ms - a.duration_ms).slice(0, 2).map(c => c.label.toLowerCase());
+      alert = '<div class="tr-alert slow"><b>High latency span</b>This span took ' + (s.duration_ms/1000).toFixed(1) + 's' + (avg ? ' (' + (s.duration_ms / avg).toFixed(1) + 'x the average ' + (avg/1000).toFixed(1) + 's for this type)' : '') + (s.attrs.heard_ms ? '; the caller waited ' + (s.attrs.heard_ms/1000).toFixed(1) + 's for the reply' : '') + '.' + (top.length ? ' Most of the time was spent in ' + top.join(' and ') + '.' : '') + '</div>';
+    } else if (s.status === 'error') {
+      alert = '<div class="tr-alert error"><b>Failed call</b>' + (s.attrs.tool ? 'The order system rejected ' + esc(s.attrs.tool) : 'The request failed') + (s.attrs.http_status ? ' with HTTP ' + s.attrs.http_status : '') + (s.attrs.fault ? ' (injected fault: ' + esc(s.attrs.fault) + ')' : '') + '.' + (s.attrs.response ? ' Response: ' + esc(s.attrs.response) : '') + '</div>';
+    }
+    const kv = (k, v) => '<span class="k">' + k + '</span><span>' + v + '</span>';
+    let details = alert + '<div class="kv small">' + kv('Span type', icon(s.kind) + ' ' + esc(s.label)) + kv('Status', pill(s.status)) + kv('Start time', '<span class="mono">' + fmtT(s.t0_ms) + '</span>') + kv('End time', '<span class="mono">' + fmtT(s.t1_ms) + '</span>') + kv('Duration', '<span class="mono">' + fmtD(s.duration_ms) + '</span>') + (parent ? kv('Parent span', '<a href="#" data-sel="' + parent.id + '">' + esc(parent.name) + '</a> <span class="muted mono">(' + fmtT(parent.t0_ms) + ')</span>') : '') + '</div>';
+    if (s.attrs.model || s.attrs.input_tokens != null) {
+      const tin = s.attrs.input_tokens, tout = s.attrs.output_tokens;
+      details += '<h4>Model &amp; tokens</h4><div class="kv small">' + (s.attrs.model ? kv('Model', esc(s.attrs.model)) : '') + (tin != null ? kv('Input tokens', tin.toLocaleString()) : '') + (tout != null ? kv('Output tokens', tout.toLocaleString()) : '') + (tin != null && tout != null ? kv('Total tokens', (tin + tout).toLocaleString()) : '') + '</div>';
+    }
+    const shown = children.filter(c => c.duration_ms > 0).sort((a, b) => b.duration_ms - a.duration_ms);
+    if (shown.length) {
+      const total = Math.max(s.duration_ms, 1);
+      const other = Math.max(0, s.duration_ms - children.reduce((a, c) => a + c.duration_ms, 0));
+      details += '<h4>Latency breakdown</h4><div class="tr-break">' + shown.map(c => '<span>' + esc(c.label) + '</span><i class="k-' + c.kind + '" style="width:' + Math.max(2, 100 * c.duration_ms / total) + '%"></i><b>' + (c.duration_ms/1000).toFixed(1) + 's</b><em>' + Math.round(100 * c.duration_ms / total) + '%</em>').join('') + (other > 50 && !children.some(c => c.kind === 'idle') ? '<span>Other</span><i class="k-idle" style="width:' + Math.max(2, 100 * other / total) + '%"></i><b>' + (other/1000).toFixed(1) + 's</b><em>' + Math.round(100 * other / total) + '%</em>' : '') + '</div>';
+    }
+    details += '<h4>Related spans</h4><div class="kv small">' + (parent ? kv('Parent span', '<a href="#" data-sel="' + parent.id + '">' + icon(parent.kind) + ' ' + esc(parent.name) + '</a> <span class="muted mono">' + fmtD(parent.duration_ms) + '</span>') : '') + (children.length ? kv('Child spans (' + children.length + ')', children.map(c => '<a href="#" data-sel="' + c.id + '">' + icon(c.kind) + ' ' + esc(c.name) + '</a> <span class="muted mono">' + fmtD(c.duration_ms) + '</span> ' + (c.status === 'ok' ? '<i class="dot ok"></i>' : c.status === 'slow' ? '<i class="dot slow"></i>' : '<i class="dot error"></i>')).join('<br>')) : '') + '</div>';
+    const attrs = Object.entries(s.attrs).filter(([k]) => k !== 'critical');
+    const attributes = attrs.length ? '<div class="kv small">' + attrs.map(([k, v]) => kv(esc(k.replace(/_/g, ' ')), esc(v))).join('') + '</div>' : '<p class="small muted">No attributes on this span.</p>';
+    const turn = s.turn != null ? data.filter(x => x.turn === s.turn && x.attrs.text) : [];
+    const transcript = turn.length ? turn.map(x => '<p class="small"><b>' + (x.kind === 'user_turn' ? 'Caller' : 'Agent') + '</b> ' + esc(x.attrs.text) + '</p>').join('') : '<p class="small muted">No words on this span.</p>';
+    panel.innerHTML = '<div class="tr-ph"><span class="ic">' + icon(s.kind) + '</span><div><div class="small muted">Span</div><div class="nm">' + esc(s.name) + '</div><div class="small muted mono">' + fmtT(s.t0_ms) + ' – ' + fmtT(s.t1_ms) + ' <span>(' + fmtD(s.duration_ms) + ')</span></div></div>' + pill(s.status) + '<button type="button" class="x" id="tr-close" title="close">✕</button></div>'
+      + '<div class="tr-tabs"><button type="button" class="on" data-pt="details">Details</button><button type="button" data-pt="attributes">Attributes</button><button type="button" data-pt="transcript">Transcript</button></div>'
+      + '<div data-pp="details">' + details + '</div><div data-pp="attributes" hidden>' + attributes + '</div><div data-pp="transcript" hidden>' + transcript + '</div>';
+    panel.hidden = false;
+    if (tab) panel.querySelector('[data-pt="' + tab + '"]').click();
+  }
+  pane.addEventListener('click', e => {
+    const a = e.target.closest('[data-sel]'); if (a) { e.preventDefault(); const r = rowById[a.dataset.sel]; let p = r && r.dataset.parent; while (p) { st.folded.delete(p); p = rowById[p].dataset.parent; } layout(); select(a.dataset.sel); r && r.scrollIntoView({block:'nearest'}); return; }
+    const pt = e.target.closest('[data-pt]'); if (pt) { panel.querySelectorAll('[data-pt]').forEach(b => b.classList.toggle('on', b === pt)); panel.querySelectorAll('[data-pp]').forEach(d => d.hidden = d.dataset.pp !== pt.dataset.pt); return; }
+    if (e.target.closest('#tr-close')) { panel.hidden = true; rows.forEach(r => r.classList.remove('sel')); st.sel = null; return; }
+    const tg = e.target.closest('.sp .tg:not(.none)'); if (tg) { const r = tg.closest('.sp'); st.folded.has(r.dataset.id) ? st.folded.delete(r.dataset.id) : st.folded.add(r.dataset.id); layout(); return; }
+    const r = e.target.closest('#tr-rows .sp'); if (!r) return;
+    select(r.dataset.id);
+    if (e.target.closest('.c-lane') && window.gfInspector) window.gfInspector.seek(+r.dataset.t0);
+  });
+  document.getElementById('tr-expand').addEventListener('click', () => { if (st.folded.size) st.folded.clear(); else rows.forEach(r => { if (r.dataset.kids) st.folded.add(r.dataset.id); }); layout(); });
+  document.getElementById('tr-q').addEventListener('input', e => { st.q = e.target.value.trim().toLowerCase(); layout(); });
+  document.getElementById('tr-kind').addEventListener('change', e => { st.kind = e.target.value; layout(); });
+  document.getElementById('tr-status').addEventListener('change', e => { st.status = e.target.value; layout(); });
+  document.getElementById('tr-crit').addEventListener('click', e => { st.crit = !st.crit; e.currentTarget.classList.toggle('on', st.crit); layout(); });
+  document.getElementById('tr-idle').addEventListener('click', e => { st.idle = !st.idle; e.currentTarget.classList.toggle('on', st.idle); layout(); });
+  document.getElementById('tr-group').addEventListener('click', e => { st.group = !st.group; e.currentTarget.classList.toggle('on', st.group); layout(); });
+  document.getElementById('tr-zoom-in').addEventListener('click', () => { st.zoom = Math.min(8, st.zoom * 1.5); layout(); });
+  document.getElementById('tr-zoom-out').addEventListener('click', () => { st.zoom = Math.max(1, st.zoom / 1.5); layout(); });
+  const tip = document.getElementById('tr-tip');
   pane.addEventListener('mouseover', e => {
-    const el = e.target.closest('[data-tip]'); if (!el) { tip.hidden = true; return; }
+    const el = e.target.closest('.c-name[data-tip]'); if (!el || !el.dataset.tip) { tip.hidden = true; return; }
     tip.textContent = el.dataset.tip; tip.hidden = false;
     const pr = pane.getBoundingClientRect(), er = el.getBoundingClientRect();
-    tip.style.left = Math.max(0, Math.min(er.left - pr.left + er.width / 2 - tip.offsetWidth / 2, pr.width - tip.offsetWidth - 4)) + 'px';
-    tip.style.top = (er.top - pr.top - tip.offsetHeight - 8) + 'px';
+    tip.style.left = Math.max(0, er.left - pr.left + 24) + 'px'; tip.style.top = (er.bottom - pr.top + 4) + 'px';
   });
   pane.addEventListener('mouseleave', () => { tip.hidden = true; });
-  pane.addEventListener('click', e => { const r = e.target.closest('.sp'); if (!r) return; rows.forEach(x => x.classList.toggle('sel', x === r)); if (window.gfInspector) window.gfInspector.seek(+r.dataset.t); });
-  const audio = document.getElementById('insp-audio');
-  if (audio) { const tick = () => { const ms = audio.currentTime * 1000; rows.forEach(r => r.classList.toggle('cur', ms >= +r.dataset.t && ms < +r.dataset.end)); }; audio.addEventListener('timeupdate', tick); audio.addEventListener('seeked', tick); }
+  const audio = document.getElementById('insp-audio'), play = document.getElementById('tr-play'), playLbl = document.getElementById('tr-play-lbl');
+  if (audio) {
+    const tick = () => {
+      const ms = audio.currentTime * 1000, lane = rows.find(r => !r.hidden) && rows.find(r => !r.hidden).querySelector('.c-lane');
+      if (!lane || pane.hidden) { play.hidden = true; return; }
+      play.hidden = false; play.style.left = (lane.offsetLeft + lane.offsetWidth * ms / dur) + 'px';
+      playLbl.textContent = fmtClock(ms) + (pane.dataset.p95 ? ' · p95 ' + (pane.dataset.p95/1000).toFixed(1) + 's' : '');
+    };
+    audio.addEventListener('timeupdate', tick); audio.addEventListener('seeked', tick);
+  }
+  // start with the children of tool calls folded (the backend row), the rest open; select what matters
+  rows.forEach(r => { if (r.dataset.kind === 'tool_call' && r.dataset.kids) st.folded.add(r.dataset.id); });
   layout();
+  const first = data.find(s => s.status === 'error' && s.kind === 'tool_call') || data.find(s => s.status === 'slow' && s.kind === 'reasoning');
+  if (first) select(first.id);
+  new ResizeObserver(() => layout()).observe(table);
+  window.gfSpans = { layout, select };
 })();
 </script>

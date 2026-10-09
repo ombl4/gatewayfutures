@@ -314,31 +314,108 @@ def test_inspector_controls(site, page):
         assert page.locator(f'#inspector [data-pane="{tab}"]').is_visible()
         others = page.locator("#inspector .pane:not([hidden])")
         assert others.count() == 1
-    # spans tab (T6.34): one row per agent turn, stacked blocks, numbers only in the hover popup
+    # spans tab (T6.35): a trace table with tree, filters, critical path, zoom, panel, playhead
     assert page.locator('#inspector [data-tab="latency"]').count() == 0
     page.click('#inspector [data-tab="spans"]')
-    rows = page.locator("#spans .sp")
-    assert rows.count() == page.locator("#transcript .turn.agent").count()
+    rows = page.locator("#tr-rows .sp")
+    total = rows.count()
+    assert total > 10 and rows.first.get_attribute("data-kind") == "call"
+    assert "voice_call" in rows.first.inner_text() and "OK" in rows.first.inner_text()
+    assert page.locator("#tr-head, .tr-head").first.inner_text().startswith("Span name")
     assert (
-        page.locator("#spans .sp .seg").count() >= 4
-        and page.locator("#spans .sp .htick").count() >= 1
+        page.locator("#tr-rows .sp .bar").count() == total
+        and page.locator("#tr-rows .sp .si").count() == total
     )
-    assert "ms" not in page.locator("#spans .sp").first.inner_text()  # no printed numbers
-    assert page.locator("#spans-tip").is_hidden()
-    page.locator("#spans .sp .seg").first.hover()
     assert (
-        page.locator("#spans-tip").is_visible() and "ms" in page.locator("#spans-tip").inner_text()
+        page.locator('#tr-rows .sp[data-kind="idle"]:visible').count() == 0
+    )  # idle hidden by default
+    tool = page.locator('#tr-rows .sp[data-kind="tool_call"]').first
+    backend = page.locator('#tr-rows .sp[data-kind="backend"]').first
+    assert backend.is_hidden()  # tool rows start folded
+    tool.locator(".tg").click()
+    assert backend.is_visible()
+    page.fill("#tr-q", "tool")
+    assert (
+        page.locator("#tr-rows .sp:visible").count()
+        == page.locator('#tr-rows .sp[data-kind="tool_call"]').count()
     )
-    page.locator("#spans .sp .htick").first.hover()
-    assert "Heard" in page.locator("#spans-tip").inner_text()
-    page.check('#spans [data-sf="slow"]')
-    assert page.locator('#spans .sp:not([hidden])[data-status="ok"]').count() == 0
-    page.uncheck('#spans [data-sf="slow"]')
-    assert page.locator("#spans .sp:not([hidden])").count() == rows.count()
+    page.fill("#tr-q", "")
+    some_status = rows.nth(1).get_attribute("data-status")
+    page.select_option("#tr-status", some_status)
+    assert page.locator("#tr-rows .sp:visible").count() >= 1
+    assert page.locator(f'#tr-rows .sp:visible:not([data-status="{some_status}"])').count() == 0
+    page.select_option("#tr-status", "")
+    page.select_option("#tr-kind", "reasoning")
+    assert (
+        page.locator("#tr-rows .sp:visible").count()
+        == page.locator(
+            '#tr-rows .sp[data-kind="reasoning"], #tr-rows .sp[data-kind="llm"]'
+        ).count()
+    )
+    page.select_option("#tr-kind", "")
+    page.click("#tr-idle")
+    assert page.locator('#tr-rows .sp[data-kind="idle"]:visible').count() >= 1
+    page.click("#tr-idle")
+    page.click("#tr-crit")
+    assert "crit-on" in page.locator("#tr-table").get_attribute("class")
+    page.click("#tr-crit")
+    page.click("#tr-group")
+    assert (
+        "flat" in page.locator("#tr-table").get_attribute("class")
+        and page.locator("#tr-rows .sp:visible").count() >= total - 10
+    )
+    page.click("#tr-group")
+    lane_before = page.evaluate(
+        "getComputedStyle(document.getElementById('tr-table')).getPropertyValue('--lanew')"
+    )
+    page.click("#tr-zoom-in")
+    assert page.locator("#tr-zoom").inner_text() == "150%"
+    assert (
+        page.evaluate(
+            "getComputedStyle(document.getElementById('tr-table')).getPropertyValue('--lanew')"
+        )
+        != lane_before
+    )
+    page.click("#tr-zoom-out")
+    page.click("#tr-expand")  # tool rows start folded, so the first click expands everything
+    assert (
+        page.locator("#tr-rows .sp:visible").count()
+        >= total
+        - page.locator('#tr-rows .sp[data-kind="idle"], #tr-rows .sp[data-kind="dead_air"]').count()
+    )
+    # the panel: a slow reasoning span opens with its explanation; the parent link selects the parent
+    slow_row = page.locator('#tr-rows .sp[data-kind="reasoning"][data-kids="1"]').first
+    slow_row.locator(".c-name").click()
+    panel = page.locator("#tr-panel")
+    assert panel.is_visible() and "agent_reasoning" in panel.locator(".tr-ph .nm").inner_text()
+    assert "Latency breakdown" in panel.inner_text() and "Related spans" in panel.inner_text()
+    if slow_row.get_attribute("data-status") == "slow":
+        assert panel.locator(".tr-alert.slow").is_visible()
+    panel.locator('[data-pt="attributes"]').click()
+    assert "heard ms" in panel.locator('[data-pp="attributes"]').inner_text()
+    panel.locator('[data-pt="transcript"]').click()
+    assert len(panel.locator('[data-pp="transcript"]').inner_text()) > 10
+    panel.locator('[data-pt="details"]').click()
+    panel.locator("[data-sel]").first.click()
+    assert "voice_call" in panel.locator(".tr-ph .nm").inner_text()
+    # clicking a bar seeks the audio and the playhead appears
     page.evaluate("document.getElementById('insp-audio').currentTime = 0")
-    rows.nth(1).click()
+    slow_row.locator(".c-lane").click()
     assert page.evaluate("document.getElementById('insp-audio').currentTime") > 0
-    assert page.locator("#latency-glossary").count() == 1
+    page.wait_for_timeout(100)
+    assert (
+        page.locator("#tr-play").is_visible() and ":" in page.locator("#tr-play-lbl").inner_text()
+    )
+    page.click("#tr-close")
+    assert panel.is_hidden()
+    assert (
+        page.locator("#latency-glossary").count() == 0
+    )  # no glossary block: hover explains a span
+    assert page.locator("#tr-tip").is_hidden()
+    page.locator("#tr-rows .sp .c-name").nth(1).hover()
+    assert page.locator("#tr-tip").is_visible() and len(page.locator("#tr-tip").inner_text()) > 20
+    page.click("#tr-expand")  # collapse all leaves the root
+    assert page.locator("#tr-rows .sp:visible").count() < total
     page.click('#inspector [data-tab="transcript"]')
     # compact check tags on the transcript: ? opens one popover at a time with the explanation
     assert page.locator('#inspector [data-pane="checks"]').count() == 0  # the Checks tab is gone
