@@ -71,7 +71,7 @@
         <a href="{{ links.call(r.run_id, row.session_id, a.attempt) }}">Open call →</a>
       </div>
       {% endfor %}
-      <div class="small" style="margin-top:8px"><a href="{{ links.session(row.session_id) }}">Session definition and history →</a>{% if row.p95_class in ('amber','red') %} <span class="muted">· worst p95 reply {{ row.latency_p95_ms_max|ms }}</span>{% endif %}</div>
+      <div class="small" style="margin-top:8px"><a href="{{ links.session(row.session_id) }}">Session definition and history →</a>{% if mode == 'live' and not row.retired %} · <form method="post" action="/runs/{{ r.run_id }}/rerun" style="display:inline"><input type="hidden" name="session" value="{{ row.session_id }}"><button class="btn sm rerun-session" type="submit" title="new run with just this session, same repeats, compared with this run">Re-run this session</button></form>{% endif %}{% if row.p95_class in ('amber','red') %} <span class="muted">· worst p95 reply {{ row.latency_p95_ms_max|ms }}</span>{% endif %}</div>
     </div>
   </details>
   {% endfor %}

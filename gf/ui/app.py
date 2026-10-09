@@ -361,6 +361,35 @@ async def check_run(request: Request):
     return RedirectResponse(f"/runs/{run_id}", status_code=303)
 
 
+@app.post("/runs/{run_id}/rerun")
+async def run_rerun(run_id: str, request: Request):
+    """Start a new run with the same sessions (or one of them) and the same repeats; the new
+    run records this one as its parent and compares against it. Finished runs are never
+    appended to."""
+    _require_run(run_id)
+    man = model._json(settings().runs_dir / run_id / "manifest.json", {})
+    form = await request.form()
+    only = [str(v) for v in form.getlist("session")]
+    active = {s["id"] for s in model.sessions_page()["sessions"]}
+    ids = [s["id"] for s in man.get("sessions", []) if s["id"] in active]
+    if only:
+        ids = [i for i in ids if i in only]
+    if not ids:
+        raise HTTPException(400, "none of this run's sessions are still active (all retired)")
+    try:
+        new_id = jobs.start(
+            ids,
+            int(man.get("repeat") or 3),
+            int(man.get("concurrency") or 4),
+            "",
+            suite=man.get("suite"),
+            parent_run=run_id,
+        )
+    except (RuntimeError, ValueError) as e:
+        raise HTTPException(400, str(e)) from None
+    return RedirectResponse(f"/runs/{new_id}", status_code=303)
+
+
 @app.post("/runs/{run_id}/stop")
 def run_stop(run_id: str):
     _require_run(run_id)

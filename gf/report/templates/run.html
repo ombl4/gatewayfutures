@@ -9,12 +9,13 @@
 {% if mode == 'live' and job %}
 <span style="display:flex;gap:6px">
   {% if job.state == 'done' and r.kind == 'run' %}<form method="post" action="/checks/run" style="display:inline">{% for row in r.sessions %}<input type="hidden" name="session" value="{{ row.session_id }}">{% endfor %}<input type="hidden" name="variant" value="dishonest"><button class="btn" type="submit" id="btn-prove" title="re-run these sessions with a deliberately dishonest agent and check that the honesty check fires">Prove the honesty check</button></form>{% endif %}
+  {% if job.state == 'done' and r.kind == 'run' %}<form method="post" action="/runs/{{ r.run_id }}/rerun" style="display:inline"><button class="btn" type="submit" id="btn-rerun" title="start a new run with the same sessions and repeats; it will be compared with this one">Re-run</button></form>{% endif %}
   {% if job.state == 'running' %}<form method="post" action="/runs/{{ r.run_id }}/stop" style="display:inline"><button class="btn danger" type="submit">Stop run</button></form>
   {% else %}<form method="post" action="/runs/{{ r.run_id }}/rescore" style="display:inline"><button class="btn" type="submit" id="btn-rescore" title="re-run scoring, e.g. after scoring code changed">Rescore</button></form>{% endif %}
 </span>
 {% endif %}
 </div>
-<p class="meta"><span>{{ r.started_at|dt }}</span><i>·</i><span>{{ r.sessions|length }} sessions × {{ r.repeat }}</span><i>·</i><span>{{ r.summary.calls }} calls ({{ r.valid_count }} valid, {{ r.invalid_count }} invalid){% if r.duration_s %} in {{ (r.duration_s/60)|round(1) }} min{% endif %}</span>{% if r.previous %}<i>·</i><span>compared with <a href="{{ links.run(r.previous.run_id) }}">{{ r.previous.run_id }}</a>{% if not r.previous.like_for_like %} (not like-for-like){% endif %}</span>{% endif %}<i>·</i><span>{{ rb.tags(r.tags) }}</span></p>
+<p class="meta"><span>{{ r.started_at|dt }}</span><i>·</i><span>{{ r.sessions|length }} sessions × {{ r.repeat }}</span><i>·</i><span>{{ r.summary.calls }} calls ({{ r.valid_count }} valid, {{ r.invalid_count }} invalid){% if r.duration_s %} in {{ (r.duration_s/60)|round(1) }} min{% endif %}</span>{% if r.parent_run %}<i>·</i><span>re-run of <a href="{{ links.run(r.parent_run) }}">{{ r.parent_run }}</a></span>{% endif %}{% if r.previous %}<i>·</i><span>compared with <a href="{{ links.run(r.previous.run_id) }}">{{ r.previous.run_id }}</a>{% if not r.previous.like_for_like %} (not like-for-like){% endif %}</span>{% endif %}<i>·</i><span>{{ rb.tags(r.tags) }}</span></p>
 
 {% if r.detector %}
 <div class="banner" style="border-color:{{ '#86efac' if r.detector.caught else ('#fecaca' if r.detector.missed else '#fde68a') }};background:{{ 'var(--green-bg)' if r.detector.caught else ('var(--red-bg)' if r.detector.missed else 'var(--amber-bg)') }}">

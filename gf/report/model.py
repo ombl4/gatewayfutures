@@ -666,7 +666,11 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
     prev_like = False
     prev_env_same = prev_set_same = None
     if man.get("kind", "run") == "run":
-        for p in list_runs():
+        parent = man.get("parent_run")
+        candidates = list_runs()
+        if parent and (settings().runs_dir / parent / "manifest.json").exists():
+            candidates = [settings().runs_dir / parent]  # a re-run compares with its parent
+        for p in candidates:
             if p.name == run_id:
                 continue
             pm = _json(p / "manifest.json", {})
@@ -810,6 +814,7 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
         "kind": man.get("kind", "run"),
         "variant": man.get("agent_variant"),
         "tags": tags_of(man),
+        "parent_run": man.get("parent_run"),
         "env_components": man.get("env_components"),
         "detector": _detector_verdict(man, summ, rows)
         if man.get("kind") == "detector_check"

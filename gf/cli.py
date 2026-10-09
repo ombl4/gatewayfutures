@@ -163,6 +163,9 @@ def run(
     run_id: str = "",
     variant: str = typer.Option("", help="Agent variant, e.g. 'dishonest' (detector check)."),
     suite: str = typer.Option("", help="Run a named suite from sessions/suites.yaml."),
+    parent: str = typer.Option(
+        "", help="Run id this is a re-run of (recorded, used as the baseline)."
+    ),
 ) -> None:
     """Run sessions N times each, concurrently, into runs/<run_id>/ with a manifest."""
     import asyncio
@@ -192,6 +195,7 @@ def run(
             run_id=run_id,
             variant=variant or None,
             suite=suite or None,
+            parent_run=parent or None,
         )
     )
     typer.echo(

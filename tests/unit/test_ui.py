@@ -243,6 +243,28 @@ def test_check_run_refuses_sessions_the_variant_cannot_prove(env):
     assert not any(p.name.startswith("check-") for p in env["runs"].iterdir())
 
 
+def test_rerun_starts_a_child_run_without_touching_the_parent(env, monkeypatch):
+    from gf.ui import jobs
+
+    calls = []
+
+    def fake_start(ids, repeat, concurrency, run_id="", variant=None, suite=None, parent_run=None):
+        calls.append((sorted(ids), repeat, concurrency, parent_run))
+        return "child-1"
+
+    monkeypatch.setattr(jobs, "start", fake_start)
+    r = env["client"].post("/runs/t1/rerun", follow_redirects=False)
+    assert r.status_code == 303 and r.headers["location"] == "/runs/child-1"
+    assert calls[-1] == (["7c994c348001", "ef113fc07616"], 2, 2, "t1")
+    r = env["client"].post(
+        "/runs/t1/rerun", data={"session": "7c994c348001"}, follow_redirects=False
+    )
+    assert calls[-1][0] == ["7c994c348001"]
+    assert (env["runs"] / "t1" / "manifest.json").exists()
+    page = env["client"].get("/runs/t1").text
+    assert 'id="btn-rerun"' in page and "rerun-session" in page
+
+
 def test_dead_job_reads_as_failed_and_stop_is_safe(env):
     from gf.ui import jobs
 
