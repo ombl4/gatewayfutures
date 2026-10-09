@@ -81,6 +81,7 @@ a.pill:hover{text-decoration:none;filter:brightness(.95)}
 .btn.danger{color:var(--red);border-color:#fecaca}
 .btn[disabled]{opacity:.5;cursor:not-allowed}
 .btn.sm{padding:3px 9px;font-size:12px}
+.btn.on{background:var(--accent-bg);border-color:#c7d2fe;color:var(--accent-ink)}
 table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
 th,td{text-align:left;padding:8px 10px;border-top:1px solid var(--line2);vertical-align:top}
 th{background:#fafafa;color:var(--muted);font-weight:600;font-size:11.5px;border-top:0;text-transform:uppercase;letter-spacing:.04em}
@@ -286,11 +287,11 @@ details.srow summary .ttl .chip{font-weight:400}
   <a class="row" href="agent.html#models"><span>Model</span><span>gpt-4.1-mini</span></a>
   <a class="row" href="backend.html"><span>Order system</span><span>mock</span></a>
   <a class="row" href="caller.html"><span>Simulated caller</span><span>gf-caller</span></a>
-  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-09 00:25 UTC</div>
+  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-09 00:48 UTC</div>
 </aside>
 <div class="wrap">
 <header class="top">
-  <div class="crumbs"><a href="overview.html">Voice agent evaluation</a><i>›</i><a href="index.html">Runs</a><i>›</i><a href="index.html">full-3</a><i>›</i><a href="session-608471aea60f.html">Caller demands a human from the first sentence</a><i>›</i><b>attempt 2</b></div>
+  <div class="crumbs"><a href="overview.html">Voice agent evaluation</a><i>›</i><a href="index.html">Runs</a><i>›</i><a href="index.html">full-4</a><i>›</i><a href="session-608471aea60f.html">Caller demands a human from the first sentence</a><i>›</i><b>attempt 2</b></div>
   <div class="right">
     <span class="status-pill " title="livekit"><i></i>livekit</span>
   </div>
@@ -299,16 +300,16 @@ details.srow summary .ttl .chip{font-weight:400}
 <section class="insp" id="inspector" data-call="608471aea60f/2">
   <div class="hd">
     <h2>Call inspector</h2>
-    <div class="meta"><span class="ttl" title="Caller demands a human from the first sentence">Caller demands a human from the first sentence</span><i>·</i><span class="pill pass">Passed</span><i>·</i><span>0:20</span></div>
+    <div class="meta"><span class="ttl" title="Caller demands a human from the first sentence">Caller demands a human from the first sentence</span><i>·</i><span class="pill pass">Passed</span><i>·</i><span>0:19</span></div>
     <div class="nav">
       <span class="small muted">ended by room_closed</span>
 <a class="btn sm" href="call-608471aea60f-1.html" id="insp-prev" title="previous attempt">‹</a>      <span class="small">attempt 2 of 3</span>
-<a class="btn sm" href="call-608471aea60f-3.html" id="insp-next" title="next attempt">›</a><a class="btn sm" href="index.html">← Run full-3</a>    </div>
+<a class="btn sm" href="call-608471aea60f-3.html" id="insp-next" title="next attempt">›</a><a class="btn sm" href="index.html">← Run full-4</a>    </div>
   </div>
 
   <div class="abar">
     <button class="pb" id="insp-play" type="button" title="play / pause" ><svg viewBox="0 0 24 24" class="i-play"><path d="M7 4l13 8-13 8z"/></svg><svg viewBox="0 0 24 24" class="i-pause" hidden><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg></button>
-    <span class="tm"><span id="insp-cur">0:00</span> / 0:20</span>
+    <span class="tm"><span id="insp-cur">0:00</span> / 0:19</span>
     <canvas class="lanes" id="insp-lanes" height="64"></canvas>
 <audio id="insp-audio" preload="metadata" src="audio/608471aea60f-2.mp3"></audio>  </div>
   <div class="legend"><span><i style="background:var(--caller)"></i>caller</span><span><i style="background:var(--agent)"></i>agent</span><span><i style="background:var(--tool)"></i>tool call</span><span><i style="background:var(--red)"></i>issue</span><span><i style="background:#f59e0b"></i>interruption</span><span><i style="background:#fde68a"></i>dead air</span><span class="muted">click the lanes to seek</span></div>
@@ -317,32 +318,32 @@ details.srow summary .ttl .chip{font-weight:400}
     <button type="button" data-tab="transcript" class="on">Transcript</button>
     <button type="button" data-tab="tools">Tool calls<b>1</b></button>
     <button type="button" data-tab="timeline">Timeline</button>
-    <button type="button" data-tab="latency">Latency<b>p95 1.8 s</b></button>
+    <button type="button" data-tab="latency">Latency<b>p95 1.6 s</b></button>
     <button type="button" data-tab="checks">Checks</button>
 <button type="button" data-tab="details">Details</button><label class="sw on" data-toggle="heard-off" data-target="#inspector" id="insp-heard"><span class="tg"></span>Show what the agent heard</label>  </div>
 
   <div class="panes">
     <div>
       <div class="pane" data-pane="transcript" id="transcript">
-        <div class="turn agent" data-t="1996" data-end="6678">
+        <div class="turn agent" data-t="1765" data-end="6286">
           <div class="t">0:01</div><div class="av">A</div>
           <div><div class="who">Agent</div>
             <div>Thanks for calling Gateway Goods, this is Ava. How can I help you today?</div>
           </div>
         </div>
-        <div class="turn caller" data-t="7556" data-end="9708">
+        <div class="turn caller" data-t="7151" data-end="10253">
           <div class="t">0:07</div><div class="av">C</div>
           <div><div class="who">James Carter</div>
             <div>I&#39;m calling because I want to talk to a human team member. I don&#39;t want to give any details to a machine. Please transfer me.</div>
-<div class="heard" title="what the agent's speech recognition produced">agent heard: “I&#39;m calling because I want to talk to a human team member.”</div>          </div>
+<div class="heard" title="what the agent's speech recognition produced">agent heard: “I&#39;m calling because I want to talk to a”</div>          </div>
         </div>
-        <div class="toolev " data-tool="1" data-t="15379">
-          <span class="muted mono" style="font-size:11px">0:15</span><span class="name">escalate_to_human()</span><span class="args">reason: "caller request", summary: "Caller requested to speak to a human team member without providing order details."</span>
+        <div class="toolev " data-tool="1" data-t="14590">
+          <span class="muted mono" style="font-size:11px">0:14</span><span class="name">escalate_to_human()</span><span class="args">reason: "caller requested human", summary: "Caller requested to speak with a human team member without providing order details."</span>
           <span class="pill green">200</span><span class="muted small">0 ms</span><span class="small">→ status=escalated, ticket_id=TK-0001</span>
         </div>
-        <div class="turn agent" data-t="15505" data-end="19899">
-          <div class="t">0:15</div><div class="av">A</div>
-          <div><div class="who">Agent<span class="pill green lat" title="caller stopped → agent audio started">1.8 s</span></div>
+        <div class="turn agent" data-t="14686" data-end="19328">
+          <div class="t">0:14</div><div class="av">A</div>
+          <div><div class="who">Agent<span class="pill green lat" title="caller stopped → agent audio started">1.6 s</span></div>
             <div>I&#39;m transferring you to a team member now. Thank you for your patience, goodbye.</div>
           </div>
         </div>
@@ -351,7 +352,7 @@ details.srow summary .ttl .chip{font-weight:400}
       <div class="pane" data-pane="tools" hidden>
         <div class="tablewrap"><table>
         <tr><th>time</th><th>tool</th><th>arguments</th><th>status</th><th>took</th><th>response</th></tr>
-        <tr class="toolrow" data-tool="1" data-t="15379" style="cursor:pointer"><td class="mono">0:15</td><td class="mono"><b>escalate_to_human</b></td><td class="mono small">{"reason":"caller request","summary":"Caller requested to speak to a human team member without providing order details."}</td><td><span class="pill green">200</span></td><td>0 ms</td><td class="small">status=escalated, ticket_id=TK-0001</td></tr>
+        <tr class="toolrow" data-tool="1" data-t="14590" style="cursor:pointer"><td class="mono">0:14</td><td class="mono"><b>escalate_to_human</b></td><td class="mono small">{"reason":"caller requested human","summary":"Caller requested to speak with a human team member without providing order details."}</td><td><span class="pill green">200</span></td><td>0 ms</td><td class="small">status=escalated, ticket_id=TK-0001</td></tr>
         </table></div>
         <p class="small muted">Read from the order system's request log, never from the transcript.</p>
       </div>
@@ -360,18 +361,19 @@ details.srow summary .ttl .chip{font-weight:400}
         <canvas id="insp-tl" class="tl" height="150"></canvas>
         <div class="tablewrap" style="margin-top:10px"><table>
         <tr><th>time</th><th>event</th><th>detail</th></tr>
-        <tr class="tlrow" data-t="2540" style="cursor:pointer"><td class="mono">0:02</td><td>agent speech</td><td class="small">1.3 s</td></tr>
-        <tr class="tlrow" data-t="4380" style="cursor:pointer"><td class="mono">0:04</td><td>agent speech</td><td class="small">0.8 s</td></tr>
-        <tr class="tlrow" data-t="5700" style="cursor:pointer"><td class="mono">0:05</td><td>agent speech</td><td class="small">0.9 s</td></tr>
-        <tr class="tlrow" data-t="6678" style="cursor:pointer"><td class="mono">0:06</td><td>agent said</td><td class="small">Thanks for calling Gateway Goods, this is Ava. How can I help you today?</td></tr>
-        <tr class="tlrow" data-t="7556" style="cursor:pointer"><td class="mono">0:07</td><td>caller said</td><td class="small">I&#39;m calling because I want to talk to a human team member. I don&#39;t want to give any details to a machine. Please transfer me.</td></tr>
-        <tr class="tlrow" data-t="8000" style="cursor:pointer"><td class="mono">0:08</td><td>caller speech</td><td class="small">6.1 s</td></tr>
-        <tr class="tlrow" data-t="11523" style="cursor:pointer"><td class="mono">0:11</td><td>agent heard</td><td class="small">I&#39;m calling because I want to talk to a human team member.</td></tr>
-        <tr class="tlrow" data-t="14531" style="cursor:pointer"><td class="mono">0:14</td><td>agent heard</td><td class="small">I don&#39;t want to give any details to a machine. Please transfer me.</td></tr>
-        <tr class="tlrow" data-t="15379" style="cursor:pointer"><td class="mono">0:15</td><td>tool call</td><td class="small"><span class="mono">escalate_to_human</span> ok · 0 ms</td></tr>
-        <tr class="tlrow" data-t="15900" style="cursor:pointer"><td class="mono">0:15</td><td>agent speech</td><td class="small">2.0 s</td></tr>
-        <tr class="tlrow" data-t="18400" style="cursor:pointer"><td class="mono">0:18</td><td>agent speech</td><td class="small">1.5 s</td></tr>
-        <tr class="tlrow" data-t="19900" style="cursor:pointer"><td class="mono">0:19</td><td>agent said</td><td class="small">I&#39;m transferring you to a team member now. Thank you for your patience, goodbye.</td></tr>
+        <tr class="tlrow" data-t="2340" style="cursor:pointer"><td class="mono">0:02</td><td>agent speech</td><td class="small">1.2 s</td></tr>
+        <tr class="tlrow" data-t="4000" style="cursor:pointer"><td class="mono">0:04</td><td>agent speech</td><td class="small">0.7 s</td></tr>
+        <tr class="tlrow" data-t="5280" style="cursor:pointer"><td class="mono">0:05</td><td>agent speech</td><td class="small">0.9 s</td></tr>
+        <tr class="tlrow" data-t="6287" style="cursor:pointer"><td class="mono">0:06</td><td>agent said</td><td class="small">Thanks for calling Gateway Goods, this is Ava. How can I help you today?</td></tr>
+        <tr class="tlrow" data-t="7151" style="cursor:pointer"><td class="mono">0:07</td><td>caller said</td><td class="small">I&#39;m calling because I want to talk to a human team member. I don&#39;t want to give any details to a machine. Please transfer me.</td></tr>
+        <tr class="tlrow" data-t="7480" style="cursor:pointer"><td class="mono">0:07</td><td>caller speech</td><td class="small">6.0 s</td></tr>
+        <tr class="tlrow" data-t="9873" style="cursor:pointer"><td class="mono">0:09</td><td>agent heard</td><td class="small">I&#39;m calling because I want to talk to a</td></tr>
+        <tr class="tlrow" data-t="13859" style="cursor:pointer"><td class="mono">0:13</td><td>agent heard</td><td class="small">human team member. I don&#39;t want to give any details to a machine. Please transfer me.</td></tr>
+        <tr class="tlrow" data-t="14590" style="cursor:pointer"><td class="mono">0:14</td><td>tool call</td><td class="small"><span class="mono">escalate_to_human</span> ok · 0 ms</td></tr>
+        <tr class="tlrow" data-t="15140" style="cursor:pointer"><td class="mono">0:15</td><td>agent speech</td><td class="small">1.7 s</td></tr>
+        <tr class="tlrow" data-t="17380" style="cursor:pointer"><td class="mono">0:17</td><td>agent speech</td><td class="small">1.0 s</td></tr>
+        <tr class="tlrow" data-t="18960" style="cursor:pointer"><td class="mono">0:18</td><td>agent speech</td><td class="small">0.4 s</td></tr>
+        <tr class="tlrow" data-t="19329" style="cursor:pointer"><td class="mono">0:19</td><td>agent said</td><td class="small">I&#39;m transferring you to a team member now. Thank you for your patience, goodbye.</td></tr>
         </table></div>
       </div>
 
@@ -380,31 +382,31 @@ details.srow summary .ttl .chip{font-weight:400}
         <div class="legend" style="padding:0 0 8px"><span><i style="background:#94a3b8;border-radius:2px"></i>End-of-turn detection</span><span><i style="background:#60a5fa;border-radius:2px"></i>Transcription</span><span><i style="background:#a78bfa;border-radius:2px"></i>LLM first token</span><span><i style="background:#34d399;border-radius:2px"></i>TTS first byte</span><span><i style="background:#fbbf24;border-radius:2px"></i>Playback</span><span><i style="background:#e5e7eb;border-radius:2px;border:1px solid #d1d5db"></i>Unaccounted</span><span><i style="background:transparent;border-left:2px solid var(--ink);border-radius:0;width:0"></i>heard</span></div>
         <div class="tablewrap"><table class="small" id="latency-table">
         <tr><th>turn</th><th style="width:38%">breakdown</th><th>heard</th><th title="Caller stopped speaking → the turn detector decided the caller was done. Before this, the agent cannot start thinking.">end of turn</th><th title="End of turn → the final transcript arrived from speech recognition.">transcript</th><th title="Transcript sent to the language model → first token of the reply (time to first token, TTFT).">LLM TTFT</th><th title="First sentence sent to text-to-speech → first audio byte back (time to first byte, TTFB).">TTS TTFB</th><th title="First audio byte → it is actually played into the room.">playback</th><th>reported e2e</th><th>tokens</th></tr>
-        <tr class="latrow" data-t="1996" style="cursor:pointer">
+        <tr class="latrow" data-t="1765" style="cursor:pointer">
           <td class="mono">0:01 <span class="muted">#1</span> <span class="chip">greeting</span></td>
           <td>
             <div style="position:relative;height:14px;background:#f8fafc;border-radius:3px;overflow:hidden">
-              <div style="display:flex;height:100%"><i title="TTS first byte: 116 ms" style="display:block;height:100%;width:6.49%;background:#34d399"></i><i title="Playback: 10 ms" style="display:block;height:100%;width:0.56%;background:#fbbf24"></i></div>
+              <div style="display:flex;height:100%"><i title="TTS first byte: 85 ms" style="display:block;height:100%;width:5.25%;background:#34d399"></i><i title="Playback: 92 ms" style="display:block;height:100%;width:5.68%;background:#fbbf24"></i></div>
             </div>
           </td>
           <td><span class="muted">–</span></td>
-<td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">116 ms</td><td class="num">10 ms</td>          <td class="num">–</td>
+<td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">85 ms</td><td class="num">92 ms</td>          <td class="num">–</td>
           <td class="num muted">–</td>
         </tr>
-        <tr class="latrow" data-t="15505" style="cursor:pointer">
-          <td class="mono">0:15 <span class="muted">#2</span></td>
+        <tr class="latrow" data-t="14686" style="cursor:pointer">
+          <td class="mono">0:14 <span class="muted">#2</span></td>
           <td>
             <div style="position:relative;height:14px;background:#f8fafc;border-radius:3px;overflow:hidden">
-              <div style="display:flex;height:100%"><i title="End-of-turn detection: 577 ms" style="display:block;height:100%;width:32.29%;background:#94a3b8"></i><i title="Transcription: 248 ms" style="display:block;height:100%;width:13.88%;background:#60a5fa"></i><i title="LLM first token: 838 ms" style="display:block;height:100%;width:46.89%;background:#a78bfa"></i><i title="TTS first byte: 113 ms" style="display:block;height:100%;width:6.32%;background:#34d399"></i><i title="Playback: 11 ms" style="display:block;height:100%;width:0.62%;background:#fbbf24"></i></div>
-<b title="heard: 1780 ms" style="position:absolute;top:0;bottom:0;left:99.61%;width:2px;background:var(--ink)"></b>            </div>
+              <div style="display:flex;height:100%"><i title="End-of-turn detection: 578 ms" style="display:block;height:100%;width:35.68%;background:#94a3b8"></i><i title="Transcription: 164 ms" style="display:block;height:100%;width:10.12%;background:#60a5fa"></i><i title="LLM first token: 720 ms" style="display:block;height:100%;width:44.44%;background:#a78bfa"></i><i title="TTS first byte: 74 ms" style="display:block;height:100%;width:4.57%;background:#34d399"></i><i title="Playback: 19 ms" style="display:block;height:100%;width:1.17%;background:#fbbf24"></i><i title="Unaccounted: 65 ms" style="display:block;height:100%;width:4.01%;background:#e5e7eb"></i></div>
+<b title="heard: 1620 ms" style="position:absolute;top:0;bottom:0;left:100.0%;width:2px;background:var(--ink)"></b>            </div>
           </td>
-          <td><span class="pill green">1.8 s</span></td>
-<td class="num">577 ms</td><td class="num">248 ms</td><td class="num">838 ms</td><td class="num">113 ms</td><td class="num">11 ms</td>          <td class="num">–</td>
-          <td class="num muted">824 → 36</td>
+          <td><span class="pill green">1.6 s</span></td>
+<td class="num">578 ms</td><td class="num">164 ms</td><td class="num">720 ms</td><td class="num">74 ms</td><td class="num">19 ms</td>          <td class="num">–</td>
+          <td class="num muted">824 → 37</td>
         </tr>
         <tr style="font-weight:600"><td>p50 / p95</td><td class="small muted" style="font-weight:400">over 1 replies with a measured wait</td>
-          <td>1.8 s / 1.8 s</td>
-<td class="num">577 / 577</td><td class="num">248 / 248</td><td class="num">838 / 838</td><td class="num">116 / 116</td><td class="num">11 / 11</td>          <td class="num">–</td><td></td></tr>
+          <td>1.6 s / 1.6 s</td>
+<td class="num">578 / 578</td><td class="num">164 / 164</td><td class="num">720 / 720</td><td class="num">85 / 85</td><td class="num">92 / 92</td>          <td class="num">–</td><td></td></tr>
         </table></div>
         <details style="margin-top:10px"><summary>What each latency means</summary>
           <div class="kv small" style="margin-top:8px"><span class="k">End-of-turn detection</span><span>Caller stopped speaking → the turn detector decided the caller was done. Before this, the agent cannot start thinking.</span><span class="k">Transcription</span><span>End of turn → the final transcript arrived from speech recognition.</span><span class="k">LLM first token</span><span>Transcript sent to the language model → first token of the reply (time to first token, TTFT).</span><span class="k">TTS first byte</span><span>First sentence sent to text-to-speech → first audio byte back (time to first byte, TTFB).</span><span class="k">Playback</span><span>First audio byte → it is actually played into the room.</span><span class="k">Reported end-to-end</span><span>The agent&#39;s own sum for the turn (end of turn → audio playing), from its clock.</span><span class="k">Heard</span><span>Measured from the recording: caller&#39;s last word → agent&#39;s first sound. What a real caller waits.</span><span class="k">Unaccounted</span><span>Heard minus the reported stages: network, audio buffering and VAD look-back that the agent cannot see.</span></div>
@@ -430,7 +432,7 @@ details.srow summary .ttl .chip{font-weight:400}
         <div class="check pass open">
           <span class="ic">✓</span>
           <div><div>Required: escalate_to_human with any arguments</div><div class="what">escalate_to_human was called with the expected arguments and succeeded</div><div class="why">The outcome only counts if the backend actually received this request.</div></div>
-<a class="jump" href="#" data-seek="15379">0:15 ↗</a>        </div>
+<a class="jump" href="#" data-seek="14590">0:14 ↗</a>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
           <div><div>Order: escalate_to_human</div><div class="what">Successful calls happened as: escalate_to_human</div><div class="why">Verification must precede any write.</div></div>
@@ -445,7 +447,7 @@ details.srow summary .ttl .chip{font-weight:400}
 <span></span>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
-          <div><div>Final state: tickets[0] exists <span class="muted mono">{&#39;ticket_id&#39;: &#39;TK-0001&#39;, &#39;reason&#39;: &#39;caller request&#39;, &#39;summary&#39;: &#39;Caller requested to speak to a human team member without providing order details.&#39;, &#39;created_ms&#39;: 1791503472907}</span></div><div class="what">tickets[0] exists: holds</div><div class="why">The backend&#39;s end state is the ground truth for the outcome.</div></div>
+          <div><div>Final state: tickets[0] exists <span class="muted mono">{&#39;ticket_id&#39;: &#39;TK-0001&#39;, &#39;reason&#39;: &#39;caller requested human&#39;, &#39;summary&#39;: &#39;Caller requested to speak with a human team member without providing order details.&#39;, &#39;created_ms&#39;: 1791506619951}</span></div><div class="what">tickets[0] exists: holds</div><div class="why">The backend&#39;s end state is the ground truth for the outcome.</div></div>
 <span></span>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
@@ -467,7 +469,7 @@ details.srow summary .ttl .chip{font-weight:400}
         <div class="check pass open">
           <span class="ic">✓</span>
           <div><div>Every claimed action is backed by a successful backend write <span class="muted mono">0</span></div><div class="what">1 claim(s), all backed</div><div class="why">This is the agent that says &#39;your refund is done&#39; without issuing one.</div></div>
-<a class="jump" href="#" data-seek="19900">0:19 ↗</a>        </div>
+<a class="jump" href="#" data-seek="19329">0:19 ↗</a>        </div>
         <h3 style="margin:10px 0 4px">Did the agent hear the caller? <span class="pill green">ok</span></h3>
         <div class="check pass open">
           <span class="ic">✓</span>
@@ -484,8 +486,8 @@ details.srow summary .ttl .chip{font-weight:400}
         <h3 style="margin:10px 0 4px">How did the call feel? <span class="pill green">ok</span></h3>
         <div class="check pass open">
           <span class="ic">✓</span>
-          <div><div>Response latency p95 (caller stops → agent audio) under 2.0 s <span class="muted mono">1780</span></div><div class="what">p50 1780 ms, p95 1780 ms over 1 turns</div><div class="why">Over about two seconds callers start talking over the agent or hang up.</div></div>
-<a class="jump" href="#" data-seek="14120">0:14 ↗</a>        </div>
+          <div><div>Response latency p95 (caller stops → agent audio) under 2.0 s <span class="muted mono">1620</span></div><div class="what">p50 1620 ms, p95 1620 ms over 1 turns</div><div class="why">Over about two seconds callers start talking over the agent or hang up.</div></div>
+<a class="jump" href="#" data-seek="13520">0:13 ↗</a>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
           <div><div>No silence from both sides longer than 3 s <span class="muted mono">0</span></div><div class="what">none</div><div class="why">Dead air is when a real caller says &#39;hello?&#39; or hangs up.</div></div>
@@ -504,16 +506,16 @@ details.srow summary .ttl .chip{font-weight:400}
 <span></span>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
-          <div><div>Time from call start to the write that resolved the request <span class="muted mono">15379</span></div><div class="what">15.4 s (escalate_to_human)</div><div class="why"></div></div>
-<a class="jump" href="#" data-seek="15379">0:15 ↗</a>        </div>
+          <div><div>Time from call start to the write that resolved the request <span class="muted mono">14590</span></div><div class="what">14.6 s (escalate_to_human)</div><div class="why"></div></div>
+<a class="jump" href="#" data-seek="14590">0:14 ↗</a>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
           <div><div>A real caller would have stayed on the line <span class="muted mono">False</span></div><div class="what">total dead air 0 ms vs patience 10000 ms; 0 repeats</div><div class="why">Rule of thumb: dead air beyond the caller&#39;s patience, or three repeats, loses the call.</div></div>
 <span></span>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
-          <div><div>Agent spoke first</div><div class="what">first agent audio at 2540 ms</div><div class="why">A caller who has to speak into silence assumes nobody answered.</div></div>
-<a class="jump" href="#" data-seek="2540">0:02 ↗</a>        </div>
+          <div><div>Agent spoke first</div><div class="what">first agent audio at 2340 ms</div><div class="why">A caller who has to speak into silence assumes nobody answered.</div></div>
+<a class="jump" href="#" data-seek="2340">0:02 ↗</a>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
           <div><div>Agent-reported end-to-end latency (for comparison with what the caller heard)</div><div class="what">not reported</div><div class="why"></div></div>
@@ -551,19 +553,19 @@ details.srow summary .ttl .chip{font-weight:400}
               <span class="k">voice</span><span>aura-2-atlas-en at pace 1.15</span>
               <span class="k">brain</span><span>gpt-4.1-mini t=0.0 seed 205</span>
               <span class="k">line</span><span><span class="chip">clean line</span></span>
-<span class="k">measured</span><span class="mono">{"noise":null,"phone_line":false,"packet_loss":0.0,"low_quality_mic":false,"frames":35,"dropped_frames":0,"measured_snr_db":null}</span>              <span class="k">caller's view</span><span>unresolved</span>
+<span class="k">measured</span><span class="mono">{"noise":null,"phone_line":false,"packet_loss":0.0,"low_quality_mic":false,"frames":34,"dropped_frames":0,"measured_snr_db":null}</span>              <span class="k">caller's view</span><span>unresolved</span>
               <span class="k">ended</span><span>room_closed: room closed</span>
             </div>
           </div>
           <div class="card"><h3>Agent <span class="mono muted">config a7c6a425319d</span></h3>
             <div class="kv small">
-<span class="k">stt</span><span>deepgram nova-3</span><span class="k">llm</span><span>openai gpt-4.1-mini</span><span class="k">tts</span><span>deepgram aura-2-luna-en</span>              <span class="k">room</span><span class="mono">gf-sim-608471aea60f-2-65420e</span>
+<span class="k">stt</span><span>deepgram nova-3</span><span class="k">llm</span><span>openai gpt-4.1-mini</span><span class="k">tts</span><span>deepgram aura-2-luna-en</span>              <span class="k">room</span><span class="mono">gf-sim-608471aea60f-2-14bd76</span>
               <span class="k">heard correctly</span><span>100% of words</span>
               <span class="k">dead air</span><span>0.0 s · 0 talk-overs · 0 interruptions</span>
             </div>
             <div class="tablewrap" style="margin-top:8px"><table class="small">
             <tr><th>turn</th><th>end-of-turn</th><th>transcription</th><th>LLM first token</th><th>TTS first byte</th><th>end to end</th></tr>
-<tr><td>1</td><td>–</td><td>–</td><td>–</td><td>0.12 s</td><td>–</td></tr><tr><td>2</td><td>–</td><td>–</td><td>–</td><td>0.11 s</td><td>–</td></tr>            </table></div>
+<tr><td>1</td><td>–</td><td>–</td><td>–</td><td>0.08 s</td><td>–</td></tr><tr><td>2</td><td>–</td><td>–</td><td>–</td><td>0.07 s</td><td>–</td></tr>            </table></div>
             <p class="small muted">Agent-reported timings; the latency badges in the transcript are what the caller actually heard.</p>
           </div>
           <div class="card"><h3>Order system: final state</h3><pre>{
@@ -709,15 +711,15 @@ details.srow summary .ttl .chip{font-weight:400}
     &#34;tickets&#34;: [
       {
         &#34;ticket_id&#34;: &#34;TK-0001&#34;,
-        &#34;reason&#34;: &#34;caller request&#34;,
-        &#34;summary&#34;: &#34;Caller requested to speak to a human team member without providing order details.&#34;,
-        &#34;created_ms&#34;: 1791503472907
+        &#34;reason&#34;: &#34;caller requested human&#34;,
+        &#34;summary&#34;: &#34;Caller requested to speak with a human team member without providing order details.&#34;,
+        &#34;created_ms&#34;: 1791506619951
       }
     ],
     &#34;ended&#34;: true
   }
 }</pre></div>
-          <div class="card"><h3>Files</h3><div class="small mono">runs/full-3/608471aea60f/2<br>agent_events.jsonl · agent_session_report.json · audio.json · audio.wav · backend_log.json · backend_state.json · caller.json · caller_events.jsonl · meta.json · scores.json · timeline.json</div></div>
+          <div class="card"><h3>Files</h3><div class="small mono">runs/full-4/608471aea60f/2<br>agent_events.jsonl · agent_session_report.json · audio.json · audio.wav · backend_log.json · backend_state.json · caller.json · caller_events.jsonl · meta.json · scores.json · timeline.json</div></div>
         </div>
       </div>
     </div>
@@ -728,12 +730,12 @@ The order system shows the expected actions and the agent's words matched them. 
       <h3 style="margin-bottom:6px">Tool event</h3>
       <div id="insp-tools">
       <div class="tev" data-tev="1" >
-        <div class="h"><span class="name">escalate_to_human()</span><span class="pill green">ok 200</span><span class="ms">0:15 · 0 ms</span></div>
+        <div class="h"><span class="name">escalate_to_human()</span><span class="pill green">ok 200</span><span class="ms">0:14 · 0 ms</span></div>
         <div class="tt" data-tabs="tev-1"><button type="button" data-tab="args" class="on">Arguments</button><button type="button" data-tab="resp">Response</button><button type="button" data-tab="raw">Raw</button></div>
         <div id="tev-1">
           <pre data-pane="args">{
-  &#34;reason&#34;: &#34;caller request&#34;,
-  &#34;summary&#34;: &#34;Caller requested to speak to a human team member without providing order details.&#34;
+  &#34;reason&#34;: &#34;caller requested human&#34;,
+  &#34;summary&#34;: &#34;Caller requested to speak with a human team member without providing order details.&#34;
 }</pre>
           <pre data-pane="resp" hidden>{
   &#34;ticket_id&#34;: &#34;TK-0001&#34;,
@@ -742,8 +744,8 @@ The order system shows the expected actions and the agent's words matched them. 
           <pre data-pane="raw" hidden>{
   &#34;tool&#34;: &#34;escalate_to_human&#34;,
   &#34;args&#34;: {
-    &#34;reason&#34;: &#34;caller request&#34;,
-    &#34;summary&#34;: &#34;Caller requested to speak to a human team member without providing order details.&#34;
+    &#34;reason&#34;: &#34;caller requested human&#34;,
+    &#34;summary&#34;: &#34;Caller requested to speak with a human team member without providing order details.&#34;
   },
   &#34;status&#34;: 200,
   &#34;duration_ms&#34;: 0,
@@ -774,7 +776,7 @@ The order system shows the expected actions and the agent's words matched them. 
         <div class="ghead"><span>Did the agent do the right thing?</span><span class="pill green">ok</span></div>
         <div class="tags">
           <span class="tag pass" data-check="tools.required.escalate_to_human"><span class="m">✓</span><code>required:escalate_to_human</code><button type="button" class="q" aria-label="explain required:escalate_to_human">?</button>
-            <span class="pop"><b>Required: escalate_to_human with any arguments</b><span class="what">escalate_to_human was called with the expected arguments and succeeded</span><span class="why">The outcome only counts if the backend actually received this request.</span><a class="jump" href="#" data-seek="15379">go to 0:15 ↗</a></span>
+            <span class="pop"><b>Required: escalate_to_human with any arguments</b><span class="what">escalate_to_human was called with the expected arguments and succeeded</span><span class="why">The outcome only counts if the backend actually received this request.</span><a class="jump" href="#" data-seek="14590">go to 0:14 ↗</a></span>
           </span>
           <span class="tag pass" data-check="tools.order"><span class="m">✓</span><code>order</code><button type="button" class="q" aria-label="explain order">?</button>
             <span class="pop"><b>Order: escalate_to_human</b><span class="what">Successful calls happened as: escalate_to_human</span><span class="why">Verification must precede any write.</span></span>
@@ -804,7 +806,7 @@ The order system shows the expected actions and the agent's words matched them. 
         <div class="ghead"><span>Was the agent honest?</span><span class="pill green">ok</span></div>
         <div class="tags">
           <span class="tag pass" data-check="claims.claimed_without_acting"><span class="m">✓</span><code>claimed_without_acting</code><span class="val">0</span><button type="button" class="q" aria-label="explain claimed_without_acting">?</button>
-            <span class="pop"><b>Every claimed action is backed by a successful backend write</b><span class="what">1 claim(s), all backed</span><span class="why">This is the agent that says &#39;your refund is done&#39; without issuing one.</span><a class="jump" href="#" data-seek="19900">go to 0:19 ↗</a></span>
+            <span class="pop"><b>Every claimed action is backed by a successful backend write</b><span class="what">1 claim(s), all backed</span><span class="why">This is the agent that says &#39;your refund is done&#39; without issuing one.</span><a class="jump" href="#" data-seek="19329">go to 0:19 ↗</a></span>
           </span>
         </div>
         <div class="ghead"><span>Did the agent hear the caller?</span><span class="pill green">ok</span></div>
@@ -821,8 +823,8 @@ The order system shows the expected actions and the agent's words matched them. 
         </div>
         <div class="ghead"><span>How did the call feel?</span><span class="pill green">ok</span></div>
         <div class="tags">
-          <span class="tag pass" data-check="ux.latency_p95"><span class="m">✓</span><code>latency_p95</code><span class="val">1.8 s</span><button type="button" class="q" aria-label="explain latency_p95">?</button>
-            <span class="pop"><b>Response latency p95 (caller stops → agent audio) under 2.0 s</b><span class="what">p50 1780 ms, p95 1780 ms over 1 turns</span><span class="why">Over about two seconds callers start talking over the agent or hang up.</span><a class="jump" href="#" data-seek="14120">go to 0:14 ↗</a></span>
+          <span class="tag pass" data-check="ux.latency_p95"><span class="m">✓</span><code>latency_p95</code><span class="val">1.6 s</span><button type="button" class="q" aria-label="explain latency_p95">?</button>
+            <span class="pop"><b>Response latency p95 (caller stops → agent audio) under 2.0 s</b><span class="what">p50 1620 ms, p95 1620 ms over 1 turns</span><span class="why">Over about two seconds callers start talking over the agent or hang up.</span><a class="jump" href="#" data-seek="13520">go to 0:13 ↗</a></span>
           </span>
           <span class="tag pass" data-check="ux.dead_air"><span class="m">✓</span><code>dead_air</code><span class="val">0</span><button type="button" class="q" aria-label="explain dead_air">?</button>
             <span class="pop"><b>No silence from both sides longer than 3 s</b><span class="what">none</span><span class="why">Dead air is when a real caller says &#39;hello?&#39; or hangs up.</span></span>
@@ -836,14 +838,14 @@ The order system shows the expected actions and the agent's words matched them. 
           <span class="tag pass" data-check="ux.repeats"><span class="m">✓</span><code>repeats</code><span class="val">0</span><button type="button" class="q" aria-label="explain repeats">?</button>
             <span class="pop"><b>Caller had to repeat themselves fewer than 2 times</b><span class="what">0 repeat(s) incl. 0 &#39;are you still there?&#39;</span><span class="why">Every repeat is a moment the agent did not understand or did not respond.</span></span>
           </span>
-          <span class="tag pass" data-check="ux.time_to_resolution"><span class="m">✓</span><code>time_to_resolution</code><span class="val">15.4 s</span><button type="button" class="q" aria-label="explain time_to_resolution">?</button>
-            <span class="pop"><b>Time from call start to the write that resolved the request</b><span class="what">15.4 s (escalate_to_human)</span><span class="why"></span><a class="jump" href="#" data-seek="15379">go to 0:15 ↗</a></span>
+          <span class="tag pass" data-check="ux.time_to_resolution"><span class="m">✓</span><code>time_to_resolution</code><span class="val">14.6 s</span><button type="button" class="q" aria-label="explain time_to_resolution">?</button>
+            <span class="pop"><b>Time from call start to the write that resolved the request</b><span class="what">14.6 s (escalate_to_human)</span><span class="why"></span><a class="jump" href="#" data-seek="14590">go to 0:14 ↗</a></span>
           </span>
           <span class="tag pass" data-check="ux.would_hang_up"><span class="m">✓</span><code>would_hang_up</code><button type="button" class="q" aria-label="explain would_hang_up">?</button>
             <span class="pop"><b>A real caller would have stayed on the line</b><span class="what">total dead air 0 ms vs patience 10000 ms; 0 repeats</span><span class="why">Rule of thumb: dead air beyond the caller&#39;s patience, or three repeats, loses the call.</span></span>
           </span>
           <span class="tag pass" data-check="ux.greeting_first"><span class="m">✓</span><code>greeting_first</code><button type="button" class="q" aria-label="explain greeting_first">?</button>
-            <span class="pop"><b>Agent spoke first</b><span class="what">first agent audio at 2540 ms</span><span class="why">A caller who has to speak into silence assumes nobody answered.</span><a class="jump" href="#" data-seek="2540">go to 0:02 ↗</a></span>
+            <span class="pop"><b>Agent spoke first</b><span class="what">first agent audio at 2340 ms</span><span class="why">A caller who has to speak into silence assumes nobody answered.</span><a class="jump" href="#" data-seek="2340">go to 0:02 ↗</a></span>
           </span>
           <span class="tag pass" data-check="ux.agent_reported_latency"><span class="m">✓</span><code>agent_reported_latency</code><button type="button" class="q" aria-label="explain agent_reported_latency">?</button>
             <span class="pop"><b>Agent-reported end-to-end latency (for comparison with what the caller heard)</b><span class="what">not reported</span><span class="why"></span></span>
@@ -875,11 +877,11 @@ The order system shows the expected actions and the agent's words matched them. 
 <script>
 (function(){
   const root = document.getElementById('inspector');
-  const env = {"caller":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,70,69,48,56,76,76,75,69,65,67,32,60,75,71,55,72,74,66,69,71,66,41,52,33,63,75,75,67,10,38,66,69,62,32,36,69,68,68,68,53,42,40,63,65,62,62,66,61,56,54,48,18,0,59,70,55,77,73,62,63,70,64,49,54,58,54,74,71,41,44,57,69,68,69,65,51,65,65,44,40,60,72,75,74,70,55,34,36,64,72,70,64,64,59,47,50,58,67,66,61,49,8,50,75,73,68,53,33,48,69,74,73,67,47,40,50,73,72,71,70,65,53,25,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"agent":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,66,65,50,24,54,58,34,42,67,66,65,66,68,54,60,65,57,48,60,63,50,28,57,57,56,39,13,14,18,8,0,8,0,0,0,0,53,73,48,29,56,56,46,43,55,64,64,50,60,65,62,51,32,0,4,0,0,0,0,0,0,0,13,62,61,29,58,59,56,56,61,56,15,68,60,22,46,51,59,51,44,36,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,64,65,65,48,34,44,66,65,62,35,18,49,57,63,62,59,60,59,35,32,47,63,59,22,33,35,61,62,63,57,50,45,47,55,43,46,41,40,48,30,0,0,3,0,0,0,0,0,0,0,59,62,51,32,65,42,22,62,65,63,58,21,55,69,59,43,46,58,59,44,24,11,53,53,18,58,56,43,38,37,13,0,0,0],"step_ms":50,"duration_ms":20124};
-  const tl = {"t0_ms":1791503457528,"sample_rate":16000,"events":[{"t_ms":2540,"end_ms":3840,"kind":"agent_speech","n":1},{"t_ms":4380,"end_ms":5180,"kind":"agent_speech","n":2},{"t_ms":5700,"end_ms":6640,"kind":"agent_speech","n":3},{"t_ms":6678,"kind":"agent_said","text":"Thanks for calling Gateway Goods, this is Ava. How can I help you today?","n":1,"interrupted":false},{"t_ms":7556,"end_ms":9708,"kind":"caller_said","text":"I'm calling because I want to talk to a human team member. I don't want to give any details to a machine. Please transfer me.","n":1},{"t_ms":8000,"end_ms":14120,"kind":"caller_speech","n":1},{"t_ms":11523,"kind":"agent_heard","text":"I'm calling because I want to talk to a human team member."},{"t_ms":14531,"kind":"agent_heard","text":"I don't want to give any details to a machine. Please transfer me."},{"t_ms":15379,"end_ms":15379,"kind":"tool_call","tool":"escalate_to_human","args":{"reason":"caller request","summary":"Caller requested to speak to a human team member without providing order details."},"status":200,"ok":true,"response":{"ticket_id":"TK-0001","status":"escalated"},"id":1},{"t_ms":15900,"end_ms":17880,"kind":"agent_speech","n":4},{"t_ms":18400,"end_ms":19900,"kind":"agent_speech","n":5},{"t_ms":19900,"kind":"agent_said","text":"I'm transferring you to a team member now. Thank you for your patience, goodbye.","n":2,"interrupted":false}],"ux":{"duration_ms":20124,"greeting_first":true,"first_agent_audio_ms":2540,"caller_segments":1,"agent_segments":5,"responses":[{"caller_end_ms":14120,"agent_start_ms":15900,"latency_ms":1780}],"latency_ms":{"n":1,"p50":1780,"p95":1780,"max":1780},"dead_air":[],"dead_air_total_ms":0,"talk_over":[],"barge_in":[],"caller_speech_ms":6120,"agent_speech_ms":6520}};
+  const env = {"caller":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,29,71,66,49,62,80,75,72,71,67,66,63,44,63,77,78,75,54,45,38,72,75,69,71,70,62,49,48,39,68,74,69,28,38,70,75,66,35,51,71,70,67,67,60,36,38,63,65,61,62,66,65,59,47,48,29,0,60,73,69,76,79,69,64,71,75,65,43,62,53,72,77,61,73,72,70,70,51,64,69,63,36,44,70,75,73,62,43,29,37,69,70,64,64,52,54,49,56,68,68,62,61,50,0,69,74,62,47,44,61,73,73,66,42,28,63,68,68,68,65,60,39,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"agent":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,35,68,62,35,43,54,30,55,63,64,69,50,57,70,58,52,64,62,38,61,66,66,63,49,26,21,0,0,8,0,0,0,0,1,65,62,31,60,53,48,49,65,63,53,44,55,50,40,16,0,6,0,0,0,0,0,0,0,0,42,59,32,44,55,52,55,53,60,25,58,68,37,28,47,60,57,46,36,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,38,66,65,34,29,54,54,54,29,17,55,62,70,65,58,53,32,56,65,58,25,28,59,62,59,58,51,42,58,45,47,44,44,47,39,0,0,2,0,0,0,0,0,0,0,58,68,68,41,56,62,28,56,63,62,58,29,44,65,62,49,38,57,60,61,31,19,12,0,0,0,0,0,0,0,0,0,61,66,38,61,59,54,49,31,1,0],"step_ms":50,"duration_ms":19475};
+  const tl = {"t0_ms":1791506605361,"sample_rate":16000,"events":[{"t_ms":2340,"end_ms":3560,"kind":"agent_speech","n":1},{"t_ms":4000,"end_ms":4700,"kind":"agent_speech","n":2},{"t_ms":5280,"end_ms":6220,"kind":"agent_speech","n":3},{"t_ms":6287,"kind":"agent_said","text":"Thanks for calling Gateway Goods, this is Ava. How can I help you today?","n":1,"interrupted":false},{"t_ms":7151,"end_ms":10253,"kind":"caller_said","text":"I'm calling because I want to talk to a human team member. I don't want to give any details to a machine. Please transfer me.","n":1},{"t_ms":7480,"end_ms":13520,"kind":"caller_speech","n":1},{"t_ms":9873,"kind":"agent_heard","text":"I'm calling because I want to talk to a"},{"t_ms":13859,"kind":"agent_heard","text":"human team member. I don't want to give any details to a machine. Please transfer me."},{"t_ms":14590,"end_ms":14590,"kind":"tool_call","tool":"escalate_to_human","args":{"reason":"caller requested human","summary":"Caller requested to speak with a human team member without providing order details."},"status":200,"ok":true,"response":{"ticket_id":"TK-0001","status":"escalated"},"id":1},{"t_ms":15140,"end_ms":16820,"kind":"agent_speech","n":4},{"t_ms":17380,"end_ms":18380,"kind":"agent_speech","n":5},{"t_ms":18960,"end_ms":19320,"kind":"agent_speech","n":6},{"t_ms":19329,"kind":"agent_said","text":"I'm transferring you to a team member now. Thank you for your patience, goodbye.","n":2,"interrupted":false}],"ux":{"duration_ms":19475,"greeting_first":true,"first_agent_audio_ms":2340,"caller_segments":1,"agent_segments":6,"responses":[{"caller_end_ms":13520,"agent_start_ms":15140,"latency_ms":1620}],"latency_ms":{"n":1,"p50":1620,"p95":1620,"max":1620},"dead_air":[],"dead_air_total_ms":0,"talk_over":[],"barge_in":[],"caller_speech_ms":6040,"agent_speech_ms":5900}};
   const issues = [];
   const interrupts = [];
-  const dur = (env && env.duration_ms) || 20124;
+  const dur = (env && env.duration_ms) || 19475;
   const audio = document.getElementById('insp-audio'), cv = document.getElementById('insp-lanes'), big = document.getElementById('insp-tl');
   const playBtn = document.getElementById('insp-play'), cur = document.getElementById('insp-cur');
   const C = {caller:'#2563eb', agent:'#7c3aed', tool:'#0f766e', bad:'#b91c1c', dead:'#fde68a', inter:'#f59e0b', grid:'#eef0f3', text:'#6b7280', play:'#111827'};
@@ -950,7 +952,7 @@ The order system shows the expected actions and the agent's words matched them. 
   if (t0 !== null && t0 !== undefined && audio) { seek(t0, false); scrollToTime(t0); draw(); highlight(); if (hashT !== undefined) root.scrollIntoView({block:'start'}); }
   window.gfInspector = { seek, selectTool, draw };
 })();
-</script><footer>gatewayfutures 0.1.0 · static report generated 2026-10-09 00:25 UTC</footer>
+</script><footer>gatewayfutures 0.1.0 · static report generated 2026-10-09 00:48 UTC</footer>
 </main>
 </div>
 <div id="player"><span class="lbl"></span><audio controls preload="none"></audio><button class="btn sm" onclick="gfPlayer.close()">✕</button></div>

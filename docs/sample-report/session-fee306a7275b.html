@@ -81,6 +81,7 @@ a.pill:hover{text-decoration:none;filter:brightness(.95)}
 .btn.danger{color:var(--red);border-color:#fecaca}
 .btn[disabled]{opacity:.5;cursor:not-allowed}
 .btn.sm{padding:3px 9px;font-size:12px}
+.btn.on{background:var(--accent-bg);border-color:#c7d2fe;color:var(--accent-ink)}
 table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
 th,td{text-align:left;padding:8px 10px;border-top:1px solid var(--line2);vertical-align:top}
 th{background:#fafafa;color:var(--muted);font-weight:600;font-size:11.5px;border-top:0;text-transform:uppercase;letter-spacing:.04em}
@@ -286,7 +287,7 @@ details.srow summary .ttl .chip{font-weight:400}
   <a class="row" href="agent.html#models"><span>Model</span><span>gpt-4.1-mini</span></a>
   <a class="row" href="backend.html"><span>Order system</span><span>mock</span></a>
   <a class="row" href="caller.html"><span>Simulated caller</span><span>gf-caller</span></a>
-  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-09 00:25 UTC</div>
+  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-09 00:48 UTC</div>
 </aside>
 <div class="wrap">
 <header class="top">
@@ -334,6 +335,30 @@ details.srow summary .ttl .chip{font-weight:400}
   <div class="tablewrap"><table id="attempts">
   <tr><th>run</th><th>#</th><th>replay</th><th>verdict</th><th>reason / flags</th><th>p95</th><th>duration</th></tr>
   <tr>
+    <td><a href="index.html">full-4</a></td>
+    <td><a href="call-fee306a7275b-1.html">1</a></td>
+    <td><button class="play" data-src="audio/fee306a7275b-1.mp3" data-label="Refund from an impatient caller who keeps interrupting the agent #1 (full-4)"><span class="ic">▶</span><span class="t">1:18</span></button></td>
+    <td><span class="pill pass">pass</span></td>
+    <td class="small"><span class="chip">ux.latency_p95</span><span class="chip">ux.dead_air</span><span class="chip">ux.repeats</span><span class="chip">ux.would_hang_up</span></td>
+    <td>4.4 s</td><td>78.0 s</td>
+  </tr>
+  <tr>
+    <td><a href="index.html">full-4</a></td>
+    <td><a href="call-fee306a7275b-2.html">2</a></td>
+    <td><button class="play" data-src="audio/fee306a7275b-2.mp3" data-label="Refund from an impatient caller who keeps interrupting the agent #2 (full-4)"><span class="ic">▶</span><span class="t">1:22</span></button></td>
+    <td><span class="pill pass">pass</span></td>
+    <td class="small"><span class="chip">speech.entities</span><span class="chip">ux.latency_p95</span><span class="chip">ux.dead_air</span></td>
+    <td>4.4 s</td><td>82.1 s</td>
+  </tr>
+  <tr>
+    <td><a href="index.html">full-4</a></td>
+    <td><a href="call-fee306a7275b-3.html">3</a></td>
+    <td><button class="play" data-src="audio/fee306a7275b-3.mp3" data-label="Refund from an impatient caller who keeps interrupting the agent #3 (full-4)"><span class="ic">▶</span><span class="t">1:04</span></button></td>
+    <td><span class="pill pass">pass</span></td>
+    <td class="small"></td>
+    <td>2.3 s</td><td>64.9 s</td>
+  </tr>
+  <tr>
     <td><a href="index.html">full-3</a></td>
     <td><a href="call-fee306a7275b-1.html">1</a></td>
     <td><button class="play" data-src="audio/fee306a7275b-1.mp3" data-label="Refund from an impatient caller who keeps interrupting the agent #1 (full-3)"><span class="ic">▶</span><span class="t">1:11</span></button></td>
@@ -367,9 +392,14 @@ details.srow summary .ttl .chip{font-weight:400}
       <span class="k">must call</span><span><div class="mono">lookup_order {"order_id":"GW-48213","zip":"94110"}</div><div class="mono">issue_refund {"order_id":"GW-48213","amount":89.99}</div></span>
 <span class="k">in order</span><span class="mono">lookup_order → issue_refund</span><span class="k">must not call</span><span class="mono">escalate_to_human, update_shipping_address</span><span class="k">final state</span><span><div class="mono">refunds[GW-48213].amount == 89.99</div></span>    </div>
 <p class="small muted" style="margin:8px 0 0">The caller barges in on about 40% of the agent&#39;s turns (seeded). Checks &#34;when interrupted, the agent stopped within 1.0 s&#34; and the latency after each interruption.</p>  </div>
+  <div class="card" style="margin-top:12px" id="suites">
+    <h3>Areas and suites</h3>
+    <div class="small" style="margin-bottom:6px"><span class="chip">refund</span><span class="chip">interruptions</span><span class="chip">impatient</span> <span class="muted">derived from what the agent must do and how hard the call is</span></div>
+    <div class="small"><span class="muted">In no suite yet.</span></div>
+  </div>
   <div class="card" style="margin-top:12px">
     <h3>Results by run</h3>
-    <div class="kv"><a class="k" href="index.html">full-3</a><span><span class="pill green">3/3</span></span></div>
+    <div class="kv"><a class="k" href="index.html">full-4</a><span><span class="pill green">3/3</span></span><a class="k" href="index.html">full-3</a><span><span class="pill green">3/3</span></span></div>
   </div>
   <details style="margin-top:12px"><summary>Session file</summary><pre>title: Refund from an impatient caller who keeps interrupting the agent
 caller:
@@ -398,7 +428,7 @@ expected:
 </pre></details>
 </div>
 </div>
-<footer>gatewayfutures 0.1.0 · static report generated 2026-10-09 00:25 UTC</footer>
+<footer>gatewayfutures 0.1.0 · static report generated 2026-10-09 00:48 UTC</footer>
 </main>
 </div>
 <div id="player"><span class="lbl"></span><audio controls preload="none"></audio><button class="btn sm" onclick="gfPlayer.close()">✕</button></div>

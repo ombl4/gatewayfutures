@@ -22,7 +22,7 @@ What was chosen and why, what the first real runs showed, what the next week wou
 
 ## What the first real runs showed
 
-From run `full-3` (15 sessions × 3, 36/44 valid calls passed, 82% with a 68–90% interval, see `docs/sample-report`; the earlier `full-1` at 11 × 2 gave 20/21):
+From runs `full-3` and `full-4` (the same 15 sessions × 3 on the same environment tag; 36/44 then 37/43 valid calls passed, 82% then 86%, intervals 68–90% and 73–93%; see `docs/sample-report`):
 
 - Two real failures: an address change that was confirmed four times but never written (the agent kept re-reading the address until the call timed out), and a refund never issued when the caller opened with an amount above the order total. Both show up with the exact moment in the timeline.
 - Reply latency p95 was 2.4–4.4 s per session against a 2.0 s target: the agent waits for the end-of-turn model plus the LLM, then TTS. This is the main UX finding and it is visible on every call.

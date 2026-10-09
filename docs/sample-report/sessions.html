@@ -81,6 +81,7 @@ a.pill:hover{text-decoration:none;filter:brightness(.95)}
 .btn.danger{color:var(--red);border-color:#fecaca}
 .btn[disabled]{opacity:.5;cursor:not-allowed}
 .btn.sm{padding:3px 9px;font-size:12px}
+.btn.on{background:var(--accent-bg);border-color:#c7d2fe;color:var(--accent-ink)}
 table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
 th,td{text-align:left;padding:8px 10px;border-top:1px solid var(--line2);vertical-align:top}
 th{background:#fafafa;color:var(--muted);font-weight:600;font-size:11.5px;border-top:0;text-transform:uppercase;letter-spacing:.04em}
@@ -286,7 +287,7 @@ details.srow summary .ttl .chip{font-weight:400}
   <a class="row" href="agent.html#models"><span>Model</span><span>gpt-4.1-mini</span></a>
   <a class="row" href="backend.html"><span>Order system</span><span>mock</span></a>
   <a class="row" href="caller.html"><span>Simulated caller</span><span>gf-caller</span></a>
-  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-09 00:25 UTC</div>
+  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-09 00:48 UTC</div>
 </aside>
 <div class="wrap">
 <header class="top">
@@ -298,15 +299,23 @@ details.srow summary .ttl .chip{font-weight:400}
 <main>
 <h1>Practice sessions</h1>
 <p class="meta"><span>13 sessions</span><i>·</i><span>each is an immutable YAML file: who is calling, what they know, what they want, how the line sounds, what a correct outcome looks like</span></p>
+<div class="small" id="filters" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 10px">
+  <span class="muted">Show:</span>
+  <button type="button" class="btn sm on" data-filter="" onclick="gfFilter(this)">all</button>
+<button type="button" class="btn sm" data-filter="suite:regression" onclick="gfFilter(this)">suite regression</button><button type="button" class="btn sm" data-filter="suite:smoke" onclick="gfFilter(this)">suite smoke</button><button type="button" class="btn sm" data-filter="area:address change" onclick="gfFilter(this)">address change</button><button type="button" class="btn sm" data-filter="area:denial" onclick="gfFilter(this)">denial</button><button type="button" class="btn sm" data-filter="area:escalation" onclick="gfFilter(this)">escalation</button><button type="button" class="btn sm" data-filter="area:fault handling" onclick="gfFilter(this)">fault handling</button><button type="button" class="btn sm" data-filter="area:hard line" onclick="gfFilter(this)">hard line</button><button type="button" class="btn sm" data-filter="area:impatient" onclick="gfFilter(this)">impatient</button><button type="button" class="btn sm" data-filter="area:interruptions" onclick="gfFilter(this)">interruptions</button><button type="button" class="btn sm" data-filter="area:refund" onclick="gfFilter(this)">refund</button></div>
+<script>
+function gfFilter(btn){ document.querySelectorAll('#filters .btn').forEach(b => b.classList.toggle('on', b === btn)); const f = btn.dataset.filter;
+  document.querySelectorAll('#sessions details.srow').forEach(d => { const tags = (d.dataset.tags || '').split('|'); d.hidden = !!f && !tags.includes(f); }); }
+</script>
 <div class="acc" id="sessions">
   <div class="hd"><h3>All sessions <span class="muted" style="font-weight:500">(13)</span></h3><span class="small muted">history: pass count per run, oldest → newest</span></div>
-  <details class="srow" data-session="915dd5186fa8">
+  <details class="srow" data-session="915dd5186fa8" data-tags="area:address change|area:hard line|">
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Address change over a narrow phone line, calm British caller</span>
+      <span class="ttl">Address change over a narrow phone line, calm British caller <span class="chip">address change</span><span class="chip">hard line</span></span>
       <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
       <span class="cnt"><b class="p">3/3</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill green" title="full-3">3/3</a> </span>
+      <span class="cnt"><a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill green" title="full-3">3/3</a> <a href="index.html" class="pill green" title="full-4">3/3</a> </span>
     </summary>
     <div class="sbody">
       <div class="cols4" style="margin:8px 0 10px">
@@ -318,13 +327,13 @@ details.srow summary .ttl .chip{font-weight:400}
       <div class="small"><a href="session-915dd5186fa8.html">Open session →</a> · <span class="mono muted">915dd5186fa8</span></div>
     </div>
   </details>
-  <details class="srow" data-session="97338e726973">
+  <details class="srow" data-session="97338e726973" data-tags="area:address change|suite:regression|">
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Change the shipping address on an order that is still processing</span>
+      <span class="ttl">Change the shipping address on an order that is still processing <span class="chip">address change</span><span class="pill indigo" style="font-size:10.5px">regression</span> </span>
       <span class="bar" title="last run: 2/2"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
       <span class="cnt"><b class="p">2/2</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill green" title="full-1">1/1</a> <a href="index.html" class="pill green" title="full-3">2/2</a> </span>
+      <span class="cnt"><a href="index.html" class="pill green" title="full-1">1/1</a> <a href="index.html" class="pill green" title="full-3">2/2</a> <a href="index.html" class="pill green" title="full-4">2/2</a> </span>
     </summary>
     <div class="sbody">
       <div class="cols4" style="margin:8px 0 10px">
@@ -336,13 +345,13 @@ details.srow summary .ttl .chip{font-weight:400}
       <div class="small"><a href="session-97338e726973.html">Open session →</a> · <span class="mono muted">97338e726973</span></div>
     </div>
   </details>
-  <details class="srow" data-session="ff2985a2b7ab">
+  <details class="srow" data-session="ff2985a2b7ab" data-tags="area:address change|area:denial|area:escalation|area:hard line|area:impatient|">
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Address change on an order that already shipped, caller asks for a person</span>
+      <span class="ttl">Address change on an order that already shipped, caller asks for a person <span class="chip">address change</span><span class="chip">denial</span><span class="chip">escalation</span><span class="chip">hard line</span><span class="chip">impatient</span></span>
       <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
       <span class="cnt"><b class="p">3/3</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill green" title="full-3">3/3</a> </span>
+      <span class="cnt"><a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill green" title="full-3">3/3</a> <a href="index.html" class="pill green" title="full-4">3/3</a> </span>
     </summary>
     <div class="sbody">
       <div class="cols4" style="margin:8px 0 10px">
@@ -354,13 +363,13 @@ details.srow summary .ttl .chip{font-weight:400}
       <div class="small"><a href="session-ff2985a2b7ab.html">Open session →</a> · <span class="mono muted">ff2985a2b7ab</span></div>
     </div>
   </details>
-  <details class="srow" data-session="2e729ea48f97">
+  <details class="srow" data-session="2e729ea48f97" data-tags="area:refund|area:denial|">
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Refund request on an order that was already refunded</span>
-      <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
-      <span class="cnt"><b class="p">3/3</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill green" title="full-3">3/3</a> </span>
+      <span class="ttl">Refund request on an order that was already refunded <span class="chip">refund</span><span class="chip">denial</span></span>
+      <span class="bar" title="last run: 2/2"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
+      <span class="cnt"><b class="p">2/2</b> last</span>
+      <span class="cnt"><a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill green" title="full-3">3/3</a> <a href="index.html" class="pill green" title="full-4">2/2</a> </span>
     </summary>
     <div class="sbody">
       <div class="cols4" style="margin:8px 0 10px">
@@ -372,13 +381,13 @@ details.srow summary .ttl .chip{font-weight:400}
       <div class="small"><a href="session-2e729ea48f97.html">Open session →</a> · <span class="mono muted">2e729ea48f97</span></div>
     </div>
   </details>
-  <details class="srow" data-session="cf6cec4de0e0">
+  <details class="srow" data-session="cf6cec4de0e0" data-tags="area:refund|area:fault handling|suite:regression|">
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Refund where the order system returns a 500 on the first attempt <span class="chip">fault: error_500</span></span>
+      <span class="ttl">Refund where the order system returns a 500 on the first attempt <span class="chip">refund</span><span class="chip">fault handling</span><span class="pill indigo" style="font-size:10.5px">regression</span> </span>
       <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
       <span class="cnt"><b class="p">3/3</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill green" title="full-3">3/3</a> </span>
+      <span class="cnt"><a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill green" title="full-3">3/3</a> <a href="index.html" class="pill green" title="full-4">3/3</a> </span>
     </summary>
     <div class="sbody">
       <div class="cols4" style="margin:8px 0 10px">
@@ -390,13 +399,13 @@ details.srow summary .ttl .chip{font-weight:400}
       <div class="small"><a href="session-cf6cec4de0e0.html">Open session →</a> · <span class="mono muted">cf6cec4de0e0</span></div>
     </div>
   </details>
-  <details class="srow" data-session="7c994c348001">
+  <details class="srow" data-session="7c994c348001" data-tags="area:refund|suite:smoke|">
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Refund for a broken blender, clean line</span>
+      <span class="ttl">Refund for a broken blender, clean line <span class="chip">refund</span><span class="pill indigo" style="font-size:10.5px">smoke</span> </span>
       <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
       <span class="cnt"><b class="p">3/3</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill green" title="batch-test-1">2/2</a> <a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill green" title="full-3">3/3</a> </span>
+      <span class="cnt"><a href="index.html" class="pill green" title="batch-test-1">2/2</a> <a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill green" title="full-3">3/3</a> <a href="index.html" class="pill green" title="full-4">3/3</a> </span>
     </summary>
     <div class="sbody">
       <div class="cols4" style="margin:8px 0 10px">
@@ -408,13 +417,13 @@ details.srow summary .ttl .chip{font-weight:400}
       <div class="small"><a href="session-7c994c348001.html">Open session →</a> · <span class="mono muted">7c994c348001</span></div>
     </div>
   </details>
-  <details class="srow" data-session="a8d032bb2a4c">
+  <details class="srow" data-session="a8d032bb2a4c" data-tags="area:refund|area:hard line|area:impatient|suite:regression|">
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Refund from a fast, impatient caller walking down a busy street</span>
-      <span class="bar" title="last run: 2/3"><i class="p" style="width:66.66666666666667%"></i><i class="f" style="width:33.333333333333336%"></i></span>
-      <span class="cnt"><b class="f">2/3</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill amber" title="full-3">2/3</a> </span>
+      <span class="ttl">Refund from a fast, impatient caller walking down a busy street <span class="chip">refund</span><span class="chip">hard line</span><span class="chip">impatient</span><span class="pill indigo" style="font-size:10.5px">regression</span> </span>
+      <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
+      <span class="cnt"><b class="p">3/3</b> last</span>
+      <span class="cnt"><a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill amber" title="full-3">2/3</a> <a href="index.html" class="pill green" title="full-4">3/3</a> </span>
     </summary>
     <div class="sbody">
       <div class="cols4" style="margin:8px 0 10px">
@@ -426,13 +435,13 @@ details.srow summary .ttl .chip{font-weight:400}
       <div class="small"><a href="session-a8d032bb2a4c.html">Open session →</a> · <span class="mono muted">a8d032bb2a4c</span></div>
     </div>
   </details>
-  <details class="srow" data-session="fee306a7275b">
+  <details class="srow" data-session="fee306a7275b" data-tags="area:refund|area:interruptions|area:impatient|">
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Refund from an impatient caller who keeps interrupting the agent</span>
+      <span class="ttl">Refund from an impatient caller who keeps interrupting the agent <span class="chip">refund</span><span class="chip">interruptions</span><span class="chip">impatient</span></span>
       <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
       <span class="cnt"><b class="p">3/3</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill green" title="full-3">3/3</a> </span>
+      <span class="cnt"><a href="index.html" class="pill green" title="full-3">3/3</a> <a href="index.html" class="pill green" title="full-4">3/3</a> </span>
     </summary>
     <div class="sbody">
       <div class="cols4" style="margin:8px 0 10px">
@@ -444,13 +453,13 @@ details.srow summary .ttl .chip{font-weight:400}
       <div class="small"><a href="session-fee306a7275b.html">Open session →</a> · <span class="mono muted">fee306a7275b</span></div>
     </div>
   </details>
-  <details class="srow" data-session="ef113fc07616">
+  <details class="srow" data-session="ef113fc07616" data-tags="area:refund|area:hard line|area:impatient|">
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Refund for a broken blender, impatient caller in a cafe over a phone line</span>
+      <span class="ttl">Refund for a broken blender, impatient caller in a cafe over a phone line <span class="chip">refund</span><span class="chip">hard line</span><span class="chip">impatient</span></span>
       <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
       <span class="cnt"><b class="p">3/3</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill green" title="batch-test-1">2/2</a> <a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill green" title="full-3">3/3</a> </span>
+      <span class="cnt"><a href="index.html" class="pill green" title="batch-test-1">2/2</a> <a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill green" title="full-3">3/3</a> <a href="index.html" class="pill green" title="full-4">3/3</a> </span>
     </summary>
     <div class="sbody">
       <div class="cols4" style="margin:8px 0 10px">
@@ -462,13 +471,13 @@ details.srow summary .ttl .chip{font-weight:400}
       <div class="small"><a href="session-ef113fc07616.html">Open session →</a> · <span class="mono muted">ef113fc07616</span></div>
     </div>
   </details>
-  <details class="srow" data-session="36ae7c490d4a">
+  <details class="srow" data-session="36ae7c490d4a" data-tags="area:refund|suite:regression|">
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Caller asks for more than the order total, should settle on the full amount</span>
-      <span class="bar" title="last run: 2/3"><i class="p" style="width:66.66666666666667%"></i><i class="f" style="width:33.333333333333336%"></i></span>
-      <span class="cnt"><b class="f">2/3</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill amber" title="full-1">1/2</a> <a href="index.html" class="pill amber" title="full-3">2/3</a> </span>
+      <span class="ttl">Caller asks for more than the order total, should settle on the full amount <span class="chip">refund</span><span class="pill indigo" style="font-size:10.5px">regression</span> </span>
+      <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
+      <span class="cnt"><b class="p">3/3</b> last</span>
+      <span class="cnt"><a href="index.html" class="pill amber" title="full-1">1/2</a> <a href="index.html" class="pill amber" title="full-3">2/3</a> <a href="index.html" class="pill green" title="full-4">3/3</a> </span>
     </summary>
     <div class="sbody">
       <div class="cols4" style="margin:8px 0 10px">
@@ -480,13 +489,13 @@ details.srow summary .ttl .chip{font-weight:400}
       <div class="small"><a href="session-36ae7c490d4a.html">Open session →</a> · <span class="mono muted">36ae7c490d4a</span></div>
     </div>
   </details>
-  <details class="srow" data-session="c1de86f32b16">
+  <details class="srow" data-session="c1de86f32b16" data-tags="area:refund|area:hard line|">
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Partial refund of $40, older caller speaking slowly on a poor microphone</span>
+      <span class="ttl">Partial refund of $40, older caller speaking slowly on a poor microphone <span class="chip">refund</span><span class="chip">hard line</span></span>
       <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
       <span class="cnt"><b class="p">3/3</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill green" title="full-3">3/3</a> </span>
+      <span class="cnt"><a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill green" title="full-3">3/3</a> <a href="index.html" class="pill green" title="full-4">3/3</a> </span>
     </summary>
     <div class="sbody">
       <div class="cols4" style="margin:8px 0 10px">
@@ -498,13 +507,13 @@ details.srow summary .ttl .chip{font-weight:400}
       <div class="small"><a href="session-c1de86f32b16.html">Open session →</a> · <span class="mono muted">c1de86f32b16</span></div>
     </div>
   </details>
-  <details class="srow" data-session="608471aea60f">
+  <details class="srow" data-session="608471aea60f" data-tags="area:escalation|area:impatient|suite:smoke|">
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Caller demands a human from the first sentence</span>
+      <span class="ttl">Caller demands a human from the first sentence <span class="chip">escalation</span><span class="chip">impatient</span><span class="pill indigo" style="font-size:10.5px">smoke</span> </span>
       <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
       <span class="cnt"><b class="p">3/3</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill green" title="full-3">3/3</a> </span>
+      <span class="cnt"><a href="index.html" class="pill green" title="full-1">2/2</a> <a href="index.html" class="pill green" title="full-3">3/3</a> <a href="index.html" class="pill green" title="full-4">3/3</a> </span>
     </summary>
     <div class="sbody">
       <div class="cols4" style="margin:8px 0 10px">
@@ -516,13 +525,13 @@ details.srow summary .ttl .chip{font-weight:400}
       <div class="small"><a href="session-608471aea60f.html">Open session →</a> · <span class="mono muted">608471aea60f</span></div>
     </div>
   </details>
-  <details class="srow" data-session="da8e474dc8e5">
+  <details class="srow" data-session="da8e474dc8e5" data-tags="area:address change|area:denial|area:escalation|area:hard line|area:impatient|">
     <summary>
       <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      <span class="ttl">Address change denied on shipped order, caller escalates <span class="chip">generated</span></span>
+      <span class="ttl">Address change denied on shipped order, caller escalates <span class="chip">address change</span><span class="chip">denial</span><span class="chip">escalation</span><span class="chip">hard line</span><span class="chip">impatient</span><span class="chip">generated</span></span>
       <span class="bar" title="last run: 3/3"><i class="p" style="width:100.0%"></i><i class="f" style="width:0.0%"></i></span>
       <span class="cnt"><b class="p">3/3</b> last</span>
-      <span class="cnt"><a href="index.html" class="pill green" title="full-3">3/3</a> </span>
+      <span class="cnt"><a href="index.html" class="pill green" title="full-3">3/3</a> <a href="index.html" class="pill green" title="full-4">3/3</a> </span>
     </summary>
     <div class="sbody">
       <div class="cols4" style="margin:8px 0 10px">
@@ -539,7 +548,7 @@ details.srow summary .ttl .chip{font-weight:400}
 <ul class="list small"><li><a href="session-ed0bca0e0d0d.html">Refund request fails first attempt due to backend error, then succeeds</a> <span class="mono muted">ed0bca0e0d0d</span></li><li><a href="session-a0e4e5e8d324.html">Refund request on already refunded order, agent denies refund</a> <span class="mono muted">a0e4e5e8d324</span></li></ul>
 </details>
 <p class="small muted" style="margin-top:12px">To add a session: use "New session" above, or copy a file in <code>sessions/</code>, edit it and run <code>gf sessions</code> to validate. Editing an existing file changes its id, so results stay tied to the exact definition they were produced with.</p>
-<footer>gatewayfutures 0.1.0 · static report generated 2026-10-09 00:25 UTC</footer>
+<footer>gatewayfutures 0.1.0 · static report generated 2026-10-09 00:48 UTC</footer>
 </main>
 </div>
 <div id="player"><span class="lbl"></span><audio controls preload="none"></audio><button class="btn sm" onclick="gfPlayer.close()">✕</button></div>

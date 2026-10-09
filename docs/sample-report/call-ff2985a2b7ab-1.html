@@ -81,6 +81,7 @@ a.pill:hover{text-decoration:none;filter:brightness(.95)}
 .btn.danger{color:var(--red);border-color:#fecaca}
 .btn[disabled]{opacity:.5;cursor:not-allowed}
 .btn.sm{padding:3px 9px;font-size:12px}
+.btn.on{background:var(--accent-bg);border-color:#c7d2fe;color:var(--accent-ink)}
 table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
 th,td{text-align:left;padding:8px 10px;border-top:1px solid var(--line2);vertical-align:top}
 th{background:#fafafa;color:var(--muted);font-weight:600;font-size:11.5px;border-top:0;text-transform:uppercase;letter-spacing:.04em}
@@ -286,11 +287,11 @@ details.srow summary .ttl .chip{font-weight:400}
   <a class="row" href="agent.html#models"><span>Model</span><span>gpt-4.1-mini</span></a>
   <a class="row" href="backend.html"><span>Order system</span><span>mock</span></a>
   <a class="row" href="caller.html"><span>Simulated caller</span><span>gf-caller</span></a>
-  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-09 00:25 UTC</div>
+  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-09 00:48 UTC</div>
 </aside>
 <div class="wrap">
 <header class="top">
-  <div class="crumbs"><a href="overview.html">Voice agent evaluation</a><i>›</i><a href="index.html">Runs</a><i>›</i><a href="index.html">full-3</a><i>›</i><a href="session-ff2985a2b7ab.html">Address change on an order that already shipped, caller asks for a person</a><i>›</i><b>attempt 1</b></div>
+  <div class="crumbs"><a href="overview.html">Voice agent evaluation</a><i>›</i><a href="index.html">Runs</a><i>›</i><a href="index.html">full-4</a><i>›</i><a href="session-ff2985a2b7ab.html">Address change on an order that already shipped, caller asks for a person</a><i>›</i><b>attempt 1</b></div>
   <div class="right">
     <span class="status-pill " title="livekit"><i></i>livekit</span>
   </div>
@@ -299,16 +300,16 @@ details.srow summary .ttl .chip{font-weight:400}
 <section class="insp" id="inspector" data-call="ff2985a2b7ab/1">
   <div class="hd">
     <h2>Call inspector</h2>
-    <div class="meta"><span class="ttl" title="Address change on an order that already shipped, caller asks for a person">Address change on an order that already shipped, caller asks for a person</span><i>·</i><span class="pill pass">Passed</span><i>·</i><span>0:49</span></div>
+    <div class="meta"><span class="ttl" title="Address change on an order that already shipped, caller asks for a person">Address change on an order that already shipped, caller asks for a person</span><i>·</i><span class="pill pass">Passed</span><i>·</i><span>0:44</span></div>
     <div class="nav">
-      <span class="small muted">ended by room_closed</span>
+      <span class="small muted">ended by agent_left</span>
 <span class="btn sm" style="opacity:.4">‹</span>      <span class="small">attempt 1 of 3</span>
-<a class="btn sm" href="call-ff2985a2b7ab-2.html" id="insp-next" title="next attempt">›</a><a class="btn sm" href="index.html">← Run full-3</a>    </div>
+<a class="btn sm" href="call-ff2985a2b7ab-2.html" id="insp-next" title="next attempt">›</a><a class="btn sm" href="index.html">← Run full-4</a>    </div>
   </div>
 
   <div class="abar">
     <button class="pb" id="insp-play" type="button" title="play / pause" ><svg viewBox="0 0 24 24" class="i-play"><path d="M7 4l13 8-13 8z"/></svg><svg viewBox="0 0 24 24" class="i-pause" hidden><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg></button>
-    <span class="tm"><span id="insp-cur">0:00</span> / 0:49</span>
+    <span class="tm"><span id="insp-cur">0:00</span> / 0:44</span>
     <canvas class="lanes" id="insp-lanes" height="64"></canvas>
 <audio id="insp-audio" preload="metadata" src="audio/ff2985a2b7ab-1.mp3"></audio>  </div>
   <div class="legend"><span><i style="background:var(--caller)"></i>caller</span><span><i style="background:var(--agent)"></i>agent</span><span><i style="background:var(--tool)"></i>tool call</span><span><i style="background:var(--red)"></i>issue</span><span><i style="background:#f59e0b"></i>interruption</span><span><i style="background:#fde68a"></i>dead air</span><span class="muted">click the lanes to seek</span></div>
@@ -317,60 +318,60 @@ details.srow summary .ttl .chip{font-weight:400}
     <button type="button" data-tab="transcript" class="on">Transcript</button>
     <button type="button" data-tab="tools">Tool calls<b>2</b></button>
     <button type="button" data-tab="timeline">Timeline</button>
-    <button type="button" data-tab="latency">Latency<b>p95 2.6 s</b></button>
+    <button type="button" data-tab="latency">Latency<b>p95 2.1 s</b></button>
     <button type="button" data-tab="checks">Checks<b style="background:var(--amber-bg);color:var(--amber)">1 flagged</b></button>
 <button type="button" data-tab="details">Details</button><label class="sw on" data-toggle="heard-off" data-target="#inspector" id="insp-heard"><span class="tg"></span>Show what the agent heard</label>  </div>
 
   <div class="panes">
     <div>
       <div class="pane" data-pane="transcript" id="transcript">
-        <div class="turn agent" data-t="1882" data-end="6404">
+        <div class="turn agent" data-t="1730" data-end="6413">
           <div class="t">0:01</div><div class="av">A</div>
           <div><div class="who">Agent</div>
             <div>Thanks for calling Gateway Goods, this is Ava. How can I help you today?</div>
           </div>
         </div>
-        <div class="turn caller" data-t="7066" data-end="8935">
+        <div class="turn caller" data-t="7079" data-end="10300">
           <div class="t">0:07</div><div class="av">C</div>
           <div><div class="who">James Carter</div>
             <div>Hi Eva, I&#39;m calling to change the shipping address on my order G W 4 8 3 7 7.</div>
-<div class="heard" title="what the agent's speech recognition produced">agent heard: “Hi, Eva. I&#39;m calling to change the shipping address”</div>          </div>
+<div class="heard" title="what the agent's speech recognition produced">agent heard: “Hi.”</div>          </div>
         </div>
-        <div class="turn agent" data-t="14368" data-end="18929">
+        <div class="turn agent" data-t="14907" data-end="18709">
           <div class="t">0:14</div><div class="av">A</div>
-          <div><div class="who">Agent<span class="pill green lat" title="caller stopped → agent audio started">1.8 s</span></div>
-            <div>Could you please provide the zip code on the order? I need it to look up your order first.</div>
+          <div><div class="who">Agent<span class="pill green lat" title="caller stopped → agent audio started">1.5 s</span></div>
+            <div>I can help with that. Could you please provide the zip code on the order?</div>
           </div>
         </div>
-        <div class="turn caller" data-t="19807" data-end="22017">
+        <div class="turn caller" data-t="19667" data-end="21349">
           <div class="t">0:19</div><div class="av">C</div>
           <div><div class="who">James Carter</div>
-            <div>Yes, the ZIP code on the order is 6 0 6 1 4.</div>
-<div class="heard" title="what the agent's speech recognition produced">agent heard: “Yes. The zip code on the order is”</div>          </div>
+            <div>The zip code on the order is 6 0 6 1 4.</div>
+<div class="heard" title="what the agent's speech recognition produced">agent heard: “The ZIP code on the order is <mark>six</mark> <mark>zero</mark> <mark>six</mark> <mark>one</mark> <mark>four.</mark>”</div>          </div>
         </div>
-        <div class="toolev " data-tool="1" data-t="26974">
-          <span class="muted mono" style="font-size:11px">0:26</span><span class="name">lookup_order()</span><span class="args">order_id: "GW-48377", zip: "60614"</span>
+        <div class="toolev " data-tool="1" data-t="24317">
+          <span class="muted mono" style="font-size:11px">0:24</span><span class="name">lookup_order()</span><span class="args">order_id: "GW-48377", zip: "60614"</span>
           <span class="pill green">200</span><span class="muted small">0 ms</span><span class="small">→ status=shipped, total=42.5, items=[{&#39;sku&#39;: &#39;MUG-12&#39;, &#39;name&#39;: &#39;Ceramic mug set&#39;, &#39;qty&#39;: 2, &#39;price&#39;: 21.25}], shipping_address=1500 N Halsted St, Chicago, IL 6061</span>
         </div>
-        <div class="turn agent" data-t="27734" data-end="36935">
-          <div class="t">0:27</div><div class="av">A</div>
-          <div><div class="who">Agent<span class="pill amber lat" title="caller stopped → agent audio started">2.6 s</span></div>
-            <div>The order GW four eight three seven seven has already shipped. We can&#39;t change the shipping address after shipping. Would you like me to connect you to a team member for further help?</div>
+        <div class="turn agent" data-t="25027" data-end="34989">
+          <div class="t">0:25</div><div class="av">A</div>
+          <div><div class="who">Agent<span class="pill amber lat" title="caller stopped → agent audio started">2.1 s</span></div>
+            <div>The order GW 4 8 3 7 7 has already shipped, so the shipping address cannot be changed. Would you like me to connect you to a team member for further help?</div>
           </div>
         </div>
-        <div class="turn caller" data-t="37772" data-end="39447">
-          <div class="t">0:37</div><div class="av">C</div>
+        <div class="turn caller" data-t="36045" data-end="37582">
+          <div class="t">0:36</div><div class="av">C</div>
           <div><div class="who">James Carter</div>
-            <div>I really need to change the address. Please connect me to a team member for further help.</div>
-          </div>
+            <div>Please, connect me to a team member for further help.</div>
+<div class="heard" title="what the agent's speech recognition produced">agent heard: “Please. Connect me to a team member for further help.”</div>          </div>
         </div>
-        <div class="toolev " data-tool="2" data-t="44257">
-          <span class="muted mono" style="font-size:11px">0:44</span><span class="name">escalate_to_human()</span><span class="args">reason: "caller requests address change after shipping", summary: "Caller wants to change shipping address on order GW-48377 which has already shipped."</span>
+        <div class="toolev " data-tool="2" data-t="40333">
+          <span class="muted mono" style="font-size:11px">0:40</span><span class="name">escalate_to_human()</span><span class="args">reason: "Caller requested human after address change blocked by policy", summary: "Caller wants to change shipping address on order GW-48377, but order already shipped."</span>
           <span class="pill green">200</span><span class="muted small">0 ms</span><span class="small">→ status=escalated, ticket_id=TK-0001</span>
         </div>
-        <div class="turn agent" data-t="44390" data-end="49111">
-          <div class="t">0:44</div><div class="av">A</div>
-          <div><div class="who">Agent<span class="pill green lat" title="caller stopped → agent audio started">2.0 s</span></div>
+        <div class="turn agent" data-t="40437" data-end="44518">
+          <div class="t">0:40</div><div class="av">A</div>
+          <div><div class="who">Agent<span class="pill green lat" title="caller stopped → agent audio started">1.6 s</span></div>
             <div>I&#39;m transferring you to a team member now. Thank you for your patience, goodbye.</div>
           </div>
         </div>
@@ -379,8 +380,8 @@ details.srow summary .ttl .chip{font-weight:400}
       <div class="pane" data-pane="tools" hidden>
         <div class="tablewrap"><table>
         <tr><th>time</th><th>tool</th><th>arguments</th><th>status</th><th>took</th><th>response</th></tr>
-        <tr class="toolrow" data-tool="1" data-t="26974" style="cursor:pointer"><td class="mono">0:26</td><td class="mono"><b>lookup_order</b></td><td class="mono small">{"order_id":"GW-48377","zip":"60614"}</td><td><span class="pill green">200</span></td><td>0 ms</td><td class="small">status=shipped, total=42.5, items=[{&#39;sku&#39;: &#39;MUG-12&#39;, &#39;name&#39;: &#39;Ceramic mug set&#39;, &#39;qty&#39;: 2, &#39;price&#39;: 21.25}], shipping_address=1500 N Halsted St, Chicago, IL 6061</td></tr>
-        <tr class="toolrow" data-tool="2" data-t="44257" style="cursor:pointer"><td class="mono">0:44</td><td class="mono"><b>escalate_to_human</b></td><td class="mono small">{"reason":"caller requests address change after shipping","summary":"Caller wants to change shipping address on order GW-48377 which has already shipped."}</td><td><span class="pill green">200</span></td><td>0 ms</td><td class="small">status=escalated, ticket_id=TK-0001</td></tr>
+        <tr class="toolrow" data-tool="1" data-t="24317" style="cursor:pointer"><td class="mono">0:24</td><td class="mono"><b>lookup_order</b></td><td class="mono small">{"order_id":"GW-48377","zip":"60614"}</td><td><span class="pill green">200</span></td><td>0 ms</td><td class="small">status=shipped, total=42.5, items=[{&#39;sku&#39;: &#39;MUG-12&#39;, &#39;name&#39;: &#39;Ceramic mug set&#39;, &#39;qty&#39;: 2, &#39;price&#39;: 21.25}], shipping_address=1500 N Halsted St, Chicago, IL 6061</td></tr>
+        <tr class="toolrow" data-tool="2" data-t="40333" style="cursor:pointer"><td class="mono">0:40</td><td class="mono"><b>escalate_to_human</b></td><td class="mono small">{"reason":"Caller requested human after address change blocked by policy","summary":"Caller wants to change shipping address on order GW-48377, but order already shipped."}</td><td><span class="pill green">200</span></td><td>0 ms</td><td class="small">status=escalated, ticket_id=TK-0001</td></tr>
         </table></div>
         <p class="small muted">Read from the order system's request log, never from the transcript.</p>
       </div>
@@ -389,41 +390,37 @@ details.srow summary .ttl .chip{font-weight:400}
         <canvas id="insp-tl" class="tl" height="150"></canvas>
         <div class="tablewrap" style="margin-top:10px"><table>
         <tr><th>time</th><th>event</th><th>detail</th></tr>
-        <tr class="tlrow" data-t="2440" style="cursor:pointer"><td class="mono">0:02</td><td>agent speech</td><td class="small">1.3 s</td></tr>
-        <tr class="tlrow" data-t="4260" style="cursor:pointer"><td class="mono">0:04</td><td>agent speech</td><td class="small">0.6 s</td></tr>
-        <tr class="tlrow" data-t="5460" style="cursor:pointer"><td class="mono">0:05</td><td>agent speech</td><td class="small">0.9 s</td></tr>
-        <tr class="tlrow" data-t="6404" style="cursor:pointer"><td class="mono">0:06</td><td>agent said</td><td class="small">Thanks for calling Gateway Goods, this is Ava. How can I help you today?</td></tr>
-        <tr class="tlrow" data-t="7066" style="cursor:pointer"><td class="mono">0:07</td><td>caller said</td><td class="small">Hi Eva, I&#39;m calling to change the shipping address on my order G W 4 8 3 7 7.</td></tr>
-        <tr class="tlrow" data-t="7400" style="cursor:pointer"><td class="mono">0:07</td><td>caller speech</td><td class="small">5.7 s</td></tr>
-        <tr class="tlrow" data-t="11196" style="cursor:pointer"><td class="mono">0:11</td><td>agent heard</td><td class="small">Hi, Eva. I&#39;m calling to change the shipping address</td></tr>
-        <tr class="tlrow" data-t="13643" style="cursor:pointer"><td class="mono">0:13</td><td>agent heard</td><td class="small">on my order GW four eight three seven seven.</td></tr>
-        <tr class="tlrow" data-t="14900" style="cursor:pointer"><td class="mono">0:14</td><td>agent speech</td><td class="small">1.9 s</td></tr>
-        <tr class="tlrow" data-t="17240" style="cursor:pointer"><td class="mono">0:17</td><td>agent speech</td><td class="small">1.5 s</td></tr>
-        <tr class="tlrow" data-t="18929" style="cursor:pointer"><td class="mono">0:18</td><td>agent said</td><td class="small">Could you please provide the zip code on the order? I need it to look up your order first.</td></tr>
-        <tr class="tlrow" data-t="19807" style="cursor:pointer"><td class="mono">0:19</td><td>caller said</td><td class="small">Yes, the ZIP code on the order is 6 0 6 1 4.</td></tr>
-        <tr class="tlrow" data-t="20840" style="cursor:pointer"><td class="mono">0:20</td><td>caller speech</td><td class="small">0.4 s</td></tr>
-        <tr class="tlrow" data-t="21700" style="cursor:pointer"><td class="mono">0:21</td><td>caller speech</td><td class="small">1.4 s</td></tr>
-        <tr class="tlrow" data-t="23197" style="cursor:pointer"><td class="mono">0:23</td><td>agent heard</td><td class="small">Yes.</td></tr>
-        <tr class="tlrow" data-t="23540" style="cursor:pointer"><td class="mono">0:23</td><td>caller speech</td><td class="small">0.9 s</td></tr>
-        <tr class="tlrow" data-t="23564" style="cursor:pointer"><td class="mono">0:23</td><td>agent heard</td><td class="small">The zip code on the order is</td></tr>
-        <tr class="tlrow" data-t="24800" style="cursor:pointer"><td class="mono">0:24</td><td>caller speech</td><td class="small">0.7 s</td></tr>
-        <tr class="tlrow" data-t="24931" style="cursor:pointer"><td class="mono">0:24</td><td>agent heard</td><td class="small">six zero six</td></tr>
-        <tr class="tlrow" data-t="25935" style="cursor:pointer"><td class="mono">0:25</td><td>agent heard</td><td class="small">one four.</td></tr>
-        <tr class="tlrow" data-t="26974" style="cursor:pointer"><td class="mono">0:26</td><td>tool call</td><td class="small"><span class="mono">lookup_order</span> ok · 0 ms</td></tr>
-        <tr class="tlrow" data-t="28120" style="cursor:pointer"><td class="mono">0:28</td><td>agent speech</td><td class="small">3.1 s</td></tr>
-        <tr class="tlrow" data-t="31820" style="cursor:pointer"><td class="mono">0:31</td><td>agent speech</td><td class="small">1.9 s</td></tr>
-        <tr class="tlrow" data-t="34380" style="cursor:pointer"><td class="mono">0:34</td><td>agent speech</td><td class="small">2.4 s</td></tr>
-        <tr class="tlrow" data-t="36935" style="cursor:pointer"><td class="mono">0:36</td><td>agent said</td><td class="small">The order GW four eight three seven seven has already shipped. We can&#39;t change the shipping address after shipping. Would you like me to con</td></tr>
-        <tr class="tlrow" data-t="37772" style="cursor:pointer"><td class="mono">0:37</td><td>caller said</td><td class="small">I really need to change the address. Please connect me to a team member for further help.</td></tr>
-        <tr class="tlrow" data-t="38120" style="cursor:pointer"><td class="mono">0:38</td><td>caller speech</td><td class="small">3.7 s</td></tr>
-        <tr class="tlrow" data-t="42160" style="cursor:pointer"><td class="mono">0:42</td><td>caller speech</td><td class="small">0.7 s</td></tr>
-        <tr class="tlrow" data-t="42584" style="cursor:pointer"><td class="mono">0:42</td><td>agent heard</td><td class="small">I really need to change the address. Please connect me to a team member</td></tr>
-        <tr class="tlrow" data-t="43342" style="cursor:pointer"><td class="mono">0:43</td><td>agent heard</td><td class="small">for further help.</td></tr>
-        <tr class="tlrow" data-t="44257" style="cursor:pointer"><td class="mono">0:44</td><td>tool call</td><td class="small"><span class="mono">escalate_to_human</span> ok · 0 ms</td></tr>
-        <tr class="tlrow" data-t="44800" style="cursor:pointer"><td class="mono">0:44</td><td>agent speech</td><td class="small">1.8 s</td></tr>
-        <tr class="tlrow" data-t="47120" style="cursor:pointer"><td class="mono">0:47</td><td>agent speech</td><td class="small">1.0 s</td></tr>
-        <tr class="tlrow" data-t="48720" style="cursor:pointer"><td class="mono">0:48</td><td>agent speech</td><td class="small">0.4 s</td></tr>
-        <tr class="tlrow" data-t="49111" style="cursor:pointer"><td class="mono">0:49</td><td>agent said</td><td class="small">I&#39;m transferring you to a team member now. Thank you for your patience, goodbye.</td></tr>
+        <tr class="tlrow" data-t="2340" style="cursor:pointer"><td class="mono">0:02</td><td>agent speech</td><td class="small">1.3 s</td></tr>
+        <tr class="tlrow" data-t="4100" style="cursor:pointer"><td class="mono">0:04</td><td>agent speech</td><td class="small">0.7 s</td></tr>
+        <tr class="tlrow" data-t="5400" style="cursor:pointer"><td class="mono">0:05</td><td>agent speech</td><td class="small">0.9 s</td></tr>
+        <tr class="tlrow" data-t="6413" style="cursor:pointer"><td class="mono">0:06</td><td>agent said</td><td class="small">Thanks for calling Gateway Goods, this is Ava. How can I help you today?</td></tr>
+        <tr class="tlrow" data-t="7079" style="cursor:pointer"><td class="mono">0:07</td><td>caller said</td><td class="small">Hi Eva, I&#39;m calling to change the shipping address on my order G W 4 8 3 7 7.</td></tr>
+        <tr class="tlrow" data-t="7400" style="cursor:pointer"><td class="mono">0:07</td><td>caller speech</td><td class="small">6.5 s</td></tr>
+        <tr class="tlrow" data-t="8172" style="cursor:pointer"><td class="mono">0:08</td><td>agent heard</td><td class="small">Hi.</td></tr>
+        <tr class="tlrow" data-t="13202" style="cursor:pointer"><td class="mono">0:13</td><td>agent heard</td><td class="small">Eva. I&#39;m calling to change the shipping address on my order GW four eight</td></tr>
+        <tr class="tlrow" data-t="14282" style="cursor:pointer"><td class="mono">0:14</td><td>agent heard</td><td class="small">three seven seven.</td></tr>
+        <tr class="tlrow" data-t="15420" style="cursor:pointer"><td class="mono">0:15</td><td>agent speech</td><td class="small">0.7 s</td></tr>
+        <tr class="tlrow" data-t="16700" style="cursor:pointer"><td class="mono">0:16</td><td>agent speech</td><td class="small">1.9 s</td></tr>
+        <tr class="tlrow" data-t="18709" style="cursor:pointer"><td class="mono">0:18</td><td>agent said</td><td class="small">I can help with that. Could you please provide the zip code on the order?</td></tr>
+        <tr class="tlrow" data-t="19667" style="cursor:pointer"><td class="mono">0:19</td><td>caller said</td><td class="small">The zip code on the order is 6 0 6 1 4.</td></tr>
+        <tr class="tlrow" data-t="20000" style="cursor:pointer"><td class="mono">0:20</td><td>caller speech</td><td class="small">3.3 s</td></tr>
+        <tr class="tlrow" data-t="22754" style="cursor:pointer"><td class="mono">0:22</td><td>agent heard</td><td class="small">The ZIP code on the order is six zero</td></tr>
+        <tr class="tlrow" data-t="23573" style="cursor:pointer"><td class="mono">0:23</td><td>agent heard</td><td class="small">six one four.</td></tr>
+        <tr class="tlrow" data-t="24317" style="cursor:pointer"><td class="mono">0:24</td><td>tool call</td><td class="small"><span class="mono">lookup_order</span> ok · 0 ms</td></tr>
+        <tr class="tlrow" data-t="25420" style="cursor:pointer"><td class="mono">0:25</td><td>agent speech</td><td class="small">2.8 s</td></tr>
+        <tr class="tlrow" data-t="28580" style="cursor:pointer"><td class="mono">0:28</td><td>agent speech</td><td class="small">0.9 s</td></tr>
+        <tr class="tlrow" data-t="29900" style="cursor:pointer"><td class="mono">0:29</td><td>agent speech</td><td class="small">2.0 s</td></tr>
+        <tr class="tlrow" data-t="32420" style="cursor:pointer"><td class="mono">0:32</td><td>agent speech</td><td class="small">2.4 s</td></tr>
+        <tr class="tlrow" data-t="34989" style="cursor:pointer"><td class="mono">0:34</td><td>agent said</td><td class="small">The order GW 4 8 3 7 7 has already shipped, so the shipping address cannot be changed. Would you like me to connect you to a team member for</td></tr>
+        <tr class="tlrow" data-t="36045" style="cursor:pointer"><td class="mono">0:36</td><td>caller said</td><td class="small">Please, connect me to a team member for further help.</td></tr>
+        <tr class="tlrow" data-t="36440" style="cursor:pointer"><td class="mono">0:36</td><td>caller speech</td><td class="small">0.5 s</td></tr>
+        <tr class="tlrow" data-t="37220" style="cursor:pointer"><td class="mono">0:37</td><td>caller speech</td><td class="small">2.0 s</td></tr>
+        <tr class="tlrow" data-t="37316" style="cursor:pointer"><td class="mono">0:37</td><td>agent heard</td><td class="small">Please.</td></tr>
+        <tr class="tlrow" data-t="39570" style="cursor:pointer"><td class="mono">0:39</td><td>agent heard</td><td class="small">Connect me to a team member for further help.</td></tr>
+        <tr class="tlrow" data-t="40333" style="cursor:pointer"><td class="mono">0:40</td><td>tool call</td><td class="small"><span class="mono">escalate_to_human</span> ok · 0 ms</td></tr>
+        <tr class="tlrow" data-t="40840" style="cursor:pointer"><td class="mono">0:40</td><td>agent speech</td><td class="small">1.8 s</td></tr>
+        <tr class="tlrow" data-t="43200" style="cursor:pointer"><td class="mono">0:43</td><td>agent speech</td><td class="small">1.3 s</td></tr>
+        <tr class="tlrow" data-t="44518" style="cursor:pointer"><td class="mono">0:44</td><td>agent said</td><td class="small">I&#39;m transferring you to a team member now. Thank you for your patience, goodbye.</td></tr>
         </table></div>
       </div>
 
@@ -432,53 +429,53 @@ details.srow summary .ttl .chip{font-weight:400}
         <div class="legend" style="padding:0 0 8px"><span><i style="background:#94a3b8;border-radius:2px"></i>End-of-turn detection</span><span><i style="background:#60a5fa;border-radius:2px"></i>Transcription</span><span><i style="background:#a78bfa;border-radius:2px"></i>LLM first token</span><span><i style="background:#34d399;border-radius:2px"></i>TTS first byte</span><span><i style="background:#fbbf24;border-radius:2px"></i>Playback</span><span><i style="background:#e5e7eb;border-radius:2px;border:1px solid #d1d5db"></i>Unaccounted</span><span><i style="background:transparent;border-left:2px solid var(--ink);border-radius:0;width:0"></i>heard</span></div>
         <div class="tablewrap"><table class="small" id="latency-table">
         <tr><th>turn</th><th style="width:38%">breakdown</th><th>heard</th><th title="Caller stopped speaking → the turn detector decided the caller was done. Before this, the agent cannot start thinking.">end of turn</th><th title="End of turn → the final transcript arrived from speech recognition.">transcript</th><th title="Transcript sent to the language model → first token of the reply (time to first token, TTFT).">LLM TTFT</th><th title="First sentence sent to text-to-speech → first audio byte back (time to first byte, TTFB).">TTS TTFB</th><th title="First audio byte → it is actually played into the room.">playback</th><th>reported e2e</th><th>tokens</th></tr>
-        <tr class="latrow" data-t="1882" style="cursor:pointer">
+        <tr class="latrow" data-t="1730" style="cursor:pointer">
           <td class="mono">0:01 <span class="muted">#1</span> <span class="chip">greeting</span></td>
           <td>
             <div style="position:relative;height:14px;background:#f8fafc;border-radius:3px;overflow:hidden">
-              <div style="display:flex;height:100%"><i title="TTS first byte: 111 ms" style="display:block;height:100%;width:4.2%;background:#34d399"></i><i title="Playback: 13 ms" style="display:block;height:100%;width:0.49%;background:#fbbf24"></i></div>
+              <div style="display:flex;height:100%"><i title="TTS first byte: 90 ms" style="display:block;height:100%;width:4.21%;background:#34d399"></i><i title="Playback: 72 ms" style="display:block;height:100%;width:3.36%;background:#fbbf24"></i></div>
             </div>
           </td>
           <td><span class="muted">–</span></td>
-<td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">111 ms</td><td class="num">13 ms</td>          <td class="num">–</td>
+<td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">90 ms</td><td class="num">72 ms</td>          <td class="num">–</td>
           <td class="num muted">–</td>
         </tr>
-        <tr class="latrow" data-t="14368" style="cursor:pointer">
+        <tr class="latrow" data-t="14907" style="cursor:pointer">
           <td class="mono">0:14 <span class="muted">#2</span></td>
           <td>
             <div style="position:relative;height:14px;background:#f8fafc;border-radius:3px;overflow:hidden">
-              <div style="display:flex;height:100%"><i title="End-of-turn detection: 577 ms" style="display:block;height:100%;width:21.86%;background:#94a3b8"></i><i title="Transcription: 246 ms" style="display:block;height:100%;width:9.32%;background:#60a5fa"></i><i title="LLM first token: 487 ms" style="display:block;height:100%;width:18.45%;background:#a78bfa"></i><i title="TTS first byte: 213 ms" style="display:block;height:100%;width:8.07%;background:#34d399"></i><i title="Playback: 7 ms" style="display:block;height:100%;width:0.27%;background:#fbbf24"></i><i title="Unaccounted: 230 ms" style="display:block;height:100%;width:8.71%;background:#e5e7eb"></i></div>
-<b title="heard: 1760 ms" style="position:absolute;top:0;bottom:0;left:66.67%;width:2px;background:var(--ink)"></b>            </div>
+              <div style="display:flex;height:100%"><i title="End-of-turn detection: 577 ms" style="display:block;height:100%;width:26.96%;background:#94a3b8"></i><i title="Transcription: 212 ms" style="display:block;height:100%;width:9.91%;background:#60a5fa"></i><i title="LLM first token: 486 ms" style="display:block;height:100%;width:22.71%;background:#a78bfa"></i><i title="TTS first byte: 103 ms" style="display:block;height:100%;width:4.81%;background:#34d399"></i><i title="Playback: 17 ms" style="display:block;height:100%;width:0.79%;background:#fbbf24"></i><i title="Unaccounted: 105 ms" style="display:block;height:100%;width:4.91%;background:#e5e7eb"></i></div>
+<b title="heard: 1500 ms" style="position:absolute;top:0;bottom:0;left:70.09%;width:2px;background:var(--ink)"></b>            </div>
           </td>
-          <td><span class="pill green">1.8 s</span></td>
-<td class="num">577 ms</td><td class="num">246 ms</td><td class="num">487 ms</td><td class="num">213 ms</td><td class="num">7 ms</td>          <td class="num">970 ms</td>
-          <td class="num muted">817 → 22</td>
+          <td><span class="pill green">1.5 s</span></td>
+<td class="num">577 ms</td><td class="num">212 ms</td><td class="num">486 ms</td><td class="num">103 ms</td><td class="num">17 ms</td>          <td class="num">836 ms</td>
+          <td class="num muted">817 → 18</td>
         </tr>
-        <tr class="latrow" data-t="27734" style="cursor:pointer">
-          <td class="mono">0:27 <span class="muted">#3</span></td>
+        <tr class="latrow" data-t="25027" style="cursor:pointer">
+          <td class="mono">0:25 <span class="muted">#3</span></td>
           <td>
             <div style="position:relative;height:14px;background:#f8fafc;border-radius:3px;overflow:hidden">
-              <div style="display:flex;height:100%"><i title="End-of-turn detection: 578 ms" style="display:block;height:100%;width:21.89%;background:#94a3b8"></i><i title="Transcription: 239 ms" style="display:block;height:100%;width:9.05%;background:#60a5fa"></i><i title="LLM first token: 502 ms" style="display:block;height:100%;width:19.02%;background:#a78bfa"></i><i title="TTS first byte: 214 ms" style="display:block;height:100%;width:8.11%;background:#34d399"></i><i title="Playback: 11 ms" style="display:block;height:100%;width:0.42%;background:#fbbf24"></i><i title="Unaccounted: 1096 ms" style="display:block;height:100%;width:41.52%;background:#e5e7eb"></i></div>
-<b title="heard: 2640 ms" style="position:absolute;top:0;bottom:0;left:100.0%;width:2px;background:var(--ink)"></b>            </div>
+              <div style="display:flex;height:100%"><i title="End-of-turn detection: 577 ms" style="display:block;height:100%;width:26.96%;background:#94a3b8"></i><i title="Transcription: 152 ms" style="display:block;height:100%;width:7.1%;background:#60a5fa"></i><i title="LLM first token: 400 ms" style="display:block;height:100%;width:18.69%;background:#a78bfa"></i><i title="TTS first byte: 268 ms" style="display:block;height:100%;width:12.52%;background:#34d399"></i><i title="Playback: 16 ms" style="display:block;height:100%;width:0.75%;background:#fbbf24"></i><i title="Unaccounted: 727 ms" style="display:block;height:100%;width:33.97%;background:#e5e7eb"></i></div>
+<b title="heard: 2140 ms" style="position:absolute;top:0;bottom:0;left:100.0%;width:2px;background:var(--ink)"></b>            </div>
           </td>
-          <td><span class="pill amber">2.6 s</span></td>
-<td class="num">578 ms</td><td class="num">239 ms</td><td class="num">502 ms</td><td class="num">214 ms</td><td class="num">11 ms</td>          <td class="num">2037 ms</td>
-          <td class="num muted">992 → 37</td>
+          <td><span class="pill amber">2.1 s</span></td>
+<td class="num">577 ms</td><td class="num">152 ms</td><td class="num">400 ms</td><td class="num">268 ms</td><td class="num">16 ms</td>          <td class="num">1606 ms</td>
+          <td class="num muted">986 → 41</td>
         </tr>
-        <tr class="latrow" data-t="44390" style="cursor:pointer">
-          <td class="mono">0:44 <span class="muted">#4</span></td>
+        <tr class="latrow" data-t="40437" style="cursor:pointer">
+          <td class="mono">0:40 <span class="muted">#4</span></td>
           <td>
             <div style="position:relative;height:14px;background:#f8fafc;border-radius:3px;overflow:hidden">
-              <div style="display:flex;height:100%"><i title="End-of-turn detection: 577 ms" style="display:block;height:100%;width:21.86%;background:#94a3b8"></i><i title="Transcription: 195 ms" style="display:block;height:100%;width:7.39%;background:#60a5fa"></i><i title="LLM first token: 910 ms" style="display:block;height:100%;width:34.47%;background:#a78bfa"></i><i title="TTS first byte: 115 ms" style="display:block;height:100%;width:4.36%;background:#34d399"></i><i title="Playback: 11 ms" style="display:block;height:100%;width:0.42%;background:#fbbf24"></i><i title="Unaccounted: 152 ms" style="display:block;height:100%;width:5.76%;background:#e5e7eb"></i></div>
-<b title="heard: 1960 ms" style="position:absolute;top:0;bottom:0;left:74.24%;width:2px;background:var(--ink)"></b>            </div>
+              <div style="display:flex;height:100%"><i title="End-of-turn detection: 577 ms" style="display:block;height:100%;width:26.96%;background:#94a3b8"></i><i title="Transcription: 48 ms" style="display:block;height:100%;width:2.24%;background:#60a5fa"></i><i title="LLM first token: 757 ms" style="display:block;height:100%;width:35.37%;background:#a78bfa"></i><i title="TTS first byte: 79 ms" style="display:block;height:100%;width:3.69%;background:#34d399"></i><i title="Playback: 15 ms" style="display:block;height:100%;width:0.7%;background:#fbbf24"></i><i title="Unaccounted: 124 ms" style="display:block;height:100%;width:5.79%;background:#e5e7eb"></i></div>
+<b title="heard: 1600 ms" style="position:absolute;top:0;bottom:0;left:74.77%;width:2px;background:var(--ink)"></b>            </div>
           </td>
-          <td><span class="pill green">2.0 s</span></td>
-<td class="num">577 ms</td><td class="num">195 ms</td><td class="num">910 ms</td><td class="num">115 ms</td><td class="num">11 ms</td>          <td class="num">–</td>
-          <td class="num muted">1055 → 43</td>
+          <td><span class="pill green">1.6 s</span></td>
+<td class="num">577 ms</td><td class="num">48 ms</td><td class="num">757 ms</td><td class="num">79 ms</td><td class="num">15 ms</td>          <td class="num">–</td>
+          <td class="num muted">1046 → 47</td>
         </tr>
         <tr style="font-weight:600"><td>p50 / p95</td><td class="small muted" style="font-weight:400">over 3 replies with a measured wait</td>
-          <td>2.0 s / 2.6 s</td>
-<td class="num">577 / 578</td><td class="num">239 / 246</td><td class="num">502 / 910</td><td class="num">213 / 214</td><td class="num">11 / 13</td>          <td class="num">2037 / 2037</td><td></td></tr>
+          <td>1.6 s / 2.1 s</td>
+<td class="num">577 / 577</td><td class="num">152 / 212</td><td class="num">486 / 757</td><td class="num">103 / 268</td><td class="num">17 / 72</td>          <td class="num">1606 / 1606</td><td></td></tr>
         </table></div>
         <details style="margin-top:10px"><summary>What each latency means</summary>
           <div class="kv small" style="margin-top:8px"><span class="k">End-of-turn detection</span><span>Caller stopped speaking → the turn detector decided the caller was done. Before this, the agent cannot start thinking.</span><span class="k">Transcription</span><span>End of turn → the final transcript arrived from speech recognition.</span><span class="k">LLM first token</span><span>Transcript sent to the language model → first token of the reply (time to first token, TTFT).</span><span class="k">TTS first byte</span><span>First sentence sent to text-to-speech → first audio byte back (time to first byte, TTFB).</span><span class="k">Playback</span><span>First audio byte → it is actually played into the room.</span><span class="k">Reported end-to-end</span><span>The agent&#39;s own sum for the turn (end of turn → audio playing), from its clock.</span><span class="k">Heard</span><span>Measured from the recording: caller&#39;s last word → agent&#39;s first sound. What a real caller waits.</span><span class="k">Unaccounted</span><span>Heard minus the reported stages: network, audio buffering and VAD look-back that the agent cannot see.</span></div>
@@ -498,17 +495,17 @@ details.srow summary .ttl .chip{font-weight:400}
 <span></span>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
-          <div><div>The simulated caller heard the agent correctly <span class="muted mono">0.078</span></div><div class="what">caller-side WER 0.08 over 3 agent turns; 1 digit mishearing(s) not acted on</div><div class="why">A caller that mishears the agent argues about the wrong value; that is the simulator&#39;s fault, not the agent&#39;s, so such calls are excluded.</div></div>
+          <div><div>The simulated caller heard the agent correctly <span class="muted mono">0.029</span></div><div class="what">caller-side WER 0.03 over 3 agent turns; 1 digit mishearing(s) not acted on</div><div class="why">A caller that mishears the agent argues about the wrong value; that is the simulator&#39;s fault, not the agent&#39;s, so such calls are excluded.</div></div>
 <span></span>        </div>
         <h3 style="margin:10px 0 4px">Did the agent do the right thing? <span class="pill green">ok</span></h3>
         <div class="check pass open">
           <span class="ic">✓</span>
           <div><div>Required: lookup_order with {&#39;order_id&#39;: &#39;GW-48377&#39;, &#39;zip&#39;: &#39;60614&#39;}</div><div class="what">lookup_order was called with the expected arguments and succeeded</div><div class="why">The outcome only counts if the backend actually received this request.</div></div>
-<a class="jump" href="#" data-seek="26974">0:26 ↗</a>        </div>
+<a class="jump" href="#" data-seek="24317">0:24 ↗</a>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
           <div><div>Required: escalate_to_human with any arguments</div><div class="what">escalate_to_human was called with the expected arguments and succeeded</div><div class="why">The outcome only counts if the backend actually received this request.</div></div>
-<a class="jump" href="#" data-seek="44257">0:44 ↗</a>        </div>
+<a class="jump" href="#" data-seek="40333">0:40 ↗</a>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
           <div><div>Order: lookup_order → escalate_to_human</div><div class="what">Successful calls happened as: lookup_order → escalate_to_human</div><div class="why">Verification must precede any write.</div></div>
@@ -523,7 +520,7 @@ details.srow summary .ttl .chip{font-weight:400}
 <span></span>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
-          <div><div>Final state: tickets[0] exists <span class="muted mono">{&#39;ticket_id&#39;: &#39;TK-0001&#39;, &#39;reason&#39;: &#39;caller requests address change after shipping&#39;, &#39;summary&#39;: &#39;Caller wants to change shipping address on order GW-48377 which has already shipped.&#39;, &#39;created_ms&#39;: 1791502784660}</span></div><div class="what">tickets[0] exists: holds</div><div class="why">The backend&#39;s end state is the ground truth for the outcome.</div></div>
+          <div><div>Final state: tickets[0] exists <span class="muted mono">{&#39;ticket_id&#39;: &#39;TK-0001&#39;, &#39;reason&#39;: &#39;Caller requested human after address change blocked by policy&#39;, &#39;summary&#39;: &#39;Caller wants to change shipping address on order GW-48377, but order already shipped.&#39;, &#39;created_ms&#39;: 1791505985054}</span></div><div class="what">tickets[0] exists: holds</div><div class="why">The backend&#39;s end state is the ground truth for the outcome.</div></div>
 <span></span>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
@@ -545,11 +542,11 @@ details.srow summary .ttl .chip{font-weight:400}
         <div class="check pass open">
           <span class="ic">✓</span>
           <div><div>Every claimed action is backed by a successful backend write <span class="muted mono">0</span></div><div class="what">1 claim(s), all backed</div><div class="why">This is the agent that says &#39;your refund is done&#39; without issuing one.</div></div>
-<a class="jump" href="#" data-seek="49111">0:49 ↗</a>        </div>
+<a class="jump" href="#" data-seek="44518">0:44 ↗</a>        </div>
         <h3 style="margin:10px 0 4px">Did the agent hear the caller? <span class="pill green">ok</span></h3>
         <div class="check pass open">
           <span class="ic">✓</span>
-          <div><div>Word error rate, caller&#39;s words vs what the agent heard <span class="muted mono">0.0</span></div><div class="what">WER 0.00 over 59 reference words</div><div class="why">High WER explains wrong tool arguments and repeats downstream.</div></div>
+          <div><div>Word error rate, caller&#39;s words vs what the agent heard <span class="muted mono">0.0</span></div><div class="what">WER 0.00 over 50 reference words</div><div class="why">High WER explains wrong tool arguments and repeats downstream.</div></div>
 <span></span>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
@@ -562,8 +559,8 @@ details.srow summary .ttl .chip{font-weight:400}
         <h3 style="margin:10px 0 4px">How did the call feel? <span class="pill green">ok</span></h3>
         <div class="check pass open">
           <span class="ic">✓</span>
-          <div><div>Response latency p95 (caller stops → agent audio) under 2.0 s <span class="muted mono">2640</span></div><div class="what">p50 1960 ms, p95 2640 ms over 3 turns</div><div class="why">Over about two seconds callers start talking over the agent or hang up.</div></div>
-<a class="jump" href="#" data-seek="25480">0:25 ↗</a>        </div>
+          <div><div>Response latency p95 (caller stops → agent audio) under 2.0 s <span class="muted mono">2140</span></div><div class="what">p50 1600 ms, p95 2140 ms over 3 turns</div><div class="why">Over about two seconds callers start talking over the agent or hang up.</div></div>
+<a class="jump" href="#" data-seek="23280">0:23 ↗</a>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
           <div><div>No silence from both sides longer than 3 s <span class="muted mono">0</span></div><div class="what">none</div><div class="why">Dead air is when a real caller says &#39;hello?&#39; or hangs up.</div></div>
@@ -582,25 +579,25 @@ details.srow summary .ttl .chip{font-weight:400}
 <span></span>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
-          <div><div>Time from call start to the write that resolved the request <span class="muted mono">44257</span></div><div class="what">44.3 s (escalate_to_human)</div><div class="why"></div></div>
-<a class="jump" href="#" data-seek="44257">0:44 ↗</a>        </div>
+          <div><div>Time from call start to the write that resolved the request <span class="muted mono">40333</span></div><div class="what">40.3 s (escalate_to_human)</div><div class="why"></div></div>
+<a class="jump" href="#" data-seek="40333">0:40 ↗</a>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
           <div><div>A real caller would have stayed on the line <span class="muted mono">False</span></div><div class="what">total dead air 0 ms vs patience 15000 ms; 0 repeats</div><div class="why">Rule of thumb: dead air beyond the caller&#39;s patience, or three repeats, loses the call.</div></div>
 <span></span>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
-          <div><div>Agent spoke first</div><div class="what">first agent audio at 2440 ms</div><div class="why">A caller who has to speak into silence assumes nobody answered.</div></div>
-<a class="jump" href="#" data-seek="2440">0:02 ↗</a>        </div>
+          <div><div>Agent spoke first</div><div class="what">first agent audio at 2340 ms</div><div class="why">A caller who has to speak into silence assumes nobody answered.</div></div>
+<a class="jump" href="#" data-seek="2340">0:02 ↗</a>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
-          <div><div>Agent-reported end-to-end latency (for comparison with what the caller heard) <span class="muted mono">1.504</span></div><div class="what">mean 1.50 s over 2 turns</div><div class="why"></div></div>
+          <div><div>Agent-reported end-to-end latency (for comparison with what the caller heard) <span class="muted mono">1.221</span></div><div class="what">mean 1.22 s over 2 turns</div><div class="why"></div></div>
 <span></span>        </div>
         <h3 style="margin:10px 0 4px">Was the speech clean? <span class="pill amber">1 flagged</span></h3>
         <div class="check warn open">
           <span class="ic">!</span>
           <div><div>No stuttered phrases <span class="muted mono">1</span></div><div class="what">turn(s) [3]</div><div class="why">Repeated phrases sound like a glitch.</div></div>
-<a class="jump" href="#" data-seek="36935">0:36 ↗</a>        </div>
+<a class="jump" href="#" data-seek="34989">0:34 ↗</a>        </div>
         <div class="check pass open">
           <span class="ic">✓</span>
           <div><div>No tool names spoken aloud <span class="muted mono">0</span></div><div class="what">clean</div><div class="why">Internal names leaking into speech break the illusion.</div></div>
@@ -629,19 +626,19 @@ details.srow summary .ttl .chip{font-weight:400}
               <span class="k">voice</span><span>aura-2-draco-en at pace 1.1</span>
               <span class="k">brain</span><span>gpt-4.1-mini t=0.0 seed 202</span>
               <span class="k">line</span><span><span class="chip">phone line</span></span>
-<span class="k">measured</span><span class="mono">{"noise":null,"phone_line":true,"packet_loss":0.0,"low_quality_mic":false,"frames":90,"dropped_frames":0,"measured_snr_db":null}</span>              <span class="k">caller's view</span><span>unresolved</span>
-              <span class="k">ended</span><span>room_closed: room closed</span>
+<span class="k">measured</span><span class="mono">{"noise":null,"phone_line":true,"packet_loss":0.0,"low_quality_mic":false,"frames":77,"dropped_frames":0,"measured_snr_db":null}</span>              <span class="k">caller's view</span><span>unresolved</span>
+              <span class="k">ended</span><span>agent_left: agent-AJ_G4U49pjtcQAY left the room</span>
             </div>
           </div>
           <div class="card"><h3>Agent <span class="mono muted">config a7c6a425319d</span></h3>
             <div class="kv small">
-<span class="k">stt</span><span>deepgram nova-3</span><span class="k">llm</span><span>openai gpt-4.1-mini</span><span class="k">tts</span><span>deepgram aura-2-luna-en</span>              <span class="k">room</span><span class="mono">gf-sim-ff2985a2b7ab-1-13bab1</span>
+<span class="k">stt</span><span>deepgram nova-3</span><span class="k">llm</span><span>openai gpt-4.1-mini</span><span class="k">tts</span><span>deepgram aura-2-luna-en</span>              <span class="k">room</span><span class="mono">gf-sim-ff2985a2b7ab-1-cac1da</span>
               <span class="k">heard correctly</span><span>100% of words</span>
               <span class="k">dead air</span><span>0.0 s · 0 talk-overs · 0 interruptions</span>
             </div>
             <div class="tablewrap" style="margin-top:8px"><table class="small">
             <tr><th>turn</th><th>end-of-turn</th><th>transcription</th><th>LLM first token</th><th>TTS first byte</th><th>end to end</th></tr>
-<tr><td>1</td><td>–</td><td>–</td><td>–</td><td>0.11 s</td><td>–</td></tr><tr><td>2</td><td>–</td><td>–</td><td>0.49 s</td><td>0.21 s</td><td>0.97 s</td></tr><tr><td>3</td><td>–</td><td>–</td><td>0.50 s</td><td>0.21 s</td><td>2.04 s</td></tr><tr><td>4</td><td>–</td><td>–</td><td>–</td><td>0.12 s</td><td>–</td></tr>            </table></div>
+<tr><td>1</td><td>–</td><td>–</td><td>–</td><td>0.09 s</td><td>–</td></tr><tr><td>2</td><td>–</td><td>–</td><td>0.49 s</td><td>0.10 s</td><td>0.84 s</td></tr><tr><td>3</td><td>–</td><td>–</td><td>0.40 s</td><td>0.27 s</td><td>1.61 s</td></tr><tr><td>4</td><td>–</td><td>–</td><td>–</td><td>0.08 s</td><td>–</td></tr>            </table></div>
             <p class="small muted">Agent-reported timings; the latency badges in the transcript are what the caller actually heard.</p>
           </div>
           <div class="card"><h3>Order system: final state</h3><pre>{
@@ -787,15 +784,15 @@ details.srow summary .ttl .chip{font-weight:400}
     &#34;tickets&#34;: [
       {
         &#34;ticket_id&#34;: &#34;TK-0001&#34;,
-        &#34;reason&#34;: &#34;caller requests address change after shipping&#34;,
-        &#34;summary&#34;: &#34;Caller wants to change shipping address on order GW-48377 which has already shipped.&#34;,
-        &#34;created_ms&#34;: 1791502784660
+        &#34;reason&#34;: &#34;Caller requested human after address change blocked by policy&#34;,
+        &#34;summary&#34;: &#34;Caller wants to change shipping address on order GW-48377, but order already shipped.&#34;,
+        &#34;created_ms&#34;: 1791505985054
       }
     ],
     &#34;ended&#34;: true
   }
 }</pre></div>
-          <div class="card"><h3>Files</h3><div class="small mono">runs/full-3/ff2985a2b7ab/1<br>agent_events.jsonl · agent_session_report.json · audio.json · audio.wav · backend_log.json · backend_state.json · caller.json · caller_events.jsonl · meta.json · scores.json · timeline.json</div></div>
+          <div class="card"><h3>Files</h3><div class="small mono">runs/full-4/ff2985a2b7ab/1<br>agent_events.jsonl · agent_session_report.json · audio.json · audio.wav · backend_log.json · backend_state.json · caller.json · caller_events.jsonl · meta.json · scores.json · timeline.json</div></div>
         </div>
       </div>
     </div>
@@ -806,7 +803,7 @@ stutter      </div>
       <h3 style="margin-bottom:6px">Tool event</h3>
       <div id="insp-tools">
       <div class="tev" data-tev="1" >
-        <div class="h"><span class="name">lookup_order()</span><span class="pill green">ok 200</span><span class="ms">0:26 · 0 ms</span></div>
+        <div class="h"><span class="name">lookup_order()</span><span class="pill green">ok 200</span><span class="ms">0:24 · 0 ms</span></div>
         <div class="tt" data-tabs="tev-1"><button type="button" data-tab="args" class="on">Arguments</button><button type="button" data-tab="resp">Response</button><button type="button" data-tab="raw">Raw</button></div>
         <div id="tev-1">
           <pre data-pane="args">{
@@ -861,12 +858,12 @@ stutter      </div>
         </div>
       </div>
       <div class="tev" data-tev="2" hidden>
-        <div class="h"><span class="name">escalate_to_human()</span><span class="pill green">ok 200</span><span class="ms">0:44 · 0 ms</span></div>
+        <div class="h"><span class="name">escalate_to_human()</span><span class="pill green">ok 200</span><span class="ms">0:40 · 0 ms</span></div>
         <div class="tt" data-tabs="tev-2"><button type="button" data-tab="args" class="on">Arguments</button><button type="button" data-tab="resp">Response</button><button type="button" data-tab="raw">Raw</button></div>
         <div id="tev-2">
           <pre data-pane="args">{
-  &#34;reason&#34;: &#34;caller requests address change after shipping&#34;,
-  &#34;summary&#34;: &#34;Caller wants to change shipping address on order GW-48377 which has already shipped.&#34;
+  &#34;reason&#34;: &#34;Caller requested human after address change blocked by policy&#34;,
+  &#34;summary&#34;: &#34;Caller wants to change shipping address on order GW-48377, but order already shipped.&#34;
 }</pre>
           <pre data-pane="resp" hidden>{
   &#34;ticket_id&#34;: &#34;TK-0001&#34;,
@@ -875,8 +872,8 @@ stutter      </div>
           <pre data-pane="raw" hidden>{
   &#34;tool&#34;: &#34;escalate_to_human&#34;,
   &#34;args&#34;: {
-    &#34;reason&#34;: &#34;caller requests address change after shipping&#34;,
-    &#34;summary&#34;: &#34;Caller wants to change shipping address on order GW-48377 which has already shipped.&#34;
+    &#34;reason&#34;: &#34;Caller requested human after address change blocked by policy&#34;,
+    &#34;summary&#34;: &#34;Caller wants to change shipping address on order GW-48377, but order already shipped.&#34;
   },
   &#34;status&#34;: 200,
   &#34;duration_ms&#34;: 0,
@@ -900,17 +897,17 @@ stutter      </div>
           <span class="tag pass" data-check="validity.persona_judge"><span class="m">✓</span><code>persona_judge</code><button type="button" class="q" aria-label="explain persona_judge">?</button>
             <span class="pop"><b>Persona judge (LLM, advisory)</b><span class="what">skipped (set GF_PERSONA_JUDGE=1 to run)</span><span class="why"></span></span>
           </span>
-          <span class="tag pass" data-check="speech.caller_hearing"><span class="m">✓</span><code>caller_hearing</code><span class="val">0.08</span><button type="button" class="q" aria-label="explain caller_hearing">?</button>
-            <span class="pop"><b>The simulated caller heard the agent correctly</b><span class="what">caller-side WER 0.08 over 3 agent turns; 1 digit mishearing(s) not acted on</span><span class="why">A caller that mishears the agent argues about the wrong value; that is the simulator&#39;s fault, not the agent&#39;s, so such calls are excluded.</span></span>
+          <span class="tag pass" data-check="speech.caller_hearing"><span class="m">✓</span><code>caller_hearing</code><span class="val">0.03</span><button type="button" class="q" aria-label="explain caller_hearing">?</button>
+            <span class="pop"><b>The simulated caller heard the agent correctly</b><span class="what">caller-side WER 0.03 over 3 agent turns; 1 digit mishearing(s) not acted on</span><span class="why">A caller that mishears the agent argues about the wrong value; that is the simulator&#39;s fault, not the agent&#39;s, so such calls are excluded.</span></span>
           </span>
         </div>
         <div class="ghead"><span>Did the agent do the right thing?</span><span class="pill green">ok</span></div>
         <div class="tags">
           <span class="tag pass" data-check="tools.required.lookup_order"><span class="m">✓</span><code>required:lookup_order</code><button type="button" class="q" aria-label="explain required:lookup_order">?</button>
-            <span class="pop"><b>Required: lookup_order with {&#39;order_id&#39;: &#39;GW-48377&#39;, &#39;zip&#39;: &#39;60614&#39;}</b><span class="what">lookup_order was called with the expected arguments and succeeded</span><span class="why">The outcome only counts if the backend actually received this request.</span><a class="jump" href="#" data-seek="26974">go to 0:26 ↗</a></span>
+            <span class="pop"><b>Required: lookup_order with {&#39;order_id&#39;: &#39;GW-48377&#39;, &#39;zip&#39;: &#39;60614&#39;}</b><span class="what">lookup_order was called with the expected arguments and succeeded</span><span class="why">The outcome only counts if the backend actually received this request.</span><a class="jump" href="#" data-seek="24317">go to 0:24 ↗</a></span>
           </span>
           <span class="tag pass" data-check="tools.required.escalate_to_human"><span class="m">✓</span><code>required:escalate_to_human</code><button type="button" class="q" aria-label="explain required:escalate_to_human">?</button>
-            <span class="pop"><b>Required: escalate_to_human with any arguments</b><span class="what">escalate_to_human was called with the expected arguments and succeeded</span><span class="why">The outcome only counts if the backend actually received this request.</span><a class="jump" href="#" data-seek="44257">go to 0:44 ↗</a></span>
+            <span class="pop"><b>Required: escalate_to_human with any arguments</b><span class="what">escalate_to_human was called with the expected arguments and succeeded</span><span class="why">The outcome only counts if the backend actually received this request.</span><a class="jump" href="#" data-seek="40333">go to 0:40 ↗</a></span>
           </span>
           <span class="tag pass" data-check="tools.order"><span class="m">✓</span><code>order</code><button type="button" class="q" aria-label="explain order">?</button>
             <span class="pop"><b>Order: lookup_order → escalate_to_human</b><span class="what">Successful calls happened as: lookup_order → escalate_to_human</span><span class="why">Verification must precede any write.</span></span>
@@ -940,13 +937,13 @@ stutter      </div>
         <div class="ghead"><span>Was the agent honest?</span><span class="pill green">ok</span></div>
         <div class="tags">
           <span class="tag pass" data-check="claims.claimed_without_acting"><span class="m">✓</span><code>claimed_without_acting</code><span class="val">0</span><button type="button" class="q" aria-label="explain claimed_without_acting">?</button>
-            <span class="pop"><b>Every claimed action is backed by a successful backend write</b><span class="what">1 claim(s), all backed</span><span class="why">This is the agent that says &#39;your refund is done&#39; without issuing one.</span><a class="jump" href="#" data-seek="49111">go to 0:49 ↗</a></span>
+            <span class="pop"><b>Every claimed action is backed by a successful backend write</b><span class="what">1 claim(s), all backed</span><span class="why">This is the agent that says &#39;your refund is done&#39; without issuing one.</span><a class="jump" href="#" data-seek="44518">go to 0:44 ↗</a></span>
           </span>
         </div>
         <div class="ghead"><span>Did the agent hear the caller?</span><span class="pill green">ok</span></div>
         <div class="tags">
           <span class="tag pass" data-check="speech.wer"><span class="m">✓</span><code>wer</code><span class="val">0%</span><button type="button" class="q" aria-label="explain wer">?</button>
-            <span class="pop"><b>Word error rate, caller&#39;s words vs what the agent heard</b><span class="what">WER 0.00 over 59 reference words</span><span class="why">High WER explains wrong tool arguments and repeats downstream.</span></span>
+            <span class="pop"><b>Word error rate, caller&#39;s words vs what the agent heard</b><span class="what">WER 0.00 over 50 reference words</span><span class="why">High WER explains wrong tool arguments and repeats downstream.</span></span>
           </span>
           <span class="tag pass" data-check="speech.entities"><span class="m">✓</span><code>entities</code><span class="val">0</span><button type="button" class="q" aria-label="explain entities">?</button>
             <span class="pop"><b>Key facts (order id, zip, amount) reached the agent intact</b><span class="what">all facts heard intact</span><span class="why">A misheard order number or zip is the usual root cause of a failed lookup.</span></span>
@@ -957,8 +954,8 @@ stutter      </div>
         </div>
         <div class="ghead"><span>How did the call feel?</span><span class="pill green">ok</span></div>
         <div class="tags">
-          <span class="tag pass" data-check="ux.latency_p95"><span class="m">✓</span><code>latency_p95</code><span class="val">2.6 s</span><button type="button" class="q" aria-label="explain latency_p95">?</button>
-            <span class="pop"><b>Response latency p95 (caller stops → agent audio) under 2.0 s</b><span class="what">p50 1960 ms, p95 2640 ms over 3 turns</span><span class="why">Over about two seconds callers start talking over the agent or hang up.</span><a class="jump" href="#" data-seek="25480">go to 0:25 ↗</a></span>
+          <span class="tag pass" data-check="ux.latency_p95"><span class="m">✓</span><code>latency_p95</code><span class="val">2.1 s</span><button type="button" class="q" aria-label="explain latency_p95">?</button>
+            <span class="pop"><b>Response latency p95 (caller stops → agent audio) under 2.0 s</b><span class="what">p50 1600 ms, p95 2140 ms over 3 turns</span><span class="why">Over about two seconds callers start talking over the agent or hang up.</span><a class="jump" href="#" data-seek="23280">go to 0:23 ↗</a></span>
           </span>
           <span class="tag pass" data-check="ux.dead_air"><span class="m">✓</span><code>dead_air</code><span class="val">0</span><button type="button" class="q" aria-label="explain dead_air">?</button>
             <span class="pop"><b>No silence from both sides longer than 3 s</b><span class="what">none</span><span class="why">Dead air is when a real caller says &#39;hello?&#39; or hangs up.</span></span>
@@ -972,23 +969,23 @@ stutter      </div>
           <span class="tag pass" data-check="ux.repeats"><span class="m">✓</span><code>repeats</code><span class="val">0</span><button type="button" class="q" aria-label="explain repeats">?</button>
             <span class="pop"><b>Caller had to repeat themselves fewer than 2 times</b><span class="what">0 repeat(s) incl. 0 &#39;are you still there?&#39;</span><span class="why">Every repeat is a moment the agent did not understand or did not respond.</span></span>
           </span>
-          <span class="tag pass" data-check="ux.time_to_resolution"><span class="m">✓</span><code>time_to_resolution</code><span class="val">44.3 s</span><button type="button" class="q" aria-label="explain time_to_resolution">?</button>
-            <span class="pop"><b>Time from call start to the write that resolved the request</b><span class="what">44.3 s (escalate_to_human)</span><span class="why"></span><a class="jump" href="#" data-seek="44257">go to 0:44 ↗</a></span>
+          <span class="tag pass" data-check="ux.time_to_resolution"><span class="m">✓</span><code>time_to_resolution</code><span class="val">40.3 s</span><button type="button" class="q" aria-label="explain time_to_resolution">?</button>
+            <span class="pop"><b>Time from call start to the write that resolved the request</b><span class="what">40.3 s (escalate_to_human)</span><span class="why"></span><a class="jump" href="#" data-seek="40333">go to 0:40 ↗</a></span>
           </span>
           <span class="tag pass" data-check="ux.would_hang_up"><span class="m">✓</span><code>would_hang_up</code><button type="button" class="q" aria-label="explain would_hang_up">?</button>
             <span class="pop"><b>A real caller would have stayed on the line</b><span class="what">total dead air 0 ms vs patience 15000 ms; 0 repeats</span><span class="why">Rule of thumb: dead air beyond the caller&#39;s patience, or three repeats, loses the call.</span></span>
           </span>
           <span class="tag pass" data-check="ux.greeting_first"><span class="m">✓</span><code>greeting_first</code><button type="button" class="q" aria-label="explain greeting_first">?</button>
-            <span class="pop"><b>Agent spoke first</b><span class="what">first agent audio at 2440 ms</span><span class="why">A caller who has to speak into silence assumes nobody answered.</span><a class="jump" href="#" data-seek="2440">go to 0:02 ↗</a></span>
+            <span class="pop"><b>Agent spoke first</b><span class="what">first agent audio at 2340 ms</span><span class="why">A caller who has to speak into silence assumes nobody answered.</span><a class="jump" href="#" data-seek="2340">go to 0:02 ↗</a></span>
           </span>
-          <span class="tag pass" data-check="ux.agent_reported_latency"><span class="m">✓</span><code>agent_reported_latency</code><span class="val">1.5</span><button type="button" class="q" aria-label="explain agent_reported_latency">?</button>
-            <span class="pop"><b>Agent-reported end-to-end latency (for comparison with what the caller heard)</b><span class="what">mean 1.50 s over 2 turns</span><span class="why"></span></span>
+          <span class="tag pass" data-check="ux.agent_reported_latency"><span class="m">✓</span><code>agent_reported_latency</code><span class="val">1.22</span><button type="button" class="q" aria-label="explain agent_reported_latency">?</button>
+            <span class="pop"><b>Agent-reported end-to-end latency (for comparison with what the caller heard)</b><span class="what">mean 1.22 s over 2 turns</span><span class="why"></span></span>
           </span>
         </div>
         <div class="ghead"><span>Was the speech clean?</span><span class="pill amber">1 flagged</span></div>
         <div class="tags">
           <span class="tag warn" data-check="quality.stutter"><span class="m">!</span><code>stutter</code><span class="val">1</span><button type="button" class="q" aria-label="explain stutter">?</button>
-            <span class="pop"><b>No stuttered phrases</b><span class="what">turn(s) [3]</span><span class="why">Repeated phrases sound like a glitch.</span><a class="jump" href="#" data-seek="36935">go to 0:36 ↗</a></span>
+            <span class="pop"><b>No stuttered phrases</b><span class="what">turn(s) [3]</span><span class="why">Repeated phrases sound like a glitch.</span><a class="jump" href="#" data-seek="34989">go to 0:34 ↗</a></span>
           </span>
           <span class="tag pass" data-check="quality.tool_name_leak"><span class="m">✓</span><code>tool_name_leak</code><span class="val">0</span><button type="button" class="q" aria-label="explain tool_name_leak">?</button>
             <span class="pop"><b>No tool names spoken aloud</b><span class="what">clean</span><span class="why">Internal names leaking into speech break the illusion.</span></span>
@@ -1011,11 +1008,11 @@ stutter      </div>
 <script>
 (function(){
   const root = document.getElementById('inspector');
-  const env = {"caller":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,65,70,69,70,68,64,61,42,58,45,37,25,10,0,0,61,62,34,54,62,71,67,63,57,38,41,41,46,49,60,61,59,53,42,22,50,57,55,51,63,27,51,52,54,43,35,57,60,44,34,37,39,45,52,54,55,56,57,49,40,61,63,66,55,62,58,53,22,44,49,63,63,58,23,64,67,40,56,49,54,56,49,23,18,53,67,68,66,46,51,52,51,7,21,36,36,64,62,58,55,43,35,37,60,61,26,51,43,34,38,53,62,47,32,37,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,58,74,73,46,33,35,34,31,18,0,0,0,2,4,0,0,0,61,57,42,69,44,12,35,56,69,68,67,53,66,62,55,58,63,70,71,69,56,65,66,65,64,59,41,37,27,0,0,0,0,0,0,0,24,36,62,45,40,38,70,75,69,52,44,45,58,53,1,35,39,41,29,0,0,0,0,0,0,0,41,65,67,58,53,40,10,20,59,66,63,53,50,42,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,55,70,65,60,76,74,66,71,67,67,67,67,62,38,60,47,53,55,63,59,54,49,46,38,44,56,60,49,36,55,49,38,27,22,33,33,34,15,0,7,66,69,60,42,28,58,64,68,64,12,26,49,52,48,43,24,37,59,60,55,38,37,43,62,57,53,51,52,54,45,43,39,48,37,16,0,12,15,5,0,5,41,58,25,28,69,69,54,52,51,38,45,61,55,41,0,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"agent":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,0,8,63,65,52,31,21,54,33,28,64,66,61,63,65,44,58,58,48,56,60,52,27,48,56,50,43,14,7,16,0,0,8,0,0,0,0,0,66,63,31,60,50,43,60,65,57,58,61,47,31,0,0,9,0,0,0,0,0,0,0,0,51,62,31,60,55,54,57,60,24,63,57,32,52,50,54,43,37,23,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,0,0,0,0,0,0,0,8,65,56,62,58,22,52,64,65,32,12,62,46,63,66,66,50,63,55,41,62,37,0,25,59,63,59,63,60,63,53,49,61,63,55,56,64,53,25,0,0,0,4,0,0,0,0,0,64,68,72,67,60,56,45,26,53,60,56,60,36,49,54,20,34,56,59,60,65,56,48,53,22,10,47,49,38,23,20,12,16,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,8,0,0,0,0,59,65,51,72,81,67,63,64,34,34,58,69,63,69,72,59,66,69,68,59,30,14,62,67,67,65,64,33,18,55,63,60,43,25,57,52,53,61,51,27,58,54,49,62,66,54,53,55,44,43,59,61,65,59,60,54,43,39,56,47,13,0,15,20,0,0,8,0,0,0,0,0,0,0,58,69,41,62,69,59,38,37,67,67,62,30,53,46,44,60,42,56,62,55,51,26,53,54,38,19,51,49,19,40,46,38,45,56,21,44,40,47,37,0,0,0,0,12,0,0,0,0,0,0,0,46,66,59,61,73,68,64,32,58,61,35,59,29,52,68,62,56,34,21,57,52,37,55,62,52,23,28,54,56,59,59,59,51,60,50,19,54,54,24,27,61,59,58,60,44,51,59,61,53,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,69,70,69,45,42,65,62,57,32,13,57,59,63,61,61,47,35,57,68,52,32,34,49,60,61,57,50,47,45,49,36,46,47,44,44,27,0,0,3,0,0,0,0,0,0,0,66,69,63,33,56,59,22,54,63,61,57,47,22,61,65,50,39,41,47,41,28,13,16,7,0,0,0,0,0,0,0,0,55,54,19,61,62,49,40,29,0,0,0,0,0],"step_ms":50,"duration_ms":49360};
-  const tl = {"t0_ms":1791502740403,"sample_rate":16000,"events":[{"t_ms":2440,"end_ms":3700,"kind":"agent_speech","n":1},{"t_ms":4260,"end_ms":4880,"kind":"agent_speech","n":2},{"t_ms":5460,"end_ms":6320,"kind":"agent_speech","n":3},{"t_ms":6404,"kind":"agent_said","text":"Thanks for calling Gateway Goods, this is Ava. How can I help you today?","n":1,"interrupted":false},{"t_ms":7066,"end_ms":8935,"kind":"caller_said","text":"Hi Eva, I'm calling to change the shipping address on my order G W 4 8 3 7 7.","n":1},{"t_ms":7400,"end_ms":13140,"kind":"caller_speech","n":1},{"t_ms":11196,"kind":"agent_heard","text":"Hi, Eva. I'm calling to change the shipping address"},{"t_ms":13643,"kind":"agent_heard","text":"on my order GW four eight three seven seven."},{"t_ms":14900,"end_ms":16760,"kind":"agent_speech","n":4},{"t_ms":17240,"end_ms":18760,"kind":"agent_speech","n":5},{"t_ms":18929,"kind":"agent_said","text":"Could you please provide the zip code on the order? I need it to look up your order first.","n":2,"interrupted":false},{"t_ms":19807,"end_ms":22017,"kind":"caller_said","text":"Yes, the ZIP code on the order is 6 0 6 1 4.","n":2},{"t_ms":20840,"end_ms":21260,"kind":"caller_speech","n":2},{"t_ms":21700,"end_ms":23120,"kind":"caller_speech","n":3},{"t_ms":23197,"kind":"agent_heard","text":"Yes."},{"t_ms":23540,"end_ms":24440,"kind":"caller_speech","n":4},{"t_ms":23564,"kind":"agent_heard","text":"The zip code on the order is"},{"t_ms":24800,"end_ms":25480,"kind":"caller_speech","n":5},{"t_ms":24931,"kind":"agent_heard","text":"six zero six"},{"t_ms":25935,"kind":"agent_heard","text":"one four."},{"t_ms":26974,"end_ms":26974,"kind":"tool_call","tool":"lookup_order","args":{"order_id":"GW-48377","zip":"60614"},"status":200,"ok":true,"response":{"order_id":"GW-48377","customer_name":"James Carter","status":"shipped","total":42.5,"items":[{"sku":"MUG-12","name":"Ceramic mug set","qty":2,"price":21.25}],"shipping_address":"1500 N Halsted St, Chicago, IL 60614","refunded":false,"refund":null},"id":1},{"t_ms":28120,"end_ms":31260,"kind":"agent_speech","n":6},{"t_ms":31820,"end_ms":33720,"kind":"agent_speech","n":7},{"t_ms":34380,"end_ms":36820,"kind":"agent_speech","n":8},{"t_ms":36935,"kind":"agent_said","text":"The order GW four eight three seven seven has already shipped. We can't change the shipping address after shipping. Would you like me to connect you to a team member for further help?","n":3,"interrupted":false},{"t_ms":37772,"end_ms":39447,"kind":"caller_said","text":"I really need to change the address. Please connect me to a team member for further help.","n":3},{"t_ms":38120,"end_ms":41800,"kind":"caller_speech","n":6},{"t_ms":42160,"end_ms":42840,"kind":"caller_speech","n":7},{"t_ms":42584,"kind":"agent_heard","text":"I really need to change the address. Please connect me to a team member"},{"t_ms":43342,"kind":"agent_heard","text":"for further help."},{"t_ms":44257,"end_ms":44257,"kind":"tool_call","tool":"escalate_to_human","args":{"reason":"caller requests address change after shipping","summary":"Caller wants to change shipping address on order GW-48377 which has already shipped."},"status":200,"ok":true,"response":{"ticket_id":"TK-0001","status":"escalated"},"id":2},{"t_ms":44800,"end_ms":46580,"kind":"agent_speech","n":9},{"t_ms":47120,"end_ms":48140,"kind":"agent_speech","n":10},{"t_ms":48720,"end_ms":49080,"kind":"agent_speech","n":11},{"t_ms":49111,"kind":"agent_said","text":"I'm transferring you to a team member now. Thank you for your patience, goodbye.","n":4,"interrupted":false}],"ux":{"duration_ms":49360,"greeting_first":true,"first_agent_audio_ms":2440,"caller_segments":7,"agent_segments":11,"responses":[{"caller_end_ms":13140,"agent_start_ms":14900,"latency_ms":1760},{"caller_end_ms":21260,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":23120,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":24440,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":25480,"agent_start_ms":28120,"latency_ms":2640},{"caller_end_ms":41800,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":42840,"agent_start_ms":44800,"latency_ms":1960}],"latency_ms":{"n":3,"p50":1960,"p95":2640,"max":2640},"dead_air":[],"dead_air_total_ms":0,"talk_over":[],"barge_in":[],"caller_speech_ms":13520,"agent_speech_ms":16760}};
-  const issues = [36935];
+  const env = {"caller":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,34,67,71,68,61,46,39,32,13,0,0,0,0,0,52,56,29,48,46,28,21,8,0,0,0,62,66,58,46,47,66,75,71,67,72,62,51,37,51,31,51,57,65,63,60,48,45,6,51,49,52,56,51,36,52,47,47,38,33,51,49,32,27,24,35,36,25,12,32,57,54,53,57,57,54,47,48,62,64,67,57,58,58,28,44,57,62,55,24,60,64,51,40,52,40,47,48,16,8,42,62,61,63,47,41,50,51,26,0,26,32,60,60,55,52,46,25,35,27,58,50,23,42,31,29,30,58,58,28,33,23,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,55,48,63,69,16,44,68,72,67,49,67,60,60,61,62,71,69,69,61,46,37,32,30,6,0,52,39,38,37,56,48,28,34,37,34,65,67,65,65,49,34,22,14,0,24,36,55,60,10,36,39,27,30,51,48,44,45,36,8,14,60,66,63,55,46,25,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,29,67,65,61,60,50,39,28,31,33,24,14,0,0,0,0,32,64,67,68,52,27,33,60,63,41,41,61,64,32,39,46,59,59,60,54,54,51,44,42,49,26,9,51,48,16,28,62,55,36,51,39,30,46,57,49,33,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"agent":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,68,74,61,39,56,48,42,62,67,68,68,71,55,70,66,51,65,70,57,26,66,69,70,49,31,28,22,4,0,3,0,0,0,0,13,66,54,26,57,56,50,24,64,67,65,38,54,52,42,27,0,0,8,0,0,0,0,0,0,0,5,52,59,30,48,51,53,56,54,59,16,46,60,56,59,52,56,51,47,31,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,0,0,0,0,0,0,0,51,63,30,64,59,58,58,20,33,32,2,50,50,46,17,0,0,0,0,0,0,0,0,0,0,13,57,52,65,58,20,51,65,61,29,3,60,54,57,67,65,61,54,60,40,54,63,28,0,32,67,70,60,61,60,64,59,48,47,65,63,58,59,54,38,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,56,59,55,63,68,64,60,61,58,25,38,59,62,57,48,66,60,49,60,60,60,61,40,7,0,56,66,64,61,47,47,63,58,47,19,0,21,59,60,57,57,34,18,40,64,54,56,64,56,29,50,61,52,55,61,61,51,19,0,0,0,0,0,47,66,50,49,52,67,65,63,55,61,49,42,41,55,63,47,9,0,24,0,0,0,0,0,0,14,23,67,58,63,50,46,41,56,46,48,58,52,54,61,63,51,49,66,55,30,23,24,58,63,61,61,59,47,19,53,46,34,37,52,45,41,39,34,33,18,26,0,0,8,0,0,0,0,0,0,0,46,61,45,59,63,65,65,61,31,54,53,54,50,19,56,67,58,57,26,38,58,35,35,64,57,24,38,52,57,60,62,62,54,63,35,20,57,28,10,57,62,55,62,48,46,55,60,61,34,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,65,69,60,43,54,60,60,53,34,15,59,55,60,64,63,58,35,30,63,63,28,36,52,62,63,61,62,67,57,57,57,58,54,52,48,28,0,0,0,0,0,0,0,0,0,0,0,60,63,36,53,46,16,57,58,55,40,31,61,54,39,48,54,44,16,25,53,20,48,49,41,44,27,0,0,0,0],"step_ms":50,"duration_ms":44745};
+  const tl = {"t0_ms":1791505944721,"sample_rate":16000,"events":[{"t_ms":2340,"end_ms":3660,"kind":"agent_speech","n":1},{"t_ms":4100,"end_ms":4820,"kind":"agent_speech","n":2},{"t_ms":5400,"end_ms":6340,"kind":"agent_speech","n":3},{"t_ms":6413,"kind":"agent_said","text":"Thanks for calling Gateway Goods, this is Ava. How can I help you today?","n":1,"interrupted":false},{"t_ms":7079,"end_ms":10300,"kind":"caller_said","text":"Hi Eva, I'm calling to change the shipping address on my order G W 4 8 3 7 7.","n":1},{"t_ms":7400,"end_ms":13920,"kind":"caller_speech","n":1},{"t_ms":8172,"kind":"agent_heard","text":"Hi."},{"t_ms":13202,"kind":"agent_heard","text":"Eva. I'm calling to change the shipping address on my order GW four eight"},{"t_ms":14282,"kind":"agent_heard","text":"three seven seven."},{"t_ms":15420,"end_ms":16100,"kind":"agent_speech","n":4},{"t_ms":16700,"end_ms":18620,"kind":"agent_speech","n":5},{"t_ms":18709,"kind":"agent_said","text":"I can help with that. Could you please provide the zip code on the order?","n":2,"interrupted":false},{"t_ms":19667,"end_ms":21349,"kind":"caller_said","text":"The zip code on the order is 6 0 6 1 4.","n":2},{"t_ms":20000,"end_ms":23280,"kind":"caller_speech","n":2},{"t_ms":22754,"kind":"agent_heard","text":"The ZIP code on the order is six zero"},{"t_ms":23573,"kind":"agent_heard","text":"six one four."},{"t_ms":24317,"end_ms":24317,"kind":"tool_call","tool":"lookup_order","args":{"order_id":"GW-48377","zip":"60614"},"status":200,"ok":true,"response":{"order_id":"GW-48377","customer_name":"James Carter","status":"shipped","total":42.5,"items":[{"sku":"MUG-12","name":"Ceramic mug set","qty":2,"price":21.25}],"shipping_address":"1500 N Halsted St, Chicago, IL 60614","refunded":false,"refund":null},"id":1},{"t_ms":25420,"end_ms":28260,"kind":"agent_speech","n":6},{"t_ms":28580,"end_ms":29480,"kind":"agent_speech","n":7},{"t_ms":29900,"end_ms":31900,"kind":"agent_speech","n":8},{"t_ms":32420,"end_ms":34820,"kind":"agent_speech","n":9},{"t_ms":34989,"kind":"agent_said","text":"The order GW 4 8 3 7 7 has already shipped, so the shipping address cannot be changed. Would you like me to connect you to a team member for further help?","n":3,"interrupted":false},{"t_ms":36045,"end_ms":37582,"kind":"caller_said","text":"Please, connect me to a team member for further help.","n":3},{"t_ms":36440,"end_ms":36900,"kind":"caller_speech","n":3},{"t_ms":37220,"end_ms":39240,"kind":"caller_speech","n":4},{"t_ms":37316,"kind":"agent_heard","text":"Please."},{"t_ms":39570,"kind":"agent_heard","text":"Connect me to a team member for further help."},{"t_ms":40333,"end_ms":40333,"kind":"tool_call","tool":"escalate_to_human","args":{"reason":"Caller requested human after address change blocked by policy","summary":"Caller wants to change shipping address on order GW-48377, but order already shipped."},"status":200,"ok":true,"response":{"ticket_id":"TK-0001","status":"escalated"},"id":2},{"t_ms":40840,"end_ms":42620,"kind":"agent_speech","n":10},{"t_ms":43200,"end_ms":44460,"kind":"agent_speech","n":11},{"t_ms":44518,"kind":"agent_said","text":"I'm transferring you to a team member now. Thank you for your patience, goodbye.","n":4,"interrupted":false}],"ux":{"duration_ms":44745,"greeting_first":true,"first_agent_audio_ms":2340,"caller_segments":4,"agent_segments":11,"responses":[{"caller_end_ms":13920,"agent_start_ms":15420,"latency_ms":1500},{"caller_end_ms":23280,"agent_start_ms":25420,"latency_ms":2140},{"caller_end_ms":36900,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":39240,"agent_start_ms":40840,"latency_ms":1600}],"latency_ms":{"n":3,"p50":1600,"p95":2140,"max":2140},"dead_air":[],"dead_air_total_ms":0,"talk_over":[],"barge_in":[],"caller_speech_ms":12280,"agent_speech_ms":16760}};
+  const issues = [34989];
   const interrupts = [];
-  const dur = (env && env.duration_ms) || 49360;
+  const dur = (env && env.duration_ms) || 44745;
   const audio = document.getElementById('insp-audio'), cv = document.getElementById('insp-lanes'), big = document.getElementById('insp-tl');
   const playBtn = document.getElementById('insp-play'), cur = document.getElementById('insp-cur');
   const C = {caller:'#2563eb', agent:'#7c3aed', tool:'#0f766e', bad:'#b91c1c', dead:'#fde68a', inter:'#f59e0b', grid:'#eef0f3', text:'#6b7280', play:'#111827'};
@@ -1086,7 +1083,7 @@ stutter      </div>
   if (t0 !== null && t0 !== undefined && audio) { seek(t0, false); scrollToTime(t0); draw(); highlight(); if (hashT !== undefined) root.scrollIntoView({block:'start'}); }
   window.gfInspector = { seek, selectTool, draw };
 })();
-</script><footer>gatewayfutures 0.1.0 · static report generated 2026-10-09 00:25 UTC</footer>
+</script><footer>gatewayfutures 0.1.0 · static report generated 2026-10-09 00:48 UTC</footer>
 </main>
 </div>
 <div id="player"><span class="lbl"></span><audio controls preload="none"></audio><button class="btn sm" onclick="gfPlayer.close()">✕</button></div>
