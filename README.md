@@ -44,7 +44,7 @@ Use a dedicated LiveKit Cloud project for this platform. The agent registers und
 make up                       # docker compose: order system (:8080), agent worker, UI (http://localhost:8090)
 ```
 
-Then open http://localhost:8090, check the "Can a run start?" panel, and press **Start run**. The run page shows calls as they finish; each call opens to its timeline, transcript, tool calls and checks.
+Then open http://localhost:8090, check the "Can a run start?" panel, and press **Start run**. Without keys, `uv run gf demo-run` (or `make demo`) seeds a run from the committed real call records so every page has content; it is marked "demo data" and is never used as a comparison baseline. If port 8090 is taken, start the UI on another port (`gf ui --port 8091`) or override the compose port mapping. The run page shows calls as they finish; each call opens to its timeline, transcript, tool calls and checks.
 
 ### Without Docker
 
@@ -68,6 +68,9 @@ uv run gf sessions export-simulate --out scenarios.yaml             # same sessi
 lk agent simulate audio --agent-name gf-support-agent --scenarios scenarios.yaml   # then: lk agent simulate export <run-id> > lk.json
 uv run gf import-simulate lk.json --run-id lk-1    # LiveKit's results as a run, with its verdict next to our checks
 uv run gf probe                                    # scripted caller, no LLM: checks the audio path
+uv run gf run --suite smoke --repeat 2 --max-cost 3   # stop scheduling calls once the priced cost passes $3 (default GF_MAX_COST_USD=10)
+uv run gf gate <run_id> --min-pass 0.7             # CI decision: exit 1 on claimed-without-acting, wrong write, >20% invalid, or an interval below the floor
+uv run gf demo-run                                 # no keys: a run built from the committed real call records, so the UI has something to show
 ```
 
 A full run of 11 sessions × 3 takes about 12 minutes at concurrency 4.
@@ -131,6 +134,14 @@ Every agent reply shows two latencies in the call inspector's **Latency** tab: w
 ## What a call record contains
 
 `runs/<run_id>/<session_id>/<attempt>/`: `audio.wav` (stereo: left caller, right agent) and `audio.json`, `caller.json` and `caller_events.jsonl` (what the caller said, heard and decided), `agent_events.jsonl` and `agent_session_report.json` (the agent's transcripts, replies, tool calls and per-turn metrics), `backend_log.json` and `backend_state.json`, `meta.json`, then `timeline.json` and `scores.json` after scoring.
+
+## Cost and budget
+
+Every call carries a `cost` block in `scores.json`, priced from the providers' own usage events (the agent's session report: OpenAI tokens including cached ones, Deepgram TTS characters and STT seconds; the caller's metric events for its side) with the prices in `pricing.yaml`. The run page, the runs table and the call page show it; a run of 45 one-minute calls is a few dollars. Prices never affect a verdict, so changing them changes no tag. `gf run --max-cost N` (default `GF_MAX_COST_USD=10`) stops scheduling new calls once the priced cost of the finished ones passes the budget; the run is marked **partial**, the skipped calls are listed in the manifest, and `gf gate` fails it. LiveKit Cloud minutes and the persona judge are not metered and are listed as such.
+
+## CI
+
+`ci.yml` runs lint, unit tests and the Playwright dashboard suite on every push without keys. `calls.yml` makes real calls and needs the platform's keys as repository secrets (without them it ends with a notice): on every pull request, LiveKit text-mode simulations over the exported sessions (LLM, tools and conversation logic, no audio); nightly and on demand, the smoke suite over real audio, scored and gated with `gf gate --min-pass 0.5`. Text on every change, audio nightly, is the split LiveKit recommends.
 
 ## Hosting the UI
 

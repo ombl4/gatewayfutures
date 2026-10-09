@@ -1,0 +1,11 @@
+# USD list prices (pay-as-you-go) used for the cost line on every call and run.
+# Edit to your contract. Prices never affect a verdict, so this file is not part of the
+# scoring stamp or the environment tag. Checked against public price pages on 2026-10-08.
+llm:
+  gpt-4.1-mini: {input_per_m: 0.40, cached_input_per_m: 0.10, output_per_m: 1.60}
+stt:
+  nova-3: {per_minute: 0.0077}          # streaming, monolingual; keyterms billed extra by Deepgram
+tts:
+  aura-2: {per_1k_chars: 0.030}         # matches any aura-2-* voice
+# Not metered: LiveKit Cloud participant minutes, the persona judge (one small LLM call per
+# scored call), and the generator. They are listed on the call page as unpriced.

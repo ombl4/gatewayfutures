@@ -166,6 +166,9 @@ def run(
     parent: str = typer.Option(
         "", help="Run id this is a re-run of (recorded, used as the baseline)."
     ),
+    max_cost: float = typer.Option(
+        0.0, "--max-cost", help="USD budget for this run (default: GF_MAX_COST_USD, else 10)."
+    ),
 ) -> None:
     """Run sessions N times each, concurrently, into runs/<run_id>/ with a manifest."""
     import asyncio
@@ -196,6 +199,7 @@ def run(
             variant=variant or None,
             suite=suite or None,
             parent_run=parent or None,
+            max_cost_usd=max_cost or None,
         )
     )
     typer.echo(
@@ -203,6 +207,11 @@ def run(
             {k: manifest[k] for k in ("run_id", "calls", "duration_s", "ended_by")}, indent=2
         )
     )
+    typer.echo(f"cost: ${manifest.get('cost_usd', 0):.2f}")
+    if manifest.get("partial"):
+        typer.echo(
+            f"PARTIAL: {manifest.get('stopped_reason')}; {len(manifest['skipped'])} calls skipped"
+        )
     typer.echo(f"run folder: {manifest['folder']}")
     _exit_quietly()
 
@@ -266,6 +275,45 @@ def score(run_id: str) -> None:
             + (f"  — {sess['main_failure'][:70]}" if sess["main_failure"] else "")
         )
     typer.echo(f"summary: runs/{run_id}/summary.json")
+
+
+@app.command()
+def gate(
+    run_id: str,
+    min_pass: float = typer.Option(
+        0.0, help="Fail unless the pass rate's 95% interval reaches this (0 = off)."
+    ),
+    max_invalid: float = typer.Option(
+        0.2, help="Fail when more than this share of calls is invalid."
+    ),
+) -> None:
+    """CI gate over a scored run: exit 1 on a zero-tolerance failure (claimed without acting,
+    wrong write), on too many invalid simulations, or on a pass rate whose interval cannot
+    reach --min-pass. Prints one line per reason."""
+    from gf.scoring.gate import gate_run
+
+    verdict = gate_run(run_id, min_pass=min_pass, max_invalid=max_invalid)
+    for line in verdict["reasons"]:
+        typer.echo(f"FAIL: {line}")
+    typer.echo(
+        f"gate {run_id}: {'PASS' if verdict['ok'] else 'FAIL'} · "
+        f"{verdict['passed']}/{verdict['n']} valid passed (interval {verdict['ci_low']:.0%}–{verdict['ci_high']:.0%}) · "
+        f"{verdict['invalid']} invalid · ${verdict['cost_usd']:.2f}"
+    )
+    raise typer.Exit(code=0 if verdict["ok"] else 1)
+
+
+@app.command("demo-run")
+def demo_run(run_id: str = "demo") -> None:
+    """Seed runs/<run_id> from the committed real call records (fixtures/records) with
+    synthesised audio, then score it, so the UI has something to show without any API keys."""
+    from gf.demo import seed_demo_run
+
+    summary = seed_demo_run(run_id)
+    typer.echo(
+        f"seeded and scored runs/{run_id}: {summary['overall']['passed']}/{summary['overall']['n']} "
+        f"passed · open http://127.0.0.1:8090/runs/{run_id}"
+    )
 
 
 @app.command()

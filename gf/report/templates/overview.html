@@ -18,7 +18,7 @@
 {% endif %}
 </div>
 {% if r %}
-<p class="meta"><span>Run <a href="{{ links.run(r.run_id) }}">{{ r.run_id }}</a></span><i>·</i><span>{{ r.started_at|dt }}</span><i>·</i><span>{{ r.sessions|length }} practice sessions</span><i>·</i><span>{{ r.summary.calls }} calls ({{ r.valid_count }} valid, {{ r.invalid_count }} invalid)</span><i>·</i><span>{{ rb.tags(r.tags) }}</span></p>
+<p class="meta"><span>Run <a href="{{ links.run(r.run_id) }}">{{ r.run_id }}</a></span><i>·</i><span>{{ r.started_at|dt }}</span><i>·</i><span>{{ r.sessions|length }} practice sessions</span><i>·</i><span>{{ r.summary.calls }} calls ({{ r.valid_count }} valid, {{ r.invalid_count }} invalid)</span>{% if r.cost and r.cost.usd is not none %}<i>·</i><span title="priced from the providers' usage events with pricing.yaml">${{ '%.2f'|format(r.cost.usd) }}</span>{% endif %}{% if r.demo %}<i>·</i><span class="pill amber" title="built by `gf demo-run` from committed real call records with synthesised audio">demo data</span>{% endif %}<i>·</i><span>{{ rb.tags(r.tags) }}</span></p>
 {% else %}
 <p class="meta"><span>No completed run yet.</span></p>
 {% endif %}

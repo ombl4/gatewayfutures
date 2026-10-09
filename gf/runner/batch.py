@@ -40,8 +40,18 @@ async def run_batch(
     variant: str | None = None,
     suite: str | None = None,
     parent_run: str | None = None,
+    max_cost_usd: float | None = None,
 ) -> dict:
+    """`max_cost_usd` (default: GF_MAX_COST_USD, else 10): once the priced cost of the finished
+    calls exceeds it, no new call is scheduled; the run is marked partial and the skipped calls
+    are listed in the manifest. Calls already in flight finish."""
+    import os
+
     from gf.agent.variants import get_variant
+    from gf.scoring.cost import estimate_cost
+
+    if max_cost_usd is None:
+        max_cost_usd = float(os.environ.get("GF_MAX_COST_USD") or 10.0)
 
     v = get_variant(variant)
     sessions = (
@@ -70,6 +80,10 @@ async def run_batch(
         "engine": "gf-caller",
         "suite": suite,
         "parent_run": parent_run,
+        "max_cost_usd": max_cost_usd,
+        "cost_usd": 0.0,
+        "partial": False,
+        "skipped": [],
         "environment": environment_info(),
         "sessions": [{"id": s.id, "title": s.title, "path": s.source_path} for s in sessions],
         "calls": [],
@@ -83,9 +97,19 @@ async def run_batch(
     started = time.monotonic()
     order = 0
 
+    budget = {"spent": 0.0, "stop": False}
+
     async def one(session: Session, attempt: int) -> dict:
         nonlocal order
         async with sem:
+            if budget["stop"]:
+                skipped = {
+                    "session_id": session.id,
+                    "attempt": attempt,
+                    "reason": f"budget: ${budget['spent']:.2f} spent of ${max_cost_usd:.2f}",
+                }
+                manifest["skipped"].append(skipped)
+                return skipped
             order += 1
             await asyncio.sleep(stagger_s * ((order - 1) % concurrency))  # spread cold starts
             call_id = f"{session.id}-{attempt}-{uuid.uuid4().hex[:6]}"
@@ -118,6 +142,18 @@ async def run_batch(
                 )
             }
             summary["record_dir"] = str(record_dir)
+            summary["cost_usd"] = estimate_cost(record_dir)
+            budget["spent"] += summary["cost_usd"]
+            manifest["cost_usd"] = round(budget["spent"], 4)
+            if max_cost_usd and budget["spent"] > max_cost_usd and not budget["stop"]:
+                budget["stop"] = True
+                manifest["partial"] = True
+                manifest["stopped_reason"] = (
+                    f"cost budget: ${budget['spent']:.2f} spent, limit ${max_cost_usd:.2f}"
+                )
+                log.warning(
+                    "run %s: %s; no new calls scheduled", run_id, manifest["stopped_reason"]
+                )
             manifest["calls"].append(summary)
             (folder / "manifest.json").write_text(json.dumps(manifest, indent=2, default=str))
             return summary

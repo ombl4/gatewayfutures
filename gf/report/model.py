@@ -697,6 +697,9 @@ def run_row(run_id: str) -> dict[str, Any]:
         "flaky": len((summ or {}).get("flaky_sessions") or []),
         "kind": man.get("kind", "run"),
         "variant": man.get("agent_variant"),
+        "cost_usd": ((summ or {}).get("cost") or {}).get("usd"),
+        "partial": bool(man.get("partial")),
+        "demo": bool(man.get("demo")),
         **tags_of(man),
     }
 
@@ -735,8 +738,8 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
             if p.name == run_id:
                 continue
             pm = _json(p / "manifest.json", {})
-            if pm.get("kind", "run") != "run":
-                continue  # detector checks are never a baseline
+            if pm.get("kind", "run") != "run" or pm.get("demo"):
+                continue  # detector checks and demo runs are never a baseline
             ps = _json(p / "summary.json")
             if ps and ps.get("started_at", "") < summ.get("started_at", ""):
                 prev = ps
@@ -877,6 +880,11 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
         "tags": tags_of(man),
         "parent_run": man.get("parent_run"),
         "env_components": man.get("env_components"),
+        "cost": summ.get("cost"),
+        "partial": bool(man.get("partial")),
+        "stopped_reason": man.get("stopped_reason"),
+        "skipped": man.get("skipped") or [],
+        "demo": bool(man.get("demo")),
         "detector": _detector_verdict(man, summ, rows)
         if man.get("kind") == "detector_check"
         else None,
@@ -1164,6 +1172,7 @@ def call_report_from_folder(
         "n_fail": sum(g["n_fail"] for g in groups),
         "n_warn": sum(g["n_warn"] for g in groups),
         "n_tools_bad": sum(1 for t in record.tool_calls if not t.ok),
+        "cost": scores.get("cost"),
     }
 
 
