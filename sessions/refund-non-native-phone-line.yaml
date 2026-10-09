@@ -1,0 +1,27 @@
+title: Refund from a non-native speaker over a narrow phone line with packet loss
+caller:
+  persona: {name: Maria Lopez, style: non-native English, short sentences, very polite, asks the agent to repeat when unsure, accent: en-PH}
+  facts: {order_id: GW-48213, zip: "94110", amount: 89.99, item: countertop blender}
+  goal: >-
+    Get a full refund of $89.99 for order GW-48213, which arrived broken.
+  stop_when: >-
+    the agent confirms the refund was issued
+  voice: aura-2-amalthea-en
+  pace: 0.95
+  llm: {model: gpt-4.1-mini, temperature: 0.0, seed: 402}
+  conditions: {noise: null, phone_line: true, packet_loss: 0.03, interruptions: 0.0, patience_s: 20}
+  limits: {max_turns: 14, max_duration_s: 180, mutual_silence_reprompt_s: 4, mutual_silence_abort_s: 8}
+fixtures: orders_basic
+faults: []
+expected:
+  outcome: refunded
+  tool_calls:
+    required:
+      - {tool: lookup_order, args: {order_id: GW-48213, zip: "94110"}}
+      - {tool: issue_refund, args: {order_id: GW-48213, amount: 89.99}}
+    order: [lookup_order, issue_refund]
+    forbidden: [escalate_to_human, update_shipping_address]
+  final_state:
+    - refunds[GW-48213].amount == 89.99
+  notes: >-
+    Accent plus an 8 kHz line and 3% frame loss: the speech-accuracy checks (WER, facts heard intact, misheard value into a tool) are the point of this session.

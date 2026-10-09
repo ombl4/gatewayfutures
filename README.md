@@ -73,7 +73,7 @@ uv run gf gate <run_id> --min-pass 0.7             # CI decision: exit 1 on clai
 uv run gf demo-run                                 # no keys: a run built from the committed real call records, so the UI has something to show
 ```
 
-A full run of 11 sessions × 3 takes about 12 minutes at concurrency 4.
+A full run of 11 sessions × 3 takes about 12 minutes at concurrency 4; the set is 43 sessions as of 2026-10-09 (42 hand-written, 1 generated); `gf run --suite smoke` for a quick check, `--suite adversarial` or `--suite faults` for one family.
 
 ## Adding a practice session
 
@@ -117,7 +117,7 @@ The customers and orders available are listed on the UI's **Order system** page.
 
 ## Suites and areas
 
-Every session has **areas** derived from its content: what the agent must do (`refund`, `address change`, `escalation`, `denial`) and what makes the call hard (`fault handling`, `hard line`, `interruptions`, `impatient`). Run pages show the pass rate per area. **Suites** are named lists in `sessions/suites.yaml` referencing session files by name: `smoke` for a quick check, `regression` for sessions that have failed before and must run every time, plus any you define. Add a session to a suite from its page in the UI or by editing the file; run one with `gf run --suite regression` or the suite picker in the start-run form; `gf sessions suites` lists them. Suites never touch the session files, so ids and the session-set tag stay stable.
+Every session has **areas** derived from its content: what the agent must do (`refund`, `address change`, `escalation`, `denial`) and what makes the call hard (`fault handling`, `hard line`, `interruptions`, `impatient`). Run pages show the pass rate per area. **Suites** are named lists in `sessions/suites.yaml` referencing session files by name: `smoke` for a quick check, `regression` for sessions that have failed before and must run every time, and, added 2026-10-09 and not yet run, `edge` (verification problems, multi-intent, read-back correction), `personas` (accents, lines, elderly, rambling, angry, partial-then-full, grouped digits, "are you a bot"), `adversarial` (prompt injection, staff impersonation, privacy probe, wrong-customer pressure, out-of-scope, rude caller), `faults` (500s, double failure, slow tools, policy rejection, failing escalation) and `denial` (shipped, over limit, already refunded, caller insists), plus any you define. One session can be in several suites. Add a session to a suite from its page in the UI or by editing the file; run one with `gf run --suite regression` or the suite picker in the start-run form; `gf sessions suites` lists them. Suites never touch the session files, so ids and the session-set tag stay stable.
 
 ## Environment tags
 
