@@ -24,7 +24,6 @@
   <div class="tabs" data-tabs="inspector">
     {% set first = 'transcript' %}
     <button type="button" data-tab="transcript" class="on">Transcript</button>
-    <button type="button" data-tab="tools">Tool calls<b>{{ c.tool_calls|length }}</b></button>
     <button type="button" data-tab="timeline">Timeline</button>
     <button type="button" data-tab="latency">Latency{% if c.latency_turns.summary.heard_ms.p95 %}<b>p95 {{ c.latency_turns.summary.heard_ms.p95|ms }}</b>{% endif %}</button>
     <button type="button" data-tab="spans">Spans{% if c.spans.summary.slow or c.spans.summary.errors %}<b{% if c.spans.summary.errors %} style="background:var(--red-bg);color:var(--red)"{% endif %}>{{ c.spans.summary.slow + c.spans.summary.errors }}</b>{% endif %}</button>
@@ -87,9 +86,7 @@
           {% endif %}
         </div>
         {% endfor %}
-      </div>
-
-      <div class="pane" data-pane="tools" hidden>
+      <h3 style="margin:14px 0 6px" id="tool-calls">Tool calls <span class="muted" style="font-weight:500">({{ c.tool_calls|length }})</span></h3>
         {% if c.tool_calls %}
         <div class="tablewrap"><table>
         <tr><th>time</th><th>tool</th><th>arguments</th><th>status</th><th>took</th><th>response</th></tr>

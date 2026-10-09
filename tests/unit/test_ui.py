@@ -133,6 +133,7 @@ def test_run_page_content(env):
     )
     assert 'data-tab="latency"' in call and "What each latency means" in call
     assert 'data-tab="grading"' in call
+    assert 'data-pane="tools"' not in call and 'id="tool-calls"' in call  # T6.32
     assert 'id="caller-pill"' in call and 'id="agent-pill"' in call
     assert 'class="tags tested"' in call and 'data-check="tools.required.issue_refund"' in call
     assert 'data-check="ux.latency_p95"' in call

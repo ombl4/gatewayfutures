@@ -309,7 +309,7 @@ def test_inspector_controls(site, page):
     verdict = page.locator("#grading .card").nth(4).locator(".pill").first.inner_text().lower()
     header = page.locator("#agent-pill").inner_text().lower()
     assert verdict.split()[0] in header
-    for tab in ("tools", "timeline", "latency", "spans", "grading", "details", "transcript"):
+    for tab in ("timeline", "latency", "spans", "grading", "details", "transcript"):
         page.click(f'#inspector [data-tab="{tab}"]')
         assert page.locator(f'#inspector [data-pane="{tab}"]').is_visible()
         others = page.locator("#inspector .pane:not([hidden])")
@@ -388,13 +388,14 @@ def test_inspector_controls(site, page):
     tid = second.get_attribute("data-tool")
     # the matching tool event card under Tool calls is selected; its own tabs switch independently
     assert "sel" in page.locator(f'.tev[data-tev="{tid}"]').get_attribute("class")
-    page.click('#inspector [data-tab="tools"]')
+    page.click('#inspector [data-tab="grading"]')  # T6.32: tool calls live under Grading
+    assert page.locator("#tool-calls").is_visible()
     assert page.locator(f'.tev[data-tev="{tid}"]').is_visible()
     assert page.locator(".tev").count() == tool_cards.count()
     page.click(f'.tev[data-tev="{tid}"] [data-tab="resp"]')
     assert page.locator(f'#tev-{tid} [data-pane="resp"]').is_visible()
     assert page.locator(f'#tev-{tid} [data-pane="args"]').is_hidden()
-    assert page.locator('#inspector [data-pane="tools"]').is_visible()  # the outer tab is untouched
+    assert page.locator('#inspector [data-pane="grading"]').is_visible()  # the outer tab is untouched
     page.click('#inspector [data-tab="transcript"]')
     # seeking: transcript turn, check jump, lanes click, play button
     t = int(insp.locator("#transcript .turn").nth(2).get_attribute("data-t"))
