@@ -43,5 +43,10 @@
   </details>
   {% endfor %}
 </div>
+{% if p.retired %}
+<details style="margin-top:12px"><summary>Retired sessions ({{ p.retired|length }}) · kept so earlier runs still open, never run again</summary>
+<ul class="list small">{% for s in p.retired %}<li><a href="{{ links.session(s.id) }}">{{ s.title }}</a> <span class="mono muted">{{ s.id }}</span></li>{% endfor %}</ul>
+</details>
+{% endif %}
 <p class="small muted" style="margin-top:12px">To add a session: use "New session" above, or copy a file in <code>sessions/</code>, edit it and run <code>gf sessions</code> to validate. Editing an existing file changes its id, so results stay tied to the exact definition they were produced with.</p>
 {% endblock %}

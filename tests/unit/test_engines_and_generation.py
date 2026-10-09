@@ -179,3 +179,39 @@ def test_generator_rejects_expectations_that_contradict_the_agent_policy():
     }
     with pytest.raises(ValueError, match="pre-existing refund"):
         _check_final_state(denied)
+
+
+def test_retired_sessions_load_for_old_runs_but_are_not_offered(tmp_path):
+    import shutil
+    from pathlib import Path
+
+    from gf.sessions.schema import is_retired, load_all
+
+    root = Path(__file__).resolve().parents[2]
+    folder = tmp_path / "sessions"
+    folder.mkdir()
+    shutil.copy(root / "sessions" / "refund-basic.yaml", folder / "refund-basic.yaml")
+    (folder / "retired").mkdir()
+    shutil.copy(root / "sessions" / "refund-noisy-cafe.yaml", folder / "retired" / "old.yaml")
+    everything = load_all(folder)
+    assert len(everything) == 2 and sum(is_retired(s) for s in everything) == 1
+    assert len(load_all(folder, include_retired=False)) == 1
+
+
+def test_scoring_finds_a_session_whose_file_moved(tmp_path, monkeypatch):
+    import shutil
+    from pathlib import Path
+
+    from gf.scoring.score import _load_session
+
+    root = Path(__file__).resolve().parents[2]
+    folder = tmp_path / "sessions"
+    (folder / "retired").mkdir(parents=True)
+    shutil.copy(root / "sessions" / "refund-basic.yaml", folder / "retired" / "refund-basic.yaml")
+    monkeypatch.setenv("SESSIONS_DIR", str(folder))
+    sess = _load_session(
+        {"id": "7c994c348001", "path": str(tmp_path / "gone" / "refund-basic.yaml")}
+    )
+    assert sess.id == "7c994c348001"
+    with pytest.raises(FileNotFoundError, match="retired"):
+        _load_session({"id": "nope", "path": str(tmp_path / "gone" / "x.yaml")})

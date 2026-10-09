@@ -43,7 +43,9 @@ async def run_batch(
 
     v = get_variant(variant)
     sessions = (
-        load_all(ROOT / "sessions") if all_sessions else [Session.load(p) for p in session_paths]
+        load_all(ROOT / "sessions", include_retired=False)
+        if all_sessions
+        else [Session.load(p) for p in session_paths]
     )
     run_id = run_id or new_run_id()
     folder = settings().runs_dir / run_id

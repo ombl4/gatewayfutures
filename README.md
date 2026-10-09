@@ -110,7 +110,7 @@ expected:
     - refunds[GW-48213].amount == 89.99
 ```
 
-The customers and orders available are listed on the UI's **Order system** page. Keep every number the caller needs inside `facts`: a caller that says a number outside its facts makes the call invalid rather than counting against the agent.
+The customers and orders available are listed on the UI's **Order system** page. Sessions are never deleted: to stop running one, move its file to `sessions/retired/` (it stays loadable so earlier runs still open and rescore). Keep every number the caller needs inside `facts`: a caller that says a number outside its facts makes the call invalid rather than counting against the agent.
 
 ## Latency, per turn
 

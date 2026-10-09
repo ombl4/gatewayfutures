@@ -100,13 +100,28 @@ def score_attempt(folder: str | Path, session: Session) -> dict[str, Any]:
     return result
 
 
+def _load_session(entry: dict[str, Any]) -> Session:
+    """The session a run was made with: from the path in the manifest, or by id from the
+    session folders (including retired/) when the file has moved."""
+    from gf.sessions.schema import load_all
+
+    path = Path(entry["path"])
+    path = path if path.is_absolute() else ROOT / path
+    if path.exists():
+        return Session.load(path)
+    for s in load_all(settings().sessions_dir):
+        if s.id == entry["id"]:
+            return s
+    raise FileNotFoundError(
+        f"session {entry['id']} ({entry['path']}) is neither at its recorded path nor in "
+        f"{settings().sessions_dir} (retired sessions belong in sessions/retired/, never deleted)"
+    )
+
+
 def score_run(run_id: str) -> dict[str, Any]:
     run_dir = settings().runs_dir / run_id
     manifest = json.loads((run_dir / "manifest.json").read_text())
-    sessions = {
-        s["id"]: Session.load(ROOT / s["path"] if not Path(s["path"]).is_absolute() else s["path"])
-        for s in manifest["sessions"]
-    }
+    sessions = {s["id"]: _load_session(s) for s in manifest["sessions"]}
     attempts: list[dict[str, Any]] = []
     for call in manifest["calls"]:
         sid = call["session_id"]

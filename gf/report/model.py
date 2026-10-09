@@ -22,7 +22,7 @@ from gf.record.latency import STAGES, turn_latency
 from gf.record.model import CallRecord
 from gf.runner.batch import list_runs
 from gf.scoring.checks import evidence_ms
-from gf.sessions.schema import Session, load_all
+from gf.sessions.schema import Session, is_retired, load_all
 
 GROUPS = [
     ("validity", "Was the simulation valid?"),
@@ -125,6 +125,7 @@ def session_card(s: Session) -> dict[str, Any]:
         "engine": s.engine,
         "path": s.source_path,
         "generated": "/generated/" in (s.source_path or "").replace("\\", "/"),
+        "retired": is_retired(s),
     }
 
 
@@ -133,7 +134,7 @@ def session_card(s: Session) -> dict[str, Any]:
 
 def overview() -> dict[str, Any]:
     cfg = agent_config()
-    sessions = load_all(settings().sessions_dir)
+    sessions = load_all(settings().sessions_dir, include_retired=False)
     runs = [run_row(p.name) for p in list_runs()]
     accents = sorted({s.caller.persona.accent for s in sessions if s.caller.persona.accent})
     return {
@@ -485,10 +486,13 @@ def backend_page() -> dict[str, Any]:
 
 
 def sessions_page() -> dict[str, Any]:
+    """Active sessions (offered for runs) and retired ones (kept for old runs), separately."""
     sessions = load_all(settings().sessions_dir)
     history = _session_history()
+    cards = [session_card(s) | {"history": history.get(s.id, [])} for s in sessions]
     return {
-        "sessions": [session_card(s) | {"history": history.get(s.id, [])} for s in sessions],
+        "sessions": [c for c in cards if not c["retired"]],
+        "retired": [c for c in cards if c["retired"]],
     }
 
 

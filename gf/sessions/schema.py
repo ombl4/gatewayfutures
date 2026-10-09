@@ -127,7 +127,15 @@ class Session(BaseModel):
         return yaml.safe_dump(data, sort_keys=False, allow_unicode=True)
 
 
-def load_all(folder: Path) -> list[Session]:
-    """Hand-written sessions in `folder` plus generated ones in `folder/generated/`."""
+def load_all(folder: Path, include_retired: bool = True) -> list[Session]:
+    """Hand-written sessions in `folder`, generated ones in `folder/generated/` and, unless
+    excluded, retired ones in `folder/retired/`. Sessions are immutable and never deleted:
+    a retired session is no longer run or offered, but old runs that used it still load."""
     paths = sorted(folder.glob("*.yaml")) + sorted((folder / "generated").glob("*.yaml"))
+    if include_retired:
+        paths += sorted((folder / "retired").glob("*.yaml"))
     return [Session.load(p) for p in paths]
+
+
+def is_retired(session: Session) -> bool:
+    return "/retired/" in (session.source_path or "").replace("\\", "/")
