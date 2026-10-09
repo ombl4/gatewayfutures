@@ -63,6 +63,9 @@ class Links:
     def run(self, run_id: str) -> str:
         return f"/runs/{run_id}" if self.mode == "live" else "index.html"
 
+    def caller_quality(self, run_id: str) -> str:
+        return f"/runs/{run_id}/caller" if self.mode == "live" else "caller-quality.html"
+
     def call(self, run_id: str, sid: str, n: int) -> str:
         return f"/runs/{run_id}/{sid}/{n}" if self.mode == "live" else f"call-{sid}-{n}.html"
 

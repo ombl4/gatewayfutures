@@ -190,6 +190,25 @@ def test_run_page_content(env):
     )
     assert env["client"].get("/sets/set-00000000").status_code == 404
     assert f'href="/sets/{tag}"' in r
+    # Caller quality (T6.37 / B11): the shortfall adds up and the page lists those calls
+    from gf.report import model as _m
+
+    cq = _m.caller_page("t1")
+    assert cq is not None and cq["sim"]["known"] == cq["sim"]["caller_ok"] + cq["sim"]["short"]
+    listed = {(c["session_id"], c["attempt"]) for g in cq["groups"] for c in g["calls"]}
+    not_ok = {
+        (a["session_id"], a["attempt"])
+        for a in _m._json(_m.settings().runs_dir / "t1" / "summary.json")["attempts"]
+        if "caller_ok" in a and not a["caller_ok"]
+    }
+    assert listed == not_ok
+    html_cq = env["client"].get("/runs/t1/caller").text
+    assert (
+        'id="cq-headline"' in html_cq
+        and 'id="cq-personas"' in html_cq
+        and 'id="cq-glossary"' in html_cq
+    )
+    assert env["client"].get("/runs/nope/caller").status_code == 404
     # Settings (T6.36): one tile per section, each reaching its page; sub pages link back
     st = env["client"].get("/settings").text
     assert st.count('class="stile"') == 3

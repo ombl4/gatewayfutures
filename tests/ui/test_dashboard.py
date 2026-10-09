@@ -265,6 +265,17 @@ def test_overview_is_the_performance_page(site, page):
     page.wait_for_selector(".callbox #inspector")
     assert urlparse(page.url).path == "/runs/t1" and f"call={target}" in page.url
     assert page.locator("#inspector").get_attribute("data-call") == target
+    # T6.37: the caller-quality card reaches the caller page, and a listed call opens
+    if page.locator("#caller-quality-link").count():
+        page.click("#caller-quality-link")
+        assert urlparse(page.url).path == "/runs/t1/caller"
+        assert (
+            page.locator("#cq-headline").is_visible() and page.locator("#cq-personas").is_visible()
+        )
+        if page.locator(".cq-calls a.btn").count():
+            page.locator(".cq-calls a.btn").first.click()
+            page.wait_for_selector(".callbox #inspector")
+        page.goto(site["base"] + "/")
     # B10: every area, including one with no issue dots, lists calls to open
     page.goto(site["base"] + "/")
     for area in page.locator("#by-area .area").all():

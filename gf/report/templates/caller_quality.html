@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% set page='run' %}
+{% block title %}Caller quality · {{ p.run_id }} · Call simulator{% endblock %}
+{% block crumbs %}<a href="{{ links.runs() }}">Runs</a><i>›</i><a href="{{ links.run(p.run_id) }}">{{ p.run_id }}</a><i>›</i><b>Simulated caller quality</b>{% endblock %}
+{% block content %}
+{% set S = p.sim %}
+<p class="backrow"><a class="btn sm" href="{{ links.overview() }}?run={{ p.run_id }}">← Overview</a></p>
+<h1>Simulated caller quality · {{ p.run_id }}</h1>
+<p class="sub">How well the simulated caller did its job in this run. This is the simulator's score, separate from the agent's: a caller that pauses, wanders or mishears makes a weaker test, and when it breaks the call is excluded rather than counted against the agent.</p>
+
+<div class="two-cards">
+  <div class="card" id="cq-headline">
+    <div class="big"><b>{{ S.caller_ok }}/{{ S.known }}</b><span><span class="k">in character &amp; on task</span><span class="muted">{{ p.ratio|pct if p.ratio is not none else '–' }}</span></span></div>
+    <div class="bar blue"><i style="width:{{ (100 * p.ratio)|round(1) if p.ratio is not none else 0 }}%"></i></div>
+    {% if S.short %}
+    <table class="small shortfall" id="cq-shortfall">
+      <tr><td class="muted">{{ S.short }} call{{ '' if S.short == 1 else 's' }} short of {{ S.known }}</td><td></td></tr>
+      {% for b in S.breakdown %}<tr><td><a href="#{{ b.flag|replace('.', '-') }}">{{ b.label }}</a></td><td class="num"><b>{{ b.count }}</b></td></tr>{% endfor %}
+    </table>
+    {% if S.overlap %}<p class="small muted" style="margin:6px 0 0">{{ S.overlap }} call{{ '' if S.overlap == 1 else 's' }} carr{{ 'ies' if S.overlap == 1 else 'y' }} more than one flag, so the causes add to more than the shortfall.</p>{% endif %}
+    {% else %}<p class="small muted">Every scored call was in character and on task.</p>{% endif %}
+  </div>
+  <div class="card" id="cq-why">
+    <div class="hd"><h3>Why it is this {{ 'low' if p.ratio is not none and p.ratio < 0.9 else 'high' }}</h3></div>
+    {% if p.drivers %}<p class="small">Biggest causes: {% for d in p.drivers %}<b>{{ d.label }}</b> ({{ d.count }}){% if not loop.last %}, {% endif %}{% endfor %}.</p>{% endif %}
+    {% if p.previous %}
+    <p class="small">Previous run <a href="{{ links.run(p.previous.run_id) }}">{{ p.previous.run_id }}</a>: <b>{{ p.previous.sim.caller_ok }}/{{ p.previous.sim.known }}</b> ({{ p.previous.ratio|pct if p.previous.ratio is not none else '–' }}){% if p.previous.sim.breakdown %} · {% for b in p.previous.sim.breakdown %}{{ b.label }} {{ b.count }}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}.</p>
+    {% if p.method_changes %}
+    <p class="small">The scoring method changed since then (<span class="mono">{{ p.previous.method_version }}</span> → <span class="mono">{{ p.method_version }}</span>), which changes what counts against the caller:</p>
+    <ul class="small" id="cq-method-changes">{% for c in p.method_changes %}<li>{{ c }}</li>{% endfor %}</ul>
+    {% elif p.previous.method_version == p.method_version %}<p class="small muted">Same scoring method as the previous run, so the difference is the calls themselves.</p>{% endif %}
+    {% else %}
+    <p class="small muted">No earlier run to compare with. Scoring method <span class="mono">{{ p.method_version }}</span>.</p>
+    {% if p.method_changes or 'score-v3' in p.method_version %}<p class="small">Rules of this method that count against the caller:</p><ul class="small" id="cq-method-changes">{% for c in p.method_changes %}<li>{{ c }}</li>{% endfor %}</ul>{% endif %}
+    {% endif %}
+    {% if p.history|length > 1 %}<p class="small muted" style="margin-top:8px">Across runs: {% for h in p.history %}<a href="{{ links.run(h.run_id) }}"{% if h.current %} style="font-weight:600"{% endif %}>{{ h.run_id }} {{ h.ratio|pct }}</a>{% if not loop.last %} · {% endif %}{% endfor %}</p>{% endif %}
+  </div>
+</div>
+
+{% for g in p.groups %}
+<div class="card" id="{{ g.flag|replace('.', '-') }}" style="margin-top:12px">
+  <div class="hd"><h3>{{ g.label[:1]|upper }}{{ g.label[1:] }}</h3><span class="small muted">{{ g.count }} call{{ '' if g.count == 1 else 's' }}</span></div>
+  <div class="tablewrap"><table class="small cq-calls">
+    <tr><th>session</th><th>attempt</th><th>persona</th><th>what the check saw</th><th></th></tr>
+    {% for c in g.calls %}
+    <tr>
+      <td>{{ c.title }}</td>
+      <td class="mono">{{ c.attempt }}</td>
+      <td>{{ c.persona or 'default' }}{% if c.voice %} <span class="small muted mono">{{ c.voice }}</span>{% endif %}</td>
+      <td class="small">{{ c.what[:220] }}</td>
+      <td style="white-space:nowrap"><a class="btn sm" href="{% if mode == 'live' %}{{ links.run(p.run_id) }}?call={{ c.session_id }}/{{ c.attempt }}#t={{ c.t_ms }}{% else %}{{ links.call(p.run_id, c.session_id, c.attempt) }}#t={{ c.t_ms }}{% endif %}">Open call</a></td>
+    </tr>
+    {% endfor %}
+  </table></div>
+</div>
+{% endfor %}
+
+<div class="card" id="cq-personas" style="margin-top:12px">
+  <div class="hd"><h3>By persona</h3><span class="small muted">{{ p.personas|length }} persona{{ '' if p.personas|length == 1 else 's' }}</span></div>
+  <div class="tablewrap"><table class="small">
+    <tr><th>persona</th><th>voice</th><th class="num">calls</th><th class="num">in character</th><th>flags</th></tr>
+    {% for d in p.personas %}
+    <tr><td>{{ d.persona }}</td><td class="mono small">{{ d.voice or '—' }}</td><td class="num">{{ d.n }}</td><td class="num"><span class="pill {{ d.rate_class }}">{{ d.ok }}/{{ d.n }}</span></td><td class="small">{% for f in d.flags %}{{ f.label }} ×{{ f.count }}{% if not loop.last %}, {% endif %}{% else %}—{% endfor %}</td></tr>
+    {% endfor %}
+  </table></div>
+</div>
+
+<div class="card" id="cq-glossary" style="margin-top:12px">
+  <div class="hd"><h3>What each caller check means</h3></div>
+  <div class="tablewrap"><table class="small">
+    <tr><th>check</th><th>why it matters</th><th>severity</th></tr>
+    {% for g in p.glossary %}<tr><td>{{ g.label }}</td><td class="small muted">{{ g.why }}</td><td><span class="pill grey">{{ g.severity }}</span></td></tr>{% endfor %}
+  </table></div>
+</div>
+{% endblock %}

@@ -101,15 +101,16 @@
   {% if r.simulation and r.simulation.known %}
   {% set S = r.simulation %}{% set ratio = S.caller_ok / S.known %}
   <div class="card" id="simulation-quality">
-    <div class="hd"><h3><span class="ic">☺</span>Simulated caller quality</h3></div>
+    <div class="hd"><h3><span class="ic">☺</span><a href="{{ links.caller_quality(r.run_id) }}" id="caller-quality-link">Simulated caller quality</a></h3><a class="small" href="{{ links.caller_quality(r.run_id) }}">review the caller →</a></div>
     <div class="big"><b>{{ S.caller_ok }}/{{ S.known }}</b><span><span class="k">in character &amp; on task</span><span class="muted">{{ ratio|pct }}</span></span></div>
     <div class="bar blue"><i style="width:{{ (100 * ratio)|round(1) }}%"></i></div>
-    <div class="stats">
-      <div><b>{{ S.calls - S.valid }}</b><span>invalid call{{ '' if S.calls - S.valid == 1 else 's' }}</span></div>
-      <div><b>{{ S.hearing_faults }}</b><span>hearing fault{{ '' if S.hearing_faults == 1 else 's' }}</span></div>
-      <div><b>{{ S.judge_disagreed }}</b><span>persona-judge disagreement{{ '' if S.judge_disagreed == 1 else 's' }}</span></div>
-    </div>
-    {% if S.flags %}<p class="small muted" style="margin:8px 0 0">flags seen: {{ S.flags|map('replace', 'caller.', '')|map('replace', 'validity.', '')|join(', ') }}</p>{% endif %}
+    {% if S.short %}
+    <table class="small shortfall" id="caller-shortfall">
+      <tr><td class="muted">{{ S.short }} call{{ '' if S.short == 1 else 's' }} short</td><td></td></tr>
+      {% for b in S.breakdown %}<tr><td><a href="{{ links.caller_quality(r.run_id) }}#{{ b.flag|replace('.', '-') }}">{{ b.label }}</a></td><td class="num"><b>{{ b.count }}</b></td></tr>{% endfor %}
+    </table>
+    {% if S.overlap %}<p class="small muted" style="margin:6px 0 0">{{ S.overlap }} call{{ '' if S.overlap == 1 else 's' }} carr{{ 'ies' if S.overlap == 1 else 'y' }} more than one flag, so the causes add to more than the shortfall.</p>{% endif %}
+    {% else %}<p class="small muted" style="margin:8px 0 0">Every scored call was in character and on task.</p>{% endif %}
   </div>
   {% endif %}
   {% if r.issue_breakdown %}

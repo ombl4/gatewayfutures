@@ -1556,20 +1556,223 @@ def caller_score(checks: list[dict[str, Any]], scores: dict[str, Any]) -> dict[s
     return {"state": state, "text": text, "items": items}
 
 
+CALLER_FLAG_LABELS = {
+    "caller.went_quiet": "paused after the agent spoke",
+    "caller.ended_legitimately": "ended on a limit, not for a reason",
+    "caller.goal_stated_early": "slow to state its goal",
+    "speech.caller_hearing": "misheard the agent",
+    "validity.persona_judge": "persona judge disagreed",
+    "validity.simulation": "invalid simulation",
+}
+# what each scoring method version changed about the caller's score, newest first
+CALLER_RULE_CHANGES = {
+    "score-v3": [
+        "New flag: the caller paused more than 3 s after the agent spoke (its own pause, kept "
+        "out of the agent's dead-air score).",
+        "A mishearing is attributed: a second recogniser decides whether the caller's "
+        "recogniser or the agent's voice was at fault; only the former invalidates the call.",
+        "Numbers are compared as digits however they were said, so 'eighty nine ninety nine' "
+        "against '$89.99' is no longer a mishearing.",
+    ],
+    "score-v2+claims-regex-v2": [
+        "A misheard digit run counts as acted on only when the caller says the wrong number "
+        "as a whole number without the right one.",
+    ],
+}
+
+
 def simulation_quality(summ: dict[str, Any]) -> dict[str, Any]:
-    """Run-level view of the simulator: how many calls were sound, caller flags, hearing faults."""
+    """Run-level view of the simulator: how many calls were sound, and the shortfall broken
+    down so it adds up (invalid calls, then each caller flag; a call can carry several)."""
     atts = summ.get("attempts", [])
     known = [a for a in atts if "caller_ok" in a]
+    not_ok = [a for a in known if not a["caller_ok"]]
+    flags = Counter(f for a in not_ok if a.get("valid") for f in (a.get("caller_flags") or []))
+    breakdown = [
+        {
+            "flag": "invalid",
+            "label": "invalid calls",
+            "count": sum(1 for a in not_ok if not a.get("valid")),
+        }
+    ] + [
+        {"flag": f, "label": CALLER_FLAG_LABELS.get(f, f.split(".")[-1]), "count": n}
+        for f, n in flags.most_common()
+    ]
     return {
         "calls": len(atts),
         "valid": sum(1 for a in atts if a.get("valid")),
         "caller_ok": sum(1 for a in known if a["caller_ok"]),
         "known": len(known),
+        "short": len(not_ok),
+        "breakdown": [b for b in breakdown if b["count"]],
+        "overlap": sum(
+            1 for a in not_ok if a.get("valid") and len(a.get("caller_flags") or []) > 1
+        ),
         "hearing_faults": sum(1 for a in atts if a.get("hearing_fault")),
         "judge_disagreed": sum(
             1 for a in atts if "validity.persona_judge" in (a.get("caller_flags") or [])
         ),
         "flags": sorted({f for a in atts for f in (a.get("caller_flags") or [])}),
+    }
+
+
+def caller_page(run_id: str) -> dict[str, Any] | None:
+    """The caller quality page of a run (T6.37): the shortfall explained, calls per flag,
+    personas, the previous run and what the scoring method changed."""
+    run_dir = settings().runs_dir / run_id
+    summ = _json(run_dir / "summary.json")
+    if not summ:
+        return None
+    man = _json(run_dir / "manifest.json", {})
+    sim = simulation_quality(summ)
+    titles = {m["id"]: m.get("title", m["id"]) for m in man.get("sessions", [])}
+    personas: dict[str, dict[str, Any]] = {}
+    for m in man.get("sessions", []):
+        try:
+            sess = Session.load(Path(m["path"])) if m.get("path") else None
+        except Exception:  # noqa: BLE001
+            sess = None
+        pr = sess.caller.persona if sess else None
+        personas[m["id"]] = {
+            "name": m.get("persona") or (pr.name if pr else ""),
+            "voice": (getattr(sess.caller, "voice", "") if sess else "")
+            or getattr(pr, "voice", "")
+            or "",
+        }
+
+    def what(a: dict[str, Any], flag: str) -> str:
+        sc = _json(run_dir / a["session_id"] / str(a["attempt"]) / "scores.json", {})
+        c = next((c for c in sc.get("checks", []) if c["id"] == flag), None)
+        return c["what_happened"] if c else ""
+
+    def row(a: dict[str, Any], flag: str) -> dict[str, Any]:
+        pers = personas.get(a["session_id"], {})
+        return {
+            "session_id": a["session_id"],
+            "attempt": a["attempt"],
+            "title": titles.get(a["session_id"], a["session_id"]),
+            "persona": pers.get("name") or "",
+            "voice": pers.get("voice") or "",
+            "what": what(a, flag) if flag != "invalid" else a.get("failure_reason", ""),
+            "t_ms": a.get("issue_t_ms") or 0,
+            "valid": a.get("valid"),
+        }
+
+    atts = [a for a in summ.get("attempts", []) if "caller_ok" in a]
+    groups = []
+    for b in sim["breakdown"]:
+        if b["flag"] == "invalid":
+            calls = [row(a, "invalid") for a in atts if not a.get("valid")]
+        else:
+            calls = [
+                row(a, b["flag"])
+                for a in atts
+                if a.get("valid")
+                and not a["caller_ok"]
+                and b["flag"] in (a.get("caller_flags") or [])
+            ]
+        groups.append(b | {"calls": calls})
+    # per persona
+    per: dict[str, dict[str, Any]] = {}
+    for a in atts:
+        pers = personas.get(a["session_id"], {})
+        key = pers.get("name") or "default"
+        d = per.setdefault(
+            key,
+            {"persona": key, "voice": pers.get("voice") or "", "n": 0, "ok": 0, "flags": Counter()},
+        )
+        d["n"] += 1
+        d["ok"] += 1 if a["caller_ok"] else 0
+        if not a["caller_ok"]:
+            d["flags"].update(
+                a.get("caller_flags") or (["validity.simulation"] if not a.get("valid") else [])
+            )
+    persona_rows = sorted(
+        (
+            d
+            | {
+                "ratio": d["ok"] / d["n"] if d["n"] else None,
+                "rate_class": rate_class(d["ok"] / d["n"] if d["n"] else None),
+                "flags": [
+                    {"label": CALLER_FLAG_LABELS.get(f, f), "count": n}
+                    for f, n in d["flags"].most_common()
+                ],
+            }
+            for d in per.values()
+        ),
+        key=lambda d: (d["ratio"] if d["ratio"] is not None else 2, d["persona"]),
+    )
+    # glossary from a scored record of this run
+    glossary = []
+    for a in atts[:1]:
+        sc = _json(run_dir / a["session_id"] / str(a["attempt"]) / "scores.json", {})
+        for c in sc.get("checks", []):
+            if c["group"] in ("caller", "validity") or c["id"] == "speech.caller_hearing":
+                glossary.append(
+                    {
+                        "id": c["id"],
+                        "label": c["label"],
+                        "why": c.get("why_it_matters", ""),
+                        "severity": c["severity"],
+                    }
+                )
+    # previous real run (by start time) and the method change between the two
+    prev = None
+    for p in list_runs():
+        if p.name == run_id:
+            continue
+        pm = _json(p / "manifest.json", {})
+        if pm.get("kind", "run") != "run" or pm.get("demo"):
+            continue
+        ps = _json(p / "summary.json")
+        if ps and ps.get("started_at", "") < summ.get("started_at", ""):
+            if prev is None or ps["started_at"] > prev["started_at"]:
+                prev = ps
+    prev_sim = simulation_quality(prev) if prev else None
+    cur_v, prev_v = summ.get("method_version", ""), (prev or {}).get("method_version", "")
+    changes = []
+    if cur_v != prev_v:
+        for v, items in CALLER_RULE_CHANGES.items():
+            if cur_v.startswith(v) and not prev_v.startswith(v):
+                changes += items
+    drivers = [b for b in sim["breakdown"][:3]]
+    history = []
+    for p in sorted(list_runs(), key=lambda p: _json(p / "summary.json", {}).get("started_at", "")):
+        ps = _json(p / "summary.json")
+        pm = _json(p / "manifest.json", {})
+        if not ps or pm.get("kind", "run") != "run":
+            continue
+        sq = simulation_quality(ps)
+        if sq["known"]:
+            history.append(
+                {
+                    "run_id": p.name,
+                    "ratio": sq["caller_ok"] / sq["known"],
+                    "ok": sq["caller_ok"],
+                    "known": sq["known"],
+                    "current": p.name == run_id,
+                }
+            )
+    return {
+        "run_id": run_id,
+        "started_at": summ.get("started_at"),
+        "method_version": cur_v,
+        "sim": sim,
+        "ratio": sim["caller_ok"] / sim["known"] if sim["known"] else None,
+        "groups": groups,
+        "personas": persona_rows,
+        "glossary": glossary,
+        "drivers": drivers,
+        "previous": {
+            "run_id": prev["run_id"],
+            "ratio": prev_sim["caller_ok"] / prev_sim["known"] if prev_sim["known"] else None,
+            "sim": prev_sim,
+            "method_version": prev_v,
+        }
+        if prev and prev_sim
+        else None,
+        "method_changes": changes,
+        "history": history,
     }
 
 

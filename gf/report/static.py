@@ -50,6 +50,11 @@ def render_run(run_id: str, out: Path | None = None, *, bundle_audio: bool = Fal
         return f"{links.call(run_id, i['session_id'], i['attempt'])}#t={t}"
 
     (out / "index.html").write_text(render("run.html", links, r=r, issue_link=issue_link, **common))
+    cq = model.caller_page(run_id)
+    if cq:
+        (out / "caller-quality.html").write_text(
+            render("caller_quality.html", links, p=cq, **common)
+        )
     o = model.overview()
     (out / "overview.html").write_text(
         render("overview.html", links, o=o, r=r, issue_link=issue_link, **common)

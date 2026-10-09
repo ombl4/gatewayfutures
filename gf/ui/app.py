@@ -534,6 +534,16 @@ def run(run_id: str, call: str = ""):
     )
 
 
+@app.get("/runs/{run_id}/caller", response_class=HTMLResponse)
+def run_caller(run_id: str):
+    """Caller quality of a run, explained (T6.37)."""
+    _require_run(run_id)
+    data = model.caller_page(run_id)
+    if data is None:
+        raise HTTPException(404, f"run {run_id} has no summary yet")
+    return page("caller_quality.html", p=data)
+
+
 @app.get("/runs/{run_id}/sessions", response_class=HTMLResponse)
 def run_sessions(run_id: str):
     """A run's practice sessions alone, for the expanded row in the Runs list (T6.30)."""
