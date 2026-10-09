@@ -15,10 +15,10 @@
   <div class="abar">
     <button class="pb" id="insp-play" type="button" title="play / pause" {% if not c.audio_href %}disabled{% endif %}><svg viewBox="0 0 24 24" class="i-play"><path d="M7 4l13 8-13 8z"/></svg><svg viewBox="0 0 24 24" class="i-pause" hidden><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg></button>
     <span class="tm"><span id="insp-cur">0:00</span> / {{ c.duration_ms|clock }}</span>
-    <canvas class="lanes" id="insp-lanes" height="64"></canvas>
+    <canvas class="lanes" id="insp-lanes" height="36" title="click to seek"></canvas>
     {% if c.audio_href %}<audio id="insp-audio" preload="metadata" src="{{ c.audio_href }}"></audio>{% endif %}
+  <div class="legend wave-legend"><span><i style="background:#60a5fa"></i>user speech</span><span><i style="background:#a78bfa"></i>agent speech</span><span><i style="background:#22c55e"></i>tool call</span><span><i style="background:#ef4444"></i>issue</span><span><i style="background:#f59e0b"></i>interruption</span>{% if not c.audio_href %}<span class="muted">no recording for this call</span>{% endif %}</div>
   </div>
-  <div class="legend"><span><i style="background:var(--caller)"></i>caller</span><span><i style="background:var(--agent)"></i>agent</span><span><i style="background:var(--tool)"></i>tool call</span><span><i style="background:var(--red)"></i>issue</span><span><i style="background:#f59e0b"></i>interruption</span><span><i style="background:#fde68a"></i>dead air</span>{% if not c.audio_href %}<span class="muted">no recording for this call</span>{% else %}<span class="muted">click the lanes to seek</span>{% endif %}</div>
 
   <div class="tabs" data-tabs="inspector">
     {% set first = 'transcript' %}
@@ -229,41 +229,36 @@
   function fmt(ms){ const s = Math.floor((ms||0)/1000); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
   function xOf(c, ms){ return PAD + (ms/dur) * (c.width - 2*PAD); }
   function msOf(c, px){ return Math.max(0, Math.min(dur, (px-PAD)/(c.width-2*PAD)*dur)); }
-  function drawLanes(c, compact){
+  function drawLanes(c){
     const W = c.clientWidth || 600; if (c.width !== W) c.width = W; const H = c.height;
     const ctx = c.getContext('2d'); ctx.clearRect(0,0,W,H);
-    const laneH = compact ? 20 : 46, gap = compact ? 2 : 6, top = compact ? 4 : 14;
-    const lanes = [{name:'caller', y:top, color:C.caller}, {name:'agent', y:top+laneH+gap, color:C.agent}];
-    ctx.fillStyle = C.dead; (tl.ux && tl.ux.dead_air || []).forEach(d => ctx.fillRect(xOf(c,d.start_ms), top, Math.max(2, xOf(c,d.end_ms)-xOf(c,d.start_ms)), laneH*2+gap));
-    if (!compact){ ctx.font = '11px ' + getComputedStyle(document.body).fontFamily; ctx.textBaseline='middle'; ctx.fillStyle=C.text; ctx.textAlign='center';
-      for (let t=0; t<=dur; t+=10000){ const px=xOf(c,t); ctx.strokeStyle=C.grid; ctx.beginPath(); ctx.moveTo(px,top); ctx.lineTo(px,H-16); ctx.stroke(); ctx.fillText((t/1000|0)+'s', px, H-8); } }
-    lanes.forEach(l => {
-      const e = env && env[l.name] || []; const step = env && env.step_ms || 50; ctx.fillStyle = l.color;
-      if (e.length) {
-        for (let i=0;i<e.length;i++){ const v=e[i]/100; if (v<0.04) continue; const px=xOf(c,i*step), w=Math.max(1, xOf(c,step)-xOf(c,0)); const hh=Math.max(1, v*laneH); ctx.fillRect(px, l.y + (laneH-hh)/2, w, hh); }
-      } else {
-        // no recording (e.g. the LiveKit simulator keeps the audio): draw the turns from their timestamps
-        const kind = l.name === 'caller' ? 'caller_speech' : 'agent_speech';
-        ctx.globalAlpha = 0.55;
-        (tl.events||[]).filter(ev => ev.kind === kind).forEach(ev => { const px = xOf(c, ev.t_ms), w = Math.max(2, xOf(c, ev.end_ms || ev.t_ms + 1000) - px); ctx.fillRect(px, l.y + laneH*0.25, w, laneH*0.5); });
-        ctx.globalAlpha = 1;
-      }
-      if (!compact){ ctx.fillStyle = C.text; ctx.textAlign='left'; ctx.fillText(l.name, 4, l.y + laneH/2); }
-    });
-    const dotY = compact ? H-7 : H-24;
-    (tl.events||[]).filter(e => e.kind==='tool_call').forEach(e => { ctx.fillStyle = e.ok ? C.tool : C.bad; ctx.beginPath(); ctx.arc(xOf(c,e.t_ms), dotY, 3.5, 0, 7); ctx.fill(); });
-    issues.forEach(t => { ctx.fillStyle = C.bad; ctx.beginPath(); ctx.arc(xOf(c,t), dotY, 3, 0, 7); ctx.fill(); });
-    interrupts.forEach(t => { ctx.fillStyle = C.inter; ctx.beginPath(); ctx.arc(xOf(c,t), dotY, 3, 0, 7); ctx.fill(); });
-    if (audio && !isNaN(audio.currentTime)) { const px=xOf(c,audio.currentTime*1000); ctx.strokeStyle=C.play; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(px,0); ctx.lineTo(px,H); ctx.stroke(); ctx.lineWidth=1; }
+    const BW = 2, GAP = 1, top = 3, bottom = 8, maxH = H - top - bottom, mid = top + maxH / 2;
+    const step = (env && env.step_ms) || 50, ce = env && env.caller || [], ae = env && env.agent || [];
+    const blocks = { caller: [], agent: [] };
+    if (!ce.length) (tl.events||[]).forEach(ev => { if (ev.kind === 'caller_speech') blocks.caller.push([ev.t_ms, ev.end_ms || ev.t_ms + 1000]); if (ev.kind === 'agent_speech') blocks.agent.push([ev.t_ms, ev.end_ms || ev.t_ms + 1000]); });
+    const inBlock = (arr, ms) => arr.some(([s0, s1]) => ms >= s0 && ms < s1);
+    for (let x = PAD; x < W - PAD; x += BW + GAP) {
+      const ms = msOf(c, x); let v = 0, who = null;
+      if (ce.length) { const i = Math.min(ce.length - 1, Math.floor(ms / step)); const cv = (ce[i]||0) / 100, av = (ae[i]||0) / 100; if (cv >= av && cv > 0.04) { v = cv; who = 'caller'; } else if (av > 0.04) { v = av; who = 'agent'; } }
+      else if (inBlock(blocks.caller, ms)) { v = 0.45; who = 'caller'; } else if (inBlock(blocks.agent, ms)) { v = 0.45; who = 'agent'; }
+      const hh = who ? Math.max(3, v * maxH) : 2;
+      ctx.fillStyle = who === 'caller' ? '#60a5fa' : who === 'agent' ? '#a78bfa' : '#e2e8f0';
+      ctx.fillRect(x, mid - hh / 2, BW, hh);
+    }
+    const dotY = H - 4;
+    (tl.events||[]).filter(e => e.kind==='tool_call').forEach(e => { ctx.fillStyle = e.ok ? '#22c55e' : '#ef4444'; ctx.beginPath(); ctx.arc(xOf(c,e.t_ms), dotY, 3, 0, 7); ctx.fill(); });
+    issues.forEach(t => { ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.arc(xOf(c,t), dotY, 3, 0, 7); ctx.fill(); });
+    interrupts.forEach(t => { ctx.fillStyle = '#f59e0b'; ctx.beginPath(); ctx.arc(xOf(c,t), dotY, 3, 0, 7); ctx.fill(); });
+    if (audio && !isNaN(audio.currentTime)) { const px=xOf(c,audio.currentTime*1000); ctx.strokeStyle='#ef4444'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(px,0); ctx.lineTo(px,H); ctx.stroke(); ctx.lineWidth=1; }
   }
-  function draw(){ drawLanes(cv, true); if (big && !big.closest('[data-pane]').hidden) drawLanes(big, false); }
+  function draw(){ drawLanes(cv); }
   function seek(ms, play){ if (!audio) return; audio.currentTime = Math.max(0, ms/1000); if (play !== false) audio.play().catch(()=>{}); }
   function selectTool(id){
     root.querySelectorAll('.tev').forEach(t => t.classList.toggle('sel', t.dataset.tev === id));
     root.querySelectorAll('.toolev').forEach(t => t.classList.toggle('sel', t.dataset.tool === id));
   }
   function nearestTool(ms){ let best=null; (tl.events||[]).filter(e => e.kind==='tool_call').forEach(e => { if (best===null || Math.abs(e.t_ms-ms) < Math.abs(best.t_ms-ms)) best=e; }); return best && Math.abs(best.t_ms-ms) < dur*0.03 ? best : null; }
-  [cv, big].forEach(c => { if (!c) return; c.addEventListener('click', e => { const ms = msOf(c, e.offsetX); const t = nearestTool(ms); if (t) selectTool(t.id); seek(ms); }); });
+  [cv].forEach(c => { if (!c) return; c.addEventListener('click', e => { const ms = msOf(c, e.offsetX); const t = nearestTool(ms); if (t) selectTool(t.id); seek(ms); }); });
   root.addEventListener('click', e => {
     const q = e.target.closest('.tag .q');
     if (q) { const tag = q.closest('.tag'); const was = tag.classList.contains('open'); root.querySelectorAll('.tag.open').forEach(t => t.classList.remove('open')); if (!was) tag.classList.add('open'); e.stopPropagation(); return; }
