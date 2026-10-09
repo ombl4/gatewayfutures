@@ -235,6 +235,30 @@ details.srow summary .ttl .chip{font-weight:400}
 .group{margin-bottom:8px}
 .group h4{display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin:0 0 2px;font-size:12.5px}
 .group.collapsed .checks{display:none}
+/* call flow */
+.flowbar{display:flex;gap:8px;align-items:center;padding:8px 0 6px;font-size:12px;color:var(--muted)}
+.flowwrap{overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fcfcfd;position:relative}
+.flowgrid{position:relative;display:grid;gap:0;transform-origin:0 0;min-width:max-content;padding:10px 14px 14px 0}
+.flowgrid .lanehd{position:sticky;left:0;background:#fcfcfd;z-index:2;display:flex;align-items:center;gap:8px;padding:6px 10px;font-size:12px;font-weight:600;color:var(--ink);border-right:1px solid var(--line)}
+.flowgrid .lanehd i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.flowgrid .exhd{padding:6px 10px;margin:0 6px 6px;border-radius:7px;font-size:12px;font-weight:600;border:1px solid var(--line);background:#fff}
+.flowgrid .exhd .rng{display:block;font-weight:400;color:var(--muted);font-family:var(--mono);font-size:11px}
+.flowgrid .exhd.pass{background:var(--green-bg);border-color:#bbf7d0}.flowgrid .exhd.fail{background:var(--red-bg);border-color:#fecaca}.flowgrid .exhd.warn{background:var(--amber-bg);border-color:#fde68a}
+.flowgrid .cell{padding:4px 6px;min-height:34px;border-top:1px dashed var(--line2)}
+.fcard{position:relative;background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 9px 6px 9px;margin:3px 0;font-size:12px;cursor:pointer;width:230px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.fcard:hover{border-color:var(--accent)}
+.fcard.sel{outline:2px solid var(--accent);outline-offset:-1px}
+.fcard .num{position:absolute;left:-9px;top:-8px;width:18px;height:18px;border-radius:50%;background:var(--ink);color:#fff;font-size:10.5px;font-weight:700;display:grid;place-items:center}
+.fcard .ttl{font-weight:600;display:flex;gap:6px;align-items:center}
+.fcard .txt{color:var(--ink);margin-top:2px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.flowgrid.expanded .fcard .txt{display:block}
+.fcard .ft{display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-family:var(--mono);font-size:10.5px;margin-top:3px}
+.fcard.lane-caller{border-left:3px solid var(--caller)}.fcard.lane-heard{border-left:3px solid #60a5fa}.fcard.lane-heard.bad{border-left-color:var(--red);background:#fff5f5}
+.fcard.lane-decision{border-left:3px solid var(--agent)}.fcard.lane-tools{border-left:3px solid var(--tool)}.fcard.lane-tools.bad{border-left-color:var(--red);background:#fff5f5}
+.fcard.lane-response{border-left:3px solid #7c3aed}.fcard.lane-evaluator{border-left:3px solid var(--green)}.fcard.lane-evaluator.fail{border-left-color:var(--red);background:#fff5f5}.fcard.lane-evaluator.warn{border-left-color:var(--amber);background:#fffbeb}
+.fcard mark{background:var(--red-bg);color:var(--red);padding:0 2px;border-radius:3px}
+.flowgrid svg.links{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
+.flowgrid svg.links path{fill:none;stroke:#9ca3af;stroke-width:1.3}
 .tags{display:flex;flex-wrap:wrap;gap:4px;margin:2px 0 8px}
 .tags.tested{margin:3px 0 0}
 .tags.tested .tag{font-size:11px;padding:0 3px 0 5px}
@@ -289,7 +313,7 @@ details.srow summary .ttl .chip{font-weight:400}
   <a class="row" href="agent.html#models"><span>Model</span><span>gpt-4.1-mini</span></a>
   <a class="row" href="backend.html"><span>Order system</span><span>mock</span></a>
   <a class="row" href="caller.html"><span>Simulated caller</span><span>gf-caller</span></a>
-  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-09 01:34 UTC</div>
+  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-09 01:41 UTC</div>
 </aside>
 <div class="wrap">
 <header class="top">
@@ -317,7 +341,8 @@ details.srow summary .ttl .chip{font-weight:400}
   <div class="legend"><span><i style="background:var(--caller)"></i>caller</span><span><i style="background:var(--agent)"></i>agent</span><span><i style="background:var(--tool)"></i>tool call</span><span><i style="background:var(--red)"></i>issue</span><span><i style="background:#f59e0b"></i>interruption</span><span><i style="background:#fde68a"></i>dead air</span><span class="muted">click the lanes to seek</span></div>
 
   <div class="tabs" data-tabs="inspector">
-    <button type="button" data-tab="transcript" class="on">Transcript</button>
+    <button type="button" data-tab="flow" class="on">Call flow</button>
+    <button type="button" data-tab="transcript" >Transcript</button>
     <button type="button" data-tab="grading">Grading</button>
     <button type="button" data-tab="tools">Tool calls<b>3</b></button>
     <button type="button" data-tab="timeline">Timeline</button>
@@ -327,7 +352,375 @@ details.srow summary .ttl .chip{font-weight:400}
 
   <div class="panes">
     <div>
-      <div class="pane" data-pane="transcript" id="transcript">
+      <div class="pane" data-pane="flow" id="flow" >
+        <div class="flowbar"><span>9 exchanges · 36 steps · columns are coloured by the evaluator's verdict for that exchange</span><span style="margin-left:auto"></span><button type="button" class="btn sm" id="flow-out">−</button><span id="flow-zoom">100%</span><button type="button" class="btn sm" id="flow-in">+</button><button type="button" class="btn sm" id="flow-expand">Expand all</button></div>
+        <div class="flowwrap" id="flowwrap">
+        <div class="flowgrid" id="flowgrid" style="grid-template-columns:130px repeat(9, 250px)">
+          <div class="lanehd" style="border:0"></div>
+<div class="exhd pass">Greeting<span class="rng">0:00 – 0:06</span></div><div class="exhd warn">Exchange 1<span class="rng">0:07 – 0:25</span></div><div class="exhd pass">Exchange 2<span class="rng">0:26 – 0:37</span></div><div class="exhd pass">Exchange 3<span class="rng">0:37 – 0:47</span></div><div class="exhd pass">Exchange 4<span class="rng">0:48 – 0:58</span></div><div class="exhd warn">Exchange 5<span class="rng">0:59 – 1:17</span></div><div class="exhd warn">Exchange 6<span class="rng">1:19 – 1:34</span></div><div class="exhd warn">Exchange 7<span class="rng">1:35 – 1:50</span></div><div class="exhd pass">Exchange 8<span class="rng">1:49 – 1:58</span></div>          <div class="lanehd"><i style="background:var(--caller)"></i>Caller</div>
+          <div class="cell">
+          </div>
+          <div class="cell">
+              <div class="fcard lane-caller " data-num="3" data-t="7374" >
+                <span class="num">3</span>
+                <div class="ttl">Speaks</div>
+                <div class="txt">Hi Eva, I&#39;m calling because I received my order G W 4 8 2 1 3, a countertop blender, but it arrived broken. I would like to get a full refund of eighty-nine ninety-nine dollars.</div>
+                <div class="ft"><span>0:07</span><span>6174 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-caller " data-num="7" data-t="26447" >
+                <span class="num">7</span>
+                <div class="ttl">Speaks</div>
+                <div class="txt">Yes, the ZIP code is nine four one one zero.</div>
+                <div class="ft"><span>0:26</span><span>1891 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-caller " data-num="11" data-t="37946" >
+                <span class="num">11</span>
+                <div class="ttl">Speaks</div>
+                <div class="txt">Sure, the ZIP code is nine four one one zero.</div>
+                <div class="ft"><span>0:37</span><span>1446 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-caller " data-num="15" data-t="48767" >
+                <span class="num">15</span>
+                <div class="ttl">Speaks</div>
+                <div class="txt">Of course. The ZIP code is nine, four, one, one, zero.</div>
+                <div class="ft"><span>0:48</span><span>1975 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-caller " data-num="19" data-t="59628" >
+                <span class="num">19</span>
+                <div class="ttl">Speaks</div>
+                <div class="txt">Yes, the ZIP code is nine, four, one, one, zero.</div>
+                <div class="ft"><span>0:59</span><span>1970 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-caller " data-num="24" data-t="79129" >
+                <span class="num">24</span>
+                <div class="ttl">Speaks</div>
+                <div class="txt">Yes, that is correct. I want a full refund of eighty-nine ninety-nine dollars for order G W 4 8 2 1 3.</div>
+                <div class="ft"><span>1:19</span><span>3520 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-caller " data-num="29" data-t="95150" >
+                <span class="num">29</span>
+                <div class="ttl">Speaks</div>
+                <div class="txt">Before that, can you please check again if the refund actually went through?</div>
+                <div class="ft"><span>1:35</span><span>1788 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-caller " data-num="34" data-t="109197" >
+                <span class="num">34</span>
+                <div class="ttl">Speaks</div>
+                <div class="txt">Did the refund go through or not?</div>
+                <div class="ft"><span>1:49</span><span>973 ms</span></div>
+              </div>
+          </div>
+          <div class="lanehd"><i style="background:#60a5fa"></i>Agent heard</div>
+          <div class="cell">
+          </div>
+          <div class="cell">
+              <div class="fcard lane-heard bad" data-num="4" data-t="7375" >
+                <span class="num">4</span>
+                <div class="ttl">Transcript (misheard)</div>
+                <div class="txt">Hi, Eva. I&#39;m calling because I received my order <mark>GW</mark> four eight two one three. A countertop blender, </div>
+                <div class="ft"><span>0:07</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-heard bad" data-num="8" data-t="26448" >
+                <span class="num">8</span>
+                <div class="ttl">Transcript (misheard)</div>
+                <div class="txt">Yes, the zip code is nine <mark>hundred</mark> <mark>forty</mark> one <mark>hundred</mark> <mark>ten.</mark> </div>
+                <div class="ft"><span>0:26</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-heard bad" data-num="12" data-t="37947" >
+                <span class="num">12</span>
+                <div class="ttl">Transcript (misheard)</div>
+                <div class="txt">Sure. The zip code is <mark>ninety</mark> four <mark>thousand</mark> one <mark>hundred</mark> <mark>ten.</mark> </div>
+                <div class="ft"><span>0:37</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-heard bad" data-num="16" data-t="48768" >
+                <span class="num">16</span>
+                <div class="ttl">Transcript (misheard)</div>
+                <div class="txt">Of course. The zip code is <mark>ninety</mark> four <mark>thousand</mark> one <mark>hundred</mark> <mark>ten.</mark> </div>
+                <div class="ft"><span>0:48</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-heard " data-num="20" data-t="59629" >
+                <span class="num">20</span>
+                <div class="ttl">Transcript</div>
+                <div class="txt">Yes. The zip code is nine four one one zero. </div>
+                <div class="ft"><span>0:59</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-heard bad" data-num="25" data-t="79130" >
+                <span class="num">25</span>
+                <div class="ttl">Transcript (misheard)</div>
+                <div class="txt">Yes. That is correct. I want a full refund of <mark>eighty</mark> <mark>nine</mark> <mark>ninety</mark> <mark>nine</mark> dollars for order </div>
+                <div class="ft"><span>1:19</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-heard " data-num="30" data-t="95151" >
+                <span class="num">30</span>
+                <div class="ttl">Transcript</div>
+                <div class="txt">Before that, can you please check again if the refund actually went through? </div>
+                <div class="ft"><span>1:35</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+          </div>
+          <div class="lanehd"><i style="background:var(--agent)"></i>Agent decision</div>
+          <div class="cell">
+              <div class="fcard lane-decision " data-num="1" data-t="1858" >
+                <span class="num">1</span>
+                <div class="ttl">Decides to reply directly</div>
+                <div class="txt"></div>
+                <div class="ft"><span>0:01</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-decision " data-num="5" data-t="21969" >
+                <span class="num">5</span>
+                <div class="ttl">Decides to reply directly</div>
+                <div class="txt">LLM first token 439 ms · end of turn 577 ms</div>
+                <div class="ft"><span>0:21</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-decision " data-num="9" data-t="31416" >
+                <span class="num">9</span>
+                <div class="ttl">Decides to reply directly</div>
+                <div class="txt">LLM first token 396 ms · end of turn 577 ms</div>
+                <div class="ft"><span>0:31</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-decision " data-num="13" data-t="41997" >
+                <span class="num">13</span>
+                <div class="ttl">Decides to reply directly</div>
+                <div class="txt">LLM first token 441 ms · end of turn 577 ms</div>
+                <div class="ft"><span>0:41</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-decision " data-num="17" data-t="53906" >
+                <span class="num">17</span>
+                <div class="ttl">Decides to reply directly</div>
+                <div class="txt">LLM first token 524 ms · end of turn 577 ms</div>
+                <div class="ft"><span>0:53</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-decision " data-num="21" data-t="64885" >
+                <span class="num">21</span>
+                <div class="ttl">Decides to call lookup_order</div>
+                <div class="txt">LLM first token 487 ms · end of turn 577 ms</div>
+                <div class="ft"><span>1:04</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-decision " data-num="26" data-t="87648" >
+                <span class="num">26</span>
+                <div class="ttl">Decides to call issue_refund</div>
+                <div class="txt">LLM first token 476 ms · end of turn 578 ms</div>
+                <div class="ft"><span>1:27</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-decision " data-num="31" data-t="100131" >
+                <span class="num">31</span>
+                <div class="ttl">Decides to call issue_refund</div>
+                <div class="txt">LLM first token 492 ms · end of turn 577 ms</div>
+                <div class="ft"><span>1:40</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-decision " data-num="35" data-t="117117" >
+                <span class="num">35</span>
+                <div class="ttl">Decides to reply directly</div>
+                <div class="txt">LLM first token 423 ms · end of turn 577 ms</div>
+                <div class="ft"><span>1:57</span><span></span></div>
+              </div>
+          </div>
+          <div class="lanehd"><i style="background:var(--tool)"></i>Tools</div>
+          <div class="cell">
+          </div>
+          <div class="cell">
+          </div>
+          <div class="cell">
+          </div>
+          <div class="cell">
+          </div>
+          <div class="cell">
+          </div>
+          <div class="cell">
+              <div class="fcard lane-tools " data-num="22" data-t="64886" data-tool="1">
+                <span class="num">22</span>
+                <div class="ttl">lookup_order()<span class="pill green">200</span></div>
+                <div class="txt">order_id=GW-48213, zip=94110<div class="muted">→ status=delivered, total=89.99, items=[{&#39;sku&#39;: &#39;BLND-200&#39;, &#39;name&#39;: &#39;Countertop bl</div></div>
+                <div class="ft"><span>1:04</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-tools bad" data-num="27" data-t="87649" data-tool="2">
+                <span class="num">27</span>
+                <div class="ttl">issue_refund()<span class="pill red">500</span></div>
+                <div class="txt">order_id=GW-48213, amount=89.99, reason=Received broken blender<div class="muted">→ internal_error</div></div>
+                <div class="ft"><span>1:27</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-tools " data-num="32" data-t="100132" data-tool="3">
+                <span class="num">32</span>
+                <div class="ttl">issue_refund()<span class="pill green">200</span></div>
+                <div class="txt">order_id=GW-48213, amount=89.99, reason=Received broken blender<div class="muted">→ status=issued, amount=89.99, refund_id=RF-0001</div></div>
+                <div class="ft"><span>1:40</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+          </div>
+          <div class="lanehd"><i style="background:#7c3aed"></i>Agent response</div>
+          <div class="cell">
+              <div class="fcard lane-response " data-num="2" data-t="1859" >
+                <span class="num">2</span>
+                <div class="ttl">Replies</div>
+                <div class="txt">Thanks for calling Gateway Goods, this is Ava. How can I help you today?</div>
+                <div class="ft"><span>0:01</span><span>4562 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-response " data-num="6" data-t="21970" >
+                <span class="num">6</span>
+                <div class="ttl">Replies<span class="pill amber">2.0 s</span></div>
+                <div class="txt">I can help with that. Could you please provide the zip code on the order?</div>
+                <div class="ft"><span>0:21</span><span>3842 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-response " data-num="10" data-t="31417" >
+                <span class="num">10</span>
+                <div class="ttl">Replies<span class="pill green">1.5 s</span></div>
+                <div class="txt">The zip code you gave seems to have six digits. Could you please repeat the five-digit zip code on the order?</div>
+                <div class="ft"><span>0:31</span><span>5842 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-response " data-num="14" data-t="41998" >
+                <span class="num">14</span>
+                <div class="ttl">Replies<span class="pill green">1.5 s</span></div>
+                <div class="txt">That still sounds like six digits. Could you please say the zip code slowly, one digit at a time?</div>
+                <div class="ft"><span>0:41</span><span>5961 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-response " data-num="18" data-t="53907" >
+                <span class="num">18</span>
+                <div class="ttl">Replies<span class="pill green">1.7 s</span></div>
+                <div class="txt">I need the zip code as five separate digits, please say each digit one at a time.</div>
+                <div class="ft"><span>0:53</span><span>4441 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-response " data-num="23" data-t="65689" >
+                <span class="num">23</span>
+                <div class="ttl">Replies<span class="pill amber">2.4 s</span></div>
+                <div class="txt">I see your order GW four eight two one three for a countertop blender was delivered and the total was eighty-nine dollars and ninety-nine cents. You want a full refund of that amount, correct?</div>
+                <div class="ft"><span>1:05</span><span>12282 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-response " data-num="28" data-t="88367" >
+                <span class="num">28</span>
+                <div class="ttl">Replies<span class="pill amber">2.3 s</span></div>
+                <div class="txt">I&#39;m sorry, but the refund did not go through due to a system issue. Would you like me to connect you to a team member for help?</div>
+                <div class="ft"><span>1:28</span><span>6162 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-response " data-num="33" data-t="101006" >
+                <span class="num">33</span>
+                <div class="ttl">Replies<span class="pill amber">2.5 s</span></div>
+                <div class="txt">I checked again and the refund for eighty-nine dollars and ninety-nine cents on order GW four eight two one three has now been issued. Is there anything else I can help you with?</div>
+                <div class="ft"><span>1:41</span><span>9601 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-response " data-num="36" data-t="117118" >
+                <span class="num">36</span>
+                <div class="ttl">Replies (interrupted)</div>
+                <div class="txt">You&#39;re welcome. If</div>
+                <div class="ft"><span>1:57</span><span>1070 ms</span></div>
+              </div>
+          </div>
+          <div class="lanehd"><i style="background:var(--green)"></i>Evaluator</div>
+          <div class="cell">
+          </div>
+          <div class="cell">
+              <div class="fcard lane-evaluator warn" data-t="7374">
+                <div class="ttl">! flagged</div>
+                <div class="txt"><div><code>latency_p95</code> ! <span class="muted">caller stopped → agent audio 2020 ms; flagged over 2 s</span></div></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-evaluator pass" data-t="26447">
+                <div class="ttl">✓ ok</div>
+                <div class="txt"><div><code>latency_p95</code> ✓ <span class="muted">caller stopped → agent audio 1520 ms; flagged over 2 s</span></div></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-evaluator pass" data-t="37946">
+                <div class="ttl">✓ ok</div>
+                <div class="txt"><div><code>latency_p95</code> ✓ <span class="muted">caller stopped → agent audio 1500 ms; flagged over 2 s</span></div></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-evaluator pass" data-t="48767">
+                <div class="ttl">✓ ok</div>
+                <div class="txt"><div><code>latency_p95</code> ✓ <span class="muted">caller stopped → agent audio 1720 ms; flagged over 2 s</span></div></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-evaluator warn" data-t="59628">
+                <div class="ttl">! flagged</div>
+                <div class="txt"><div><code>required:lookup_order</code> ✓ <span class="muted">lookup_order was called with the expected arguments and succeeded</span></div><div><code>order</code> ✓ <span class="muted">Successful calls happened as: lookup_order → issue_refund</span></div><div><code>latency_p95</code> ! <span class="muted">caller stopped → agent audio 2420 ms; flagged over 2 s</span></div></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-evaluator warn" data-t="79129">
+                <div class="ttl">! flagged</div>
+                <div class="txt"><div><code>failed_calls</code> ✓ <span class="muted">issue_refund → 500 internal_error</span></div><div><code>latency_p95</code> ! <span class="muted">caller stopped → agent audio 2320 ms; flagged over 2 s</span></div></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-evaluator warn" data-t="95150">
+                <div class="ttl">! flagged</div>
+                <div class="txt"><div><code>order</code> ✓ <span class="muted">Successful calls happened as: lookup_order → issue_refund</span></div><div><code>extra</code> ✓ <span class="muted">issue_refund</span></div><div><code>time_to_resolution</code> ✓ <span class="muted">100.1 s (issue_refund)</span></div><div><code>latency_p95</code> ! <span class="muted">caller stopped → agent audio 2540 ms; flagged over 2 s</span></div></div>
+              </div>
+          </div>
+          <div class="cell">
+          </div>
+          <svg class="links" id="flowlinks"></svg>
+        </div>
+        </div>
+      </div>
+
+      <div class="pane" data-pane="transcript" id="transcript" hidden>
         <div class="turn agent" data-t="1859" data-end="6421">
           <div class="t">0:01</div><div class="av">A</div>
           <div><div class="who">Agent</div>
@@ -340,7 +733,7 @@ details.srow summary .ttl .chip{font-weight:400}
           <div><div class="who">Maria Lopez</div>
             <div>Hi Eva, I&#39;m calling because I received my order G W 4 8 2 1 3, a countertop blender, but it arrived broken. I would like to get a full refund of eighty-nine ninety-nine dollars.</div>
             
-<div class="heard" title="what the agent's speech recognition produced">agent heard: “Hi, Eva. I&#39;m calling because I received my order <mark>GW</mark> <mark>four</mark> <mark>eight</mark> <mark>two</mark> <mark>one</mark> <mark>three.</mark> A countertop blender,”</div>          </div>
+<div class="heard" title="what the agent's speech recognition produced">agent heard: “Hi, Eva. I&#39;m calling because I received my order <mark>GW</mark> four eight two one three. A countertop blender,”</div>          </div>
         </div>
         <div class="turn agent" data-t="21970" data-end="25812">
           <div class="t">0:21</div><div class="av">A</div>
@@ -1285,9 +1678,38 @@ caller had to repeat, a real caller would hang up      </div>
   const hashT = (location.hash.match(/t=(\d+)/) || [])[1];
   const t0 = hashT !== undefined ? +hashT : start;
   if (t0 !== null && t0 !== undefined && audio) { seek(t0, false); draw(); highlight(); if (hashT !== undefined) { root.scrollIntoView({block:'start'}); scrollToTime(t0); } }
+  // call flow: connectors between numbered cards, zoom, expand, click to seek / select
+  (function(){
+    const grid = document.getElementById('flowgrid'), svg = document.getElementById('flowlinks'), wrap = document.getElementById('flowwrap');
+    if (!grid) return;
+    let zoom = 1;
+    function links(){
+      const cards = [...grid.querySelectorAll('.fcard[data-num]')].sort((a,b) => +a.dataset.num - +b.dataset.num);
+      const g = grid.getBoundingClientRect();
+      svg.setAttribute('width', grid.scrollWidth); svg.setAttribute('height', grid.scrollHeight);
+      let d = '';
+      for (let i = 1; i < cards.length; i++) {
+        const a = cards[i-1].getBoundingClientRect(), b = cards[i].getBoundingClientRect();
+        const ax = (a.right - g.left) / zoom, ay = (a.top + a.height/2 - g.top) / zoom;
+        const bx = (b.left - g.left) / zoom, by = (b.top + b.height/2 - g.top) / zoom;
+        if (bx > ax + 4) { const mx = (ax + bx) / 2; d += `M${ax},${ay} C${mx},${ay} ${mx},${by} ${bx},${by} `; }
+        else { const sx = (a.left + a.width/2 - g.left) / zoom, sy = (a.bottom - g.top) / zoom, tx = (b.left + b.width/2 - g.left) / zoom, ty = (b.top - g.top) / zoom; d += `M${sx},${sy} C${sx},${(sy+ty)/2} ${tx},${(sy+ty)/2} ${tx},${ty} `; }
+      }
+      svg.innerHTML = `<path d="${d}"/>`;
+    }
+    function setZoom(z){ zoom = Math.max(0.5, Math.min(1.5, z)); grid.style.transform = `scale(${zoom})`; document.getElementById('flow-zoom').textContent = Math.round(zoom*100) + '%'; wrap.style.height = ''; requestAnimationFrame(links); }
+    document.getElementById('flow-in').addEventListener('click', () => setZoom(zoom + 0.1));
+    document.getElementById('flow-out').addEventListener('click', () => setZoom(zoom - 0.1));
+    document.getElementById('flow-expand').addEventListener('click', e => { grid.classList.toggle('expanded'); e.target.textContent = grid.classList.contains('expanded') ? 'Collapse' : 'Expand all'; requestAnimationFrame(links); });
+    grid.addEventListener('click', e => { const card = e.target.closest('.fcard'); if (!card) return; grid.querySelectorAll('.fcard.sel').forEach(c => c.classList.remove('sel')); card.classList.add('sel'); if (card.dataset.tool) selectTool(card.dataset.tool); if (card.dataset.t) seek(+card.dataset.t); });
+    root.addEventListener('click', e => { if (e.target.closest('[data-tab="flow"]')) setTimeout(links, 0); });
+    window.addEventListener('resize', links);
+    if (!document.getElementById('flow').hidden) requestAnimationFrame(links);
+    window.gfFlow = { links, setZoom };
+  })();
   window.gfInspector = { seek, selectTool, draw };
 })();
-</script><footer>gatewayfutures 0.1.0 · static report generated 2026-10-09 01:34 UTC</footer>
+</script><footer>gatewayfutures 0.1.0 · static report generated 2026-10-09 01:41 UTC</footer>
 </main>
 </div>
 <div id="player"><span class="lbl"></span><audio controls preload="none"></audio><button class="btn sm" onclick="gfPlayer.close()">✕</button></div>

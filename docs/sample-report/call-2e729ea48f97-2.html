@@ -235,6 +235,30 @@ details.srow summary .ttl .chip{font-weight:400}
 .group{margin-bottom:8px}
 .group h4{display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin:0 0 2px;font-size:12.5px}
 .group.collapsed .checks{display:none}
+/* call flow */
+.flowbar{display:flex;gap:8px;align-items:center;padding:8px 0 6px;font-size:12px;color:var(--muted)}
+.flowwrap{overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fcfcfd;position:relative}
+.flowgrid{position:relative;display:grid;gap:0;transform-origin:0 0;min-width:max-content;padding:10px 14px 14px 0}
+.flowgrid .lanehd{position:sticky;left:0;background:#fcfcfd;z-index:2;display:flex;align-items:center;gap:8px;padding:6px 10px;font-size:12px;font-weight:600;color:var(--ink);border-right:1px solid var(--line)}
+.flowgrid .lanehd i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.flowgrid .exhd{padding:6px 10px;margin:0 6px 6px;border-radius:7px;font-size:12px;font-weight:600;border:1px solid var(--line);background:#fff}
+.flowgrid .exhd .rng{display:block;font-weight:400;color:var(--muted);font-family:var(--mono);font-size:11px}
+.flowgrid .exhd.pass{background:var(--green-bg);border-color:#bbf7d0}.flowgrid .exhd.fail{background:var(--red-bg);border-color:#fecaca}.flowgrid .exhd.warn{background:var(--amber-bg);border-color:#fde68a}
+.flowgrid .cell{padding:4px 6px;min-height:34px;border-top:1px dashed var(--line2)}
+.fcard{position:relative;background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 9px 6px 9px;margin:3px 0;font-size:12px;cursor:pointer;width:230px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.fcard:hover{border-color:var(--accent)}
+.fcard.sel{outline:2px solid var(--accent);outline-offset:-1px}
+.fcard .num{position:absolute;left:-9px;top:-8px;width:18px;height:18px;border-radius:50%;background:var(--ink);color:#fff;font-size:10.5px;font-weight:700;display:grid;place-items:center}
+.fcard .ttl{font-weight:600;display:flex;gap:6px;align-items:center}
+.fcard .txt{color:var(--ink);margin-top:2px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.flowgrid.expanded .fcard .txt{display:block}
+.fcard .ft{display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-family:var(--mono);font-size:10.5px;margin-top:3px}
+.fcard.lane-caller{border-left:3px solid var(--caller)}.fcard.lane-heard{border-left:3px solid #60a5fa}.fcard.lane-heard.bad{border-left-color:var(--red);background:#fff5f5}
+.fcard.lane-decision{border-left:3px solid var(--agent)}.fcard.lane-tools{border-left:3px solid var(--tool)}.fcard.lane-tools.bad{border-left-color:var(--red);background:#fff5f5}
+.fcard.lane-response{border-left:3px solid #7c3aed}.fcard.lane-evaluator{border-left:3px solid var(--green)}.fcard.lane-evaluator.fail{border-left-color:var(--red);background:#fff5f5}.fcard.lane-evaluator.warn{border-left-color:var(--amber);background:#fffbeb}
+.fcard mark{background:var(--red-bg);color:var(--red);padding:0 2px;border-radius:3px}
+.flowgrid svg.links{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
+.flowgrid svg.links path{fill:none;stroke:#9ca3af;stroke-width:1.3}
 .tags{display:flex;flex-wrap:wrap;gap:4px;margin:2px 0 8px}
 .tags.tested{margin:3px 0 0}
 .tags.tested .tag{font-size:11px;padding:0 3px 0 5px}
@@ -289,7 +313,7 @@ details.srow summary .ttl .chip{font-weight:400}
   <a class="row" href="agent.html#models"><span>Model</span><span>gpt-4.1-mini</span></a>
   <a class="row" href="backend.html"><span>Order system</span><span>mock</span></a>
   <a class="row" href="caller.html"><span>Simulated caller</span><span>gf-caller</span></a>
-  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-09 01:34 UTC</div>
+  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-09 01:41 UTC</div>
 </aside>
 <div class="wrap">
 <header class="top">
@@ -317,7 +341,8 @@ details.srow summary .ttl .chip{font-weight:400}
   <div class="legend"><span><i style="background:var(--caller)"></i>caller</span><span><i style="background:var(--agent)"></i>agent</span><span><i style="background:var(--tool)"></i>tool call</span><span><i style="background:var(--red)"></i>issue</span><span><i style="background:#f59e0b"></i>interruption</span><span><i style="background:#fde68a"></i>dead air</span><span class="muted">click the lanes to seek</span></div>
 
   <div class="tabs" data-tabs="inspector">
-    <button type="button" data-tab="transcript" class="on">Transcript</button>
+    <button type="button" data-tab="flow" class="on">Call flow</button>
+    <button type="button" data-tab="transcript" >Transcript</button>
     <button type="button" data-tab="grading">Grading</button>
     <button type="button" data-tab="tools">Tool calls<b>1</b></button>
     <button type="button" data-tab="timeline">Timeline</button>
@@ -327,7 +352,369 @@ details.srow summary .ttl .chip{font-weight:400}
 
   <div class="panes">
     <div>
-      <div class="pane" data-pane="transcript" id="transcript">
+      <div class="pane" data-pane="flow" id="flow" >
+        <div class="flowbar"><span>9 exchanges · 35 steps · columns are coloured by the evaluator's verdict for that exchange</span><span style="margin-left:auto"></span><button type="button" class="btn sm" id="flow-out">−</button><span id="flow-zoom">100%</span><button type="button" class="btn sm" id="flow-in">+</button><button type="button" class="btn sm" id="flow-expand">Expand all</button></div>
+        <div class="flowwrap" id="flowwrap">
+        <div class="flowgrid" id="flowgrid" style="grid-template-columns:130px repeat(9, 250px)">
+          <div class="lanehd" style="border:0"></div>
+<div class="exhd pass">Greeting<span class="rng">0:00 – 0:06</span></div><div class="exhd fail">Exchange 1<span class="rng">0:07 – 0:24</span></div><div class="exhd pass">Exchange 2<span class="rng">0:24 – 0:32</span></div><div class="exhd pass">Exchange 3<span class="rng">0:32 – 0:39</span></div><div class="exhd warn">Exchange 4<span class="rng">0:40 – 0:49</span></div><div class="exhd fail">Exchange 5<span class="rng">0:48 – 0:53</span></div><div class="exhd warn">Exchange 6<span class="rng">0:53 – 1:04</span></div><div class="exhd pass">Exchange 7<span class="rng">1:05 – 1:17</span></div><div class="exhd pass">Exchange 8<span class="rng">1:18 – 1:24</span></div>          <div class="lanehd"><i style="background:var(--caller)"></i>Caller</div>
+          <div class="cell">
+          </div>
+          <div class="cell">
+              <div class="fcard lane-caller " data-num="3" data-t="7525" >
+                <span class="num">3</span>
+                <div class="ttl">Speaks</div>
+                <div class="txt">Hi Eva, I&#39;m calling about a refund for an order I placed. The USB-C cable I bought stopped working.</div>
+                <div class="ft"><span>0:07</span><span>3149 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-caller " data-num="7" data-t="24516" >
+                <span class="num">7</span>
+                <div class="ttl">Speaks</div>
+                <div class="txt">Yes, the order number is G W 4 8 9 1 1.</div>
+                <div class="ft"><span>0:24</span><span>1467 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-caller " data-num="11" data-t="32826" >
+                <span class="num">11</span>
+                <div class="ttl">Speaks</div>
+                <div class="txt">Sure, it&#39;s 9 4 1 1 0.</div>
+                <div class="ft"><span>0:32</span><span>1249 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-caller " data-num="15" data-t="40448" >
+                <span class="num">15</span>
+                <div class="ttl">Speaks</div>
+                <div class="txt">Yes, the five digit ZIP code is 9 4 1 1 0.</div>
+                <div class="ft"><span>0:40</span><span>2059 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-caller " data-num="18" data-t="48624" >
+                <span class="num">18</span>
+                <div class="ttl">Speaks</div>
+                <div class="txt">Hello? Are you still there?</div>
+                <div class="ft"><span>0:48</span><span>1026 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-caller " data-num="22" data-t="53056" >
+                <span class="num">22</span>
+                <div class="ttl">Speaks</div>
+                <div class="txt">G W 4 8 9 1 1.</div>
+                <div class="ft"><span>0:53</span><span>1236 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-caller " data-num="28" data-t="65902" >
+                <span class="num">28</span>
+                <div class="ttl">Speaks</div>
+                <div class="txt">G W 4 8 9 1 1.</div>
+                <div class="ft"><span>1:05</span><span>1193 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-caller " data-num="32" data-t="78098" >
+                <span class="num">32</span>
+                <div class="ttl">Speaks</div>
+                <div class="txt">Yes, thank you for letting me know. I appreciate your help. Goodbye.</div>
+                <div class="ft"><span>1:18</span><span>2205 ms</span></div>
+              </div>
+          </div>
+          <div class="lanehd"><i style="background:#60a5fa"></i>Agent heard</div>
+          <div class="cell">
+          </div>
+          <div class="cell">
+              <div class="fcard lane-heard bad" data-num="4" data-t="7526" >
+                <span class="num">4</span>
+                <div class="ttl">Transcript (misheard)</div>
+                <div class="txt">Hi <mark>there.</mark> I&#39;m calling about a refund <mark>from</mark> order I placed. </div>
+                <div class="ft"><span>0:07</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-heard " data-num="8" data-t="24517" >
+                <span class="num">8</span>
+                <div class="ttl">Transcript</div>
+                <div class="txt">Yes. The order number is g w four eight nine one one. </div>
+                <div class="ft"><span>0:24</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-heard bad" data-num="12" data-t="32827" >
+                <span class="num">12</span>
+                <div class="ttl">Transcript (misheard)</div>
+                <div class="txt"><mark>Shows</mark> <mark>ninety</mark> four <mark>thousand</mark> one <mark>hundred</mark> <mark>ten.</mark> </div>
+                <div class="ft"><span>0:32</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+          </div>
+          <div class="cell">
+              <div class="fcard lane-heard bad" data-num="19" data-t="48625" >
+                <span class="num">19</span>
+                <div class="ttl">Transcript (misheard)</div>
+                <div class="txt">Hello? </div>
+                <div class="ft"><span>0:48</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-heard bad" data-num="23" data-t="53057" >
+                <span class="num">23</span>
+                <div class="ttl">Transcript (misheard)</div>
+                <div class="txt">G <mark>z</mark> four eight nine </div>
+                <div class="ft"><span>0:53</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-heard " data-num="29" data-t="65903" >
+                <span class="num">29</span>
+                <div class="ttl">Transcript</div>
+                <div class="txt">W four eight nine one one. </div>
+                <div class="ft"><span>1:05</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-heard " data-num="33" data-t="78099" >
+                <span class="num">33</span>
+                <div class="ttl">Transcript</div>
+                <div class="txt">Yes. Thank you for letting me know. Appreciate your help. Goodbye. </div>
+                <div class="ft"><span>1:18</span><span></span></div>
+              </div>
+          </div>
+          <div class="lanehd"><i style="background:var(--agent)"></i>Agent decision</div>
+          <div class="cell">
+              <div class="fcard lane-decision " data-num="1" data-t="2245" >
+                <span class="num">1</span>
+                <div class="ttl">Decides to reply directly</div>
+                <div class="txt"></div>
+                <div class="ft"><span>0:02</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-decision " data-num="5" data-t="17319" >
+                <span class="num">5</span>
+                <div class="ttl">Decides to reply directly</div>
+                <div class="txt">LLM first token 528 ms · end of turn 3001 ms</div>
+                <div class="ft"><span>0:17</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-decision " data-num="9" data-t="28565" >
+                <span class="num">9</span>
+                <div class="ttl">Decides to reply directly</div>
+                <div class="txt">LLM first token 479 ms · end of turn 577 ms</div>
+                <div class="ft"><span>0:28</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-decision " data-num="13" data-t="36181" >
+                <span class="num">13</span>
+                <div class="ttl">Decides to reply directly</div>
+                <div class="txt">LLM first token 418 ms · end of turn 577 ms</div>
+                <div class="ft"><span>0:36</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-decision " data-num="16" data-t="47870" >
+                <span class="num">16</span>
+                <div class="ttl">Decides to call lookup_order</div>
+                <div class="txt"></div>
+                <div class="ft"><span>0:47</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-decision " data-num="20" data-t="48689" >
+                <span class="num">20</span>
+                <div class="ttl">Decides to reply directly</div>
+                <div class="txt">LLM first token 511 ms · end of turn 3000 ms</div>
+                <div class="ft"><span>0:48</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-decision " data-num="24" data-t="53780" >
+                <span class="num">24</span>
+                <div class="ttl">Decides to reply directly</div>
+                <div class="txt">LLM first token 735 ms · end of turn 3001 ms</div>
+                <div class="ft"><span>0:53</span><span></span></div>
+              </div>
+              <div class="fcard lane-decision " data-num="26" data-t="56363" >
+                <span class="num">26</span>
+                <div class="ttl">Decides to reply directly</div>
+                <div class="txt">LLM first token 457 ms · end of turn 577 ms</div>
+                <div class="ft"><span>0:56</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-decision " data-num="30" data-t="69325" >
+                <span class="num">30</span>
+                <div class="ttl">Decides to reply directly</div>
+                <div class="txt">LLM first token 575 ms · end of turn 577 ms</div>
+                <div class="ft"><span>1:09</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-decision " data-num="34" data-t="83363" >
+                <span class="num">34</span>
+                <div class="ttl">Decides to reply directly</div>
+                <div class="txt">LLM first token 433 ms · end of turn 577 ms</div>
+                <div class="ft"><span>1:23</span><span></span></div>
+              </div>
+          </div>
+          <div class="lanehd"><i style="background:var(--tool)"></i>Tools</div>
+          <div class="cell">
+          </div>
+          <div class="cell">
+          </div>
+          <div class="cell">
+          </div>
+          <div class="cell">
+          </div>
+          <div class="cell">
+              <div class="fcard lane-tools " data-num="17" data-t="47871" data-tool="1">
+                <span class="num">17</span>
+                <div class="ttl">lookup_order()<span class="pill green">200</span></div>
+                <div class="txt">order_id=GW-48911, zip=94110<div class="muted">→ status=delivered, total=15.0, items=[{&#39;sku&#39;: &#39;CBL-3&#39;, &#39;name&#39;: &#39;USB-C cable&#39;, &#39;qt</div></div>
+                <div class="ft"><span>0:47</span><span></span></div>
+              </div>
+          </div>
+          <div class="cell">
+          </div>
+          <div class="cell">
+          </div>
+          <div class="cell">
+          </div>
+          <div class="cell">
+          </div>
+          <div class="lanehd"><i style="background:#7c3aed"></i>Agent response</div>
+          <div class="cell">
+              <div class="fcard lane-response " data-num="2" data-t="2246" >
+                <span class="num">2</span>
+                <div class="ttl">Replies</div>
+                <div class="txt">Thanks for calling Gateway Goods, this is Ava. How can I help you today?</div>
+                <div class="ft"><span>0:02</span><span>4521 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-response " data-num="6" data-t="17320" >
+                <span class="num">6</span>
+                <div class="ttl">Replies<span class="pill red">3.7 s</span></div>
+                <div class="txt">I can help with that. Could you please provide the order number for the USB C cable?</div>
+                <div class="ft"><span>0:17</span><span>4562 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-response " data-num="10" data-t="28566" >
+                <span class="num">10</span>
+                <div class="ttl">Replies<span class="pill green">1.3 s</span></div>
+                <div class="txt">Thanks. Can you please give me the zip code on the order as well?</div>
+                <div class="ft"><span>0:28</span><span>3441 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-response " data-num="14" data-t="36182" >
+                <span class="num">14</span>
+                <div class="ttl">Replies<span class="pill green">1.4 s</span></div>
+                <div class="txt">I need the 5-digit zip code, please. Could you provide that?</div>
+                <div class="ft"><span>0:36</span><span>3602 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+          </div>
+          <div class="cell">
+              <div class="fcard lane-response " data-num="21" data-t="48690" >
+                <span class="num">21</span>
+                <div class="ttl">Replies (interrupted)<span class="pill red">4.4 s</span></div>
+                <div class="txt">The order GW-48911</div>
+                <div class="ft"><span>0:48</span><span>1246 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-response " data-num="25" data-t="53781" >
+                <span class="num">25</span>
+                <div class="ttl">Replies (interrupted)</div>
+                <div class="txt">The order GW-48911</div>
+                <div class="ft"><span>0:53</span><span>1392 ms</span></div>
+              </div>
+              <div class="fcard lane-response " data-num="27" data-t="56364" >
+                <span class="num">27</span>
+                <div class="ttl">Replies<span class="pill green">1.9 s</span></div>
+                <div class="txt">I could not find that order. Please repeat the order number slowly, one digit at a time, starting with G W and five digits.</div>
+                <div class="ft"><span>0:56</span><span>8241 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-response " data-num="31" data-t="69326" >
+                <span class="num">31</span>
+                <div class="ttl">Replies<span class="pill green">1.6 s</span></div>
+                <div class="txt">Thanks for repeating. The order GW-48911 was delivered and already refunded. Is there something else I can help you with?</div>
+                <div class="ft"><span>1:09</span><span>8201 ms</span></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-response " data-num="35" data-t="83364" >
+                <span class="num">35</span>
+                <div class="ttl">Replies (interrupted)</div>
+                <div class="txt">You&#39;re welcome. Have a</div>
+                <div class="ft"><span>1:23</span><span>1605 ms</span></div>
+              </div>
+          </div>
+          <div class="lanehd"><i style="background:var(--green)"></i>Evaluator</div>
+          <div class="cell">
+          </div>
+          <div class="cell">
+              <div class="fcard lane-evaluator fail" data-t="7525">
+                <div class="ttl">✗ failed</div>
+                <div class="txt"><div><code>dead_air</code> ! <span class="muted">3660 ms of silence from both sides; flagged over 3 s</span></div><div><code>dead_air</code> ! <span class="muted">3140 ms of silence from both sides; flagged over 3 s</span></div><div><code>latency_p95</code> ✗ <span class="muted">caller stopped → agent audio 3660 ms; flagged over 2 s</span></div></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-evaluator pass" data-t="24516">
+                <div class="ttl">✓ ok</div>
+                <div class="txt"><div><code>latency_p95</code> ✓ <span class="muted">caller stopped → agent audio 1320 ms; flagged over 2 s</span></div></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-evaluator pass" data-t="32826">
+                <div class="ttl">✓ ok</div>
+                <div class="txt"><div><code>latency_p95</code> ✓ <span class="muted">caller stopped → agent audio 1400 ms; flagged over 2 s</span></div></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-evaluator warn" data-t="40448">
+                <div class="ttl">! flagged</div>
+                <div class="txt"><div><code>dead_air</code> ! <span class="muted">4400 ms of silence from both sides; flagged over 3 s</span></div><div><code>required:lookup_order</code> ✓ <span class="muted">lookup_order was called with the expected arguments and succeeded</span></div><div><code>order</code> ✓ <span class="muted">Successful calls happened as: lookup_order</span></div></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-evaluator fail" data-t="48624">
+                <div class="ttl">✗ failed</div>
+                <div class="txt"><div><code>dead_air</code> ! <span class="muted">4280 ms of silence from both sides; flagged over 3 s</span></div><div><code>repeats</code> ! <span class="muted">3 repeat(s) incl. 1 &#39;are you still there?&#39;</span></div><div><code>caller_hearing</code> ! <span class="muted">heard &#39;None&#39; for &#39;48911&#39;, not acted on</span></div><div><code>latency_p95</code> ✗ <span class="muted">caller stopped → agent audio 4400 ms; flagged over 2 s</span></div></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-evaluator warn" data-t="53056">
+                <div class="ttl">! flagged</div>
+                <div class="txt"><div><code>caller_hearing</code> ! <span class="muted">heard &#39;None&#39; for &#39;48911&#39;, not acted on</span></div><div><code>talk_over</code> ✓ <span class="muted">agent started talking while the caller was speaking</span></div><div><code>latency_p95</code> ✓ <span class="muted">caller stopped → agent audio 1900 ms; flagged over 2 s</span></div></div>
+              </div>
+          </div>
+          <div class="cell">
+              <div class="fcard lane-evaluator pass" data-t="65902">
+                <div class="ttl">✓ ok</div>
+                <div class="txt"><div><code>latency_p95</code> ✓ <span class="muted">caller stopped → agent audio 1640 ms; flagged over 2 s</span></div></div>
+              </div>
+          </div>
+          <div class="cell">
+          </div>
+          <svg class="links" id="flowlinks"></svg>
+        </div>
+        </div>
+      </div>
+
+      <div class="pane" data-pane="transcript" id="transcript" hidden>
         <div class="turn agent" data-t="2246" data-end="6767">
           <div class="t">0:02</div><div class="av">A</div>
           <div><div class="who">Agent</div>
@@ -356,7 +743,7 @@ details.srow summary .ttl .chip{font-weight:400}
           <div><div class="who">Maria Lopez</div>
             <div>Yes, the order number is G W 4 8 9 1 1.</div>
             
-<div class="heard" title="what the agent's speech recognition produced">agent heard: “Yes. The order number is g w <mark>four</mark> <mark>eight</mark> <mark>nine</mark> <mark>one</mark> <mark>one.</mark>”</div>          </div>
+<div class="heard" title="what the agent's speech recognition produced">agent heard: “Yes. The order number is g w four eight nine one one.”</div>          </div>
         </div>
         <div class="turn agent" data-t="28566" data-end="32007">
           <div class="t">0:28</div><div class="av">A</div>
@@ -370,7 +757,7 @@ details.srow summary .ttl .chip{font-weight:400}
           <div><div class="who">Maria Lopez</div>
             <div>Sure, it&#39;s 9 4 1 1 0.</div>
             
-<div class="heard" title="what the agent's speech recognition produced">agent heard: “<mark>Shows</mark> <mark>ninety</mark> <mark>four</mark> <mark>thousand</mark> <mark>one</mark> <mark>hundred</mark> <mark>ten.</mark>”</div>          </div>
+<div class="heard" title="what the agent's speech recognition produced">agent heard: “<mark>Shows</mark> <mark>ninety</mark> four <mark>thousand</mark> one <mark>hundred</mark> <mark>ten.</mark>”</div>          </div>
         </div>
         <div class="turn agent" data-t="36182" data-end="39784">
           <div class="t">0:36</div><div class="av">A</div>
@@ -412,7 +799,7 @@ details.srow summary .ttl .chip{font-weight:400}
           <div><div class="who">Maria Lopez</div>
             <div>G W 4 8 9 1 1.</div>
             <div class="tags tested"><span class="tag warn" data-check="speech.caller_hearing"><span class="m">!</span><code>caller_hearing</code><button type="button" class="q" aria-label="explain caller_hearing">?</button><span class="pop"><b>The simulated caller heard the agent correctly</b><span class="what">heard &#39;None&#39; for &#39;48911&#39;, not acted on</span><span class="why">A caller that mishears the agent argues about the wrong value; that is the simulator&#39;s fault, not the agent&#39;s, so such calls are excluded.</span></span></span></div>
-<div class="heard" title="what the agent's speech recognition produced">agent heard: “G <mark>z</mark> <mark>four</mark> <mark>eight</mark> <mark>nine</mark>”</div>          </div>
+<div class="heard" title="what the agent's speech recognition produced">agent heard: “G <mark>z</mark> four eight nine”</div>          </div>
         </div>
         <div class="turn agent" data-t="53781" data-end="55173">
           <div class="t">0:53</div><div class="av">A</div>
@@ -433,7 +820,7 @@ details.srow summary .ttl .chip{font-weight:400}
           <div><div class="who">Maria Lopez</div>
             <div>G W 4 8 9 1 1.</div>
             
-<div class="heard" title="what the agent's speech recognition produced">agent heard: “W <mark>four</mark> <mark>eight</mark> <mark>nine</mark> <mark>one</mark> <mark>one.</mark>”</div>          </div>
+<div class="heard" title="what the agent's speech recognition produced">agent heard: “W four eight nine one one.”</div>          </div>
         </div>
         <div class="turn agent" data-t="69326" data-end="77527">
           <div class="t">1:09</div><div class="av">A</div>
@@ -1207,9 +1594,38 @@ slow replies, dead air, caller had to repeat, a real caller would hang up      <
   const hashT = (location.hash.match(/t=(\d+)/) || [])[1];
   const t0 = hashT !== undefined ? +hashT : start;
   if (t0 !== null && t0 !== undefined && audio) { seek(t0, false); draw(); highlight(); if (hashT !== undefined) { root.scrollIntoView({block:'start'}); scrollToTime(t0); } }
+  // call flow: connectors between numbered cards, zoom, expand, click to seek / select
+  (function(){
+    const grid = document.getElementById('flowgrid'), svg = document.getElementById('flowlinks'), wrap = document.getElementById('flowwrap');
+    if (!grid) return;
+    let zoom = 1;
+    function links(){
+      const cards = [...grid.querySelectorAll('.fcard[data-num]')].sort((a,b) => +a.dataset.num - +b.dataset.num);
+      const g = grid.getBoundingClientRect();
+      svg.setAttribute('width', grid.scrollWidth); svg.setAttribute('height', grid.scrollHeight);
+      let d = '';
+      for (let i = 1; i < cards.length; i++) {
+        const a = cards[i-1].getBoundingClientRect(), b = cards[i].getBoundingClientRect();
+        const ax = (a.right - g.left) / zoom, ay = (a.top + a.height/2 - g.top) / zoom;
+        const bx = (b.left - g.left) / zoom, by = (b.top + b.height/2 - g.top) / zoom;
+        if (bx > ax + 4) { const mx = (ax + bx) / 2; d += `M${ax},${ay} C${mx},${ay} ${mx},${by} ${bx},${by} `; }
+        else { const sx = (a.left + a.width/2 - g.left) / zoom, sy = (a.bottom - g.top) / zoom, tx = (b.left + b.width/2 - g.left) / zoom, ty = (b.top - g.top) / zoom; d += `M${sx},${sy} C${sx},${(sy+ty)/2} ${tx},${(sy+ty)/2} ${tx},${ty} `; }
+      }
+      svg.innerHTML = `<path d="${d}"/>`;
+    }
+    function setZoom(z){ zoom = Math.max(0.5, Math.min(1.5, z)); grid.style.transform = `scale(${zoom})`; document.getElementById('flow-zoom').textContent = Math.round(zoom*100) + '%'; wrap.style.height = ''; requestAnimationFrame(links); }
+    document.getElementById('flow-in').addEventListener('click', () => setZoom(zoom + 0.1));
+    document.getElementById('flow-out').addEventListener('click', () => setZoom(zoom - 0.1));
+    document.getElementById('flow-expand').addEventListener('click', e => { grid.classList.toggle('expanded'); e.target.textContent = grid.classList.contains('expanded') ? 'Collapse' : 'Expand all'; requestAnimationFrame(links); });
+    grid.addEventListener('click', e => { const card = e.target.closest('.fcard'); if (!card) return; grid.querySelectorAll('.fcard.sel').forEach(c => c.classList.remove('sel')); card.classList.add('sel'); if (card.dataset.tool) selectTool(card.dataset.tool); if (card.dataset.t) seek(+card.dataset.t); });
+    root.addEventListener('click', e => { if (e.target.closest('[data-tab="flow"]')) setTimeout(links, 0); });
+    window.addEventListener('resize', links);
+    if (!document.getElementById('flow').hidden) requestAnimationFrame(links);
+    window.gfFlow = { links, setZoom };
+  })();
   window.gfInspector = { seek, selectTool, draw };
 })();
-</script><footer>gatewayfutures 0.1.0 · static report generated 2026-10-09 01:34 UTC</footer>
+</script><footer>gatewayfutures 0.1.0 · static report generated 2026-10-09 01:41 UTC</footer>
 </main>
 </div>
 <div id="player"><span class="lbl"></span><audio controls preload="none"></audio><button class="btn sm" onclick="gfPlayer.close()">✕</button></div>
