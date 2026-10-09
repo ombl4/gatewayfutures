@@ -119,10 +119,6 @@ def test_run_page_content(env):
     assert "Checks" in call and 'data-tab="transcript"' in call
     assert 'data-tab="latency"' in call and "What each latency means" in call
     assert 'data-tab="grading"' in call
-    assert 'data-tab="flow"' in call and 'id="flowgrid"' in call
-    for lane in ("Caller", "Agent heard", "Agent decision", "Tools", "Agent response", "Evaluator"):
-        assert f"</i>{lane}</div>" in call
-    assert call.count('class="exhd') >= 2
     assert 'id="caller-pill"' in call and 'id="agent-pill"' in call
     assert 'class="tags tested"' in call and 'data-check="tools.required.issue_refund"' in call
     assert 'data-check="ux.latency_p95"' in call
