@@ -442,3 +442,28 @@ def test_rename_run_rewrites_every_reference(env):
         rename("base-001", "base-002")
     with pytest.raises(ValueError):
         rename("nope", "x")
+
+
+def test_issue_breakdown_rows(env):
+    """T6.29: one row per kind of problem with count, share and seriousness; rendered on the
+    overview and the run page with the caller-quality card."""
+    from gf.report import model
+
+    r = model.run_report("t1")
+    b = r["issue_breakdown"]
+    assert b["total"] == 2 and b["rows"]
+    keys = {row["key"] for row in b["rows"]}
+    assert any(k.startswith("flag:") for k in keys)  # the fixture calls pass with flags
+    for row in b["rows"]:
+        assert (
+            row["count"] >= 1
+            and 0 < row["share"] <= 1
+            and row["status"] in ("high", "medium", "low")
+        )
+        assert len(row["series"]) == b["runs"] >= 1
+    statuses = [row["status"] for row in b["rows"]]
+    assert statuses == sorted(statuses, key=["high", "medium", "low"].index)
+    for path in ("/", "/runs/t1"):
+        html = env["client"].get(path).text
+        assert "Performance by area" in html and "Issue breakdown" in html
+        assert 'id="simulation-quality"' in html and 'class="area"' in html

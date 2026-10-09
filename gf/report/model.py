@@ -289,11 +289,8 @@ def run_metrics(summ: dict[str, Any]) -> dict[str, float | None]:
     }
 
 
-def kpi_cards(
-    run_id: str, summ: dict[str, Any], prev: dict[str, Any] | None
-) -> list[dict[str, Any]]:
-    """KPI cards with a sparkline over the last real runs up to this one and the change
-    against the previous comparable run (same stamp), when there is one."""
+def _run_history(run_id: str, summ: dict[str, Any], last: int = 8) -> list[tuple[str, dict]]:
+    """The last real runs up to and including this one, oldest first: (started_at, summary)."""
     history: list[tuple[str, dict[str, Any]]] = []
     for p in list_runs():
         man = _json(p / "manifest.json", {})
@@ -303,7 +300,70 @@ def kpi_cards(
         if ps:
             history.append((ps.get("started_at") or man.get("started_at") or "", ps))
     history.sort(key=lambda x: x[0])
-    upto = [h for h in history if h[0] <= (summ.get("started_at") or "\uffff")][-8:]
+    return [h for h in history if h[0] <= (summ.get("started_at") or "\uffff")][-last:]
+
+
+BREAKDOWN_STATUS = {"failed": "high", "invalid": "medium", "hearing": "medium", "judge": "low"}
+
+
+def _breakdown_counts(summ: dict[str, Any]) -> dict[str, int]:
+    atts = summ.get("attempts", [])
+    valid = [a for a in atts if a.get("valid")]
+    counts: dict[str, int] = {
+        "failed": sum(1 for a in valid if not a.get("passed")),
+        "invalid": sum(1 for a in atts if not a.get("valid")),
+        "hearing": sum(1 for a in atts if a.get("hearing_fault")),
+        "judge": sum(1 for a in atts if "validity.persona_judge" in (a.get("caller_flags") or [])),
+    }
+    for a in valid:
+        for f in a.get("soft_flags", []):
+            counts[f"flag:{f}"] = counts.get(f"flag:{f}", 0) + 1
+    return counts
+
+
+def issue_breakdown(run_id: str, summ: dict[str, Any]) -> dict[str, Any]:
+    """What went wrong across the run, one row per kind: count, share of calls, how serious
+    (failed calls are high; invalid simulations and hearing faults medium; flags low) and the
+    count over the last runs as a trend (T6.29)."""
+    labels = {
+        "failed": "Failed calls",
+        "invalid": "Invalid simulations",
+        "hearing": "Hearing faults (simulator)",
+        "judge": "Persona-judge disagreements",
+    }
+    total = len(summ.get("attempts", []))
+    cur = _breakdown_counts(summ)
+    hist = [_breakdown_counts(ps) for _, ps in _run_history(run_id, summ)]
+    rows = []
+    for key, n in cur.items():
+        if not n:
+            continue
+        rows.append(
+            {
+                "key": key,
+                "label": labels.get(key) or SOFT_LABELS.get(key[5:], key[5:]),
+                "count": n,
+                "share": n / total if total else None,
+                "status": BREAKDOWN_STATUS.get(key, "low"),
+                "series": [h.get(key, 0) for h in hist],
+            }
+        )
+    order = {"high": 0, "medium": 1, "low": 2}
+    rows.sort(key=lambda r: (order[r["status"]], -r["count"], r["label"]))
+    return {
+        "rows": rows,
+        "total": total,
+        "instances": sum(r["count"] for r in rows),
+        "runs": len(hist),
+    }
+
+
+def kpi_cards(
+    run_id: str, summ: dict[str, Any], prev: dict[str, Any] | None
+) -> list[dict[str, Any]]:
+    """KPI cards with a sparkline over the last real runs up to this one and the change
+    against the previous comparable run (same stamp), when there is one."""
+    upto = _run_history(run_id, summ)
     series = [run_metrics(ps) for _, ps in upto]
     cur = run_metrics(summ)
     pm = run_metrics(prev) if prev else None
@@ -1026,6 +1086,7 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
     out["matrix"] = persona_matrix(man, rows) if out["personas"] else None
     out["suite"] = man.get("suite")
     out["kpis"] = kpi_cards(run_id, summ, prev) if man.get("kind", "run") == "run" else []
+    out["issue_breakdown"] = issue_breakdown(run_id, summ)
     out["time_breakdown"] = time_breakdown(summ)
     out["issues"] = issues_for(out)
     out["by_area"] = by_area(rows, out)  # after issues: the areas carry the issue tiles
