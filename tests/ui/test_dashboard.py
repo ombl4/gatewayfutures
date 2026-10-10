@@ -244,7 +244,7 @@ def test_navigation_and_header(site, page):
 def test_overview_is_the_performance_page(site, page):
     page.goto(site["base"] + "/")
     assert (
-        page.locator("#kpis .kpi").count() == 5
+        page.locator("#kpis .kpi").count() == 4
     )  # GF Score + task + experience + tools + WER + p95
     assert "first run" in page.locator("#kpis").inner_text()
     assert page.locator("details.srow").count() == 0 and page.locator("#flow").count() == 0
@@ -726,7 +726,7 @@ def test_static_report_works_from_disk(site, page):
     page.goto((site["static"] / "overview.html").as_uri())
     assert page.locator("#inspector").count() == 0  # static pages link to call pages instead
     assert (
-        page.locator("#kpis .kpi").count() == 5
+        page.locator("#kpis .kpi").count() == 4
     )  # T5.15: task + experience and page.locator("details.srow").count() == 0
     page.click("aside.nav a.item:has-text('Practice sessions')")
     assert page.url.endswith("sessions.html")
