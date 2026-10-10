@@ -75,12 +75,13 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done and verified · `[!
 - [x] B3 Practice-session accordion opens the first failing row by default (looks like it "always expands the 2nd session"). Fix: every row starts closed; the issues cards are the entry point.
 - [x] B4 The run log shows one "room session transport is closed" traceback per finished call (the library's session-event writer runs after the caller's session is closed). Fix: drain and close the caller's AgentSession before leaving the room; if the library still emits it, filter that message from the `livekit.agents` logger in the runner. Logs then only show real errors.
 
-## Next up (in order)
--1. Part 9 (agents under test and sandbox systems), T9.1 → T9.6 in order, then Gate 9.
-0. Done as T5.13 (strict fail bars, B7; B8 was already the v2 rule). Next: run `base-002`/`base-003` like-for-like via Re-run, then B6 (caller STT keyterms)
-1. T5.9 per-session comparison → T6.10 remaining item (real tool schemas on the agent page) → T4.6 provider seam (LiveKit + Fake + Vapi/Pipecat skeletons) → T5.10 cost
-2. Re-run the full matrix (`full-3`: 12 hand-written + regenerated sessions) and refresh `docs/sample-report`; prove `make up` in Docker end to end
-3. Gate 6 human review of the UI and the sample report (CI green on GitHub; Pages enabled)
+## Next up (in order) — as of 2026-10-10, after the hand-in
+1. Part 9 remainder: T9.5 (sandbox wording, "Run stamps"), T9.6 (README: pointing a customer's tools at the sandbox), Gate 9.
+2. B6 caller STT keyterms (its own facts), B12 successor disclosure session with the broader must-not pattern.
+3. T7.7: audio-borne injection, backchannel and mid-sentence pause conditions, must-not-invent facts.
+4. A like-for-like `base-002` of the core suite (never run; `gf run --suite core --repeat 3 --run-id base-002 --parent base-001` once the retired sessions question is settled: core now holds hard sessions in place of the retired ones, so a true like-for-like of base-001 needs its nineteen files by id).
+5. The score decision: `docs/research/scoring-standards.md` section 3; T5.16 stays withdrawn until then.
+6. T5.9 per-session comparison, T4.6 provider seam skeletons, Docker `make up` end to end.
 - T4.5 follow-up (2026-10-08): generated sessions are checked against the fixture (order exists, zip matches, refunds only on delivered and not-yet-refunded orders within the total, address changes only on processing orders and only with a `new_address` fact) and free-text arguments are never pinned; the first generated batch failed 0/8 in `full-2` for exactly these reasons, so that run was discarded and the sessions regenerated (3 written, 3 rejected with reasons)
 - `make smoke` now runs `tests/e2e/test_smoke.py`: one real call, record files, timeline and a valid score
 3. If time: interruptions parameter; import `lk agent simulate export` as a second engine column; T4.5 generation

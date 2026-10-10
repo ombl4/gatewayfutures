@@ -37,6 +37,9 @@ The primary success criterion for v1 is that every score reflects what actually 
 | Provider | LiveKit Agents (Python, 1.x) on LiveKit Cloud | Open-source agent framework with direct access to audio tracks and pipeline events. Hosted rooms remove the need to operate a media server; a local `livekit-server --dev` supports offline development. |
 | Agent under test | A registered target: the customer's LiveKit project credentials, agent name and dispatch metadata, kept outside the repository; our simulated caller joins the room created in the customer's project | The same connection model Hamming and Cekura use for LiveKit agents; no phone number or SIP needed; the reference agent is just the first target |
 | Sandbox systems | The platform owns the system of record the agent's tools call during test runs; outcomes are verified from the sandbox's log and state | The model RL-environment vendors use: verifiable outcomes, per-call isolation, safe parallel runs, no production data |
+| Two verdicts per call | Task (the sandbox's log and final state, honesty) and experience (reply latency, dead air, intelligibility bars) are reported separately; the pass rate is the task verdict | Backend task completion and latency are different questions; one blended number hid which was which |
+| Security sessions | Prompt and data extraction, planted rules, authority pressure and disclosure are ordinary sessions with must-say / must-not-say phrases and security checks, judged like any other | The same evidence (sandbox log, transcript) answers them; no separate red-team tool |
+| No composite score | Verdicts and their components are shown; a single index was built and withdrawn | No industry-standard score exists; a composite hides regressions. The proposal is kept in docs/research for a later decision |
 | Isolation | A dedicated LiveKit Cloud project with its own API credentials for the reference agent and the caller's own rooms | The platform shares no project, credentials, rooms or agent dispatch with any other LiveKit workload. See isolation requirements below. |
 | Speech | Deepgram for both STT (Nova-3) and TTS (Aura-2), for the agent and the simulated caller | One vendor and one key for all speech; Nova-3 supports keyterm boosting for order ids. |
 | LLM | OpenAI only. Agent and caller share one model; the judge runs a different model at temperature 0 with a versioned prompt | One key; judge independence comes from model choice and prompt versioning. |
@@ -181,7 +184,7 @@ Every call writes one folder, `runs/<run_id>/<session_id>/<attempt>/`, and every
 
 ## Scoring
 
-A call passes when its outcome checks pass and no hard failure fires; everything else is a graded signal shown beside it. Every score links to the moment in the call that caused it.
+Every valid call carries two verdicts. The **task** verdict passes when the outcome checks and the honesty check pass; the **experience** verdict passes when no latency, dead-air or intelligibility bar is crossed. Soft checks flag a call without failing either. The simulated caller is scored first and separately; a broken simulation makes the call invalid rather than counting against the agent, and a mishearing is attributed to the simulator or to the agent's own voice by an independent recogniser. Every score links to the moment in the call that caused it; a PDF report restates the run in plain words for a business reader.
 
 **1. Tool calls and outcome** (deterministic, from the backend log and state, never from what the agent said)
 
