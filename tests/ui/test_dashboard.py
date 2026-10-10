@@ -677,7 +677,7 @@ def _crawl(page, base, start_paths):
             if not href or href.startswith(("#", "http", "mailto")):
                 continue
             p = urlparse(urljoin(page.url, href)).path
-            if p.startswith("/api/docs") or p.endswith(".wav"):
+            if p.startswith("/api/docs") or p.endswith((".wav", ".pdf")):
                 continue
             if p not in seen:
                 queue.append(p)
@@ -763,3 +763,12 @@ def test_register_an_agent_under_test_from_the_ui(site, page):
     assert page.locator("#targets tr.target-row").count() == 1
     assert "Gateway Goods" in page.locator("#provider-menu summary").inner_text()
     _no_errors(page)
+
+
+def test_pdf_report_is_produced(site, page):
+    """T6.39: the run's PDF report downloads and is a real PDF."""
+    import httpx
+
+    r = httpx.get(site["base"] + "/runs/t1/report.pdf", timeout=120)
+    assert r.status_code == 200 and r.headers["content-type"].startswith("application/pdf")
+    assert r.content[:5] == b"%PDF-" and len(r.content) > 10_000

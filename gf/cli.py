@@ -362,6 +362,17 @@ def demo_run(run_id: str = "demo") -> None:
 
 
 @app.command()
+def pdf(run_id: str, out: str = "") -> None:
+    """Write the run's PDF report for a business reader (default runs/<run_id>/report.pdf)."""
+    from pathlib import Path
+
+    from gf.report.pdf import write_pdf
+
+    path = write_pdf(run_id, Path(out) if out else None)
+    typer.echo(f"pdf: {path}")
+
+
+@app.command()
 def report(
     run_id: str,
     out: str = "",

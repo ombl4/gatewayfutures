@@ -9,7 +9,7 @@
 {% if mode == 'live' and job %}
 <span style="display:flex;gap:6px">
   {% if job.state == 'done' and r.kind == 'run' %}<form method="post" action="/checks/run" style="display:inline">{% for row in r.sessions %}<input type="hidden" name="session" value="{{ row.session_id }}">{% endfor %}<input type="hidden" name="variant" value="dishonest"><button class="btn" type="submit" id="btn-prove" title="re-run these sessions with a deliberately dishonest agent and check that the honesty check fires">Prove the honesty check</button></form>{% endif %}
-  {% if job.state == 'done' and r.kind == 'run' %}<form method="post" action="/runs/{{ r.run_id }}/rerun" style="display:inline"><button class="btn" type="submit" id="btn-rerun" title="start a new run with the same sessions and repeats; it will be compared with this one">Re-run</button></form>{% endif %}
+  {% if job.state == 'done' and r.kind == 'run' %}<a class="btn" href="/runs/{{ r.run_id }}/report.pdf" id="btn-pdf" title="a PDF summary for a business reader">PDF report</a> <form method="post" action="/runs/{{ r.run_id }}/rerun" style="display:inline"><button class="btn" type="submit" id="btn-rerun" title="start a new run with the same sessions and repeats; it will be compared with this one">Re-run</button></form>{% endif %}
   {% if job.state == 'running' %}<form method="post" action="/runs/{{ r.run_id }}/stop" style="display:inline"><button class="btn danger" type="submit">Stop run</button></form>
   {% else %}<form method="post" action="/runs/{{ r.run_id }}/rescore" style="display:inline"><button class="btn" type="submit" id="btn-rescore" title="re-run scoring, e.g. after scoring code changed">Rescore</button></form>{% endif %}
 </span>

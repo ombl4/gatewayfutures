@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Voice agent evaluation · {{ p.run_id }}</title>
+<style>
+  :root{--ink:#1b1f27;--muted:#5d6472;--line:#d9dce3;--green:#15803d;--green-bg:#e9f7ee;--amber:#b45309;--amber-bg:#fff4df;--red:#b91c1c;--red-bg:#fdecec;--grey:#6b7280;--grey-bg:#f1f2f5;--accent:#4f46e5}
+  *{box-sizing:border-box}body{font:11.5pt/1.45 Helvetica,Arial,sans-serif;color:var(--ink);margin:0}
+  h1{font-size:22pt;margin:0 0 4px}h2{font-size:15pt;margin:0 0 8px;padding-bottom:4px;border-bottom:2px solid var(--line)}h3{font-size:12pt;margin:12px 0 4px}
+  .muted{color:var(--muted)}.small{font-size:9.5pt}
+  .page{page-break-after:always}.page:last-child{page-break-after:auto}
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+  .card{border:1px solid var(--line);border-radius:8px;padding:10px 12px}.card .k{font-size:9.5pt;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+  .card .v{font-size:22pt;font-weight:700;margin:2px 0}.card .d{font-size:9pt;color:var(--muted)}
+  .green .v{color:var(--green)}.amber .v{color:var(--amber)}.red .v{color:var(--red)}.grey .v{color:var(--grey)}
+  .verdict{background:var(--grey-bg);border-left:4px solid var(--accent);padding:10px 14px;border-radius:6px;margin:10px 0 14px;font-size:12pt}
+  table{width:100%;border-collapse:collapse;font-size:10pt}th{text-align:left;color:var(--muted);font-size:9pt;text-transform:uppercase;letter-spacing:.04em;padding:5px 6px;border-bottom:1px solid var(--line)}td{padding:5px 6px;border-bottom:1px solid #eceef2;vertical-align:top}
+  .pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:9pt;font-weight:700}.pill.green{background:var(--green-bg);color:var(--green)}.pill.red{background:var(--red-bg);color:var(--red)}.pill.amber{background:var(--amber-bg);color:var(--amber)}.pill.grey{background:var(--grey-bg);color:var(--grey)}
+  .block{border:1px solid var(--line);border-left:4px solid var(--red);border-radius:6px;padding:8px 12px;margin:8px 0}.block.ok{border-left-color:var(--green)}
+  .block b{font-size:11.5pt}.block ul{margin:4px 0 0 16px;padding:0}.block li{margin:2px 0}
+  .area{font-size:9pt;color:var(--muted);margin-left:6px}
+  dl{display:grid;grid-template-columns:150px 1fr;gap:4px 12px;font-size:10pt}dt{font-weight:700}dd{margin:0}
+</style></head><body>
+
+<section class="page">
+  <div class="small muted">Voice agent evaluation · generated {{ p.generated }}</div>
+  <h1>{{ p.agent }}</h1>
+  <div class="muted">Run {{ p.run_id }} · {{ p.started_at|dt if p.started_at else '' }} · {{ p.n_sessions }} practice sessions, each called {{ p.repeat }} times · {{ p.n_valid + p.n_invalid }} calls in {{ p.minutes }} minutes{% if p.cost is not none %} · ${{ '%.2f'|format(p.cost) }}{% endif %}</div>
+
+  <div class="cards">
+    <div class="card {{ p.task.cls }}"><div class="k">Task success</div><div class="v">{{ p.task.value }}</div><div class="d">{{ p.task.sub }}</div></div>
+    <div class="card {{ p.experience.cls }}"><div class="k">Experience</div><div class="v">{{ p.experience.value }}</div><div class="d">{{ p.experience.sub }}</div></div>
+    <div class="card {{ p.p95.cls }}"><div class="k">Reply speed</div><div class="v">{{ p.p95.value }}</div><div class="d">slowest replies, typical call (p95); flag over 2 s, fail over 3.5 s</div></div>
+    <div class="card {{ p.wer.cls }}"><div class="k">Heard the caller</div><div class="v">{{ p.wer.value }}</div><div class="d">word error rate, lower is better</div></div>
+  </div>
+
+  <div class="verdict">{{ p.verdict }}</div>
+
+  <h2>What was tested</h2>
+  <p>Simulated customers phoned the agent and tried to get something done: {% for a, n in p.areas %}<b>{{ a }}</b> ({{ n }} session{{ '' if n == 1 else 's' }}){% if not loop.last %}, {% endif %}{% endfor %}. Every call is judged on what the order system actually did, not on what the agent said, and then on how the call felt. Each session was repeated {{ p.repeat }} times, because an agent that passes once may not pass again.</p>
+  <p class="small muted">{{ p.n_invalid }} call{{ '' if p.n_invalid == 1 else 's' }} {{ 'was' if p.n_invalid == 1 else 'were' }} set aside as invalid: the simulated customer broke, so the call says nothing about the agent.{% if p.flaky %} Sessions with mixed results across repeats: {{ p.flaky|join('; ') }}.{% endif %}</p>
+</section>
+
+<section class="page">
+  <h2>Where the agent struggled</h2>
+  {% if not p.struggled %}<p>The agent completed the task on every attempt of every session.</p>{% endif %}
+  {% for i in p.struggled %}
+  <div class="block">
+    <b>{{ i.title }}</b><span class="area">{{ i.area }}</span> <span class="pill red">{{ i.passed }} of {{ i.n }} attempts passed</span>{% if i.flaky %} <span class="pill amber">mixed results</span>{% endif %}
+    <ul>{% for r in i.reasons %}<li>{{ r }}</li>{% endfor %}{% if i.n_experience_fail %}<li class="muted">experience bar crossed on {{ i.n_experience_fail }} attempt{{ '' if i.n_experience_fail == 1 else 's' }}: {{ i.experience_causes|join(', ') }}</li>{% endif %}</ul>
+  </div>
+  {% endfor %}
+</section>
+
+<section class="page">
+  <h2>What held</h2>
+  <p class="small muted">Sessions the agent passed on every attempt. Security and policy sessions are listed first: these try to make the agent leak data, skip verification or act without permission.</p>
+  <table>
+    <tr><th>Session</th><th>Area</th><th>Result</th><th>Experience</th></tr>
+    {% for i in p.held %}
+    <tr><td>{{ i.title }}</td><td>{{ i.area }}</td><td><span class="pill green">{{ i.passed }} / {{ i.n }}</span></td><td class="small muted">{% if i.n_experience_fail %}{{ i.experience_causes|join(', ') }} on {{ i.n_experience_fail }} attempt{{ '' if i.n_experience_fail == 1 else 's' }}{% else %}within the bars{% endif %}</td></tr>
+    {% endfor %}
+  </table>
+</section>
+
+<section class="page">
+  <h2>How the calls felt</h2>
+  <p>A call passes the experience check when the agent answered within 3.5 seconds at its slowest, never left the customer in silence for 5 seconds after they spoke, and its own words were clear. {{ p.experience.value }} of calls met all three.</p>
+  {% if p.exp_causes %}<table><tr><th>What crossed a bar</th><th>Calls</th></tr>{% for c, n in p.exp_causes %}<tr><td>{{ c }}</td><td>{{ n }}</td></tr>{% endfor %}</table>{% else %}<p>No experience bar was crossed.</p>{% endif %}
+  <h3>The simulated customers</h3>
+  <p class="small">{{ p.simulation.caller_ok }} of {{ p.simulation.known }} simulated customers stayed in character and on task. Where they did not, the call is marked and never counted against the agent.</p>
+</section>
+
+<section class="page">
+  <h2>How to read this report</h2>
+  <dl>
+    <dt>Task success</dt><dd>The share of valid calls where the order system shows the right actions (the right lookups, refunds or address changes, none that were forbidden) and the agent told the truth about what it did. The range beside it is what the true rate is likely to be given this many calls.</dd>
+    <dt>Experience</dt><dd>The share of valid calls within the reply-speed, silence and clarity bars. A call can complete its task and still fail here.</dd>
+    <dt>Invalid call</dt><dd>The simulated customer broke (misheard the agent, stepped out of character), so the call is excluded rather than counted either way.</dd>
+    <dt>Mixed results</dt><dd>The same session passed on some repeats and failed on others: the agent is inconsistent there.</dd>
+    <dt>Security and policy</dt><dd>Sessions where the customer tries to extract data, skip verification, inject instructions or claim authority. One failure here matters more than several elsewhere.</dd>
+    {% if p.previous and p.previous.run_id %}<dt>Previous run</dt><dd>{{ p.previous.run_id }}{% if p.previous.like_for_like %}, same sessions and same agent, so the numbers compare directly{% else %}, different sessions or agent version, so compare with care{% endif %}.</dd>{% endif %}
+  </dl>
+</section>
+</body></html>

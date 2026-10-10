@@ -534,6 +534,20 @@ def run(run_id: str, call: str = ""):
     )
 
 
+@app.get("/runs/{run_id}/report.pdf")
+def run_pdf(run_id: str):
+    """The run's PDF report for a business reader (T6.39), regenerated when the summary is newer."""
+    from fastapi.responses import FileResponse
+
+    from gf.report import pdf
+
+    _require_run(run_id)
+    if not (settings().runs_dir / run_id / "summary.json").exists():
+        raise HTTPException(404, f"run {run_id} has no summary yet")
+    path = pdf.pdf_path(run_id) if pdf.fresh(run_id) else pdf.write_pdf(run_id)
+    return FileResponse(str(path), media_type="application/pdf", filename=f"{run_id}-report.pdf")
+
+
 @app.get("/runs/{run_id}/caller", response_class=HTMLResponse)
 def run_caller(run_id: str):
     """Caller quality of a run, explained (T6.37)."""

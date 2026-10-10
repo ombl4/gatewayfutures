@@ -32,7 +32,7 @@
 {{ rb.by_area(r, issue_link) }}
 {% if r.previous and not r.previous.like_for_like %}<p class="small muted" style="margin:-8px 0 12px">* compared with {{ r.previous.run_id }}: {% if r.previous.env_same is sameas false %}different environment{% endif %}{% if r.previous.env_same is sameas false and r.previous.set_same is sameas false %} and {% endif %}{% if r.previous.set_same is sameas false %}different session set{% endif %}{% if r.previous.env_same is none %}environment unknown for the older run{% endif %}; treat the change as indicative.</p>{% endif %}
 {{ rb.simulation(r) }}
-<p class="small muted" style="margin:0 0 16px">Every practice session with its attempts, and the call inspector, are on the <a href="{{ links.run(r.run_id) }}">run page</a>.</p>
+<p class="small muted" style="margin:0 0 16px">Every practice session with its attempts, and the call inspector, are on the <a href="{{ links.run(r.run_id) }}">run page</a>.{% if mode == 'live' %} <a class="btn sm" href="/runs/{{ r.run_id }}/report.pdf" id="btn-pdf-overview">PDF report</a>{% endif %}</p>
 {% endif %}
 
 

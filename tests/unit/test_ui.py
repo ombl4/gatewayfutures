@@ -529,6 +529,22 @@ def test_agents_under_test_page(env, monkeypatch):
     assert all("n_experience_fail" in r and "experience_causes" in r for r in rows)
     if any(r["n_experience_fail"] for r in rows):
         assert "experience " in c.get("/runs/t1").text
+    from gf.report.pdf import build_html, report_data
+
+    rd = report_data("t1")
+    assert rd["n_sessions"] == len(rd["struggled"]) + len(rd["held"]) and rd["verdict"]
+    html_pdf = build_html("t1")
+    for section in (
+        "What was tested",
+        "Where the agent struggled",
+        "What held",
+        "How the calls felt",
+        "How to read this report",
+    ):
+        assert section in html_pdf
+    for row in _m2.run_report("t1")["sessions"]:
+        assert row["title"] in html_pdf
+    assert 'id="btn-pdf"' in c.get("/runs/t1").text and 'id="btn-pdf-overview"' in c.get("/").text
     insp = c.get("/runs/t1/7c994c348001/1").text
     assert 'id="outcome"' in insp and "Order system end state" in insp
     page_html = c.get("/agent").text
