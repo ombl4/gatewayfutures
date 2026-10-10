@@ -51,7 +51,7 @@
 {% endif %}
 {% set tb = r.time_breakdown|selectattr('p50')|list %}
 {% if tb %}
-<p class="meta" id="time-breakdown" style="margin:-6px 0 14px"><span class="muted">Where the time goes (median over valid calls):</span>{% for b in tb %}<span title="{{ b.label }}"><b>{{ b.label|lower }}</b> {{ b.p50 }} ms</span>{% if not loop.last %}<i>·</i>{% endif %}{% endfor %}</p>
+<details class="small muted" id="time-breakdown" style="margin:-6px 0 14px"><summary style="cursor:pointer">Where the time goes (median over valid calls)</summary><p class="meta" style="margin:6px 0 0">{% for b in tb %}<span title="{{ b.label }}"><b>{{ b.label|lower }}</b> {{ b.p50 }} ms</span>{% if not loop.last %}<i>·</i>{% endif %}{% endfor %}</p></details>
 {% endif %}
 <div class="work has-call">
   {{ rb.sessions(r) }}
