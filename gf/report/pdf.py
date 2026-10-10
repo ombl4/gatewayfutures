@@ -29,8 +29,7 @@ def _plain(reason: str) -> str:
     r = (reason or "").replace("_", " ")
     for pre in ("invalid: ",):
         r = r.replace(pre, "")
-    if r.strip() == "never said":
-        r = "never gave the statement the session requires"
+    r = r.replace("(see the session's expected block)", "").strip()
     return r.strip()[:240]
 
 
