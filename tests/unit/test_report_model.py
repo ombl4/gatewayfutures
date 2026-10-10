@@ -91,7 +91,7 @@ def test_kpi_cards_series_and_delta(tmp_path, monkeypatch):
     s1 = json.loads((runs / "r1" / "summary.json").read_text())
     cards = model.kpi_cards("r2", s2, s1)
     by = {c["id"]: c for c in cards}
-    assert [c["id"] for c in cards] == ["rate", "experience_rate", "tool_rate", "wer", "p95_ms"]
+    assert [c["id"] for c in cards] == ["rate", "experience_rate", "wer", "p95_ms"]
     assert by["rate"]["series"] == [0.0, 1.0]  # r3 is later, not in the series
     assert by["rate"]["delta"] == 1.0 and by["rate"]["delta_class"] == "fixed"
     assert by["rate"]["delta_text"] == "+100 pts"

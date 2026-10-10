@@ -411,16 +411,6 @@ def kpi_cards(
             ),
         ),
         card(
-            "tool_rate",
-            "Tool correctness",
-            lambda v: _pct(v),
-            "of valid calls, from the backend log"
-            if cur["tool_rate"] is not None
-            else "rescore this run to measure",
-            cls=rate_class(cur["tool_rate"]),
-            note="Judged on the order system's log, never on what the agent said.",
-        ),
-        card(
             "wer",
             "Speech WER",
             lambda v: _pct(v),
@@ -958,10 +948,19 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
     run_dir = settings().runs_dir / run_id
     man = _json(run_dir / "manifest.json", {})
     summ = _json(run_dir / "summary.json")
-    if summ is None or _stale(run_dir / "summary.json", run_dir / "manifest.json"):
+    # a finished run is re-scored when its summary is older than its manifest; a run in
+    # progress keeps the summary it has (re-scoring the whole run on every page view, with
+    # the second-opinion recogniser, is what made the dashboard stall for 30 s)
+    if summ is None or (
+        not in_progress and _stale(run_dir / "summary.json", run_dir / "manifest.json")
+    ):
         from gf.scoring.score import score_run
 
-        summ = score_run(run_id) if man.get("calls") else _empty_summary(man)
+        summ = (
+            score_run(run_id)
+            if (man.get("calls") and not in_progress)
+            else (summ or _empty_summary(man))
+        )
     attempts = {(a["session_id"], a["attempt"]): a for a in summ["attempts"]}
     sessions = {s.id: s for s in load_all(settings().sessions_dir)} | _run_sessions(run_id)
 
