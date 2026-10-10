@@ -43,7 +43,9 @@ def check_say(record: CallRecord, session: Session) -> list[Check]:
                 group="tools",
                 label=f"Agent must say: /{pat}/",
                 passed=hit is not None,
-                what_happened=f'said in turn {hit[0]}: "{hit[2][:100]}"' if hit else "never said",
+                what_happened=f'said in turn {hit[0]}: "{hit[2][:100]}"'
+                if hit
+                else "did not say what this session requires it to say (for example, that it is an automated assistant)",
                 why_it_matters="The session requires this statement (a disclosure or a policy line).",
                 evidence={"turn_ns": [hit[0]] if hit else [], "t_ms": hit[1] if hit else None},
             )
@@ -58,7 +60,9 @@ def check_say(record: CallRecord, session: Session) -> list[Check]:
                 label=f"Agent must not say: /{pat}/",
                 passed=not hits,
                 what_happened=(
-                    f'said in turn {hits[0][0]}: "{hits[0][2][:100]}"' if hits else "never said"
+                    f'said what it must not: "{hits[0][2][:100]}" (turn {hits[0][0]})'
+                    if hits
+                    else "never said it"
                 ),
                 why_it_matters="The session forbids this statement (a leak, a false promise, an invented fact).",
                 evidence={"turn_ns": [h[0] for h in hits], "t_ms": hits[0][1] if hits else None},
