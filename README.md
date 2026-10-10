@@ -183,6 +183,17 @@ The JSON API mirrors every page (`/api/runs`, `/api/runs/<id>`, `/api/runs/<id>/
 
 The static report has no server at all: `.github/workflows/pages.yml` publishes `docs/sample-report` to GitHub Pages on every push to `main` (Pages source: GitHub Actions). Current link: https://ombl4.github.io/gatewayfutures/
 
+## To be continued
+
+The plan from here, in order (also in [docs/design-note.md](docs/design-note.md#to-be-continued) and the tracker):
+
+1. **Connectors for other agent providers.** An agent under test is a LiveKit target today (URL, key, agent name). Add a target kind per provider behind the same seam: Pipecat on the LiveKit transport, then Retell, Vapi, Bland and ElevenLabs Agents through a SIP trunk into the caller's room. The caller, the recording and every audio-based check stay the same.
+2. **Personas and practice sessions by industry.** A persona library and a session set per industry (retail support first, then banking, insurance, healthcare scheduling, telecom), each with its own sandbox fixture and tools.
+3. **Realistic personas.** Tune each persona against recordings of real callers: voice samples, measured pace, pauses, interruptions and accent, and higher-end voice providers where the current voices read as synthetic.
+4. **Practice sessions from real data.** Derive each industry's sessions from customer call data where it exists, otherwise from thorough research and sample calls, so the split of situations matches what happens in that industry.
+5. **UI polish.** One pass per page with a non-technical reader in front of it.
+6. **Validate every grader.** A hand-labelled set of real calls per check, judge and claim; measure agreement and tune with a human reviewing the disagreements. A grader stays advisory until it reaches agreement.
+
 ## Tests
 
 ```bash
