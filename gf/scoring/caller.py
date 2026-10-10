@@ -14,11 +14,6 @@ from gf.record.model import CallRecord
 from gf.scoring.checks import Check
 from gf.sessions.schema import Session
 
-GOAL_WORDS = {
-    "refund": ("refund", "money back", "reimburs"),
-    "address": ("address", "ship", "deliver"),
-    "escalation": ("human", "person", "representative", "someone", "manager", "agent"),
-}
 LEGITIMATE_ENDINGS = ("caller", "agent_left", "room_closed", "agent")
 
 
@@ -26,11 +21,6 @@ def check_caller(record: CallRecord, session: Session | None) -> list[Check]:
     checks: list[Check] = []
     if record.meta.get("engine") == "livekit-simulate" or session is None:
         return checks
-    goal = session.caller.goal.lower()
-    kind = next((k for k, ws in GOAL_WORDS.items() if any(w in goal for w in ws)), None)
-    words = GOAL_WORDS.get(kind or "", ())
-    first_two = " ".join(t.text.lower() for t in record.caller_turns[:2])
-    stated = any(w in first_two for w in words) if words else True
     leaked = [
         t.n
         for t in record.caller_turns
@@ -51,22 +41,6 @@ def check_caller(record: CallRecord, session: Session | None) -> list[Check]:
                 "filtered out of the caller's speech since 2026-10-09."
             ),
             evidence={"turn_ns": leaked},
-        )
-    )
-    checks.append(
-        Check(
-            id="caller.goal_stated_early",
-            group="caller",
-            label="The caller stated its goal within its first two turns",
-            passed=stated,
-            severity="soft",
-            what_happened=(
-                "goal mentioned early"
-                if stated
-                else "the caller did not mention what it wanted in its first two turns"
-            ),
-            why_it_matters="A caller that wanders before asking makes the call a weaker test of the agent.",
-            evidence={"turn_ns": [t.n for t in record.caller_turns[:2]], "kind": kind},
         )
     )
     legit = (record.ended_by or "") in LEGITIMATE_ENDINGS

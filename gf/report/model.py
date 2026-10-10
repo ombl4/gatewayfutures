@@ -1586,7 +1586,6 @@ CALLER_FLAG_LABELS = {
     "caller.went_quiet": "paused after the agent spoke",
     "caller.spoke_tool_syntax": "spoke its own tool syntax",
     "caller.ended_legitimately": "ended on a limit, not for a reason",
-    "caller.goal_stated_early": "slow to state its goal",
     "speech.caller_hearing": "misheard the agent",
     "validity.persona_judge": "persona judge disagreed",
     "validity.simulation": "invalid simulation",

@@ -141,17 +141,10 @@ def test_caller_score_rules():
     rec = CallRecord.load(root / "fixtures" / "records" / "refund-basic")
     sess = Session.load(root / "sessions" / "refund-basic.yaml")
     by = {c.id: c for c in check_caller(rec, sess)}
-    assert (
-        by["caller.goal_stated_early"].passed and by["caller.goal_stated_early"].severity == "soft"
-    )
+    assert "caller.goal_stated_early" not in by  # dropped 2026-10-10: too strict on real callers
     assert by["caller.ended_legitimately"].passed
     rec2 = rec.model_copy(update={"ended_by": "max_turns", "end_reason": "turn limit reached"})
     assert not {c.id: c for c in check_caller(rec2, sess)}["caller.ended_legitimately"].passed
-    quiet = [t.model_copy(update={"text": "hello there"}) for t in rec.caller_turns[:2]] + list(
-        rec.caller_turns[2:]
-    )
-    rec3 = rec.model_copy(update={"caller_turns": quiet})
-    assert not {c.id: c for c in check_caller(rec3, sess)}["caller.goal_stated_early"].passed
 
 
 def test_caller_flags_are_kept_apart_from_agent_flags(tmp_path):
