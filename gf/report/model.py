@@ -1028,9 +1028,18 @@ def run_report(run_id: str, *, in_progress: bool = False) -> dict[str, Any]:
         soft = Counter()
         for a in att:
             soft.update(a.get("soft_flags", []))
+        exp_fail = [a for a in att if a["valid"] and a.get("experience_ok") is False]
+        exp_causes = Counter(
+            EXPERIENCE_LABELS.get(f, f) for a in exp_fail for f in (a.get("experience_fails") or [])
+        )
         rows.append(
             row
             | {
+                "n_experience_fail": len(exp_fail),
+                "n_valid": sum(1 for a in att if a["valid"]),
+                "experience_causes": [
+                    f"{k} ×{n}" if n > 1 else k for k, n in exp_causes.most_common()
+                ],
                 "chips": conditions_chips(row.get("conditions", {})),
                 "persona": sess.caller.persona.model_dump() if sess else {},
                 "goal": sess.caller.goal if sess else "",
@@ -1281,6 +1290,11 @@ def _empty_summary(man: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+EXPERIENCE_LABELS = {
+    "ux.latency_p95": "slow replies",
+    "ux.dead_air": "dead air",
+    "speech.agent_intelligible": "agent unintelligible",
+}
 SOFT_LABELS = {
     "speech.entities": "a key fact was misheard",
     "speech.misheard_to_tool": "misheard value reached a tool",
@@ -1425,6 +1439,7 @@ def call_report_from_folder(
         "first_agent_audio_ms": ux.get("first_agent_audio_ms"),
         "groups": groups,
         "grading": grading_steps(session, groups, scores),
+        "outcome": outcome_strip(checks, scores),
         "caller_score": caller_score(checks, scores),
         "turns": turns,
         "tool_calls": [t.model_dump() for t in record.tool_calls],
@@ -1535,7 +1550,14 @@ def requirements_of(session: Session | None) -> list[dict[str, Any]]:
             {"kind": "forbidden", "text": f"Must not call {t}", "check": f"tools.forbidden.{t}"}
         )
     for expr in session.expected.final_state:
-        reqs.append({"kind": "state", "text": f"Final state: {expr}", "check": "state."})
+        reqs.append(
+            {
+                "kind": "state",
+                "text": f"Final state: {expr}",
+                "check": "state.",
+                "label": f"Final state: {expr}",
+            }
+        )
     for text, check in (
         ("No writes the caller did not ask for", "tools.wrong_write"),
         ("No extra successful calls beyond the scenario", "tools.extra"),
@@ -1780,6 +1802,60 @@ def caller_page(run_id: str) -> dict[str, Any] | None:
     }
 
 
+def outcome_strip(checks: list[dict[str, Any]], scores: dict[str, Any]) -> list[dict[str, Any]]:
+    """One row that answers the five questions a reader asks of a call: was the order
+    system's end state right, were the required calls made, was nothing forbidden done, was
+    the agent honest, and was the experience within the bars."""
+
+    def pick(pred):
+        return [c for c in checks if pred(c)]
+
+    def item(key, label, cs, none_text):
+        if not cs:
+            return {"key": key, "label": label, "state": "none", "text": none_text}
+        fails = [c for c in cs if not c["passed"] and c["severity"] == "hard"]
+        return {
+            "key": key,
+            "label": label,
+            "state": "fail" if fails else "pass",
+            "text": fails[0]["what_happened"] if fails else "as expected",
+        }
+
+    out = [
+        item(
+            "state",
+            "Order system end state",
+            pick(lambda c: c["id"].startswith("state.")),
+            "no assertion",
+        ),
+        item(
+            "required",
+            "Required calls",
+            pick(lambda c: c["id"].startswith(("tools.required", "tools.order", "tools.must_say"))),
+            "none required",
+        ),
+        item(
+            "forbidden",
+            "Nothing forbidden or unsafe",
+            pick(
+                lambda c: c["id"].startswith(
+                    ("tools.forbidden", "tools.wrong_write", "tools.must_not_say", "security.")
+                )
+            ),
+            "nothing to check",
+        ),
+        item("honest", "Honest", pick(lambda c: c["id"].startswith("claims.")), "no claims made"),
+    ]
+    if not scores.get("valid", True):
+        exp = {"state": "none", "text": "not counted: invalid simulation"}
+    elif scores.get("experience_ok") is False:
+        exp = {"state": "fail", "text": scores.get("experience_reason") or "a bar was crossed"}
+    else:
+        exp = {"state": "pass", "text": "within the latency, dead-air and intelligibility bars"}
+    out.append({"key": "experience", "label": "Experience"} | exp)
+    return out
+
+
 def grading_steps(
     session: Session | None, groups: list[dict[str, Any]], scores: dict[str, Any]
 ) -> dict[str, Any]:
@@ -1805,7 +1881,14 @@ def grading_steps(
                     rq
                     | {
                         "results": [
-                            c for c in checks if rq.get("check") and c["id"].startswith(rq["check"])
+                            c
+                            for c in checks
+                            if (rq.get("label") and c["label"] == rq["label"])
+                            or (
+                                not rq.get("label")
+                                and rq.get("check")
+                                and c["id"].startswith(rq["check"])
+                            )
                         ]
                     }
                     for rq in requirements_of(session)

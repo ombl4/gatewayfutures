@@ -523,6 +523,14 @@ def test_agents_under_test_page(env, monkeypatch):
     from gf import targets, targets_check
 
     c = env["client"]
+    from gf.report import model as _m2
+
+    rows = _m2.run_report("t1")["sessions"]
+    assert all("n_experience_fail" in r and "experience_causes" in r for r in rows)
+    if any(r["n_experience_fail"] for r in rows):
+        assert "experience " in c.get("/runs/t1").text
+    insp = c.get("/runs/t1/7c994c348001/1").text
+    assert 'id="outcome"' in insp and "Order system end state" in insp
     page_html = c.get("/agent").text
     assert "Agents under test" in page_html and 'id="targets"' in page_html
     assert "Gateway Goods support line" in page_html and 'id="add-target"' in page_html

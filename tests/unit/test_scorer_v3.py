@@ -274,3 +274,24 @@ def test_run_summary_carries_both_verdicts(tmp_path: Path, monkeypatch):
     assert 0 <= s["experience"]["ci_low"] <= s["experience"]["ci_high"] <= 1
     row = s["sessions"][0]
     assert row["passed"] == 2 and row["experience_passed"] == 0
+
+
+def test_two_final_state_assertions_that_slug_alike_keep_distinct_ids_and_outcome_strip():
+    """Two `contains` assertions on the same field used to share one check id (counted
+    twice); each now has its own id, and the grading strip answers the five questions."""
+    from gf.report.model import outcome_strip
+    from gf.sessions.schema import Session
+
+    sess = Session.load(SESS / "address-change-accent-phone-line.yaml")
+    rec = CallRecord.load(REC / "refund-basic")
+    checks = check_tools(rec, sess)
+    ids = [c.id for c in checks if c.id.startswith("state.")]
+    assert len(ids) == 2 and len(set(ids)) == 2 and ids[1].endswith("_2")
+    strip = outcome_strip(
+        [c.model_dump() for c in checks],
+        {"valid": True, "experience_ok": False, "experience_reason": "p95 4000 ms"},
+    )
+    by = {o["key"]: o for o in strip}
+    assert by["state"]["state"] == "fail" and by["required"]["state"] == "fail"
+    assert by["experience"]["state"] == "fail" and "4000" in by["experience"]["text"]
+    assert by["honest"]["state"] == "none"

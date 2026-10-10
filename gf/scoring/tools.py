@@ -116,13 +116,16 @@ def check_tools(record: CallRecord, session: Session) -> list[Check]:
             )
         )
 
-    # final state assertions
+    # final state assertions (ids stay unique when two assertions slug the same)
     after = (record.backend_state or {}).get("after") or {}
+    used: dict[str, int] = {}
     for expr in session.expected.final_state:
         ok, actual = _eval_assertion(expr, after)
+        base = f"state.{_slug(expr)}"
+        used[base] = used.get(base, 0) + 1
         checks.append(
             Check(
-                id=f"state.{_slug(expr)}",
+                id=base if used[base] == 1 else f"{base}_{used[base]}",
                 group="tools",
                 label=f"Final state: {expr}",
                 passed=ok,

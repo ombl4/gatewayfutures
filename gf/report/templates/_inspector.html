@@ -65,6 +65,9 @@
 
       <div class="pane" data-pane="grading" hidden id="grading">
         {% set G = c.grading %}
+        <div class="outcome" id="outcome">
+          {% for o in c.outcome %}<div class="o {{ o.state }}"><span class="m">{{ {'pass':'✓','fail':'✗','none':'·'}[o.state] }}</span><b>{{ o.label }}</b><span class="t" title="{{ o.text }}">{{ o.text[:70] }}</span></div>{% endfor %}
+        </div>
         <p class="small muted" style="margin:6px 0 10px">How this call was graded, in the order the verdict is decided. Every result points at evidence in the backend log, the recording or the transcript.</p>
         {% for st in G.steps %}
         <div class="card" style="margin-bottom:8px;padding:10px 14px;border-left:3px solid {{ {'pass':'var(--green)','fail':'var(--red)','warn':'var(--amber)','invalid':'var(--grey)','none':'var(--line)'}[st.state] }}">
