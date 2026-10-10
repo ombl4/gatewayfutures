@@ -38,8 +38,8 @@ def canon_tokens(text: str) -> list[tuple[str, int, int]]:
 
     Numbers are parsed before anything is compared: "eighty nine ninety nine", "$89.99" and
     "eight nine nine nine" all become the digits 8 9 9 9; "five hundred" becomes 5 0 0;
-    "one hundred and twenty" 1 2 0. Short upper-case letter groups ("GW") split into letters,
-    so "G W" and "GW" agree. Currency words are dropped. Everything else is lower-cased with
+    "one hundred and twenty" 1 2 0. Two-letter upper-case groups ("GW") split into letters,
+    so "G W" and "GW" agree; longer ones ("ZIP", "USB") stay words. Currency words are dropped. Everything else is lower-cased with
     punctuation removed."""
     words = text.split()
     out: list[tuple[str, int, int]] = []
@@ -64,7 +64,7 @@ def canon_tokens(text: str) -> list[tuple[str, int, int]]:
     for i, w in enumerate(words):
         raw = w.replace("$", "")
         for sub in re.split(r"[-/]", raw):
-            acronym = bool(re.fullmatch(r"[A-Z]{2,3}[.,;:!?]*", sub))
+            acronym = bool(re.fullmatch(r"[A-Z]{2}[.,;:!?]*", sub))  # "GW", not "ZIP"
             lw = re.sub(r"[^a-z0-9.,']", "", sub.lower()).strip(".,")
             if not lw:
                 continue

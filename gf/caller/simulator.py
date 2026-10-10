@@ -13,6 +13,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import random
+import re
 from collections.abc import AsyncGenerator, AsyncIterable
 from dataclasses import dataclass, field
 
@@ -133,6 +134,9 @@ INTERRUPT_INSTRUCTIONS = (
 )
 
 
+TOOL_SYNTAX = re.compile(r"functions\.\w+\s*\(|\bend_call\s*\(|\{\s*\"?summary\"?\s*:")
+
+
 class CallerAgent(Agent):
     def __init__(self, spec: Caller, http_session: aiohttp.ClientSession, seed_offset: int = 0):
         self.spec = spec
@@ -170,8 +174,21 @@ class CallerAgent(Agent):
         """Default TTS, then the session's audio conditions on every frame before publish."""
         said: list[str] = []
 
+        cut = False
+
         async def tee() -> AsyncGenerator[str, None]:
+            # gpt-4.1-mini sometimes writes its end_call tool as text after "Goodbye"; that
+            # must never be spoken (the agent would hear "functions dot end underscore call")
+            nonlocal cut
             async for chunk in text:
+                if cut:
+                    continue
+                m = TOOL_SYNTAX.search(chunk)
+                if m:
+                    cut = True
+                    chunk = chunk[: m.start()].rstrip()
+                    if not chunk:
+                        continue
                 said.append(chunk)
                 yield chunk
 

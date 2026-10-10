@@ -304,11 +304,11 @@
       "label": "Word error rate, caller's words vs what the agent heard",
       "passed": true,
       "severity": "info",
-      "what_happened": "WER 0.00 over 96 reference words",
+      "what_happened": "WER 0.00 over 94 reference words",
       "why_it_matters": "High WER explains wrong tool arguments and repeats downstream.",
       "evidence": {
-        "reference_words": 96,
-        "hypothesis_words": 96
+        "reference_words": 94,
+        "hypothesis_words": 94
       },
       "value": 0.0
     },
@@ -557,7 +557,7 @@
       "label": "The simulated caller heard the agent correctly",
       "passed": true,
       "severity": "soft",
-      "what_happened": "caller-side WER 0.09 over 6 agent turns",
+      "what_happened": "caller-side WER 0.07 over 6 agent turns",
       "why_it_matters": "A caller that mishears the agent argues about the wrong value; that is the simulator's fault, not the agent's, so such calls are excluded.",
       "evidence": {
         "pairs": [
@@ -607,7 +607,7 @@
         "mishearings": [],
         "t_ms": null
       },
-      "value": 0.09
+      "value": 0.069
     },
     {
       "id": "speech.agent_intelligible",
@@ -692,6 +692,19 @@
         "turn_ns": []
       },
       "value": 0
+    },
+    {
+      "id": "caller.spoke_tool_syntax",
+      "group": "caller",
+      "label": "The simulated caller never spoke its own tool syntax",
+      "passed": true,
+      "severity": "soft",
+      "what_happened": "clean",
+      "why_it_matters": "The agent then hears 'functions dot end underscore call'; a simulator fault, filtered out of the caller's speech since 2026-10-09.",
+      "evidence": {
+        "turn_ns": []
+      },
+      "value": null
     },
     {
       "id": "caller.goal_stated_early",

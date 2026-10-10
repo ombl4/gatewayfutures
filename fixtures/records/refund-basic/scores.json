@@ -19,7 +19,7 @@
   "duration_ms": 80883,
   "latency_p50_ms": 2620,
   "latency_p95_ms": 4240,
-  "wer": 0.058,
+  "wer": 0.06,
   "engine": "gf-caller",
   "livekit": null,
   "dead_air_total_ms": 8940,
@@ -322,13 +322,13 @@
       "label": "Word error rate, caller's words vs what the agent heard",
       "passed": true,
       "severity": "info",
-      "what_happened": "WER 0.06 over 69 reference words",
+      "what_happened": "WER 0.06 over 67 reference words",
       "why_it_matters": "High WER explains wrong tool arguments and repeats downstream.",
       "evidence": {
-        "reference_words": 69,
-        "hypothesis_words": 71
+        "reference_words": 67,
+        "hypothesis_words": 69
       },
-      "value": 0.058
+      "value": 0.06
     },
     {
       "id": "speech.entities",
@@ -610,7 +610,7 @@
       "label": "The simulated caller heard the agent correctly",
       "passed": true,
       "severity": "soft",
-      "what_happened": "caller-side WER 0.11 over 5 agent turns",
+      "what_happened": "caller-side WER 0.08 over 5 agent turns",
       "why_it_matters": "A caller that mishears the agent argues about the wrong value; that is the simulator's fault, not the agent's, so such calls are excluded.",
       "evidence": {
         "pairs": [
@@ -667,7 +667,7 @@
         "mishearings": [],
         "t_ms": null
       },
-      "value": 0.109
+      "value": 0.082
     },
     {
       "id": "speech.agent_intelligible",
@@ -752,6 +752,19 @@
         "turn_ns": []
       },
       "value": 0
+    },
+    {
+      "id": "caller.spoke_tool_syntax",
+      "group": "caller",
+      "label": "The simulated caller never spoke its own tool syntax",
+      "passed": true,
+      "severity": "soft",
+      "what_happened": "clean",
+      "why_it_matters": "The agent then hears 'functions dot end underscore call'; a simulator fault, filtered out of the caller's speech since 2026-10-09.",
+      "evidence": {
+        "turn_ns": []
+      },
+      "value": null
     },
     {
       "id": "caller.goal_stated_early",

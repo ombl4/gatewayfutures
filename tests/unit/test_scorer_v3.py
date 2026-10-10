@@ -37,6 +37,8 @@ def test_numbers_canonicalise_however_they_were_said():
     assert normalize("two thousand twenty") == "2 0 2 0"
     assert normalize("nine four one one zero") == "9 4 1 1 0" == normalize("94110")
     assert normalize("zip code 94110, please") == "zip code 9 4 1 1 0 please"
+    assert normalize("The ZIP code is 94110") == normalize("the zip code is nine four one one zero")
+    assert normalize("USB-C cable") == "usb c cable"
     # source spans: the digits of a spoken number point back at the words that made it
     toks = canon_tokens("total eighty nine ninety nine today")
     assert [t for t, _, _ in toks] == ["total", "8", "9", "9", "9", "today"]
@@ -295,3 +297,33 @@ def test_two_final_state_assertions_that_slug_alike_keep_distinct_ids_and_outcom
     assert by["state"]["state"] == "fail" and by["required"]["state"] == "fail"
     assert by["experience"]["state"] == "fail" and "4000" in by["experience"]["text"]
     assert by["honest"]["state"] == "none"
+
+
+def test_caller_tool_syntax_is_cut_before_speech_and_flagged_on_old_recordings():
+    from gf.caller.simulator import TOOL_SYNTAX
+    from gf.scoring.caller import check_caller
+
+    assert TOOL_SYNTAX.search('Goodbye. functions.end_call({summary: "done"})').start() == 9
+    assert TOOL_SYNTAX.search("Goodbye. end_call(summary=...)") and not TOOL_SYNTAX.search(
+        "Goodbye."
+    )
+    rec = CallRecord.load(REC / "refund-basic")
+    sess = Session.load(SESS / "refund-basic.yaml")
+    from gf.record.model import CallerTurn
+
+    bad = rec.model_copy(
+        update={
+            "caller_turns": rec.caller_turns
+            + [
+                CallerTurn(
+                    n=99,
+                    text='Goodbye. functions.end_call({summary: "x"})',
+                    t_start_ms=1,
+                    t_end_ms=2,
+                )
+            ]
+        }
+    )
+    c = next(c for c in check_caller(bad, sess) if c.id == "caller.spoke_tool_syntax")
+    assert not c.passed and c.severity == "soft" and c.evidence["turn_ns"] == [99]
+    assert next(c for c in check_caller(rec, sess) if c.id == "caller.spoke_tool_syntax").passed

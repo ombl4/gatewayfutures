@@ -1309,6 +1309,7 @@ SOFT_LABELS = {
     "tools.arg_problems": "malformed tool arguments",
     "tools.avoidable_rejection": "tried a write the lookup ruled out",
     "caller.went_quiet": "caller paused",
+    "caller.spoke_tool_syntax": "caller spoke tool syntax",
     "quality.stutter": "stutter",
     "quality.tool_name_leak": "spoke a tool name",
     "quality.truncated": "cut-off sentence",
@@ -1584,6 +1585,7 @@ def caller_score(checks: list[dict[str, Any]], scores: dict[str, Any]) -> dict[s
 
 CALLER_FLAG_LABELS = {
     "caller.went_quiet": "paused after the agent spoke",
+    "caller.spoke_tool_syntax": "spoke its own tool syntax",
     "caller.ended_legitimately": "ended on a limit, not for a reason",
     "caller.goal_stated_early": "slow to state its goal",
     "speech.caller_hearing": "misheard the agent",

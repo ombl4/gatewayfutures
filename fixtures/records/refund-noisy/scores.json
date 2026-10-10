@@ -17,7 +17,7 @@
   "duration_ms": 65120,
   "latency_p50_ms": 2560,
   "latency_p95_ms": 2740,
-  "wer": 0.1,
+  "wer": 0.059,
   "engine": "gf-caller",
   "livekit": null,
   "dead_air_total_ms": 0,
@@ -320,13 +320,13 @@
       "label": "Word error rate, caller's words vs what the agent heard",
       "passed": true,
       "severity": "info",
-      "what_happened": "WER 0.10 over 70 reference words",
+      "what_happened": "WER 0.06 over 68 reference words",
       "why_it_matters": "High WER explains wrong tool arguments and repeats downstream.",
       "evidence": {
-        "reference_words": 70,
+        "reference_words": 68,
         "hypothesis_words": 66
       },
-      "value": 0.1
+      "value": 0.059
     },
     {
       "id": "speech.entities",
@@ -541,7 +541,7 @@
       "label": "The simulated caller heard the agent correctly",
       "passed": true,
       "severity": "soft",
-      "what_happened": "caller-side WER 0.10 over 4 agent turns",
+      "what_happened": "caller-side WER 0.06 over 4 agent turns",
       "why_it_matters": "A caller that mishears the agent argues about the wrong value; that is the simulator's fault, not the agent's, so such calls are excluded.",
       "evidence": {
         "pairs": [
@@ -584,7 +584,7 @@
         "mishearings": [],
         "t_ms": null
       },
-      "value": 0.096
+      "value": 0.064
     },
     {
       "id": "speech.agent_intelligible",
@@ -669,6 +669,19 @@
         "turn_ns": []
       },
       "value": 0
+    },
+    {
+      "id": "caller.spoke_tool_syntax",
+      "group": "caller",
+      "label": "The simulated caller never spoke its own tool syntax",
+      "passed": true,
+      "severity": "soft",
+      "what_happened": "clean",
+      "why_it_matters": "The agent then hears 'functions dot end underscore call'; a simulator fault, filtered out of the caller's speech since 2026-10-09.",
+      "evidence": {
+        "turn_ns": []
+      },
+      "value": null
     },
     {
       "id": "caller.goal_stated_early",

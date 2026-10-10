@@ -8,6 +8,8 @@ flags, separate from the agent's flags.
 
 from __future__ import annotations
 
+import re
+
 from gf.record.model import CallRecord
 from gf.scoring.checks import Check
 from gf.sessions.schema import Session
@@ -29,6 +31,28 @@ def check_caller(record: CallRecord, session: Session | None) -> list[Check]:
     words = GOAL_WORDS.get(kind or "", ())
     first_two = " ".join(t.text.lower() for t in record.caller_turns[:2])
     stated = any(w in first_two for w in words) if words else True
+    leaked = [
+        t.n
+        for t in record.caller_turns
+        if re.search(r"functions\.\w+\s*\(|\bend_call\s*\(", t.text)
+    ]
+    checks.append(
+        Check(
+            id="caller.spoke_tool_syntax",
+            group="caller",
+            label="The simulated caller never spoke its own tool syntax",
+            passed=not leaked,
+            severity="soft",
+            what_happened=f"turn(s) {leaked}: the caller read its end_call tool out loud"
+            if leaked
+            else "clean",
+            why_it_matters=(
+                "The agent then hears 'functions dot end underscore call'; a simulator fault, "
+                "filtered out of the caller's speech since 2026-10-09."
+            ),
+            evidence={"turn_ns": leaked},
+        )
+    )
     checks.append(
         Check(
             id="caller.goal_stated_early",
