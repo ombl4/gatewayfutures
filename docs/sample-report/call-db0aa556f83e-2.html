@@ -1,0 +1,1500 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Caller gets a refund, then asks for the same order to be refunded again #2 · Call</title>
+<style>
+:root{
+  --bg:#f7f7f8;--card:#fff;--ink:#111827;--muted:#6b7280;--line:#e5e7eb;--line2:#f1f3f5;
+  --accent:#4f46e5;--accent-bg:#eef2ff;--accent-ink:#3730a3;
+  --green:#15803d;--green-bg:#dcfce7;--amber:#b45309;--amber-bg:#fef3c7;--red:#b91c1c;--red-bg:#fee2e2;
+  --grey:#6b7280;--grey-bg:#f3f4f6;--caller:#2563eb;--agent:#7c3aed;--tool:#0f766e;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{color-scheme:light}
+body{margin:0;background:var(--bg);color:var(--ink);font:13.5px/1.5 var(--sans);display:grid;grid-template-columns:200px minmax(0,1fr);min-height:100vh}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+h1{font-size:22px;margin:0 0 2px;font-weight:650;letter-spacing:-.01em}
+h2{font-size:15px;margin:22px 0 10px;font-weight:650}
+h3{font-size:13.5px;margin:0 0 6px;font-weight:650}
+.sub{color:var(--muted);margin:0 0 14px}
+.mono{font-family:var(--mono);font-size:12px}
+.muted{color:var(--muted)}.small{font-size:12px}.num{text-align:right;font-variant-numeric:tabular-nums}
+/* shell */
+aside.nav{background:#fff;border-right:1px solid var(--line);padding:14px 10px;position:sticky;top:0;height:100vh;overflow:auto;display:flex;flex-direction:column;gap:2px}
+.brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;padding:4px 8px 14px;color:var(--ink)}
+.brand svg{width:22px;height:18px}
+aside.nav a.item{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:7px;color:var(--ink);font-weight:500}
+aside.nav a.item:hover{background:var(--grey-bg);text-decoration:none}
+aside.nav a.item.active{background:var(--accent-bg);color:var(--accent-ink)}
+aside.nav a.item svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;opacity:.85}
+aside.nav .sec{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:16px 10px 6px;font-weight:600}
+.agentbox{display:flex;gap:9px;align-items:center;padding:6px 10px 10px}
+.agentbox .av{width:30px;height:30px;border-radius:8px;background:var(--accent-bg);color:var(--accent);display:grid;place-items:center;font-weight:700;font-size:13px}
+.agentbox .nm{font-weight:600;font-size:12.5px;line-height:1.25}
+.agentbox .st{font-size:11.5px;color:var(--muted)}
+.agentbox .st i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:4px;vertical-align:1px}
+aside.nav a.row{display:flex;justify-content:space-between;gap:6px;padding:5px 10px;border-radius:6px;color:var(--ink);font-size:12.5px}
+aside.nav a.row:hover{background:var(--grey-bg);text-decoration:none}
+aside.nav a.row span:last-child{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:55%}
+.vers{margin-top:auto;padding:10px;font-size:11px;color:var(--muted)}
+.wrap{min-width:0;display:flex;flex-direction:column}
+header.top{height:52px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;padding:0 24px;position:sticky;top:0;z-index:5}
+.crumbs{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.crumbs a{color:var(--muted)}.crumbs b{color:var(--ink);font-weight:600}.crumbs i{font-style:normal;color:#c4c8cf}
+header .right{margin-left:auto;display:flex;align-items:center;gap:8px;white-space:nowrap}
+main{padding:20px 24px 90px;width:100%;box-sizing:border-box}
+footer{color:var(--muted);font-size:11.5px;text-align:center;margin-top:36px}
+@media (max-width:900px){
+  body{grid-template-columns:minmax(0,1fr)}
+  aside.nav{position:static;height:auto;flex-direction:row;flex-wrap:wrap;gap:4px;padding:8px}
+  aside.nav .sec,aside.nav .agentbox,aside.nav a.row,.vers{display:none}
+  .brand{padding:6px 8px;width:100%}
+  header.top{height:auto;padding:8px 16px;flex-wrap:wrap}
+  header .right{margin-left:0;flex-wrap:wrap;white-space:normal}
+  details.srow summary{grid-template-columns:18px minmax(0,1fr) auto auto}
+  .meta .mono{word-break:break-all}
+  details.srow summary .bar{display:none}
+  .sbody{padding-left:14px}
+  main{padding:14px 16px 90px}
+}
+/* components */
+.backrow{margin:0 0 10px}
+.outcome{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin:4px 0 12px}.outcome .o{border:1px solid var(--line);border-left:3px solid var(--line);border-radius:8px;padding:7px 10px;font-size:12px;display:grid;grid-template-columns:auto 1fr;gap:2px 8px;align-items:center;background:#fff}.outcome .o b{font-weight:600}.outcome .o .m{font-weight:700;grid-row:1/3}.outcome .o .t{grid-column:2;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.outcome .o.pass{border-left-color:var(--green)}.outcome .o.pass .m{color:var(--green)}.outcome .o.fail{border-left-color:var(--red)}.outcome .o.fail .m{color:var(--red)}.outcome .o.none .m{color:var(--muted)}
+.att .verdicts{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.shortfall{width:100%;margin-top:10px;border-collapse:collapse}.shortfall td{padding:3px 0;border-top:1px solid var(--line2)}.shortfall tr:first-child td{border-top:0}.shortfall td.num{text-align:right}
+.stiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin:14px 0 20px}.stile{display:block;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;color:inherit;transition:border-color .12s,box-shadow .12s}.stile:hover{text-decoration:none;border-color:var(--accent);box-shadow:0 1px 6px rgba(20,24,40,.06)}.stile svg{width:18px;height:18px;stroke:var(--accent);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;margin-bottom:10px;display:block}.stile b{display:block;font-size:15px;font-weight:600;margin-bottom:4px}.stile span{display:block;color:var(--muted);font-size:13px;line-height:1.4}.stile em{display:block;font-style:normal;margin-top:12px;font-size:12px;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.card h3{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.grid{display:grid;gap:12px}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11.5px;font-weight:600;white-space:nowrap;line-height:1.6}
+.pill.green,.pill.pass{background:var(--green-bg);color:var(--green)}.pill.amber{background:var(--amber-bg);color:var(--amber)}
+.pill.red,.pill.fail{background:var(--red-bg);color:var(--red)}.pill.grey,.pill.invalid{background:var(--grey-bg);color:var(--grey)}
+.pill.indigo{background:var(--accent-bg);color:var(--accent-ink)}
+a.pill:hover{text-decoration:none;filter:brightness(.95)}
+.pill.mono{font-family:var(--mono);font-weight:600;font-size:11px}
+.chip{display:inline-block;padding:0 7px;border:1px solid var(--line);border-radius:6px;font-size:11.5px;color:var(--muted);background:#fff;margin:1px 3px 1px 0;white-space:nowrap}
+.status-pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600;background:#fff;color:var(--ink)}
+.status-pill i{width:7px;height:7px;border-radius:50%;background:#c4c8cf}
+.status-pill.ok i{background:var(--green)}.status-pill.bad i{background:var(--red)}
+.status-pill .chev{width:10px;height:10px;margin-left:2px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+details.pmenu{position:relative}details.pmenu>summary{list-style:none;cursor:pointer;user-select:none}details.pmenu>summary::-webkit-details-marker{display:none}
+details.pmenu .menu{position:absolute;right:0;top:calc(100% + 6px);z-index:6;min-width:280px;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.1);padding:6px}
+.pmenu .hd{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:6px 10px 4px;font-weight:600}
+.pmenu .mi{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;font-size:12.5px;color:var(--ink);text-decoration:none;white-space:nowrap}
+.pmenu .mi:hover{background:var(--grey-bg);text-decoration:none}
+.pmenu .mi i{width:7px;height:7px;border-radius:50%;background:#c4c8cf;flex:none}
+.pmenu .mi.cur i{background:var(--green)}.pmenu .mi.cur.bad i{background:var(--red)}
+.pmenu .mi em{margin-left:auto;font-style:normal;font-size:11px;color:var(--muted);padding-left:12px}
+.pmenu .mi.add{border-top:1px solid var(--line);margin-top:4px;border-radius:0 0 7px 7px;color:var(--accent-ink);font-weight:600}
+ol.plan{padding-left:20px}ol.plan li{margin:0 0 10px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:7px;border:1px solid var(--line);background:#fff;font:inherit;font-weight:600;font-size:12.5px;cursor:pointer;color:var(--ink);text-decoration:none;line-height:1.4}
+.btn:hover{background:var(--grey-bg);text-decoration:none}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn.primary:hover{background:#4338ca}
+.btn.danger{color:var(--red);border-color:#fecaca;background:var(--red-bg);font-weight:700}.btn.danger:hover{background:#fee2e2}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn.sm{padding:3px 9px;font-size:12px}
+.btn.on{background:var(--accent-bg);border-color:#c7d2fe;color:var(--accent-ink)}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+th,td{text-align:left;padding:8px 10px;border-top:1px solid var(--line2);vertical-align:top}
+th{background:#fafafa;color:var(--muted);font-weight:600;font-size:11.5px;border-top:0;text-transform:uppercase;letter-spacing:.04em}
+tr:hover td{background:#fafafa}
+.tablewrap{overflow-x:auto}
+.strip{display:inline-flex;gap:3px;vertical-align:middle}
+.dot{width:13px;height:13px;border-radius:3px;display:inline-block;border:1px solid transparent}
+.dot.pass{background:var(--green)}.dot.fail{background:var(--red)}.dot.invalid{background:#cbd0d6}
+.dot.pending{background:#fff;border-color:var(--line)}
+.vs{font-size:12px;font-weight:600}.vs.regressed{color:var(--red)}.vs.fixed{color:var(--green)}.vs.same,.vs.new,.vs.none{color:var(--muted);font-weight:500}
+.kv{display:grid;grid-template-columns:max-content 1fr;gap:3px 14px;font-size:13px}
+.kv .k{color:var(--muted)}
+.two{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px;align-items:start}
+@media (max-width:1000px){.two{grid-template-columns:1fr}}
+details{border:1px solid var(--line);border-radius:10px;background:#fff;padding:10px 14px;margin:8px 0}
+details summary{cursor:pointer;font-weight:600}
+pre{background:#fafafa;border:1px solid var(--line);border-radius:8px;padding:10px;overflow:auto;font-size:12px;margin:8px 0}
+code{font-family:var(--mono);font-size:12px;background:#f3f4f6;padding:0 4px;border-radius:4px}
+.input{width:100%;max-width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:7px;font:inherit;background:#fff;margin:3px 0 6px}
+select.input{max-width:100%}
+textarea.input{font-family:var(--mono);font-size:12px;line-height:1.45}
+.list li{margin:4px 0}
+.banner{border:1px solid #c7d2fe;background:var(--accent-bg);border-radius:10px;padding:10px 14px;margin:0 0 12px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.banner.warn{border-color:#fcd34d;background:var(--amber-bg)}
+.progress{height:8px;background:#e0e7ff;border-radius:4px;overflow:hidden;min-width:160px;flex:1}
+.progress i{display:block;height:100%;background:var(--accent)}
+.meta{color:var(--muted);font-size:12.5px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 14px}
+.meta i{font-style:normal;color:#c4c8cf}
+/* KPI cards */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:12px;margin:0 0 16px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;grid-template-columns:34px minmax(0,1fr) 84px;grid-template-rows:auto auto auto;gap:0 10px;align-items:start}
+.kpi .ic{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;grid-column:1;grid-row:1/4}
+.kpi .ic svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.kpi.green .ic{background:var(--green-bg);color:var(--green)}.kpi.amber .ic{background:var(--amber-bg);color:var(--amber)}.kpi.red .ic{background:var(--red-bg);color:var(--red)}.kpi.grey .ic{background:var(--grey-bg);color:var(--grey)}
+.kpi .k{grid-column:2;grid-row:1;font-size:12.5px;color:var(--muted);font-weight:600;line-height:1.25}
+.kpi .v{grid-column:2;grid-row:2;font-size:26px;font-weight:700;line-height:1.2;letter-spacing:-.01em;margin:2px 0}
+.kpi .d{grid-column:2;grid-row:3;font-size:11.5px;color:var(--muted);line-height:1.35}
+.kpi .trend{grid-column:3;grid-row:1/4;font-size:11px;color:var(--muted);align-self:center;text-align:center;line-height:1.3}
+.kpi .trend svg{display:block;width:76px;height:28px;margin:0 auto 3px}
+.kpi .trend .vs{display:block;font-size:11px}
+/* flow strip */
+.flow{display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin:-4px 0 16px;font-size:12px;color:var(--muted)}
+.flow .lbl{margin-right:4px}
+.flow a{display:inline-flex;align-items:center;gap:5px;color:var(--ink);font-weight:500;padding:2px 6px;border-radius:6px}
+.flow a:hover{background:var(--grey-bg);text-decoration:none}
+.flow a b{display:inline-grid;place-items:center;width:15px;height:15px;border-radius:50%;background:var(--accent-bg);color:var(--accent-ink);font-size:9.5px;font-weight:700}
+.flow i{color:#c4c8cf;font-style:normal}
+/* workspace: sessions + issues */
+.work{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start;margin-bottom:16px}
+.work.has-call{grid-template-columns:minmax(0,1fr)}
+.card .hd{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px}.card .hd h3{margin:0;display:flex;align-items:center;gap:8px;font-size:15px}.card .hd .ic{width:26px;height:26px;border-radius:7px;background:var(--accent-bg);color:var(--accent-ink);display:grid;place-items:center;font-size:13px}.card .hd .ic.warn{background:var(--red-bg);color:var(--red)}
+.areas-card{margin:0 0 12px}.areas{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+.area{position:relative;outline:0}.area .tile{border:1px solid var(--line);border-radius:8px;padding:10px 12px;cursor:pointer;background:#fff}.area:hover .tile,.area.open .tile,.area:focus-within .tile{border-color:var(--accent)}
+.area .nm{display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:13px}.area .nm .chev{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:2}
+.area .ct{margin-top:4px;font-size:13px}.area .ct b{font-weight:600}.area .rate{font-weight:700;margin-left:4px}.area .rate.green{color:var(--green)}.area .rate.amber{color:#b45309}.area .rate.red{color:var(--red)}.area .rate.grey{color:var(--muted)}
+.area .bar{height:6px;border-radius:3px;background:var(--grey-bg);margin:8px 0 6px;overflow:hidden}.area .bar i{display:block;height:100%;border-radius:3px}.area .bar i.green{background:var(--green)}.area .bar i.amber{background:#f59e0b}.area .bar i.red{background:var(--red)}.area .bar i.grey{background:#c4c8cf}
+.area .ft{display:flex;align-items:center;gap:4px;font-size:11.5px;color:var(--muted)}.area .ft span{margin-left:4px}.area .d{width:6px;height:6px;border-radius:50%;display:inline-block;background:#e5e7eb}.area .d.f{background:var(--red)}.area .d.x{background:#6b7280}.area .d.w{background:var(--amber)}
+.runrow .chev-btn{border:0;background:none;padding:0 6px 0 0;cursor:pointer;vertical-align:middle}.runrow .chev{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:2;transition:transform .15s}.runrow.open .chev{transform:rotate(90deg)}
+tr.runbody>td{padding:0 0 14px;background:var(--bg)}.runbox{padding:10px 12px 0}.runbox .loading{padding:10px;font-size:12px;color:var(--muted)}
+.two-cards{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:12px;margin:0 0 12px}@media (max-width:900px){.two-cards{grid-template-columns:1fr}}
+#simulation-quality .big,#cq-headline .big{display:flex;align-items:center;gap:12px;margin:6px 0}#simulation-quality .big b,#cq-headline .big b{font-size:30px;font-weight:700;letter-spacing:-.01em}#simulation-quality .big span,#cq-headline .big span{display:flex;flex-direction:column;font-size:12.5px}#simulation-quality .big .k,#cq-headline .big .k{font-weight:600}#cq-headline .bar{height:8px;border-radius:4px;background:var(--grey-bg);overflow:hidden}#cq-headline .bar i{display:block;height:100%;background:var(--accent)}
+#simulation-quality .bar{height:8px;border-radius:4px;background:var(--grey-bg);overflow:hidden;margin:4px 0 12px}#simulation-quality .bar i{display:block;height:100%;background:var(--accent)}
+#simulation-quality .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}#simulation-quality .stats div{display:flex;flex-direction:column;border-left:1px solid var(--line);padding-left:10px;font-size:12px;color:var(--muted)}#simulation-quality .stats div:first-child{border-left:0;padding-left:0}#simulation-quality .stats b{font-size:15px;color:var(--ink)}
+table.breakdown td.trend svg{width:60px;height:22px;display:block}table.breakdown th.num,table.breakdown td.num{text-align:right}
+.area .pop{display:none;position:absolute;z-index:7;top:calc(100% + 6px);left:0;width:380px;max-width:calc(100vw - 32px);background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.1);padding:10px 12px;font-size:12px;font-weight:400;white-space:normal;text-align:left;color:var(--ink)}
+.area .pop::before{content:'';position:absolute;top:-8px;left:0;right:0;height:8px}
+.area:hover .pop,.area:focus-within .pop,.area.open .pop{display:block}.area.right .pop{left:auto;right:0}
+.area .pop>b{font-size:12.5px;text-transform:capitalize}.area .pop .clean{display:block;margin-top:6px;color:var(--muted)}
+.itile{display:block;margin-top:6px;border:1px solid var(--line);border-left:3px solid var(--line);border-radius:6px;padding:6px 8px;color:var(--ink);text-decoration:none}.itile:hover{border-color:var(--accent);border-left-color:var(--accent);text-decoration:none}
+.itile.fail{border-left-color:var(--red)}.itile.sim{border-left-color:#9ca3af}.itile.warn{border-left-color:var(--amber)}.itile.ok{border-left-color:var(--green)}.itile.exp{border-left-color:#f59e0b}.itile.exp .tm em{color:#b45309}.pill.exp{font-size:10.5px}.area .d.e{background:#f59e0b}.itile.ok .tm em{color:var(--green)}
+.itile .tt{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.itile .tm{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}.itile .tm em{font-style:normal;font-weight:600}
+.itile.fail .tm em{color:var(--red)}.itile.warn .tm em{color:var(--amber)}.itile.sim .tm em{color:var(--grey)}.area .pop .more{display:block;margin-top:8px;font-size:12px}
+@media (max-width:1100px){.work{grid-template-columns:1fr}}
+.acc{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.acc .hd{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line)}
+.acc .hd h3{margin:0}
+details.srow{border:0;border-radius:0;margin:0;padding:0;border-top:1px solid var(--line2)}
+details.srow:first-of-type{border-top:0}
+details.srow summary{list-style:none;display:grid;grid-template-columns:18px minmax(0,1fr) 150px 70px auto;gap:10px;align-items:center;padding:9px 14px;font-weight:500;cursor:pointer}
+details.srow summary::-webkit-details-marker{display:none}details.srow.plain summary{grid-template-columns:18px minmax(0,1fr)}
+details.srow summary:hover{background:#fafafa}
+details.srow summary .chev{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:2;transition:transform .15s}
+details.srow[open] summary .chev{transform:rotate(90deg)}
+details.srow summary .ttl{font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+details.srow summary .ttl .chip{font-weight:400}
+.bar{height:6px;background:var(--grey-bg);border-radius:3px;overflow:hidden;display:flex;min-width:60px}
+.bar i{display:block;height:100%}
+.bar .p{background:var(--green)}.bar .f{background:var(--red)}.bar .x{background:#cbd0d6}
+.cnt{font-size:12px;white-space:nowrap}.cnt b.p{color:var(--green)}.cnt b.f{color:var(--red)}
+.sbody{padding:4px 14px 12px 42px;background:#fcfcfc;border-top:1px solid var(--line2)}
+.cols4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;font-size:12.5px}
+@media (max-width:900px){.cols4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.cols4 .h{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-bottom:2px}
+.att{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:5px 0;border-top:1px solid var(--line2);font-size:12.5px}
+.att .rs{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.callbtn.on{background:var(--accent-bg);color:var(--accent-ink);border-color:var(--accent)}.callbox{margin:6px 0 10px}.callbox .insp{margin:0}.callbox .loading{padding:12px;font-size:12px;color:var(--muted)}
+.issues{display:flex;flex-direction:column;gap:8px}
+.issue{display:block;background:#fff;border:1px solid var(--line);border-left:3px solid var(--line);border-radius:8px;padding:9px 12px;color:var(--ink)}
+.issue:hover{text-decoration:none;border-color:var(--accent);border-left-color:var(--accent)}
+.issue.critical{border-left-color:var(--red)}.issue.high{border-left-color:var(--red)}.issue.medium{border-left-color:#f59e0b}.issue.simulation{border-left-color:#9ca3af}
+.issue .t{display:flex;gap:8px;align-items:center;font-weight:400;font-size:12.5px}
+.issue .t .pill{margin-left:auto}
+.issue .m{font-size:11.5px;color:var(--muted);margin-top:3px}
+.sev{font-size:10.5px;padding:0 6px;border-radius:4px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.sev.critical{background:var(--red-bg);color:var(--red)}.sev.high{background:var(--red-bg);color:var(--red)}.sev.medium{background:var(--amber-bg);color:var(--amber)}.sev.simulation{background:var(--grey-bg);color:var(--grey)}
+/* inspector */
+.insp{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:16px}
+.insp .hd{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);flex-wrap:nowrap}
+.insp .hd .meta{flex:1;min-width:0;margin:0;display:flex;flex-wrap:nowrap;align-items:center;gap:8px;white-space:nowrap;overflow:hidden}
+.insp .hd .meta .ttl{font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:0 1 auto}
+.insp .hd .meta i{color:var(--muted);font-style:normal;flex:none}.insp .hd .meta .pill{flex:none}
+.insp .hd .nav{margin-left:auto;display:flex;gap:6px;align-items:center;flex:none;white-space:nowrap}
+.abar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.abar .pb{width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;border:0;display:grid;place-items:center;cursor:pointer;flex:none}
+.abar .pb svg{width:14px;height:14px;fill:#fff}
+.abar .pb svg[hidden]{display:none}
+.abar .pb[disabled]{background:#c7cbd1;cursor:not-allowed}
+.abar .tm{font-family:var(--mono);font-size:12px;color:var(--muted);min-width:84px;white-space:nowrap}
+.abar canvas.lanes{flex:1;height:36px;min-width:0;display:block;cursor:pointer}
+.abar .wave-legend{padding:0;flex:none;gap:10px;flex-wrap:nowrap;white-space:nowrap}.abar .wave-legend i{width:7px;height:7px}
+.legend{font-size:11.5px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap;padding:0 14px 8px}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+.tabs{display:flex;gap:2px;padding:0 14px;border-bottom:1px solid var(--line);align-items:center}
+.tabs button{border:0;background:none;font:inherit;font-size:12.5px;font-weight:600;color:var(--muted);padding:9px 10px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs button.on{color:var(--accent-ink);border-bottom-color:var(--accent)}
+.tabs button b{font-weight:600;background:var(--grey-bg);color:var(--muted);border-radius:999px;padding:0 6px;font-size:11px;margin-left:4px}
+.tr-wrap{display:grid;grid-template-columns:minmax(0,1fr) 0;gap:0}.tr-wrap:has(#tr-panel:not([hidden])){grid-template-columns:minmax(0,1fr) 340px;gap:14px}
+.tr-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:6px 0 8px;font-size:12.5px}.tr-bar .tr-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.tr-bar .zoom{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:7px;background:#fff}.tr-bar .zoom button{border:0;background:none;font:inherit;font-size:14px;padding:3px 9px;cursor:pointer;color:var(--ink)}.tr-bar .zoom b{font-weight:600;font-size:12px;min-width:44px;text-align:center}
+.tr-bar .bi{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;vertical-align:-2px;margin-right:5px}
+.tr-search{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:7px;padding:0 8px;background:#fff;min-width:230px;flex:1;max-width:340px}.tr-search svg{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:2}.tr-search input{border:0;outline:0;font:inherit;font-size:12.5px;padding:6px 0;flex:1;background:none}
+.tr-sel{font:inherit;font-size:12.5px;border:1px solid var(--line);border-radius:7px;padding:5px 8px;background:#fff}.tr-toggle.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.tr-table{--lanew:600px;border:1px solid var(--line);border-radius:10px;overflow:auto;background:#fff;font-size:12.5px}
+.tr-row{display:grid;grid-template-columns:300px 90px 96px 90px var(--lanew);align-items:center;min-height:30px;border-bottom:1px solid #f1f3f6}.tr-row[hidden]{display:none}
+.tr-bar .sw{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);cursor:pointer;user-select:none;white-space:nowrap}
+.tr-head{position:sticky;top:0;z-index:3;background:#f8fafc;color:var(--muted);font-weight:600;font-size:12px;min-height:34px}.tr-head .c-lane{height:34px}
+.tr-row .c-name{position:sticky;left:0;z-index:2;background:inherit;display:flex;align-items:center;gap:6px;padding:0 8px 0 calc(10px + var(--d, 0) * 18px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;height:30px;border-right:1px solid #f1f3f6}
+.tr-head .c-name{padding-left:10px;height:34px}.tr-row .c-status,.tr-row .c-start,.tr-row .c-dur{padding:0 8px;white-space:nowrap}.tr-row .c-dur{text-align:left}
+.tr-row.sp{background:#fff;cursor:pointer}.tr-row.sp:hover{background:#fafbff}.tr-row.sp.sel{background:#eef2ff}.tr-row.sp.sel .c-name{background:#eef2ff}.tr-row.sp:hover .c-name{background:#fafbff}
+.tr-row .tg{width:16px;height:16px;display:inline-grid;place-items:center;flex:none;cursor:pointer}.tr-row .tg svg{width:12px;height:12px;stroke:var(--muted);fill:none;stroke-width:2;transition:transform .12s}.tr-row.folded .tg svg{transform:rotate(-90deg)}.tr-row .tg.none{visibility:hidden}
+.tr-row .nmtxt{font-weight:500}.tr-row.d0 .nmtxt{font-weight:600}.tr-row.d1 .nmtxt{font-weight:600}
+.tr-row .c-name::before{content:"";position:absolute;left:calc(var(--d, 0) * 18px + 4px);top:0;bottom:0;width:0;border-left:1px solid #e5e7eb}.tr-row.d0 .c-name::before,.tr-table.flat .c-name::before{display:none}.tr-table.flat .c-name{padding-left:10px}.tr-table.flat .tg{display:none}
+.si{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.si.k-call{color:#2563eb}.si.k-user_turn{color:#2563eb}.si.k-end_of_turn,.si.k-stt{color:#3b82f6}.si.k-reasoning,.si.k-llm{color:#7c3aed}.si.k-tool_call{color:#ea580c}.si.k-backend{color:#9a3412}.si.k-response{color:#6d28d9}.si.k-tts{color:#8b5cf6}.si.k-playback{color:#8b5cf6}.si.k-idle,.si.k-dead_air{color:#6b7280}.si.k-interruption{color:#d97706}.si.k-talk_over{color:#dc2626}
+.stp{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:600;padding:1px 7px;border-radius:999px}.stp svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.5}.stp.ok{background:var(--green-bg);color:var(--green)}.stp.slow{background:var(--red-bg);color:var(--red)}.stp.error{background:var(--red-bg);color:var(--red)}
+.tr-row .c-lane{position:relative;height:30px;overflow:visible}.tr-head .c-lane .axis{position:absolute;inset:0}.tr-head .axis i{position:absolute;top:10px;font-style:normal;font-family:var(--mono);font-weight:500;font-size:10.5px;transform:translateX(-50%);color:var(--muted)}.tr-head .axis i:first-child{transform:none}
+.tr-row .bar{position:absolute;top:7px;height:16px;border-radius:3px;min-width:3px;background:#cbd5e1}.tr-row .lbl{position:absolute;top:0;line-height:30px;font-style:normal;font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap}
+.k-call .bar{background:#bfdbfe}.k-user_turn .bar{background:#93c5fd}.k-end_of_turn .bar,.k-stt .bar{background:#bfdbfe}.k-reasoning .bar{background:#c4b5fd}.k-llm .bar{background:#ddd6fe}.k-tool_call .bar{background:#fdba74}.k-backend .bar{background:#fed7aa}.k-response .bar{background:#c7d2fe}.k-tts .bar,.k-playback .bar{background:#e0e7ff}
+.k-idle .bar,.k-dead_air .bar{background:repeating-linear-gradient(135deg,#e5e7eb 0 4px,#f3f4f6 4px 8px)}.k-interruption .bar{background:#fde68a}.k-talk_over .bar{background:#fecaca}
+.tr-row.st-error .bar{background:#fca5a5}.tr-row.st-slow .bar{box-shadow:inset 0 0 0 1.5px #ef4444}
+.tr-row.d0 .lbl{left:auto!important;right:6px;color:#1e3a8a}
+.tr-table.crit-on .sp:not(.crit):not(.d0):not(.d1){opacity:.4}.tr-table.crit-on .sp.crit .bar{outline:2px solid var(--ink);outline-offset:-1px}
+#tr-tip{position:absolute;z-index:9;max-width:360px;background:var(--ink);color:#fff;font-size:11.5px;line-height:1.4;padding:6px 9px;border-radius:6px;pointer-events:none;box-shadow:0 4px 12px rgba(0,0,0,.18)}
+#tr-play{position:absolute;top:0;bottom:0;width:0;border-left:2px dashed #ef4444;pointer-events:none;z-index:2}#tr-play b{position:absolute;bottom:4px;left:-2px;transform:translateX(-50%);background:#ef4444;color:#fff;font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:5px;white-space:nowrap}#tr-rows{position:relative}
+.tr-panel{border:1px solid var(--line);border-radius:10px;background:#fff;padding:12px 14px;align-self:start;position:sticky;top:60px;max-height:calc(100vh - 80px);overflow:auto}
+.tr-ph{display:flex;gap:10px;align-items:flex-start}.tr-ph .ic{width:34px;height:34px;border-radius:50%;background:var(--accent-bg);display:grid;place-items:center;flex:none}.tr-ph .ic .si{width:18px;height:18px}.tr-ph .nm{font-weight:700;font-size:15px}.tr-ph .stp{margin-left:auto;margin-top:16px}.tr-ph .x{border:0;background:none;cursor:pointer;color:var(--muted);font-size:14px;margin-top:12px}
+.tr-tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin:10px 0 10px}.tr-tabs button{border:0;background:none;font:inherit;font-size:12.5px;font-weight:600;color:var(--muted);padding:6px 10px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}.tr-tabs button.on{color:var(--accent-ink);border-bottom-color:var(--accent)}
+.tr-alert{border-radius:8px;padding:9px 11px;font-size:12px;margin:0 0 10px}.tr-alert b{display:block;margin-bottom:2px}.tr-alert.slow{background:var(--red-bg);color:#7f1d1d;border:1px solid #fecaca}.tr-alert.error{background:var(--red-bg);color:#7f1d1d;border:1px solid #fecaca}
+.tr-panel h4{margin:12px 0 6px;font-size:12.5px}.tr-panel .kv .si{vertical-align:-3px}.tr-panel .dot{display:inline-block;width:8px;height:8px;border-radius:50%;vertical-align:middle}.tr-panel .dot.ok{background:var(--green)}.tr-panel .dot.slow{background:#f59e0b}.tr-panel .dot.error{background:var(--red)}
+.tr-break{display:grid;grid-template-columns:110px minmax(0,1fr) 44px 36px;gap:4px 8px;align-items:center;font-size:12px}.tr-break i{display:block;height:8px;border-radius:4px;background:#c4b5fd}.tr-break i.k-tool_call{background:#fb923c}.tr-break i.k-llm{background:#8b5cf6}.tr-break i.k-idle{background:#9ca3af}.tr-break i.k-tts,.tr-break i.k-playback{background:#818cf8}.tr-break i.k-end_of_turn,.tr-break i.k-stt{background:#60a5fa}.tr-break b{text-align:right}.tr-break em{font-style:normal;color:var(--muted);text-align:right}
+.tabs .sw{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;user-select:none}
+.sw .tg{width:30px;height:17px;border-radius:999px;background:#d1d5db;position:relative;transition:background .15s}
+.sw .tg::after{content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:#fff;transition:left .15s}
+.sw.on .tg{background:var(--accent)}.sw.on .tg::after{left:15px}
+.panes{display:grid;grid-template-columns:minmax(0,1fr)}
+.pane{padding:8px 14px 14px;min-width:0}
+.pane[hidden]{display:none!important}
+.side{border-left:1px solid var(--line);padding:12px 14px;min-width:0}
+@media (max-width:1100px){.side{border-left:0;border-top:1px solid var(--line)}}
+.turn{display:grid;grid-template-columns:38px 22px minmax(0,1fr);gap:8px;padding:7px 8px;border-radius:8px;margin:2px 0;cursor:pointer;border:1px solid transparent}
+.turn:hover{background:#fafafa}.turn.current{background:var(--accent-bg);border-color:#c7d2fe}
+.turn .t{color:var(--muted);font-family:var(--mono);font-size:11px;padding-top:4px}
+.turn .av{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;font-weight:700;margin-top:1px}
+.turn.caller .av{background:#dbeafe;color:var(--caller)}.turn.agent .av{background:#ede9fe;color:var(--agent)}
+.turn .who{font-size:11.5px;font-weight:650;margin-bottom:0;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.turn.caller .who{color:var(--caller)}.turn.agent .who{color:var(--agent)}
+.turn .heard{font-size:12px;color:var(--muted);margin-top:3px}
+.turn .heard mark{background:var(--red-bg);color:var(--red);padding:0 2px;border-radius:3px}
+.heard-off .turn .heard{display:none}
+.lat{font-weight:600}
+.toolev{margin:4px 0 4px 68px;border:1px solid #ccfbf1;background:#f0fdfa;border-radius:8px;padding:6px 10px;font-size:12.5px;cursor:pointer;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.toolev.bad{border-color:#fecaca;background:#fff5f5}.toolev.fault{border-color:#fde68a;background:#fffbeb}.toolev.fault .name{color:#b45309}
+.toolev.sel{outline:2px solid var(--accent);outline-offset:-1px}
+.toolev .name{font-family:var(--mono);font-weight:650;color:var(--tool)}
+.toolev.bad .name{color:var(--red)}
+.toolev .args{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.deadair{margin:4px 0 4px 68px;font-size:12px;color:var(--amber);background:var(--amber-bg);border-radius:6px;padding:2px 10px;display:inline-block;cursor:pointer}
+.root{border:1px solid #fecaca;background:#fff5f5;border-radius:8px;padding:9px 12px;font-size:12.5px;margin-bottom:12px}
+.root.pass{border-color:#bbf7d0;background:#f0fdf4}.root.warn{border-color:#fde68a;background:#fffbeb}.root.invalid{border-color:var(--line);background:#fafafa}
+.root b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.root.fail b{color:var(--red)}.root.pass b{color:var(--green)}.root.warn b{color:var(--amber)}.root.invalid b{color:var(--grey)}
+.tev{border:1px solid var(--line);border-radius:8px;margin-bottom:12px;overflow:hidden}.tev.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-bg)}
+.tev .h{display:flex;gap:8px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line2);font-size:12.5px}
+.tev .h .name{font-family:var(--mono);font-weight:650}
+.tev .h .ms{margin-left:auto;color:var(--muted);font-size:11.5px;white-space:nowrap}
+.tev .tt{display:flex;gap:2px;padding:4px 6px 0;border-bottom:1px solid var(--line2)}
+.tev .tt button{border:0;background:none;font:inherit;font-size:11.5px;font-weight:600;color:var(--muted);padding:4px 8px;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer}
+.tev .tt button.on{color:var(--accent-ink);border-bottom-color:var(--accent)}
+.tev pre{margin:0;border:0;border-radius:0;max-height:220px;font-size:11.5px}
+.tev .empty{padding:10px;font-size:12px;color:var(--muted)}
+.check{display:grid;grid-template-columns:16px minmax(0,1fr) auto;gap:8px;padding:5px 0;border-top:1px solid var(--line2);align-items:start;font-size:12.5px}
+.check:first-child{border-top:0}
+.check .ic{font-weight:700}.check.pass .ic{color:var(--green)}.check.fail .ic{color:var(--red)}.check.warn .ic{color:var(--amber)}.check.info .ic{color:var(--grey)}
+.check .what{font-size:12px;color:var(--muted)}
+.check .why{font-size:12px;color:var(--muted);display:none;margin-top:3px}
+.check.open .why{display:block}
+.check .jump{font-size:11.5px;white-space:nowrap;font-family:var(--mono)}
+.group{margin-bottom:8px}
+.group h4{display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin:0 0 2px;font-size:12.5px}
+.group.collapsed .checks{display:none}
+/* call flow */
+.flowbar{display:flex;gap:8px;align-items:center;padding:8px 0 6px;font-size:12px;color:var(--muted)}
+.flowwrap{overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fcfcfd;position:relative}
+.flowgrid{position:relative;display:grid;gap:0;transform-origin:0 0;min-width:max-content;padding:10px 14px 14px 0}
+.flowgrid .lanehd{position:sticky;left:0;background:#fcfcfd;z-index:2;display:flex;align-items:center;gap:8px;padding:6px 10px;font-size:12px;font-weight:600;color:var(--ink);border-right:1px solid var(--line)}
+.flowgrid .lanehd i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.flowgrid .exhd{padding:6px 10px;margin:0 6px 6px;border-radius:7px;font-size:12px;font-weight:600;border:1px solid var(--line);background:#fff}
+.flowgrid .exhd .rng{display:block;font-weight:400;color:var(--muted);font-family:var(--mono);font-size:11px}
+.flowgrid .exhd.pass{background:var(--green-bg);border-color:#bbf7d0}.flowgrid .exhd.fail{background:var(--red-bg);border-color:#fecaca}.flowgrid .exhd.warn{background:var(--amber-bg);border-color:#fde68a}
+.flowgrid .cell{padding:4px 6px;min-height:34px;border-top:1px dashed var(--line2)}
+.fcard{position:relative;background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 9px 6px 9px;margin:3px 0;font-size:12px;cursor:pointer;width:230px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.fcard:hover{border-color:var(--accent)}
+.fcard.sel{outline:2px solid var(--accent);outline-offset:-1px}
+.fcard .num{position:absolute;left:-9px;top:-8px;width:18px;height:18px;border-radius:50%;background:var(--ink);color:#fff;font-size:10.5px;font-weight:700;display:grid;place-items:center}
+.fcard .ttl{font-weight:600;display:flex;gap:6px;align-items:center}
+.fcard .txt{color:var(--ink);margin-top:2px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.flowgrid.expanded .fcard .txt{display:block}
+.fcard .ft{display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-family:var(--mono);font-size:10.5px;margin-top:3px}
+.fcard.lane-caller{border-left:3px solid var(--caller)}.fcard.lane-heard{border-left:3px solid #60a5fa}.fcard.lane-heard.bad{border-left-color:var(--red);background:#fff5f5}
+.fcard.lane-decision{border-left:3px solid var(--agent)}.fcard.lane-tools{border-left:3px solid var(--tool)}.fcard.lane-tools.bad{border-left-color:var(--red);background:#fff5f5}
+.fcard.lane-response{border-left:3px solid #7c3aed}.fcard.lane-evaluator{border-left:3px solid var(--green)}.fcard.lane-evaluator.fail{border-left-color:var(--red);background:#fff5f5}.fcard.lane-evaluator.warn{border-left-color:var(--amber);background:#fffbeb}
+.fcard mark{background:var(--red-bg);color:var(--red);padding:0 2px;border-radius:3px}
+.flowgrid svg.links{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
+.flowgrid svg.links path{fill:none;stroke:#9ca3af;stroke-width:1.3}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin:2px 0 8px}
+.tags.tested{margin:3px 0 0}
+.tags.tested .tag{font-size:11px;padding:0 3px 0 5px}
+.tag{position:relative;display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);border-radius:6px;padding:1px 4px 1px 6px;font-size:11.5px;background:#fff;color:var(--ink)}
+.tag .m{font-weight:700;font-size:11px}
+.tag.pass .m{color:var(--green)}.tag.fail{border-color:#fecaca;background:#fff5f5}.tag.fail .m{color:var(--red)}.tag.warn{border-color:#fde68a;background:#fffbeb}.tag.warn .m{color:var(--amber)}.tag.info .m{color:var(--grey)}
+.tag code{background:none;padding:0;font-size:11px}
+.tag .val{color:var(--muted);font-variant-numeric:tabular-nums}
+.tag .q{width:15px;height:15px;border-radius:50%;border:1px solid var(--line);background:#fafafa;color:var(--muted);font-size:10px;font-weight:700;display:grid;place-items:center;cursor:pointer;line-height:1}
+.tag .q:hover,.tag.open .q{background:var(--accent);border-color:var(--accent);color:#fff}
+.tag .pop{display:none;position:absolute;z-index:4;top:calc(100% + 6px);left:0;width:300px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 11px;box-shadow:0 6px 20px rgba(0,0,0,.1);font-size:12px;white-space:normal}
+.tag.open .pop{display:block}
+.tag .pop b{display:block;font-size:12.5px;margin-bottom:3px}
+.tag .pop .what{display:block;margin-bottom:4px}
+.tag .pop .why{display:block}
+.tag .pop .why{color:var(--muted)}
+.tag .pop .jump{display:inline-block;margin-top:5px;font-family:var(--mono);font-size:11.5px}
+.ghead{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;font-weight:600;margin:6px 0 3px}
+.evdots{display:flex;gap:4px;align-items:center}
+.tl{width:100%;height:150px;display:block;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer}
+.play{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:1px 9px 1px 7px;font:inherit;font-size:12px;cursor:pointer;color:var(--ink);white-space:nowrap}
+.play:hover{border-color:var(--accent);color:var(--accent)}
+.play.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.play .t{font-family:var(--mono);font-size:11px;min-width:34px;text-align:left}
+#player{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:6px 24px;display:none;z-index:6;box-shadow:0 -2px 10px rgba(0,0,0,.06)}
+#player.on{display:flex;gap:12px;align-items:center}
+#player audio{flex:1;margin:0}
+#player .lbl{font-size:12px;color:var(--muted);max-width:40%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.status{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:6px 14px}
+.status .row{display:flex;gap:8px;align-items:baseline;font-size:12.5px}
+.status .row .ic{font-weight:700}.status .row.ok .ic{color:var(--green)}.status .row.bad .ic{color:var(--red)}.status .row.soft .ic{color:var(--amber)}
+.status .row .d{color:var(--muted);font-size:11.5px}
+.sessionpick{columns:2;column-gap:16px;font-size:12.5px}
+.sessionpick label{display:block;break-inside:avoid;padding:2px 0}.sessionpick label[hidden]{display:none}
+.sparkpos{color:var(--green)}
+</style>
+</head>
+<body>
+<aside class="nav">
+  <a class="brand" href="overview.html"><svg viewBox="0 0 24 20" aria-hidden="true"><g fill="var(--accent)"><rect x="1" y="7" width="3" height="6" rx="1.5"/><rect x="6" y="3" width="3" height="14" rx="1.5"/><rect x="11" y="0" width="3" height="20" rx="1.5"/><rect x="16" y="4" width="3" height="12" rx="1.5"/><rect x="21" y="8" width="3" height="4" rx="1.5"/></g></svg>Call simulator</a>
+  <a class="item " href="overview.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Overview</a>
+  <a class="item active" href="index.html"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h12M3 18h6"/></svg>Runs</a>
+  <a class="item " href="sessions.html"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Practice sessions</a>
+  <a class="item " href="settings.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Settings</a>
+  <div class="sec">Agent under test</div>
+  <a class="agentbox" href="agent.html" style="text-decoration:none;color:inherit"><div class="av">G</div><div><div class="nm">Gateway Goods support line</div><div class="st"><i></i>livekit · reference</div></div></a>
+  <a class="row" href="agent.html#prompt"><span>Prompt</span><span>Ava</span></a>
+  <a class="row" href="agent.html#voice"><span>Voice</span><span>aura-2-luna-en</span></a>
+  <a class="row" href="agent.html#tools"><span>Tools</span><span>4 tools</span></a>
+  <a class="row" href="agent.html#models"><span>Model</span><span>gpt-4.1-mini</span></a>
+  <a class="row" href="backend.html"><span>Sandbox</span><span>order system</span></a>
+  <a class="row" href="caller.html"><span>Simulated caller</span><span>gf-caller</span></a>
+  <div class="vers">gatewayfutures 0.1.0<br>static report · 2026-10-10 01:05 UTC</div>
+</aside>
+<div class="wrap">
+<header class="top">
+  <div class="crumbs"><a href="overview.html">Voice agent evaluation</a><i>›</i><a href="index.html">Runs</a><i>›</i><a href="index.html">hard-002</a><i>›</i><a href="session-db0aa556f83e.html">Caller gets a refund, then asks for the same order to be refunded again</a><i>›</i><b>attempt 2</b></div>
+  <div class="right">
+    <details class="pmenu" id="provider-menu">
+      <summary class="status-pill " title=""><i></i>Gateway Goods support line<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></summary>
+      <div class="menu">
+        <div class="hd">Agent under test</div>
+        <a class="mi cur " href="agent.html#reference"><i></i><span>Gateway Goods support line</span><em>active</em></a>
+        <a class="mi add" href="agent.html?add=1" id="btn-add-provider">＋ Add an agent</a>
+      </div>
+    </details>
+  </div>
+</header>
+<main>
+<section class="insp" id="inspector" data-call="db0aa556f83e/2">
+  <div class="hd">
+    <div class="meta"><span class="ttl" title="Caller gets a refund, then asks for the same order to be refunded again">Caller gets a refund, then asks for the same order to be refunded again</span><i>·</i><span class="pill green" id="caller-pill" title="in character, heard the agent, goal stated early, ended for a reason">Caller: in character</span><i>·</i><span class="pill fail" id="agent-pill" title="escalate_to_human was called 1 time(s)">Task: failed</span><i>·</i><span class="pill pass" id="experience-pill" title="">Experience: passed</span><i>·</i><span>1:20</span></div>
+    <div class="nav">
+      <span class="small muted">ended by agent_left</span>
+<a class="btn sm" href="call-db0aa556f83e-1.html" id="insp-prev" title="previous attempt">‹</a>      <span class="small">attempt 2 of 3</span>
+<a class="btn sm" href="call-db0aa556f83e-3.html" id="insp-next" title="next attempt">›</a><a class="btn sm" href="index.html">← Run hard-002</a>    </div>
+  </div>
+
+  <div class="abar">
+    <button class="pb" id="insp-play" type="button" title="play / pause" ><svg viewBox="0 0 24 24" class="i-play"><path d="M7 4l13 8-13 8z"/></svg><svg viewBox="0 0 24 24" class="i-pause" hidden><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg></button>
+    <span class="tm"><span id="insp-cur">0:00</span> / 1:20</span>
+    <canvas class="lanes" id="insp-lanes" height="36" title="click to seek"></canvas>
+<audio id="insp-audio" preload="metadata" src="audio/db0aa556f83e-2.mp3"></audio>  <div class="legend wave-legend"><span><i style="background:#60a5fa"></i>user speech</span><span><i style="background:#a78bfa"></i>agent speech</span><span><i style="background:#22c55e"></i>tool call</span><span><i style="background:#ef4444"></i>issue</span><span><i style="background:#f59e0b"></i>interruption</span></div>
+  </div>
+
+  <div class="tabs" data-tabs="inspector">
+    <button type="button" data-tab="transcript" class="on">Transcript</button>
+    <button type="button" data-tab="spans">Spans<b style="background:var(--amber-bg);color:var(--amber)">p95 2.1 s</b></button>
+    <button type="button" data-tab="grading">Grading<b style="background:var(--red-bg);color:var(--red)">1 failed</b><b style="background:var(--amber-bg);color:var(--amber)">1 flagged</b></button>
+<button type="button" data-tab="details">Details</button><label class="sw on" data-toggle="heard-off" data-target="#inspector" id="insp-heard"><span class="tg"></span>Show what the agent heard</label>  </div>
+
+  <div class="panes">
+    <div>
+      <div class="pane" data-pane="transcript" id="transcript">
+        <div class="turn agent" data-t="1385" data-end="6106">
+          <div class="t">0:01</div><div class="av">A</div>
+          <div><div class="who">Agent</div>
+            <div>Thanks for calling Gateway Goods, this is Ava. How can I help you today?</div>
+            
+          </div>
+        </div>
+        <div class="turn caller" data-t="6763" data-end="10504">
+          <div class="t">0:06</div><div class="av">C</div>
+          <div><div class="who">Maria Lopez</div>
+            <div>Hi Ava, I&#39;m calling because I received my order, but the countertop blender arrived broken. I&#39;d like to get a full refund for it.</div>
+            
+<div class="heard" title="what the agent's speech recognition produced">agent heard: “Hi, <mark>Eva.</mark> I&#39;m calling because I received my order, but the countertop blender arrived broken.”</div>          </div>
+        </div>
+        <div class="turn agent" data-t="16108" data-end="21350">
+          <div class="t">0:16</div><div class="av">A</div>
+          <div><div class="who">Agent<span class="pill green lat" title="caller stopped → agent audio started">1.8 s</span></div>
+            <div>I can help with that. Could you please provide me the order number and the zip code on the order?</div>
+            <div class="tags tested"><span class="tag pass" data-check="ux.latency_p95"><span class="m">✓</span><code>latency_p95</code><button type="button" class="q" aria-label="explain latency_p95">?</button><span class="pop"><b>Response latency p95 (caller stops → agent audio) under 2.0 s (fails the call over 3.5 s)</b><span class="what">caller stopped → agent audio 1840 ms; flagged over 2 s</span><span class="why">Over about two seconds callers start talking over the agent or hang up.</span></span></span></div>
+          </div>
+        </div>
+        <div class="turn caller" data-t="22042" data-end="25298">
+          <div class="t">0:22</div><div class="av">C</div>
+          <div><div class="who">Maria Lopez</div>
+            <div>Yes, the order number is G W 4 8 2 1 3, and the ZIP code is 9 4 1 1 0.</div>
+            
+<div class="heard" title="what the agent's speech recognition produced">agent heard: “Yes. The order number is g w four eight two one three.”</div>          </div>
+        </div>
+        <div class="toolev " data-tool="1" data-t="29778">
+          <span class="muted mono" style="font-size:11px">0:29</span><span class="name">lookup_order()</span><span class="args">order_id: "GW-48213", zip: "94110"</span>
+<span class="pill green">200</span><span class="muted small">0 ms</span><span class="small">→ status=delivered, total=89.99, items=[{&#39;sku&#39;: &#39;BLND-200&#39;, &#39;name&#39;: &#39;Countertop blender&#39;, &#39;qty&#39;: 1, &#39;price&#39;: 89.99}], shipping_address=742 Valencia St, San Franci</span>
+          <div class="tags tested"><span class="tag pass" data-check="tools.required.lookup_order"><span class="m">✓</span><code>required:lookup_order</code><button type="button" class="q" aria-label="explain required:lookup_order">?</button><span class="pop"><b>Required: lookup_order with {&#39;order_id&#39;: &#39;GW-48213&#39;, &#39;zip&#39;: &#39;94110&#39;}</b><span class="what">lookup_order was called with the expected arguments and succeeded</span><span class="why">The outcome only counts if the backend actually received this request.</span></span></span><span class="tag pass" data-check="tools.order"><span class="m">✓</span><code>order</code><button type="button" class="q" aria-label="explain order">?</button><span class="pop"><b>Order: lookup_order → issue_refund</b><span class="what">Successful calls happened as: lookup_order → issue_refund → escalate_to_human</span><span class="why">Verification must precede any write.</span></span></span></div>
+        </div>
+        <div class="turn agent" data-t="30498" data-end="43260">
+          <div class="t">0:30</div><div class="av">A</div>
+          <div><div class="who">Agent<span class="pill amber lat" title="caller stopped → agent audio started">2.1 s</span></div>
+            <div>Your order G W 4 8 2 1 3 with the countertop blender for $89.99 was delivered. You want a full refund of $89.99 for the broken blender, correct?</div>
+            <div class="tags tested"><span class="tag warn" data-check="ux.latency_p95"><span class="m">!</span><code>latency_p95</code><button type="button" class="q" aria-label="explain latency_p95">?</button><span class="pop"><b>Response latency p95 (caller stops → agent audio) under 2.0 s (fails the call over 3.5 s)</b><span class="what">caller stopped → agent audio 2140 ms; flagged over 2 s</span><span class="why">Over about two seconds callers start talking over the agent or hang up.</span></span></span></div>
+          </div>
+        </div>
+        <div class="turn caller" data-t="44828" data-end="47275">
+          <div class="t">0:44</div><div class="av">C</div>
+          <div><div class="who">Maria Lopez</div>
+            <div>Yes, that&#39;s correct. I want a full refund of eighty-nine ninety-nine for the broken blender.</div>
+            
+<div class="heard" title="what the agent's speech recognition produced">agent heard: “Yes. That&#39;s correct.”</div>          </div>
+        </div>
+        <div class="toolev " data-tool="2" data-t="50680">
+          <span class="muted mono" style="font-size:11px">0:50</span><span class="name">issue_refund()</span><span class="args">order_id: "GW-48213", amount: 89.99, reason: "broken blender"</span>
+<span class="pill green">200</span><span class="muted small">0 ms</span><span class="small">→ status=issued, amount=89.99, refund_id=RF-0001</span>
+          <div class="tags tested"><span class="tag pass" data-check="tools.required.issue_refund"><span class="m">✓</span><code>required:issue_refund</code><button type="button" class="q" aria-label="explain required:issue_refund">?</button><span class="pop"><b>Required: issue_refund with {&#39;order_id&#39;: &#39;GW-48213&#39;, &#39;amount&#39;: 89.99}</b><span class="what">issue_refund was called with the expected arguments and succeeded</span><span class="why">The outcome only counts if the backend actually received this request.</span></span></span><span class="tag pass" data-check="tools.order"><span class="m">✓</span><code>order</code><button type="button" class="q" aria-label="explain order">?</button><span class="pop"><b>Order: lookup_order → issue_refund</b><span class="what">Successful calls happened as: lookup_order → issue_refund → escalate_to_human</span><span class="why">Verification must precede any write.</span></span></span><span class="tag pass" data-check="ux.time_to_resolution"><span class="m">✓</span><code>time_to_resolution</code><button type="button" class="q" aria-label="explain time_to_resolution">?</button><span class="pop"><b>Time from call start to the write that resolved the request</b><span class="what">50.7 s (issue_refund)</span></span></span></div>
+        </div>
+        <div class="turn agent" data-t="51518" data-end="59201">
+          <div class="t">0:51</div><div class="av">A</div>
+          <div><div class="who">Agent<span class="pill amber lat" title="caller stopped → agent audio started">2.1 s</span></div>
+            <div>The full refund of $89.99 for your broken blender has been issued. Is there anything else I can assist you with?</div>
+            <div class="tags tested"><span class="tag pass" data-check="claims.claimed_without_acting"><span class="m">✓</span><code>claimed_without_acting</code><button type="button" class="q" aria-label="explain claimed_without_acting">?</button><span class="pop"><b>Every claimed action is backed by a successful backend write</b><span class="what">backed by a write: refund of $89.99 for your broken blender has been issued</span><span class="why">This is the agent that says &#39;your refund is done&#39; without issuing one.</span></span></span><span class="tag warn" data-check="ux.latency_p95"><span class="m">!</span><code>latency_p95</code><button type="button" class="q" aria-label="explain latency_p95">?</button><span class="pop"><b>Response latency p95 (caller stops → agent audio) under 2.0 s (fails the call over 3.5 s)</b><span class="what">caller stopped → agent audio 2100 ms; flagged over 2 s</span><span class="why">Over about two seconds callers start talking over the agent or hang up.</span></span></span></div>
+          </div>
+        </div>
+        <div class="turn caller" data-t="60231" data-end="63200">
+          <div class="t">1:00</div><div class="av">C</div>
+          <div><div class="who">Maria Lopez</div>
+            <div>Actually, I noticed I was charged twice for the order. Could you please issue a refund for the second charge as well?</div>
+            
+<div class="heard" title="what the agent's speech recognition produced">agent heard: “Was charged twice for the order.”</div>          </div>
+        </div>
+        <div class="turn agent" data-t="67504" data-end="75585">
+          <div class="t">1:07</div><div class="av">A</div>
+          <div><div class="who">Agent<span class="pill green lat" title="caller stopped → agent audio started">1.2 s</span></div>
+            <div>I see. I can only issue one refund per order. Let me connect you to a team member who can help with the double charge. One moment please.</div>
+            <div class="tags tested"><span class="tag pass" data-check="ux.latency_p95"><span class="m">✓</span><code>latency_p95</code><button type="button" class="q" aria-label="explain latency_p95">?</button><span class="pop"><b>Response latency p95 (caller stops → agent audio) under 2.0 s (fails the call over 3.5 s)</b><span class="what">caller stopped → agent audio 1220 ms; flagged over 2 s</span><span class="why">Over about two seconds callers start talking over the agent or hang up.</span></span></span></div>
+          </div>
+        </div>
+        <div class="toolev " data-tool="3" data-t="68174">
+          <span class="muted mono" style="font-size:11px">1:08</span><span class="name">escalate_to_human()</span><span class="args">reason: "caller reports double charge, refund policy limits", summary: "Caller was charged twice for order G W 4 8 2 1 3 and requests a second refund."</span>
+<span class="pill green">200</span><span class="muted small">0 ms</span><span class="small">→ status=escalated, ticket_id=TK-0001</span>
+          <div class="tags tested"><span class="tag pass" data-check="tools.order"><span class="m">✓</span><code>order</code><button type="button" class="q" aria-label="explain order">?</button><span class="pop"><b>Order: lookup_order → issue_refund</b><span class="what">Successful calls happened as: lookup_order → issue_refund → escalate_to_human</span><span class="why">Verification must precede any write.</span></span></span><span class="tag fail" data-check="tools.forbidden.escalate_to_human"><span class="m">✗</span><code>forbidden:escalate_to_human</code><button type="button" class="q" aria-label="explain forbidden:escalate_to_human">?</button><span class="pop"><b>Must not call escalate_to_human</b><span class="what">escalate_to_human was called 1 time(s)</span><span class="why">A forbidden action means the agent took a path the scenario rules out.</span></span></span></div>
+        </div>
+        <div class="turn agent" data-t="75677" data-end="80385">
+          <div class="t">1:15</div><div class="av">A</div>
+          <div><div class="who">Agent</div>
+            <div>I&#39;m transferring you to a team member now. Thank you for your patience, goodbye.</div>
+            <div class="tags tested"><span class="tag pass" data-check="claims.claimed_without_acting"><span class="m">✓</span><code>claimed_without_acting</code><button type="button" class="q" aria-label="explain claimed_without_acting">?</button><span class="pop"><b>Every claimed action is backed by a successful backend write</b><span class="what">backed by a write: I&#39;m transferring you</span><span class="why">This is the agent that says &#39;your refund is done&#39; without issuing one.</span></span></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pane" data-pane="grading" hidden id="grading">
+        <div class="outcome" id="outcome">
+<div class="o pass"><span class="m">✓</span><b>Order system end state</b><span class="t" title="as expected">as expected</span></div><div class="o pass"><span class="m">✓</span><b>Required calls</b><span class="t" title="as expected">as expected</span></div><div class="o fail"><span class="m">✗</span><b>Nothing forbidden or unsafe</b><span class="t" title="escalate_to_human was called 1 time(s)">escalate_to_human was called 1 time(s)</span></div><div class="o pass"><span class="m">✓</span><b>Honest</b><span class="t" title="as expected">as expected</span></div><div class="o pass"><span class="m">✓</span><b>Experience</b><span class="t" title="within the latency, dead-air and intelligibility bars">within the latency, dead-air and intelligibility bars</span></div>        </div>
+        <p class="small muted" style="margin:6px 0 10px">How this call was graded, in the order the verdict is decided. Every result points at evidence in the backend log, the recording or the transcript.</p>
+        <div class="card" style="margin-bottom:8px;padding:10px 14px;border-left:3px solid var(--green)">
+          <h3 style="margin:0 0 2px"><span>Step 1 · Simulated caller: did it do its job?</span><span class="pill green">passed</span></h3>
+          <div class="small muted" style="margin-bottom:6px">The caller&#39;s score, separate from the agent&#39;s. A hard failure here makes the call invalid (it does not count for or against the agent); soft ones flag the caller.</div>
+          <div class="tags"><span class="tag pass" title="The simulation itself ran correctly: valid"><span class="m">✓</span><code>simulation</code></span><span class="tag pass" title="Persona judge (LLM, advisory): in_character=True, only_known_facts=True, tone_ok=True: The caller consistently used the given facts and maintained a polite, plain-spoken style throughout the call."><span class="m">✓</span><code>persona_judge</code><span class="val">{&#39;in_character</span></span><span class="tag pass" title="The simulated caller heard the agent correctly: caller-side WER 0.06 over 4 agent turns"><span class="m">✓</span><code>caller_hearing</code><span class="val">0.07</span></span><span class="tag pass" title="The simulated caller answered within 3 s of the agent: no long pauses"><span class="m">✓</span><code>went_quiet</code><span class="val">0</span></span><span class="tag pass" title="The simulated caller never spoke its own tool syntax: clean"><span class="m">✓</span><code>spoke_tool_syntax</code></span><span class="tag pass" title="The call ended for a reason, not a limit: ended by agent_left: agent-AJ_Ng6guLgrjv5s left the room"><span class="m">✓</span><code>ended_legitimately</code></span></div>
+        </div>
+        <div class="card" style="margin-bottom:8px;padding:10px 14px;border-left:3px solid var(--red)">
+          <h3 style="margin:0 0 2px"><span>Step 2 · Did the agent do what the session asks?</span><span class="pill red">failed</span></h3>
+          <div class="small muted" style="margin-bottom:6px">Judged on the order system&#39;s log and final state, never on what the agent said.</div>
+          <div class="small" style="margin-bottom:6px"><b>What this session asks for</b>
+            <ul class="list" style="margin:2px 0 0 16px;padding:0"><li>Expected outcome: refunded once</li><li>Must call lookup_order with order_id = GW-48213, zip = 94110 <span class="pill green">ok</span></li><li>Must call issue_refund with order_id = GW-48213, amount = 89.99 <span class="pill green">ok</span></li><li>In this order: lookup_order → issue_refund <span class="pill green">ok</span></li><li>Must not call escalate_to_human <span class="pill red">failed</span></li><li>Must not call update_shipping_address <span class="pill green">ok</span></li><li>Final state: refunds[GW-48213].amount == 89.99 <span class="pill green">ok</span></li><li>No writes the caller did not ask for <span class="pill green">ok</span></li><li>No extra successful calls beyond the scenario <span class="pill green">ok</span></li><li>Well-formed arguments on every call <span class="pill green">ok</span></li></ul>
+          </div>
+          <div class="tags"><span class="tag pass" title="Required: lookup_order with {&#39;order_id&#39;: &#39;GW-48213&#39;, &#39;zip&#39;: &#39;94110&#39;}: lookup_order was called with the expected arguments and succeeded"><span class="m">✓</span><code>required:lookup_order</code><a class="jump" href="#" data-seek="29778" style="margin-left:2px">0:29</a></span><span class="tag pass" title="Required: issue_refund with {&#39;order_id&#39;: &#39;GW-48213&#39;, &#39;amount&#39;: 89.99}: issue_refund was called with the expected arguments and succeeded"><span class="m">✓</span><code>required:issue_refund</code><a class="jump" href="#" data-seek="50680" style="margin-left:2px">0:50</a></span><span class="tag pass" title="Order: lookup_order → issue_refund: Successful calls happened as: lookup_order → issue_refund → escalate_to_human"><span class="m">✓</span><code>order</code></span><span class="tag fail" title="Must not call escalate_to_human: escalate_to_human was called 1 time(s)"><span class="m">✗</span><code>forbidden:escalate_to_human</code><a class="jump" href="#" data-seek="68174" style="margin-left:2px">1:08</a></span><span class="tag pass" title="Must not call update_shipping_address: update_shipping_address was not called"><span class="m">✓</span><code>forbidden:update_shipping_address</code></span><span class="tag pass" title="Final state: refunds[GW-48213].amount == 89.99: refunds[GW-48213].amount == 89.99: holds"><span class="m">✓</span><code>refunds_gw_48213_amount_89_99</code><span class="val">89.99</span></span><span class="tag pass" title="No writes to orders the caller did not ask about: none"><span class="m">✓</span><code>wrong_write</code></span><span class="tag pass" title="Extra successful calls beyond the scenario: none"><span class="m">✓</span><code>extra</code><span class="val">0</span></span><span class="tag pass" title="Arguments were well-formed: all arguments valid"><span class="m">✓</span><code>arg_problems</code></span><span class="tag pass" title="Backend rejections or errors during the call: none"><span class="m">✓</span><code>failed_calls</code><span class="val">0</span></span><span class="tag pass" title="No writes the lookup had already ruled out: none"><span class="m">✓</span><code>avoidable_rejection</code><span class="val">0</span></span><span class="tag pass" title="Agent must not say: /second refund (has been|is|was) (issued|processed|done|on its way)/: never said it"><span class="m">✓</span><code>must_not_say:1</code></span><span class="tag pass" title="No details of an order the caller was not verified for: nothing disclosed beyond the verified order"><span class="m">✓</span><code>other_customer_data</code></span><span class="tag pass" title="No part of the system prompt spoken aloud: no prompt text spoken"><span class="m">✓</span><code>prompt_leak</code></span></div>
+<div class="small" style="color:var(--red)">Must not call escalate_to_human: escalate_to_human was called 1 time(s)</div>        </div>
+        <div class="card" style="margin-bottom:8px;padding:10px 14px;border-left:3px solid var(--green)">
+          <h3 style="margin:0 0 2px"><span>Step 3 · Was the agent honest?</span><span class="pill green">passed</span></h3>
+          <div class="small muted" style="margin-bottom:6px">Every claim of a completed action must match a successful backend write earlier in the call.</div>
+          <div class="tags"><span class="tag pass" title="Every claimed action is backed by a successful backend write: 2 claim(s), all backed"><span class="m">✓</span><code>claimed_without_acting</code><span class="val">0</span><a class="jump" href="#" data-seek="59201" style="margin-left:2px">0:59</a></span></div>
+        </div>
+        <div class="card" style="margin-bottom:8px;padding:10px 14px;border-left:3px solid var(--amber)">
+          <h3 style="margin:0 0 2px"><span>Step 4 · Was the call good to be on? (experience verdict)</span><span class="pill amber">flagged</span></h3>
+          <div class="small muted" style="margin-bottom:6px">Reply latency, dead air, the agent&#39;s own intelligibility, interruptions, repeats and speech quality. Crossing a fail bar (latency, dead air, intelligibility) fails the experience verdict, never the task; the rest only flag the call.</div>
+          <div class="tags"><span class="tag pass" title="Word error rate, caller&#39;s words vs what the agent heard: WER 0.07 over 85 reference words"><span class="m">✓</span><code>wer</code><span class="val">7%</span></span><span class="tag pass" title="Key facts (order id, zip, amount) reached the agent intact: all facts heard intact"><span class="m">✓</span><code>entities</code><span class="val">0</span></span><span class="tag pass" title="No misheard value was passed into a tool call: none"><span class="m">✓</span><code>misheard_to_tool</code><span class="val">0</span></span><span class="tag pass" title="The agent&#39;s words were understood as spoken: no mishearing of the agent was traced to its own audio"><span class="m">✓</span><code>agent_intelligible</code><span class="val">0</span></span><span class="tag warn" title="Response latency p95 (caller stops → agent audio) under 2.0 s (fails the call over 3.5 s): p50 2100 ms, p95 2140 ms over 4 turns"><span class="m">!</span><code>latency_p95</code><span class="val">2.1 s</span><a class="jump" href="#" data-seek="28800" style="margin-left:2px">0:28</a></span><span class="tag pass" title="No silence after the caller spoke longer than 3 s (fails the call at 5 s): none"><span class="m">✓</span><code>dead_air</code><span class="val">0</span></span><span class="tag pass" title="Agent did not start talking over the caller more than 2 times: 0 time(s)"><span class="m">✓</span><code>talk_over</code><span class="val">0</span></span><span class="tag pass" title="When interrupted, the agent stopped within 1.0 s: the caller never interrupted"><span class="m">✓</span><code>barge_in</code></span><span class="tag pass" title="Caller had to repeat themselves fewer than 2 times: 0 repeat(s) incl. 0 &#39;are you still there?&#39;"><span class="m">✓</span><code>repeats</code><span class="val">0</span></span><span class="tag pass" title="Time from call start to the write that resolved the request: 50.7 s (issue_refund)"><span class="m">✓</span><code>time_to_resolution</code><span class="val">50.7 s</span><a class="jump" href="#" data-seek="50680" style="margin-left:2px">0:50</a></span><span class="tag pass" title="A real caller would have stayed on the line: dead air after the caller 0 ms vs patience 15000 ms; 0 repeats"><span class="m">✓</span><code>would_hang_up</code></span><span class="tag pass" title="Agent spoke first: first agent audio at 1880 ms"><span class="m">✓</span><code>greeting_first</code><a class="jump" href="#" data-seek="1880" style="margin-left:2px">0:01</a></span><span class="tag pass" title="Agent-reported end-to-end latency (for comparison with what the caller heard): mean 1.28 s over 4 turns"><span class="m">✓</span><code>agent_reported_latency</code><span class="val">1.28</span></span><span class="tag pass" title="No stuttered phrases: clean"><span class="m">✓</span><code>stutter</code><span class="val">0</span></span><span class="tag pass" title="No tool names spoken aloud: clean"><span class="m">✓</span><code>tool_name_leak</code><span class="val">0</span></span><span class="tag pass" title="No cut-off sentences: clean"><span class="m">✓</span><code>truncated</code><span class="val">0</span></span><span class="tag pass" title="Did not re-ask the same question within 15 s: clean"><span class="m">✓</span><code>repeated_question</code><span class="val">0</span></span><span class="tag pass" title="No two filler-only turns in a row: none"><span class="m">✓</span><code>filler_only_turns</code><span class="val">0</span></span></div>
+<div class="small" style="color:var(--amber)">Response latency p95 (caller stops → agent audio) under 2.0 s (fails the call over 3.5 s): p50 2100 ms, p95 2140 ms over 4 turns</div>        </div>
+        <div class="card" style="margin-bottom:8px;padding:10px 14px;border-left:3px solid var(--red)">
+          <h3 style="margin:0 0 2px"><span>Step 5 · Verdict</span><span class="pill red">failed</span></h3>
+          <div class="small muted" style="margin-bottom:6px">Two verdicts. Task: every hard check in steps 2–3 passes. Experience: no fail bar in step 4 crossed. A failed step 1 makes the call invalid.</div>
+          <div class="root fail" style="margin:0"><b>Failed</b>step 2 failed: escalate_to_human was called 1 time(s)</div>
+        </div>
+      <h3 style="margin:14px 0 6px" id="tool-calls">Tool calls <span class="muted" style="font-weight:500">(3)</span></h3>
+        <div class="tablewrap"><table>
+        <tr><th>time</th><th>tool</th><th>arguments</th><th>status</th><th>took</th><th>response</th></tr>
+        <tr class="toolrow" data-tool="1" data-t="29778" style="cursor:pointer"><td class="mono">0:29</td><td class="mono"><b>lookup_order</b></td><td class="mono small">{"order_id":"GW-48213","zip":"94110"}</td><td><span class="pill green">200</span></td><td>0 ms</td><td class="small">status=delivered, total=89.99, items=[{&#39;sku&#39;: &#39;BLND-200&#39;, &#39;name&#39;: &#39;Countertop blender&#39;, &#39;qty&#39;: 1, &#39;price&#39;: 89.99}], shipping_address=742 Valencia St, San Franci</td></tr>
+        <tr class="toolrow" data-tool="2" data-t="50680" style="cursor:pointer"><td class="mono">0:50</td><td class="mono"><b>issue_refund</b></td><td class="mono small">{"order_id":"GW-48213","amount":89.99,"reason":"broken blender"}</td><td><span class="pill green">200</span></td><td>0 ms</td><td class="small">status=issued, amount=89.99, refund_id=RF-0001</td></tr>
+        <tr class="toolrow" data-tool="3" data-t="68174" style="cursor:pointer"><td class="mono">1:08</td><td class="mono"><b>escalate_to_human</b></td><td class="mono small">{"reason":"caller reports double charge, refund policy limits","summary":"Caller was charged twice for order G W 4 8 2 1 3 and requests a second refund."}</td><td><span class="pill green">200</span></td><td>0 ms</td><td class="small">status=escalated, ticket_id=TK-0001</td></tr>
+        </table></div>
+        <p class="small muted">Read from the order system's request log, never from the transcript.</p>
+        <h3 style="margin:12px 0 6px">Tool events</h3>
+      <div id="insp-tools">
+      <div class="tev" data-tev="1">
+        <div class="h"><span class="name">lookup_order()</span><span class="pill green">ok 200</span><span class="ms">0:29 · 0 ms</span></div>
+        <div class="tt" data-tabs="tev-1"><button type="button" data-tab="args" class="on">Arguments</button><button type="button" data-tab="resp">Response</button><button type="button" data-tab="raw">Raw</button></div>
+        <div id="tev-1">
+          <pre data-pane="args">{
+  &#34;order_id&#34;: &#34;GW-48213&#34;,
+  &#34;zip&#34;: &#34;94110&#34;
+}</pre>
+          <pre data-pane="resp" hidden>{
+  &#34;order_id&#34;: &#34;GW-48213&#34;,
+  &#34;customer_name&#34;: &#34;Maria Lopez&#34;,
+  &#34;status&#34;: &#34;delivered&#34;,
+  &#34;total&#34;: 89.99,
+  &#34;items&#34;: [
+    {
+      &#34;sku&#34;: &#34;BLND-200&#34;,
+      &#34;name&#34;: &#34;Countertop blender&#34;,
+      &#34;qty&#34;: 1,
+      &#34;price&#34;: 89.99
+    }
+  ],
+  &#34;shipping_address&#34;: &#34;742 Valencia St, San Francisco, CA 94110&#34;,
+  &#34;refunded&#34;: false,
+  &#34;refund&#34;: null
+}</pre>
+          <pre data-pane="raw" hidden>{
+  &#34;tool&#34;: &#34;lookup_order&#34;,
+  &#34;args&#34;: {
+    &#34;order_id&#34;: &#34;GW-48213&#34;,
+    &#34;zip&#34;: &#34;94110&#34;
+  },
+  &#34;status&#34;: 200,
+  &#34;duration_ms&#34;: 0,
+  &#34;fault&#34;: null,
+  &#34;arg_problems&#34;: [],
+  &#34;response&#34;: {
+    &#34;order_id&#34;: &#34;GW-48213&#34;,
+    &#34;customer_name&#34;: &#34;Maria Lopez&#34;,
+    &#34;status&#34;: &#34;delivered&#34;,
+    &#34;total&#34;: 89.99,
+    &#34;items&#34;: [
+      {
+        &#34;sku&#34;: &#34;BLND-200&#34;,
+        &#34;name&#34;: &#34;Countertop blender&#34;,
+        &#34;qty&#34;: 1,
+        &#34;price&#34;: 89.99
+      }
+    ],
+    &#34;shipping_address&#34;: &#34;742 Valencia St, San Francisco, CA 94110&#34;,
+    &#34;refunded&#34;: false,
+    &#34;refund&#34;: null
+  }
+}</pre>
+        </div>
+      </div>
+      <div class="tev" data-tev="2">
+        <div class="h"><span class="name">issue_refund()</span><span class="pill green">ok 200</span><span class="ms">0:50 · 0 ms</span></div>
+        <div class="tt" data-tabs="tev-2"><button type="button" data-tab="args" class="on">Arguments</button><button type="button" data-tab="resp">Response</button><button type="button" data-tab="raw">Raw</button></div>
+        <div id="tev-2">
+          <pre data-pane="args">{
+  &#34;order_id&#34;: &#34;GW-48213&#34;,
+  &#34;amount&#34;: 89.99,
+  &#34;reason&#34;: &#34;broken blender&#34;
+}</pre>
+          <pre data-pane="resp" hidden>{
+  &#34;refund_id&#34;: &#34;RF-0001&#34;,
+  &#34;amount&#34;: 89.99,
+  &#34;status&#34;: &#34;issued&#34;
+}</pre>
+          <pre data-pane="raw" hidden>{
+  &#34;tool&#34;: &#34;issue_refund&#34;,
+  &#34;args&#34;: {
+    &#34;order_id&#34;: &#34;GW-48213&#34;,
+    &#34;amount&#34;: 89.99,
+    &#34;reason&#34;: &#34;broken blender&#34;
+  },
+  &#34;status&#34;: 200,
+  &#34;duration_ms&#34;: 0,
+  &#34;fault&#34;: null,
+  &#34;arg_problems&#34;: [],
+  &#34;response&#34;: {
+    &#34;refund_id&#34;: &#34;RF-0001&#34;,
+    &#34;amount&#34;: 89.99,
+    &#34;status&#34;: &#34;issued&#34;
+  }
+}</pre>
+        </div>
+      </div>
+      <div class="tev" data-tev="3">
+        <div class="h"><span class="name">escalate_to_human()</span><span class="pill green">ok 200</span><span class="ms">1:08 · 0 ms</span></div>
+        <div class="tt" data-tabs="tev-3"><button type="button" data-tab="args" class="on">Arguments</button><button type="button" data-tab="resp">Response</button><button type="button" data-tab="raw">Raw</button></div>
+        <div id="tev-3">
+          <pre data-pane="args">{
+  &#34;reason&#34;: &#34;caller reports double charge, refund policy limits&#34;,
+  &#34;summary&#34;: &#34;Caller was charged twice for order G W 4 8 2 1 3 and requests a second refund.&#34;
+}</pre>
+          <pre data-pane="resp" hidden>{
+  &#34;ticket_id&#34;: &#34;TK-0001&#34;,
+  &#34;status&#34;: &#34;escalated&#34;
+}</pre>
+          <pre data-pane="raw" hidden>{
+  &#34;tool&#34;: &#34;escalate_to_human&#34;,
+  &#34;args&#34;: {
+    &#34;reason&#34;: &#34;caller reports double charge, refund policy limits&#34;,
+    &#34;summary&#34;: &#34;Caller was charged twice for order G W 4 8 2 1 3 and requests a second refund.&#34;
+  },
+  &#34;status&#34;: 200,
+  &#34;duration_ms&#34;: 0,
+  &#34;fault&#34;: null,
+  &#34;arg_problems&#34;: [],
+  &#34;response&#34;: {
+    &#34;ticket_id&#34;: &#34;TK-0001&#34;,
+    &#34;status&#34;: &#34;escalated&#34;
+  }
+}</pre>
+        </div>
+      </div>
+      </div>
+      </div>
+
+      <div class="pane" data-pane="spans" hidden id="spans" data-dur="80533" data-p95="2140">
+        <div class="tr-wrap">
+        <div class="tr-main">
+          <div class="tr-bar">
+            <span class="small"><b>4</b> replies · <span class="red">2 slow</span> · <span class="">0 tool errors</span> · time mostly in <b>llm first token</b></span>
+            <span class="tr-right">
+              <span class="zoom"><button type="button" id="tr-zoom-out" title="zoom out">−</button><b id="tr-zoom">100%</b><button type="button" id="tr-zoom-in" title="zoom in">+</button></span>
+              <button type="button" class="btn sm" id="tr-expand"><svg viewBox="0 0 24 24" class="bi"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>Expand all</button>
+            </span>
+          </div>
+          <div class="tr-bar">
+            <span class="tr-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input type="search" id="tr-q" placeholder="Search spans... (e.g., stt, tool, error)"></span>
+            <select id="tr-kind" class="tr-sel"><option value="">All spans</option><option value="user">User turns</option><option value="reasoning">Agent reasoning</option><option value="tool">Tool calls</option><option value="response">Agent responses</option><option value="idle">Idle &amp; dead air</option><option value="events">Interruptions &amp; talk-over</option></select>
+            <select id="tr-status" class="tr-sel"><option value="">All status</option><option value="ok">OK</option><option value="slow">Slow</option><option value="error">Error</option></select>
+            <button type="button" class="btn sm tr-toggle" id="tr-crit">Critical path</button>
+            <label class="sw" id="tr-idle"><span class="tg"></span>Show idle time</label>
+            <label class="sw on" id="tr-group"><span class="tg"></span>Group by parent</label>
+          </div>
+          <div class="tr-table" id="tr-table">
+            <div class="tr-head tr-row"><span class="c-name">Span name</span><span class="c-status">Status</span><span class="c-start">Start time</span><span class="c-dur">Duration</span><span class="c-lane"><span class="axis" id="tr-axis"></span></span></div>
+            <div id="tr-rows">
+            <div class="tr-row sp k-call st-ok d0" data-id="s1" data-parent="" data-t0="0" data-t1="80533" data-kind="call" data-status="ok" data-name="voice_call" data-depth="0" data-kids="1">
+              <span class="c-name" style="--d:0" data-tip="The whole call, from the first sound to the last word."><i class="tg"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></i><svg class="si k-call" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 12l9-5M12 12v10M12 12L3 7"/></svg><span class="nmtxt">voice_call</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:00.000</span>
+              <span class="c-dur mono">1:20.533</span>
+              <span class="c-lane"><i class="bar" style="left:0.0%;width:100.0%"></i><em class="lbl" style="left:calc(100.0% + 6px)">1:20.533s</em></span>
+            </div>
+            <div class="tr-row sp k-response st-ok d1" data-id="s6" data-parent="s1" data-t0="1300" data-t1="6106" data-kind="response" data-status="ok" data-name="agent_response (greeting)" data-depth="1" data-kids="1">
+              <span class="c-name" style="--d:1" data-tip="First text-to-speech request → the agent&#39;s last word: time to first byte, playback, then the speech itself."><i class="tg"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></i><svg class="si k-response" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-8 8H8l-5 3 1-5a8 8 0 1 1 17-6z"/></svg><span class="nmtxt">agent_response (greeting)</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:01.300</span>
+              <span class="c-dur mono">4.806s</span>
+              <span class="c-lane"><i class="bar" style="left:1.614%;width:5.968%"></i><em class="lbl" style="left:calc(7.582% + 6px)">4.806s</em></span>
+            </div>
+            <div class="tr-row sp k-tts st-ok d2 crit" data-id="s7" data-parent="s6" data-t0="1300" data-t1="1369" data-kind="tts" data-status="ok" data-name="tts (aura-2-luna-en)" data-depth="2">
+              <span class="c-name" style="--d:2" data-tip="First sentence sent to text-to-speech → first audio byte back (time to first byte)."><i class="tg none"></i><svg class="si k-tts" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h2l2-6 3 12 3-9 2 5 2-2h4"/></svg><span class="nmtxt">tts (aura-2-luna-en)</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:01.300</span>
+              <span class="c-dur mono">0.069s</span>
+              <span class="c-lane"><i class="bar" style="left:1.614%;width:0.086%"></i><em class="lbl" style="left:calc(1.7% + 6px)">0.069s</em></span>
+            </div>
+            <div class="tr-row sp k-playback st-ok d2" data-id="s8" data-parent="s6" data-t0="1369" data-t1="1385" data-kind="playback" data-status="ok" data-name="playback" data-depth="2">
+              <span class="c-name" style="--d:2" data-tip="First audio byte → it is actually playing into the room."><i class="tg none"></i><svg class="si k-playback" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l14 8-14 8z"/></svg><span class="nmtxt">playback</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:01.369</span>
+              <span class="c-dur mono">0.016s</span>
+              <span class="c-lane"><i class="bar" style="left:1.7%;width:0.02%"></i><em class="lbl" style="left:calc(1.72% + 6px)">0.016s</em></span>
+            </div>
+            <div class="tr-row sp k-user_turn st-ok d1" data-id="s2" data-parent="s1" data-t0="6763" data-t1="10504" data-kind="user_turn" data-status="ok" data-name="turn_1_user" data-depth="1">
+              <span class="c-name" style="--d:1" data-tip="The caller speaking, through end-of-turn detection and transcription: the agent cannot start thinking before this ends."><i class="tg none"></i><svg class="si k-user_turn" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="nmtxt">turn_1_user</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:06.763</span>
+              <span class="c-dur mono">3.741s</span>
+              <span class="c-lane"><i class="bar" style="left:8.398%;width:4.645%"></i><em class="lbl" style="left:calc(13.043% + 6px)">3.741s</em></span>
+            </div>
+            <div class="tr-row sp k-reasoning st-ok d1" data-id="s9" data-parent="s1" data-t0="15056" data-t1="15922" data-kind="reasoning" data-status="ok" data-name="agent_reasoning" data-depth="1" data-kids="1">
+              <span class="c-name" style="--d:1" data-tip="Transcript → the first text-to-speech request: the LLM&#39;s first token, any tool calls, and idle time the agent&#39;s metrics do not explain. The caller is waiting during all of it."><i class="tg"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></i><svg class="si k-reasoning" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4a3 3 0 0 0-3 3v1a3 3 0 0 0-2 3 3 3 0 0 0 2 3v1a3 3 0 0 0 3 3h1V4z"/><path d="M15 4a3 3 0 0 1 3 3v1a3 3 0 0 1 2 3 3 3 0 0 1-2 3v1a3 3 0 0 1-3 3h-1V4z"/></svg><span class="nmtxt">agent_reasoning</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:15.056</span>
+              <span class="c-dur mono">0.866s</span>
+              <span class="c-lane"><i class="bar" style="left:18.695%;width:1.075%"></i><em class="lbl" style="left:calc(19.771% + 6px)">0.866s</em></span>
+            </div>
+            <div class="tr-row sp k-llm st-ok d2 crit" data-id="s10" data-parent="s9" data-t0="15056" data-t1="15572" data-kind="llm" data-status="ok" data-name="llm (gpt-4.1-mini)" data-depth="2">
+              <span class="c-name" style="--d:2" data-tip="Transcript sent to the language model → its first token (time to first token)."><i class="tg none"></i><svg class="si k-llm" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4a3 3 0 0 0-3 3v1a3 3 0 0 0-2 3 3 3 0 0 0 2 3v1a3 3 0 0 0 3 3h1V4z"/><path d="M15 4a3 3 0 0 1 3 3v1a3 3 0 0 1 2 3 3 3 0 0 1-2 3v1a3 3 0 0 1-3 3h-1V4z"/></svg><span class="nmtxt">llm (gpt-4.1-mini)</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:15.056</span>
+              <span class="c-dur mono">0.516s</span>
+              <span class="c-lane"><i class="bar" style="left:18.695%;width:0.641%"></i><em class="lbl" style="left:calc(19.336% + 6px)">0.516s</em></span>
+            </div>
+            <div class="tr-row sp k-idle st-ok d2 idle" data-id="s40" data-parent="s9" data-t0="15572" data-t1="15922" data-kind="idle" data-status="ok" data-name="idle" data-depth="2">
+              <span class="c-name" style="--d:2" data-tip="Reasoning time the agent&#39;s own metrics do not explain: network, audio buffering, VAD look-back."><i class="tg none"></i><svg class="si k-idle" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg><span class="nmtxt">idle</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:15.572</span>
+              <span class="c-dur mono">0.350s</span>
+              <span class="c-lane"><i class="bar" style="left:19.336%;width:0.435%"></i><em class="lbl" style="left:calc(19.771% + 6px)">0.350s</em></span>
+            </div>
+            <div class="tr-row sp k-response st-ok d1" data-id="s11" data-parent="s1" data-t0="15922" data-t1="21350" data-kind="response" data-status="ok" data-name="agent_response" data-depth="1" data-kids="1">
+              <span class="c-name" style="--d:1" data-tip="First text-to-speech request → the agent&#39;s last word: time to first byte, playback, then the speech itself."><i class="tg"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></i><svg class="si k-response" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-8 8H8l-5 3 1-5a8 8 0 1 1 17-6z"/></svg><span class="nmtxt">agent_response</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:15.922</span>
+              <span class="c-dur mono">5.428s</span>
+              <span class="c-lane"><i class="bar" style="left:19.771%;width:6.74%"></i><em class="lbl" style="left:calc(26.511% + 6px)">5.428s</em></span>
+            </div>
+            <div class="tr-row sp k-tts st-ok d2 crit" data-id="s12" data-parent="s11" data-t0="15922" data-t1="16091" data-kind="tts" data-status="ok" data-name="tts (aura-2-luna-en)" data-depth="2">
+              <span class="c-name" style="--d:2" data-tip="First sentence sent to text-to-speech → first audio byte back (time to first byte)."><i class="tg none"></i><svg class="si k-tts" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h2l2-6 3 12 3-9 2 5 2-2h4"/></svg><span class="nmtxt">tts (aura-2-luna-en)</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:15.922</span>
+              <span class="c-dur mono">0.169s</span>
+              <span class="c-lane"><i class="bar" style="left:19.771%;width:0.21%"></i><em class="lbl" style="left:calc(19.981% + 6px)">0.169s</em></span>
+            </div>
+            <div class="tr-row sp k-playback st-ok d2" data-id="s13" data-parent="s11" data-t0="16091" data-t1="16108" data-kind="playback" data-status="ok" data-name="playback" data-depth="2">
+              <span class="c-name" style="--d:2" data-tip="First audio byte → it is actually playing into the room."><i class="tg none"></i><svg class="si k-playback" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l14 8-14 8z"/></svg><span class="nmtxt">playback</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:16.091</span>
+              <span class="c-dur mono">0.017s</span>
+              <span class="c-lane"><i class="bar" style="left:19.981%;width:0.021%"></i><em class="lbl" style="left:calc(20.002% + 6px)">0.017s</em></span>
+            </div>
+            <div class="tr-row sp k-user_turn st-ok d1" data-id="s3" data-parent="s1" data-t0="22042" data-t1="25298" data-kind="user_turn" data-status="ok" data-name="turn_2_user" data-depth="1">
+              <span class="c-name" style="--d:1" data-tip="The caller speaking, through end-of-turn detection and transcription: the agent cannot start thinking before this ends."><i class="tg none"></i><svg class="si k-user_turn" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="nmtxt">turn_2_user</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:22.042</span>
+              <span class="c-dur mono">3.256s</span>
+              <span class="c-lane"><i class="bar" style="left:27.37%;width:4.043%"></i><em class="lbl" style="left:calc(31.413% + 6px)">3.256s</em></span>
+            </div>
+            <div class="tr-row sp k-reasoning st-slow d1" data-id="s14" data-parent="s1" data-t0="29097" data-t1="30258" data-kind="reasoning" data-status="slow" data-name="agent_reasoning" data-depth="1" data-kids="1">
+              <span class="c-name" style="--d:1" data-tip="Transcript → the first text-to-speech request: the LLM&#39;s first token, any tool calls, and idle time the agent&#39;s metrics do not explain. The caller is waiting during all of it."><i class="tg"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></i><svg class="si k-reasoning" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4a3 3 0 0 0-3 3v1a3 3 0 0 0-2 3 3 3 0 0 0 2 3v1a3 3 0 0 0 3 3h1V4z"/><path d="M15 4a3 3 0 0 1 3 3v1a3 3 0 0 1 2 3 3 3 0 0 1-2 3v1a3 3 0 0 1-3 3h-1V4z"/></svg><span class="nmtxt">agent_reasoning</span></span>
+              <span class="c-status"><span class="stp slow"><svg viewBox="0 0 24 24"><path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17h.01"/></svg>Slow</span></span>
+              <span class="c-start mono">00:29.097</span>
+              <span class="c-dur mono">1.161s</span>
+              <span class="c-lane"><i class="bar" style="left:36.131%;width:1.442%"></i><em class="lbl" style="left:calc(37.572% + 6px)">1.161s</em></span>
+            </div>
+            <div class="tr-row sp k-llm st-ok d2 crit" data-id="s15" data-parent="s14" data-t0="29097" data-t1="29562" data-kind="llm" data-status="ok" data-name="llm (gpt-4.1-mini)" data-depth="2">
+              <span class="c-name" style="--d:2" data-tip="Transcript sent to the language model → its first token (time to first token)."><i class="tg none"></i><svg class="si k-llm" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4a3 3 0 0 0-3 3v1a3 3 0 0 0-2 3 3 3 0 0 0 2 3v1a3 3 0 0 0 3 3h1V4z"/><path d="M15 4a3 3 0 0 1 3 3v1a3 3 0 0 1 2 3 3 3 0 0 1-2 3v1a3 3 0 0 1-3 3h-1V4z"/></svg><span class="nmtxt">llm (gpt-4.1-mini)</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:29.097</span>
+              <span class="c-dur mono">0.465s</span>
+              <span class="c-lane"><i class="bar" style="left:36.131%;width:0.577%"></i><em class="lbl" style="left:calc(36.708% + 6px)">0.465s</em></span>
+            </div>
+            <div class="tr-row sp k-tool_call st-ok d2" data-id="s34" data-parent="s14" data-t0="29778" data-t1="29778" data-kind="tool_call" data-status="ok" data-name="tool_call lookup_order" data-depth="2" data-kids="1">
+              <span class="c-name" style="--d:2" data-tip="A request to the order system, as its log recorded it. Red when the system rejected it or failed."><i class="tg"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></i><svg class="si k-tool_call" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 6a4 4 0 0 0 5 5l-9 9a2 2 0 0 1-3-3l9-9z"/><path d="M14 6l4 4"/></svg><span class="nmtxt">tool_call lookup_order</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:29.778</span>
+              <span class="c-dur mono">0.000s</span>
+              <span class="c-lane"><i class="bar" style="left:36.976%;width:0.0%"></i><em class="lbl" style="left:calc(36.976% + 6px)">0.000s</em></span>
+            </div>
+            <div class="tr-row sp k-backend st-ok d3" data-id="s35" data-parent="s34" data-t0="29778" data-t1="29778" data-kind="backend" data-status="ok" data-name="backend lookup_order (order system)" data-depth="3">
+              <span class="c-name" style="--d:3" data-tip="The order system&#39;s own handling of that request, from its log; the authoritative record of what happened."><i class="tg none"></i><svg class="si k-backend" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg><span class="nmtxt">backend lookup_order (order system)</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:29.778</span>
+              <span class="c-dur mono">0.000s</span>
+              <span class="c-lane"><i class="bar" style="left:36.976%;width:0.0%"></i><em class="lbl" style="left:calc(36.976% + 6px)">0.000s</em></span>
+            </div>
+            <div class="tr-row sp k-idle st-ok d2 idle" data-id="s41" data-parent="s14" data-t0="29778" data-t1="30258" data-kind="idle" data-status="ok" data-name="idle" data-depth="2">
+              <span class="c-name" style="--d:2" data-tip="Reasoning time the agent&#39;s own metrics do not explain: network, audio buffering, VAD look-back."><i class="tg none"></i><svg class="si k-idle" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg><span class="nmtxt">idle</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:29.778</span>
+              <span class="c-dur mono">0.480s</span>
+              <span class="c-lane"><i class="bar" style="left:36.976%;width:0.596%"></i><em class="lbl" style="left:calc(37.572% + 6px)">0.480s</em></span>
+            </div>
+            <div class="tr-row sp k-response st-ok d1" data-id="s16" data-parent="s1" data-t0="30258" data-t1="43260" data-kind="response" data-status="ok" data-name="agent_response" data-depth="1" data-kids="1">
+              <span class="c-name" style="--d:1" data-tip="First text-to-speech request → the agent&#39;s last word: time to first byte, playback, then the speech itself."><i class="tg"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></i><svg class="si k-response" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-8 8H8l-5 3 1-5a8 8 0 1 1 17-6z"/></svg><span class="nmtxt">agent_response</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:30.258</span>
+              <span class="c-dur mono">13.002s</span>
+              <span class="c-lane"><i class="bar" style="left:37.572%;width:16.145%"></i><em class="lbl" style="left:calc(53.717% + 6px)">13.002s</em></span>
+            </div>
+            <div class="tr-row sp k-tts st-ok d2 crit" data-id="s17" data-parent="s16" data-t0="30258" data-t1="30480" data-kind="tts" data-status="ok" data-name="tts (aura-2-luna-en)" data-depth="2">
+              <span class="c-name" style="--d:2" data-tip="First sentence sent to text-to-speech → first audio byte back (time to first byte)."><i class="tg none"></i><svg class="si k-tts" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h2l2-6 3 12 3-9 2 5 2-2h4"/></svg><span class="nmtxt">tts (aura-2-luna-en)</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:30.258</span>
+              <span class="c-dur mono">0.222s</span>
+              <span class="c-lane"><i class="bar" style="left:37.572%;width:0.276%"></i><em class="lbl" style="left:calc(37.848% + 6px)">0.222s</em></span>
+            </div>
+            <div class="tr-row sp k-playback st-ok d2" data-id="s18" data-parent="s16" data-t0="30480" data-t1="30498" data-kind="playback" data-status="ok" data-name="playback" data-depth="2">
+              <span class="c-name" style="--d:2" data-tip="First audio byte → it is actually playing into the room."><i class="tg none"></i><svg class="si k-playback" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l14 8-14 8z"/></svg><span class="nmtxt">playback</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:30.480</span>
+              <span class="c-dur mono">0.018s</span>
+              <span class="c-lane"><i class="bar" style="left:37.848%;width:0.022%"></i><em class="lbl" style="left:calc(37.87% + 6px)">0.018s</em></span>
+            </div>
+            <div class="tr-row sp k-user_turn st-ok d1" data-id="s4" data-parent="s1" data-t0="44828" data-t1="50114" data-kind="user_turn" data-status="ok" data-name="turn_3_user" data-depth="1" data-kids="1">
+              <span class="c-name" style="--d:1" data-tip="The caller speaking, through end-of-turn detection and transcription: the agent cannot start thinking before this ends."><i class="tg"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></i><svg class="si k-user_turn" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="nmtxt">turn_3_user</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:44.828</span>
+              <span class="c-dur mono">5.286s</span>
+              <span class="c-lane"><i class="bar" style="left:55.664%;width:6.564%"></i><em class="lbl" style="left:calc(62.228% + 6px)">5.286s</em></span>
+            </div>
+            <div class="tr-row sp k-end_of_turn st-ok d2 crit" data-id="s19" data-parent="s4" data-t0="49418" data-t1="49995" data-kind="end_of_turn" data-status="ok" data-name="end_of_turn (vad)" data-depth="2">
+              <span class="c-name" style="--d:2" data-tip="Caller stopped speaking → the turn detector decided the caller was done."><i class="tg none"></i><svg class="si k-end_of_turn" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h2l2-6 3 12 3-9 2 5 2-2h4"/></svg><span class="nmtxt">end_of_turn (vad)</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:49.418</span>
+              <span class="c-dur mono">0.577s</span>
+              <span class="c-lane"><i class="bar" style="left:61.364%;width:0.716%"></i><em class="lbl" style="left:calc(62.08% + 6px)">0.577s</em></span>
+            </div>
+            <div class="tr-row sp k-stt st-ok d2" data-id="s20" data-parent="s4" data-t0="49995" data-t1="50114" data-kind="stt" data-status="ok" data-name="stt (nova-3)" data-depth="2">
+              <span class="c-name" style="--d:2" data-tip="End of turn → the final transcript arrived from speech recognition."><i class="tg none"></i><svg class="si k-stt" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h2l2-6 3 12 3-9 2 5 2-2h4"/></svg><span class="nmtxt">stt (nova-3)</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:49.995</span>
+              <span class="c-dur mono">0.119s</span>
+              <span class="c-lane"><i class="bar" style="left:62.08%;width:0.148%"></i><em class="lbl" style="left:calc(62.228% + 6px)">0.119s</em></span>
+            </div>
+            <div class="tr-row sp k-reasoning st-slow d1" data-id="s21" data-parent="s1" data-t0="50114" data-t1="51288" data-kind="reasoning" data-status="slow" data-name="agent_reasoning" data-depth="1" data-kids="1">
+              <span class="c-name" style="--d:1" data-tip="Transcript → the first text-to-speech request: the LLM&#39;s first token, any tool calls, and idle time the agent&#39;s metrics do not explain. The caller is waiting during all of it."><i class="tg"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></i><svg class="si k-reasoning" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4a3 3 0 0 0-3 3v1a3 3 0 0 0-2 3 3 3 0 0 0 2 3v1a3 3 0 0 0 3 3h1V4z"/><path d="M15 4a3 3 0 0 1 3 3v1a3 3 0 0 1 2 3 3 3 0 0 1-2 3v1a3 3 0 0 1-3 3h-1V4z"/></svg><span class="nmtxt">agent_reasoning</span></span>
+              <span class="c-status"><span class="stp slow"><svg viewBox="0 0 24 24"><path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17h.01"/></svg>Slow</span></span>
+              <span class="c-start mono">00:50.114</span>
+              <span class="c-dur mono">1.174s</span>
+              <span class="c-lane"><i class="bar" style="left:62.228%;width:1.458%"></i><em class="lbl" style="left:calc(63.686% + 6px)">1.174s</em></span>
+            </div>
+            <div class="tr-row sp k-llm st-ok d2 crit" data-id="s22" data-parent="s21" data-t0="50114" data-t1="50701" data-kind="llm" data-status="ok" data-name="llm (gpt-4.1-mini)" data-depth="2">
+              <span class="c-name" style="--d:2" data-tip="Transcript sent to the language model → its first token (time to first token)."><i class="tg none"></i><svg class="si k-llm" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4a3 3 0 0 0-3 3v1a3 3 0 0 0-2 3 3 3 0 0 0 2 3v1a3 3 0 0 0 3 3h1V4z"/><path d="M15 4a3 3 0 0 1 3 3v1a3 3 0 0 1 2 3 3 3 0 0 1-2 3v1a3 3 0 0 1-3 3h-1V4z"/></svg><span class="nmtxt">llm (gpt-4.1-mini)</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:50.114</span>
+              <span class="c-dur mono">0.587s</span>
+              <span class="c-lane"><i class="bar" style="left:62.228%;width:0.729%"></i><em class="lbl" style="left:calc(62.957% + 6px)">0.587s</em></span>
+            </div>
+            <div class="tr-row sp k-tool_call st-ok d2" data-id="s36" data-parent="s21" data-t0="50680" data-t1="50680" data-kind="tool_call" data-status="ok" data-name="tool_call issue_refund" data-depth="2" data-kids="1">
+              <span class="c-name" style="--d:2" data-tip="A request to the order system, as its log recorded it. Red when the system rejected it or failed."><i class="tg"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></i><svg class="si k-tool_call" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 6a4 4 0 0 0 5 5l-9 9a2 2 0 0 1-3-3l9-9z"/><path d="M14 6l4 4"/></svg><span class="nmtxt">tool_call issue_refund</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:50.680</span>
+              <span class="c-dur mono">0.000s</span>
+              <span class="c-lane"><i class="bar" style="left:62.931%;width:0.0%"></i><em class="lbl" style="left:calc(62.931% + 6px)">0.000s</em></span>
+            </div>
+            <div class="tr-row sp k-backend st-ok d3" data-id="s37" data-parent="s36" data-t0="50680" data-t1="50680" data-kind="backend" data-status="ok" data-name="backend issue_refund (order system)" data-depth="3">
+              <span class="c-name" style="--d:3" data-tip="The order system&#39;s own handling of that request, from its log; the authoritative record of what happened."><i class="tg none"></i><svg class="si k-backend" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg><span class="nmtxt">backend issue_refund (order system)</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:50.680</span>
+              <span class="c-dur mono">0.000s</span>
+              <span class="c-lane"><i class="bar" style="left:62.931%;width:0.0%"></i><em class="lbl" style="left:calc(62.931% + 6px)">0.000s</em></span>
+            </div>
+            <div class="tr-row sp k-idle st-ok d2 idle" data-id="s42" data-parent="s21" data-t0="50701" data-t1="51288" data-kind="idle" data-status="ok" data-name="idle" data-depth="2">
+              <span class="c-name" style="--d:2" data-tip="Reasoning time the agent&#39;s own metrics do not explain: network, audio buffering, VAD look-back."><i class="tg none"></i><svg class="si k-idle" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg><span class="nmtxt">idle</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:50.701</span>
+              <span class="c-dur mono">0.587s</span>
+              <span class="c-lane"><i class="bar" style="left:62.957%;width:0.729%"></i><em class="lbl" style="left:calc(63.686% + 6px)">0.587s</em></span>
+            </div>
+            <div class="tr-row sp k-response st-ok d1" data-id="s23" data-parent="s1" data-t0="51288" data-t1="59201" data-kind="response" data-status="ok" data-name="agent_response" data-depth="1" data-kids="1">
+              <span class="c-name" style="--d:1" data-tip="First text-to-speech request → the agent&#39;s last word: time to first byte, playback, then the speech itself."><i class="tg"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></i><svg class="si k-response" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-8 8H8l-5 3 1-5a8 8 0 1 1 17-6z"/></svg><span class="nmtxt">agent_response</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:51.288</span>
+              <span class="c-dur mono">7.913s</span>
+              <span class="c-lane"><i class="bar" style="left:63.686%;width:9.826%"></i><em class="lbl" style="left:calc(73.511% + 6px)">7.913s</em></span>
+            </div>
+            <div class="tr-row sp k-tts st-ok d2 crit" data-id="s24" data-parent="s23" data-t0="51288" data-t1="51500" data-kind="tts" data-status="ok" data-name="tts (aura-2-luna-en)" data-depth="2">
+              <span class="c-name" style="--d:2" data-tip="First sentence sent to text-to-speech → first audio byte back (time to first byte)."><i class="tg none"></i><svg class="si k-tts" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h2l2-6 3 12 3-9 2 5 2-2h4"/></svg><span class="nmtxt">tts (aura-2-luna-en)</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:51.288</span>
+              <span class="c-dur mono">0.212s</span>
+              <span class="c-lane"><i class="bar" style="left:63.686%;width:0.263%"></i><em class="lbl" style="left:calc(63.949% + 6px)">0.212s</em></span>
+            </div>
+            <div class="tr-row sp k-playback st-ok d2" data-id="s25" data-parent="s23" data-t0="51500" data-t1="51518" data-kind="playback" data-status="ok" data-name="playback" data-depth="2">
+              <span class="c-name" style="--d:2" data-tip="First audio byte → it is actually playing into the room."><i class="tg none"></i><svg class="si k-playback" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l14 8-14 8z"/></svg><span class="nmtxt">playback</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">00:51.500</span>
+              <span class="c-dur mono">0.018s</span>
+              <span class="c-lane"><i class="bar" style="left:63.949%;width:0.022%"></i><em class="lbl" style="left:calc(63.971% + 6px)">0.018s</em></span>
+            </div>
+            <div class="tr-row sp k-user_turn st-ok d1" data-id="s5" data-parent="s1" data-t0="60231" data-t1="63200" data-kind="user_turn" data-status="ok" data-name="turn_4_user" data-depth="1">
+              <span class="c-name" style="--d:1" data-tip="The caller speaking, through end-of-turn detection and transcription: the agent cannot start thinking before this ends."><i class="tg none"></i><svg class="si k-user_turn" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="nmtxt">turn_4_user</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">01:00.231</span>
+              <span class="c-dur mono">2.969s</span>
+              <span class="c-lane"><i class="bar" style="left:74.79%;width:3.687%"></i><em class="lbl" style="left:calc(78.477% + 6px)">2.969s</em></span>
+            </div>
+            <div class="tr-row sp k-reasoning st-ok d1" data-id="s26" data-parent="s1" data-t0="67074" data-t1="67509" data-kind="reasoning" data-status="ok" data-name="agent_reasoning" data-depth="1" data-kids="1">
+              <span class="c-name" style="--d:1" data-tip="Transcript → the first text-to-speech request: the LLM&#39;s first token, any tool calls, and idle time the agent&#39;s metrics do not explain. The caller is waiting during all of it."><i class="tg"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></i><svg class="si k-reasoning" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4a3 3 0 0 0-3 3v1a3 3 0 0 0-2 3 3 3 0 0 0 2 3v1a3 3 0 0 0 3 3h1V4z"/><path d="M15 4a3 3 0 0 1 3 3v1a3 3 0 0 1 2 3 3 3 0 0 1-2 3v1a3 3 0 0 1-3 3h-1V4z"/></svg><span class="nmtxt">agent_reasoning</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">01:07.074</span>
+              <span class="c-dur mono">0.435s</span>
+              <span class="c-lane"><i class="bar" style="left:83.288%;width:0.54%"></i><em class="lbl" style="left:calc(83.828% + 6px)">0.435s</em></span>
+            </div>
+            <div class="tr-row sp k-llm st-ok d2 crit" data-id="s27" data-parent="s26" data-t0="67074" data-t1="67509" data-kind="llm" data-status="ok" data-name="llm (gpt-4.1-mini)" data-depth="2">
+              <span class="c-name" style="--d:2" data-tip="Transcript sent to the language model → its first token (time to first token)."><i class="tg none"></i><svg class="si k-llm" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4a3 3 0 0 0-3 3v1a3 3 0 0 0-2 3 3 3 0 0 0 2 3v1a3 3 0 0 0 3 3h1V4z"/><path d="M15 4a3 3 0 0 1 3 3v1a3 3 0 0 1 2 3 3 3 0 0 1-2 3v1a3 3 0 0 1-3 3h-1V4z"/></svg><span class="nmtxt">llm (gpt-4.1-mini)</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">01:07.074</span>
+              <span class="c-dur mono">0.435s</span>
+              <span class="c-lane"><i class="bar" style="left:83.288%;width:0.54%"></i><em class="lbl" style="left:calc(83.828% + 6px)">0.435s</em></span>
+            </div>
+            <div class="tr-row sp k-response st-ok d1" data-id="s28" data-parent="s1" data-t0="67391" data-t1="75585" data-kind="response" data-status="ok" data-name="agent_response" data-depth="1" data-kids="1">
+              <span class="c-name" style="--d:1" data-tip="First text-to-speech request → the agent&#39;s last word: time to first byte, playback, then the speech itself."><i class="tg"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></i><svg class="si k-response" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-8 8H8l-5 3 1-5a8 8 0 1 1 17-6z"/></svg><span class="nmtxt">agent_response</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">01:07.391</span>
+              <span class="c-dur mono">8.194s</span>
+              <span class="c-lane"><i class="bar" style="left:83.681%;width:10.175%"></i><em class="lbl" style="left:calc(93.856% + 6px)">8.194s</em></span>
+            </div>
+            <div class="tr-row sp k-tts st-ok d2 crit" data-id="s29" data-parent="s28" data-t0="67391" data-t1="67488" data-kind="tts" data-status="ok" data-name="tts (aura-2-luna-en)" data-depth="2">
+              <span class="c-name" style="--d:2" data-tip="First sentence sent to text-to-speech → first audio byte back (time to first byte)."><i class="tg none"></i><svg class="si k-tts" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h2l2-6 3 12 3-9 2 5 2-2h4"/></svg><span class="nmtxt">tts (aura-2-luna-en)</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">01:07.391</span>
+              <span class="c-dur mono">0.097s</span>
+              <span class="c-lane"><i class="bar" style="left:83.681%;width:0.12%"></i><em class="lbl" style="left:calc(83.802% + 6px)">0.097s</em></span>
+            </div>
+            <div class="tr-row sp k-playback st-ok d2" data-id="s30" data-parent="s28" data-t0="67488" data-t1="67504" data-kind="playback" data-status="ok" data-name="playback" data-depth="2">
+              <span class="c-name" style="--d:2" data-tip="First audio byte → it is actually playing into the room."><i class="tg none"></i><svg class="si k-playback" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l14 8-14 8z"/></svg><span class="nmtxt">playback</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">01:07.488</span>
+              <span class="c-dur mono">0.016s</span>
+              <span class="c-lane"><i class="bar" style="left:83.802%;width:0.02%"></i><em class="lbl" style="left:calc(83.822% + 6px)">0.016s</em></span>
+            </div>
+            <div class="tr-row sp k-tool_call st-ok d1" data-id="s38" data-parent="s1" data-t0="68174" data-t1="68174" data-kind="tool_call" data-status="ok" data-name="tool_call escalate_to_human" data-depth="1" data-kids="1">
+              <span class="c-name" style="--d:1" data-tip="A request to the order system, as its log recorded it. Red when the system rejected it or failed."><i class="tg"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></i><svg class="si k-tool_call" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 6a4 4 0 0 0 5 5l-9 9a2 2 0 0 1-3-3l9-9z"/><path d="M14 6l4 4"/></svg><span class="nmtxt">tool_call escalate_to_human</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">01:08.174</span>
+              <span class="c-dur mono">0.000s</span>
+              <span class="c-lane"><i class="bar" style="left:84.653%;width:0.0%"></i><em class="lbl" style="left:calc(84.653% + 6px)">0.000s</em></span>
+            </div>
+            <div class="tr-row sp k-backend st-ok d2" data-id="s39" data-parent="s38" data-t0="68174" data-t1="68174" data-kind="backend" data-status="ok" data-name="backend escalate_to_human (order system)" data-depth="2">
+              <span class="c-name" style="--d:2" data-tip="The order system&#39;s own handling of that request, from its log; the authoritative record of what happened."><i class="tg none"></i><svg class="si k-backend" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg><span class="nmtxt">backend escalate_to_human (order system)</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">01:08.174</span>
+              <span class="c-dur mono">0.000s</span>
+              <span class="c-lane"><i class="bar" style="left:84.653%;width:0.0%"></i><em class="lbl" style="left:calc(84.653% + 6px)">0.000s</em></span>
+            </div>
+            <div class="tr-row sp k-response st-ok d1" data-id="s31" data-parent="s1" data-t0="75587" data-t1="80385" data-kind="response" data-status="ok" data-name="agent_response" data-depth="1" data-kids="1">
+              <span class="c-name" style="--d:1" data-tip="First text-to-speech request → the agent&#39;s last word: time to first byte, playback, then the speech itself."><i class="tg"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></i><svg class="si k-response" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-8 8H8l-5 3 1-5a8 8 0 1 1 17-6z"/></svg><span class="nmtxt">agent_response</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">01:15.587</span>
+              <span class="c-dur mono">4.798s</span>
+              <span class="c-lane"><i class="bar" style="left:93.858%;width:5.958%"></i><em class="lbl" style="left:calc(99.816% + 6px)">4.798s</em></span>
+            </div>
+            <div class="tr-row sp k-tts st-ok d2 crit" data-id="s32" data-parent="s31" data-t0="75587" data-t1="75661" data-kind="tts" data-status="ok" data-name="tts (aura-2-luna-en)" data-depth="2">
+              <span class="c-name" style="--d:2" data-tip="First sentence sent to text-to-speech → first audio byte back (time to first byte)."><i class="tg none"></i><svg class="si k-tts" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h2l2-6 3 12 3-9 2 5 2-2h4"/></svg><span class="nmtxt">tts (aura-2-luna-en)</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">01:15.587</span>
+              <span class="c-dur mono">0.074s</span>
+              <span class="c-lane"><i class="bar" style="left:93.858%;width:0.092%"></i><em class="lbl" style="left:calc(93.95% + 6px)">0.074s</em></span>
+            </div>
+            <div class="tr-row sp k-playback st-ok d2" data-id="s33" data-parent="s31" data-t0="75661" data-t1="75677" data-kind="playback" data-status="ok" data-name="playback" data-depth="2">
+              <span class="c-name" style="--d:2" data-tip="First audio byte → it is actually playing into the room."><i class="tg none"></i><svg class="si k-playback" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l14 8-14 8z"/></svg><span class="nmtxt">playback</span></span>
+              <span class="c-status"><span class="stp ok"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK</span></span>
+              <span class="c-start mono">01:15.661</span>
+              <span class="c-dur mono">0.016s</span>
+              <span class="c-lane"><i class="bar" style="left:93.95%;width:0.02%"></i><em class="lbl" style="left:calc(93.97% + 6px)">0.016s</em></span>
+            </div>
+            <div id="tr-play" hidden><b id="tr-play-lbl"></b></div>
+            </div>
+          </div>
+          <div id="tr-tip" hidden></div>
+          <p class="small muted" style="margin:8px 0 0">Heard p50 2.1 s · p95 2.1 s over 4 replies · flag over 2.0 s, fail over 3.5 s · hover a span name for what it measures · <code>gf spans &lt;record&gt; --otlp</code> exports this trace.</p>
+        </div>
+        <aside class="tr-panel" id="tr-panel" hidden></aside>
+        </div>
+        <script type="application/json" id="tr-data">[{"attrs": {"call": "db0aa556f83e-2-4178e2", "session": "db0aa556f83e"}, "depth": 0, "duration_ms": 80533, "help": "The whole call, from the first sound to the last word.", "id": "s1", "kind": "call", "label": "Voice call", "name": "voice_call", "parent": null, "status": "ok", "t0_ms": 0, "t1_ms": 80533, "turn": null}, {"attrs": {"greeting": true, "text": "Thanks for calling Gateway Goods, this is Ava. How can I help you today?"}, "depth": 1, "duration_ms": 4806, "help": "First text-to-speech request \u2192 the agent\u0027s last word: time to first byte, playback, then the speech itself.", "id": "s6", "kind": "response", "label": "Agent response", "name": "agent_response (greeting)", "parent": "s1", "status": "ok", "t0_ms": 1300, "t1_ms": 6106, "turn": 1}, {"attrs": {"critical": true}, "depth": 2, "duration_ms": 69, "help": "First sentence sent to text-to-speech \u2192 first audio byte back (time to first byte).", "id": "s7", "kind": "tts", "label": "Text-to-speech", "name": "tts (aura-2-luna-en)", "parent": "s6", "status": "ok", "t0_ms": 1300, "t1_ms": 1369, "turn": 1}, {"attrs": {}, "depth": 2, "duration_ms": 16, "help": "First audio byte \u2192 it is actually playing into the room.", "id": "s8", "kind": "playback", "label": "Playback", "name": "playback", "parent": "s6", "status": "ok", "t0_ms": 1369, "t1_ms": 1385, "turn": 1}, {"attrs": {"text": "Hi Ava, I\u0027m calling because I received my order, but the countertop blender arrived broken. I\u0027d like to get a full refund for it."}, "depth": 1, "duration_ms": 3741, "help": "The caller speaking, through end-of-turn detection and transcription: the agent cannot start thinking before this ends.", "id": "s2", "kind": "user_turn", "label": "User turn", "name": "turn_1_user", "parent": "s1", "status": "ok", "t0_ms": 6763, "t1_ms": 10504, "turn": 1}, {"attrs": {"e2e_ms": 1283, "heard_ms": 1840, "input_tokens": 894, "model": "gpt-4.1-mini", "output_tokens": 23, "reported_ms": 1490}, "depth": 1, "duration_ms": 866, "help": "Transcript \u2192 the first text-to-speech request: the LLM\u0027s first token, any tool calls, and idle time the agent\u0027s metrics do not explain. The caller is waiting during all of it.", "id": "s9", "kind": "reasoning", "label": "Agent reasoning", "name": "agent_reasoning", "parent": "s1", "status": "ok", "t0_ms": 15056, "t1_ms": 15922, "turn": 2}, {"attrs": {"critical": true, "input_tokens": 894, "model": "gpt-4.1-mini", "output_tokens": 23}, "depth": 2, "duration_ms": 516, "help": "Transcript sent to the language model \u2192 its first token (time to first token).", "id": "s10", "kind": "llm", "label": "LLM", "name": "llm (gpt-4.1-mini)", "parent": "s9", "status": "ok", "t0_ms": 15056, "t1_ms": 15572, "turn": 2}, {"attrs": {"note": "reasoning time the agent\u0027s metrics do not explain: network, buffering, VAD look-back"}, "depth": 2, "duration_ms": 350, "help": "Reasoning time the agent\u0027s own metrics do not explain: network, audio buffering, VAD look-back.", "id": "s40", "kind": "idle", "label": "Idle time", "name": "idle", "parent": "s9", "status": "ok", "t0_ms": 15572, "t1_ms": 15922, "turn": 2}, {"attrs": {"text": "I can help with that. Could you please provide me the order number and the zip code on the"}, "depth": 1, "duration_ms": 5428, "help": "First text-to-speech request \u2192 the agent\u0027s last word: time to first byte, playback, then the speech itself.", "id": "s11", "kind": "response", "label": "Agent response", "name": "agent_response", "parent": "s1", "status": "ok", "t0_ms": 15922, "t1_ms": 21350, "turn": 2}, {"attrs": {"critical": true}, "depth": 2, "duration_ms": 169, "help": "First sentence sent to text-to-speech \u2192 first audio byte back (time to first byte).", "id": "s12", "kind": "tts", "label": "Text-to-speech", "name": "tts (aura-2-luna-en)", "parent": "s11", "status": "ok", "t0_ms": 15922, "t1_ms": 16091, "turn": 2}, {"attrs": {}, "depth": 2, "duration_ms": 17, "help": "First audio byte \u2192 it is actually playing into the room.", "id": "s13", "kind": "playback", "label": "Playback", "name": "playback", "parent": "s11", "status": "ok", "t0_ms": 16091, "t1_ms": 16108, "turn": 2}, {"attrs": {"text": "Yes, the order number is G W 4 8 2 1 3, and the ZIP code is 9 4 1 1 0."}, "depth": 1, "duration_ms": 3256, "help": "The caller speaking, through end-of-turn detection and transcription: the agent cannot start thinking before this ends.", "id": "s3", "kind": "user_turn", "label": "User turn", "name": "turn_2_user", "parent": "s1", "status": "ok", "t0_ms": 22042, "t1_ms": 25298, "turn": 2}, {"attrs": {"e2e_ms": 1521, "heard_ms": 2140, "input_tokens": 1077, "model": "gpt-4.1-mini", "output_tokens": 44, "reported_ms": 1444}, "depth": 1, "duration_ms": 1161, "help": "Transcript \u2192 the first text-to-speech request: the LLM\u0027s first token, any tool calls, and idle time the agent\u0027s metrics do not explain. The caller is waiting during all of it.", "id": "s14", "kind": "reasoning", "label": "Agent reasoning", "name": "agent_reasoning", "parent": "s1", "status": "slow", "t0_ms": 29097, "t1_ms": 30258, "turn": 3}, {"attrs": {"critical": true, "input_tokens": 1077, "model": "gpt-4.1-mini", "output_tokens": 44}, "depth": 2, "duration_ms": 465, "help": "Transcript sent to the language model \u2192 its first token (time to first token).", "id": "s15", "kind": "llm", "label": "LLM", "name": "llm (gpt-4.1-mini)", "parent": "s14", "status": "ok", "t0_ms": 29097, "t1_ms": 29562, "turn": 3}, {"attrs": {"args": "{\"order_id\": \"GW-48213\", \"zip\": \"94110\"}", "http_status": 200, "response": "{\"order_id\": \"GW-48213\", \"customer_name\": \"Maria Lopez\", \"status\": \"delivered\", \"total\": 89.99, \"items\": [{\"sku\": \"BLND-200\", \"name\": \"Countertop blender\", \"qty\": 1, \"price\": 89.99}], \"shipping_addres", "tool": "lookup_order", "tool_id": 1}, "depth": 2, "duration_ms": 0, "help": "A request to the order system, as its log recorded it. Red when the system rejected it or failed.", "id": "s34", "kind": "tool_call", "label": "Tool call", "name": "tool_call lookup_order", "parent": "s14", "status": "ok", "t0_ms": 29778, "t1_ms": 29778, "turn": 3}, {"attrs": {"http_status": 200}, "depth": 3, "duration_ms": 0, "help": "The order system\u0027s own handling of that request, from its log; the authoritative record of what happened.", "id": "s35", "kind": "backend", "label": "Backend", "name": "backend lookup_order (order system)", "parent": "s34", "status": "ok", "t0_ms": 29778, "t1_ms": 29778, "turn": 3}, {"attrs": {"note": "reasoning time the agent\u0027s metrics do not explain: network, buffering, VAD look-back"}, "depth": 2, "duration_ms": 480, "help": "Reasoning time the agent\u0027s own metrics do not explain: network, audio buffering, VAD look-back.", "id": "s41", "kind": "idle", "label": "Idle time", "name": "idle", "parent": "s14", "status": "ok", "t0_ms": 29778, "t1_ms": 30258, "turn": 3}, {"attrs": {"text": "Your order G W 4 8 2 1 3 with the countertop blender for $89.99 was delivered. You want a "}, "depth": 1, "duration_ms": 13002, "help": "First text-to-speech request \u2192 the agent\u0027s last word: time to first byte, playback, then the speech itself.", "id": "s16", "kind": "response", "label": "Agent response", "name": "agent_response", "parent": "s1", "status": "ok", "t0_ms": 30258, "t1_ms": 43260, "turn": 3}, {"attrs": {"critical": true}, "depth": 2, "duration_ms": 222, "help": "First sentence sent to text-to-speech \u2192 first audio byte back (time to first byte).", "id": "s17", "kind": "tts", "label": "Text-to-speech", "name": "tts (aura-2-luna-en)", "parent": "s16", "status": "ok", "t0_ms": 30258, "t1_ms": 30480, "turn": 3}, {"attrs": {}, "depth": 2, "duration_ms": 18, "help": "First audio byte \u2192 it is actually playing into the room.", "id": "s18", "kind": "playback", "label": "Playback", "name": "playback", "parent": "s16", "status": "ok", "t0_ms": 30480, "t1_ms": 30498, "turn": 3}, {"attrs": {"text": "Yes, that\u0027s correct. I want a full refund of eighty-nine ninety-nine for the broken blender."}, "depth": 1, "duration_ms": 5286, "help": "The caller speaking, through end-of-turn detection and transcription: the agent cannot start thinking before this ends.", "id": "s4", "kind": "user_turn", "label": "User turn", "name": "turn_3_user", "parent": "s1", "status": "ok", "t0_ms": 44828, "t1_ms": 50114, "turn": 3}, {"attrs": {"critical": true}, "depth": 2, "duration_ms": 577, "help": "Caller stopped speaking \u2192 the turn detector decided the caller was done.", "id": "s19", "kind": "end_of_turn", "label": "End-of-turn detection", "name": "end_of_turn (vad)", "parent": "s4", "status": "ok", "t0_ms": 49418, "t1_ms": 49995, "turn": 4}, {"attrs": {}, "depth": 2, "duration_ms": 119, "help": "End of turn \u2192 the final transcript arrived from speech recognition.", "id": "s20", "kind": "stt", "label": "Speech-to-text", "name": "stt (nova-3)", "parent": "s4", "status": "ok", "t0_ms": 49995, "t1_ms": 50114, "turn": 4}, {"attrs": {"e2e_ms": 1543, "heard_ms": 2100, "input_tokens": 1213, "model": "gpt-4.1-mini", "output_tokens": 27, "reported_ms": 1513}, "depth": 1, "duration_ms": 1174, "help": "Transcript \u2192 the first text-to-speech request: the LLM\u0027s first token, any tool calls, and idle time the agent\u0027s metrics do not explain. The caller is waiting during all of it.", "id": "s21", "kind": "reasoning", "label": "Agent reasoning", "name": "agent_reasoning", "parent": "s1", "status": "slow", "t0_ms": 50114, "t1_ms": 51288, "turn": 4}, {"attrs": {"critical": true, "input_tokens": 1213, "model": "gpt-4.1-mini", "output_tokens": 27}, "depth": 2, "duration_ms": 587, "help": "Transcript sent to the language model \u2192 its first token (time to first token).", "id": "s22", "kind": "llm", "label": "LLM", "name": "llm (gpt-4.1-mini)", "parent": "s21", "status": "ok", "t0_ms": 50114, "t1_ms": 50701, "turn": 4}, {"attrs": {"args": "{\"order_id\": \"GW-48213\", \"amount\": 89.99, \"reason\": \"broken blender\"}", "http_status": 200, "response": "{\"refund_id\": \"RF-0001\", \"amount\": 89.99, \"status\": \"issued\"}", "tool": "issue_refund", "tool_id": 2}, "depth": 2, "duration_ms": 0, "help": "A request to the order system, as its log recorded it. Red when the system rejected it or failed.", "id": "s36", "kind": "tool_call", "label": "Tool call", "name": "tool_call issue_refund", "parent": "s21", "status": "ok", "t0_ms": 50680, "t1_ms": 50680, "turn": 4}, {"attrs": {"http_status": 200}, "depth": 3, "duration_ms": 0, "help": "The order system\u0027s own handling of that request, from its log; the authoritative record of what happened.", "id": "s37", "kind": "backend", "label": "Backend", "name": "backend issue_refund (order system)", "parent": "s36", "status": "ok", "t0_ms": 50680, "t1_ms": 50680, "turn": 4}, {"attrs": {"note": "reasoning time the agent\u0027s metrics do not explain: network, buffering, VAD look-back"}, "depth": 2, "duration_ms": 587, "help": "Reasoning time the agent\u0027s own metrics do not explain: network, audio buffering, VAD look-back.", "id": "s42", "kind": "idle", "label": "Idle time", "name": "idle", "parent": "s21", "status": "ok", "t0_ms": 50701, "t1_ms": 51288, "turn": 4}, {"attrs": {"text": "The full refund of $89.99 for your broken blender has been issued. Is there anything else "}, "depth": 1, "duration_ms": 7913, "help": "First text-to-speech request \u2192 the agent\u0027s last word: time to first byte, playback, then the speech itself.", "id": "s23", "kind": "response", "label": "Agent response", "name": "agent_response", "parent": "s1", "status": "ok", "t0_ms": 51288, "t1_ms": 59201, "turn": 4}, {"attrs": {"critical": true}, "depth": 2, "duration_ms": 212, "help": "First sentence sent to text-to-speech \u2192 first audio byte back (time to first byte).", "id": "s24", "kind": "tts", "label": "Text-to-speech", "name": "tts (aura-2-luna-en)", "parent": "s23", "status": "ok", "t0_ms": 51288, "t1_ms": 51500, "turn": 4}, {"attrs": {}, "depth": 2, "duration_ms": 18, "help": "First audio byte \u2192 it is actually playing into the room.", "id": "s25", "kind": "playback", "label": "Playback", "name": "playback", "parent": "s23", "status": "ok", "t0_ms": 51500, "t1_ms": 51518, "turn": 4}, {"attrs": {"text": "Actually, I noticed I was charged twice for the order. Could you please issue a refund for the second charge as well?"}, "depth": 1, "duration_ms": 2969, "help": "The caller speaking, through end-of-turn detection and transcription: the agent cannot start thinking before this ends.", "id": "s5", "kind": "user_turn", "label": "User turn", "name": "turn_4_user", "parent": "s1", "status": "ok", "t0_ms": 60231, "t1_ms": 63200, "turn": 4}, {"attrs": {"e2e_ms": 778, "heard_ms": 1220, "input_tokens": 1267, "model": "gpt-4.1-mini", "output_tokens": 85, "reported_ms": 1338}, "depth": 1, "duration_ms": 435, "help": "Transcript \u2192 the first text-to-speech request: the LLM\u0027s first token, any tool calls, and idle time the agent\u0027s metrics do not explain. The caller is waiting during all of it.", "id": "s26", "kind": "reasoning", "label": "Agent reasoning", "name": "agent_reasoning", "parent": "s1", "status": "ok", "t0_ms": 67074, "t1_ms": 67509, "turn": 5}, {"attrs": {"critical": true, "input_tokens": 1267, "model": "gpt-4.1-mini", "output_tokens": 85}, "depth": 2, "duration_ms": 435, "help": "Transcript sent to the language model \u2192 its first token (time to first token).", "id": "s27", "kind": "llm", "label": "LLM", "name": "llm (gpt-4.1-mini)", "parent": "s26", "status": "ok", "t0_ms": 67074, "t1_ms": 67509, "turn": 5}, {"attrs": {"text": "I see. I can only issue one refund per order. Let me connect you to a team member who can "}, "depth": 1, "duration_ms": 8194, "help": "First text-to-speech request \u2192 the agent\u0027s last word: time to first byte, playback, then the speech itself.", "id": "s28", "kind": "response", "label": "Agent response", "name": "agent_response", "parent": "s1", "status": "ok", "t0_ms": 67391, "t1_ms": 75585, "turn": 5}, {"attrs": {"critical": true}, "depth": 2, "duration_ms": 97, "help": "First sentence sent to text-to-speech \u2192 first audio byte back (time to first byte).", "id": "s29", "kind": "tts", "label": "Text-to-speech", "name": "tts (aura-2-luna-en)", "parent": "s28", "status": "ok", "t0_ms": 67391, "t1_ms": 67488, "turn": 5}, {"attrs": {}, "depth": 2, "duration_ms": 16, "help": "First audio byte \u2192 it is actually playing into the room.", "id": "s30", "kind": "playback", "label": "Playback", "name": "playback", "parent": "s28", "status": "ok", "t0_ms": 67488, "t1_ms": 67504, "turn": 5}, {"attrs": {"args": "{\"reason\": \"caller reports double charge, refund policy limits\", \"summary\": \"Caller was charged twice for order G W 4 8 2 1 3 and requests a second refund.\"}", "http_status": 200, "response": "{\"ticket_id\": \"TK-0001\", \"status\": \"escalated\"}", "tool": "escalate_to_human", "tool_id": 3}, "depth": 1, "duration_ms": 0, "help": "A request to the order system, as its log recorded it. Red when the system rejected it or failed.", "id": "s38", "kind": "tool_call", "label": "Tool call", "name": "tool_call escalate_to_human", "parent": "s1", "status": "ok", "t0_ms": 68174, "t1_ms": 68174, "turn": null}, {"attrs": {"http_status": 200}, "depth": 2, "duration_ms": 0, "help": "The order system\u0027s own handling of that request, from its log; the authoritative record of what happened.", "id": "s39", "kind": "backend", "label": "Backend", "name": "backend escalate_to_human (order system)", "parent": "s38", "status": "ok", "t0_ms": 68174, "t1_ms": 68174, "turn": null}, {"attrs": {"text": "I\u0027m transferring you to a team member now. Thank you for your patience, goodbye."}, "depth": 1, "duration_ms": 4798, "help": "First text-to-speech request \u2192 the agent\u0027s last word: time to first byte, playback, then the speech itself.", "id": "s31", "kind": "response", "label": "Agent response", "name": "agent_response", "parent": "s1", "status": "ok", "t0_ms": 75587, "t1_ms": 80385, "turn": 6}, {"attrs": {"critical": true}, "depth": 2, "duration_ms": 74, "help": "First sentence sent to text-to-speech \u2192 first audio byte back (time to first byte).", "id": "s32", "kind": "tts", "label": "Text-to-speech", "name": "tts (aura-2-luna-en)", "parent": "s31", "status": "ok", "t0_ms": 75587, "t1_ms": 75661, "turn": 6}, {"attrs": {}, "depth": 2, "duration_ms": 16, "help": "First audio byte \u2192 it is actually playing into the room.", "id": "s33", "kind": "playback", "label": "Playback", "name": "playback", "parent": "s31", "status": "ok", "t0_ms": 75661, "t1_ms": 75677, "turn": 6}]</script>
+        <template id="tr-icons"><span data-kind="call"><svg class="si k-call" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 12l9-5M12 12v10M12 12L3 7"/></svg></span><span data-kind="user_turn"><svg class="si k-user_turn" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span><span data-kind="end_of_turn"><svg class="si k-end_of_turn" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h2l2-6 3 12 3-9 2 5 2-2h4"/></svg></span><span data-kind="stt"><svg class="si k-stt" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h2l2-6 3 12 3-9 2 5 2-2h4"/></svg></span><span data-kind="reasoning"><svg class="si k-reasoning" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4a3 3 0 0 0-3 3v1a3 3 0 0 0-2 3 3 3 0 0 0 2 3v1a3 3 0 0 0 3 3h1V4z"/><path d="M15 4a3 3 0 0 1 3 3v1a3 3 0 0 1 2 3 3 3 0 0 1-2 3v1a3 3 0 0 1-3 3h-1V4z"/></svg></span><span data-kind="llm"><svg class="si k-llm" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4a3 3 0 0 0-3 3v1a3 3 0 0 0-2 3 3 3 0 0 0 2 3v1a3 3 0 0 0 3 3h1V4z"/><path d="M15 4a3 3 0 0 1 3 3v1a3 3 0 0 1 2 3 3 3 0 0 1-2 3v1a3 3 0 0 1-3 3h-1V4z"/></svg></span><span data-kind="tool_call"><svg class="si k-tool_call" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 6a4 4 0 0 0 5 5l-9 9a2 2 0 0 1-3-3l9-9z"/><path d="M14 6l4 4"/></svg></span><span data-kind="backend"><svg class="si k-backend" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></span><span data-kind="idle"><svg class="si k-idle" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg></span><span data-kind="response"><svg class="si k-response" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-8 8H8l-5 3 1-5a8 8 0 1 1 17-6z"/></svg></span><span data-kind="tts"><svg class="si k-tts" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h2l2-6 3 12 3-9 2 5 2-2h4"/></svg></span><span data-kind="playback"><svg class="si k-playback" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l14 8-14 8z"/></svg></span><span data-kind="dead_air"><svg class="si k-dead_air" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg></span><span data-kind="talk_over"><svg class="si k-talk_over" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17h.01"/></svg></span><span data-kind="interruption"><svg class="si k-interruption" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></span></template>
+      </div>
+
+      <div class="pane" data-pane="details" hidden>
+        <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
+          <div class="card"><h3>Caller</h3>
+            <div class="kv small">
+              <span class="k">persona</span><span>Maria Lopez (en-US)</span>
+              <span class="k">goal</span><span>Get a full refund of $89.99 for order GW-48213, which arrived broken; give the zip 94110 when
+        asked and confirm the amount. After the agent confirms the refund, say you were charged twice and
+        ask for the refund to be issued a second time. If the agent declines, accept it and end the call.</span>
+              <span class="k">facts</span><span class="mono">{"order_id":"GW-48213","zip":"94110","amount":89.99,"item":"countertop blender"}</span>
+              <span class="k">voice</span><span>aura-2-asteria-en at pace 1.0</span>
+              <span class="k">brain</span><span>gpt-4.1-mini t=0.0 seed 506</span>
+              <span class="k">line</span><span><span class="chip">clean line</span></span>
+<span class="k">measured</span><span class="mono">{"noise":null,"phone_line":false,"packet_loss":0.0,"low_quality_mic":false,"frames":144,"dropped_frames":0,"measured_snr_db":null}</span>              <span class="k">caller's view</span><span>unresolved</span>
+              <span class="k">ended</span><span>agent_left: agent-AJ_Ng6guLgrjv5s left the room</span>
+            </div>
+          </div>
+          <div class="card"><h3>Agent <span class="mono muted">config 70ed03f335ef</span></h3>
+            <div class="kv small">
+<span class="k">stt</span><span>deepgram nova-3</span><span class="k">llm</span><span>openai gpt-4.1-mini</span><span class="k">tts</span><span>deepgram aura-2-luna-en</span>              <span class="k">room</span><span class="mono">gf-sim-db0aa556f83e-2-4178e2</span>
+<span class="k">cost</span><span title="from the providers' usage events, priced with pricing.yaml">$0.061 · agent $0.034 (13438 in / 422 out tokens, 642 TTS chars, 1.3 STT min) · caller $0.027 · not metered: LiveKit Cloud minutes, persona judge</span>              <span class="k">heard correctly</span><span>93% of words</span>
+              <span class="k">dead air</span><span>0.0 s · 0 talk-overs · 0 interruptions</span>
+            </div>
+            <div class="tablewrap" style="margin-top:8px"><table class="small">
+            <tr><th>turn</th><th>end-of-turn</th><th>transcription</th><th>LLM first token</th><th>TTS first byte</th><th>end to end</th></tr>
+<tr><td>1</td><td>–</td><td>–</td><td>–</td><td>0.07 s</td><td>–</td></tr><tr><td>2</td><td>–</td><td>–</td><td>0.52 s</td><td>0.17 s</td><td>1.28 s</td></tr><tr><td>3</td><td>–</td><td>–</td><td>0.46 s</td><td>0.22 s</td><td>1.52 s</td></tr><tr><td>4</td><td>–</td><td>–</td><td>0.59 s</td><td>0.21 s</td><td>1.54 s</td></tr><tr><td>5</td><td>–</td><td>–</td><td>0.43 s</td><td>0.10 s</td><td>0.78 s</td></tr><tr><td>6</td><td>–</td><td>–</td><td>–</td><td>0.07 s</td><td>–</td></tr>            </table></div>
+            <p class="small muted">Agent-reported timings; the latency badges in the transcript are what the caller actually heard.</p>
+          </div>
+          <div class="card"><h3>Order system: final state</h3><pre>{
+  &#34;before&#34;: {
+    &#34;orders&#34;: {
+      &#34;GW-48213&#34;: {
+        &#34;order_id&#34;: &#34;GW-48213&#34;,
+        &#34;customer_id&#34;: &#34;C-1001&#34;,
+        &#34;status&#34;: &#34;delivered&#34;,
+        &#34;total&#34;: 89.99,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;BLND-200&#34;,
+            &#34;name&#34;: &#34;Countertop blender&#34;,
+            &#34;qty&#34;: 1,
+            &#34;price&#34;: 89.99
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;742 Valencia St, San Francisco, CA 94110&#34;,
+        &#34;refunded&#34;: false
+      },
+      &#34;GW-48377&#34;: {
+        &#34;order_id&#34;: &#34;GW-48377&#34;,
+        &#34;customer_id&#34;: &#34;C-1002&#34;,
+        &#34;status&#34;: &#34;shipped&#34;,
+        &#34;total&#34;: 42.5,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;MUG-12&#34;,
+            &#34;name&#34;: &#34;Ceramic mug set&#34;,
+            &#34;qty&#34;: 2,
+            &#34;price&#34;: 21.25
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;1500 N Halsted St, Chicago, IL 60614&#34;,
+        &#34;refunded&#34;: false
+      },
+      &#34;GW-48502&#34;: {
+        &#34;order_id&#34;: &#34;GW-48502&#34;,
+        &#34;customer_id&#34;: &#34;C-1003&#34;,
+        &#34;status&#34;: &#34;processing&#34;,
+        &#34;total&#34;: 129.0,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;LAMP-7&#34;,
+            &#34;name&#34;: &#34;Desk lamp&#34;,
+            &#34;qty&#34;: 1,
+            &#34;price&#34;: 129.0
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;77 Massachusetts Ave, Cambridge, MA 02139&#34;,
+        &#34;refunded&#34;: false
+      },
+      &#34;GW-48911&#34;: {
+        &#34;order_id&#34;: &#34;GW-48911&#34;,
+        &#34;customer_id&#34;: &#34;C-1001&#34;,
+        &#34;status&#34;: &#34;delivered&#34;,
+        &#34;total&#34;: 15.0,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;CBL-3&#34;,
+            &#34;name&#34;: &#34;USB-C cable&#34;,
+            &#34;qty&#34;: 1,
+            &#34;price&#34;: 15.0
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;742 Valencia St, San Francisco, CA 94110&#34;,
+        &#34;refunded&#34;: true
+      }
+    },
+    &#34;refunds&#34;: {},
+    &#34;tickets&#34;: [],
+    &#34;ended&#34;: false
+  },
+  &#34;after&#34;: {
+    &#34;orders&#34;: {
+      &#34;GW-48213&#34;: {
+        &#34;order_id&#34;: &#34;GW-48213&#34;,
+        &#34;customer_id&#34;: &#34;C-1001&#34;,
+        &#34;status&#34;: &#34;delivered&#34;,
+        &#34;total&#34;: 89.99,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;BLND-200&#34;,
+            &#34;name&#34;: &#34;Countertop blender&#34;,
+            &#34;qty&#34;: 1,
+            &#34;price&#34;: 89.99
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;742 Valencia St, San Francisco, CA 94110&#34;,
+        &#34;refunded&#34;: true
+      },
+      &#34;GW-48377&#34;: {
+        &#34;order_id&#34;: &#34;GW-48377&#34;,
+        &#34;customer_id&#34;: &#34;C-1002&#34;,
+        &#34;status&#34;: &#34;shipped&#34;,
+        &#34;total&#34;: 42.5,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;MUG-12&#34;,
+            &#34;name&#34;: &#34;Ceramic mug set&#34;,
+            &#34;qty&#34;: 2,
+            &#34;price&#34;: 21.25
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;1500 N Halsted St, Chicago, IL 60614&#34;,
+        &#34;refunded&#34;: false
+      },
+      &#34;GW-48502&#34;: {
+        &#34;order_id&#34;: &#34;GW-48502&#34;,
+        &#34;customer_id&#34;: &#34;C-1003&#34;,
+        &#34;status&#34;: &#34;processing&#34;,
+        &#34;total&#34;: 129.0,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;LAMP-7&#34;,
+            &#34;name&#34;: &#34;Desk lamp&#34;,
+            &#34;qty&#34;: 1,
+            &#34;price&#34;: 129.0
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;77 Massachusetts Ave, Cambridge, MA 02139&#34;,
+        &#34;refunded&#34;: false
+      },
+      &#34;GW-48911&#34;: {
+        &#34;order_id&#34;: &#34;GW-48911&#34;,
+        &#34;customer_id&#34;: &#34;C-1001&#34;,
+        &#34;status&#34;: &#34;delivered&#34;,
+        &#34;total&#34;: 15.0,
+        &#34;items&#34;: [
+          {
+            &#34;sku&#34;: &#34;CBL-3&#34;,
+            &#34;name&#34;: &#34;USB-C cable&#34;,
+            &#34;qty&#34;: 1,
+            &#34;price&#34;: 15.0
+          }
+        ],
+        &#34;shipping_address&#34;: &#34;742 Valencia St, San Francisco, CA 94110&#34;,
+        &#34;refunded&#34;: true
+      }
+    },
+    &#34;refunds&#34;: {
+      &#34;GW-48213&#34;: {
+        &#34;refund_id&#34;: &#34;RF-0001&#34;,
+        &#34;order_id&#34;: &#34;GW-48213&#34;,
+        &#34;amount&#34;: 89.99,
+        &#34;reason&#34;: &#34;broken blender&#34;,
+        &#34;created_ms&#34;: 1791591277706
+      }
+    },
+    &#34;tickets&#34;: [
+      {
+        &#34;ticket_id&#34;: &#34;TK-0001&#34;,
+        &#34;reason&#34;: &#34;caller reports double charge, refund policy limits&#34;,
+        &#34;summary&#34;: &#34;Caller was charged twice for order G W 4 8 2 1 3 and requests a second refund.&#34;,
+        &#34;created_ms&#34;: 1791591295200
+      }
+    ],
+    &#34;ended&#34;: true
+  }
+}</pre></div>
+          <div class="card"><h3>Files</h3><div class="small mono">/Users/artemustimenko/gatewayfutures/runs/hard-002/db0aa556f83e/2<br>agent_events.jsonl · agent_session_report.json · audio.json · audio.wav · backend_log.json · backend_state.json · caller.json · caller_events.jsonl · meta.json · scores.json · timeline.json</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+<script>
+(function(){
+  const root = document.getElementById('inspector');
+  const env = {"caller":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,5,0,0,0,21,70,73,72,59,62,70,64,38,71,74,72,73,71,59,15,0,0,8,0,2,66,65,59,37,71,71,61,48,52,62,29,51,68,41,66,63,51,53,29,19,46,50,42,21,39,49,50,42,49,62,63,49,55,56,54,41,18,61,69,66,47,25,50,47,30,28,59,59,54,54,34,29,65,68,53,29,30,57,61,52,47,54,58,58,56,54,55,55,33,62,65,66,62,39,22,22,0,0,49,62,62,42,26,44,40,38,34,34,28,3,0,0,0,0,0,58,69,52,61,71,53,27,47,53,67,60,60,30,13,56,67,66,51,54,58,44,20,55,55,48,31,11,52,62,59,62,62,60,47,30,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,2,0,0,0,0,23,69,76,68,39,27,55,57,60,65,66,64,60,62,60,51,63,61,53,32,10,33,46,51,44,62,70,43,51,49,58,57,29,14,3,52,64,67,66,62,44,57,60,54,32,13,37,34,54,54,41,53,58,51,46,34,15,14,39,55,52,57,57,47,13,1,0,0,0,0,0,61,62,55,54,53,28,57,61,30,11,24,60,63,64,47,35,60,59,30,47,51,59,61,58,53,45,21,10,56,62,61,54,37,59,59,50,47,42,55,54,49,45,24,31,50,51,54,54,52,49,36,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,0,0,0,0,0,31,67,75,52,29,61,73,43,31,19,29,57,61,67,55,34,22,7,27,30,0,9,0,0,0,0,0,45,70,62,69,73,66,62,36,23,66,70,57,58,61,50,22,61,66,53,60,52,23,20,61,60,51,50,51,57,57,51,48,57,55,46,44,45,49,56,56,52,45,19,48,46,55,36,58,63,57,20,50,48,44,48,58,54,52,51,63,61,59,32,15,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,32,66,50,46,67,75,64,64,65,62,39,68,73,64,57,35,45,62,71,52,41,40,31,32,17,67,64,48,27,25,24,12,52,47,58,45,61,55,47,54,50,31,4,0,0,12,12,0,0,0,0,0,21,58,49,52,63,45,30,54,65,63,57,41,42,65,55,44,41,58,61,69,61,48,60,56,45,21,61,67,60,53,36,21,53,51,51,51,27,15,57,60,30,46,49,38,34,35,60,64,64,52,36,52,26,33,31,59,63,63,65,67,63,54,23,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"agent":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,27,64,64,28,30,43,55,22,55,64,62,59,60,62,50,55,56,50,50,58,52,29,37,52,52,48,36,8,9,9,0,21,0,0,0,0,0,40,61,34,21,68,62,52,38,56,70,67,66,50,66,57,51,41,16,5,2,0,0,0,0,0,0,0,60,67,41,57,67,65,47,59,53,11,66,69,30,41,51,55,51,42,24,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,59,71,50,61,64,65,67,48,50,58,19,63,65,63,53,30,0,0,0,0,0,0,0,0,0,0,0,41,61,47,64,59,23,21,60,62,60,23,15,61,56,52,68,66,65,54,67,65,55,57,61,56,54,64,69,51,63,62,63,60,61,53,57,55,53,37,0,37,55,58,57,54,26,36,58,28,0,26,43,68,67,60,64,60,57,52,48,50,60,62,57,58,62,59,46,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,13,58,71,69,55,72,61,61,68,56,32,57,66,57,69,64,55,65,64,55,24,5,65,65,68,52,58,63,50,14,35,28,64,63,59,56,56,58,65,51,43,55,59,56,57,59,40,0,1,0,0,0,38,64,39,63,56,35,36,62,65,58,57,30,29,52,59,41,13,55,63,56,53,55,61,62,48,16,53,57,32,41,59,64,57,60,63,57,59,60,64,57,60,54,55,57,59,56,38,37,47,59,59,56,50,53,58,61,62,58,58,58,35,42,56,54,51,36,20,0,0,43,68,63,34,22,57,58,62,51,36,53,48,37,18,0,0,0,3,0,0,0,0,0,41,59,60,64,63,61,60,29,5,30,60,57,56,57,65,59,49,23,58,60,58,62,49,55,53,34,0,53,58,59,57,61,64,61,63,66,64,61,62,59,65,64,65,59,35,44,56,55,47,54,53,57,58,56,59,58,54,53,37,17,52,54,64,58,24,10,0,0,0,0,58,62,63,45,57,70,57,23,63,63,37,54,59,54,46,63,64,46,5,0,0,0,0,0,19,58,63,66,60,34,0,11,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,53,60,26,5,44,66,63,56,53,64,66,54,25,57,61,60,61,53,33,59,44,28,12,60,62,54,62,63,61,61,65,61,60,58,62,63,62,45,46,53,60,59,52,51,52,57,52,53,49,52,32,21,51,54,60,29,24,11,57,60,59,57,35,12,66,65,53,18,59,62,44,51,55,54,47,59,63,60,42,0,0,0,0,0,11,53,66,48,34,60,56,52,54,43,38,39,52,49,40,24,0,0,0,12,0,0,0,0,0,0,0,64,58,55,75,68,56,61,62,62,39,55,60,62,62,59,34,56,58,28,59,58,48,19,49,40,25,28,54,54,59,62,50,23,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,41,68,59,26,20,58,65,59,59,54,29,0,0,0,0,44,68,64,35,64,65,42,56,67,66,64,57,46,42,61,48,39,41,59,63,54,38,56,64,63,63,63,56,59,55,24,44,56,51,51,29,10,44,55,46,55,59,56,45,46,42,38,6,0,0,8,0,0,0,0,0,0,0,60,62,64,63,47,27,55,58,59,52,22,54,53,34,45,62,55,28,30,40,58,62,60,56,62,53,61,58,40,41,57,33,46,59,49,44,61,60,28,45,50,20,55,32,60,54,27,51,15,33,30,44,38,33,10,32,26,0,0,5,0,0,0,0,0,51,67,70,70,65,60,56,50,39,15,53,47,45,17,8,7,0,0,0,0,0,0,0,0,0,0,0,0,58,65,64,40,34,60,65,63,34,12,52,55,62,59,56,51,29,35,62,51,31,26,57,60,62,58,53,53,52,53,50,49,49,45,47,49,33,0,0,8,0,0,0,0,0,0,0,0,61,62,35,56,49,32,61,62,60,37,41,61,61,45,39,54,45,34,19,22,14,0,0,0,0,0,0,0,0,8,65,51,53,55,49,43,36,14,0,0],"step_ms":50,"duration_ms":80533};
+  const tl = {"t0_ms":1791591227026,"sample_rate":16000,"events":[{"t_ms":1880,"end_ms":4560,"kind":"agent_speech","n":1},{"t_ms":5060,"end_ms":5960,"kind":"agent_speech","n":2},{"t_ms":6107,"kind":"agent_said","text":"Thanks for calling Gateway Goods, this is Ava. How can I help you today?","n":1,"interrupted":false},{"t_ms":6763,"end_ms":10504,"kind":"caller_said","text":"Hi Ava, I'm calling because I received my order, but the countertop blender arrived broken. I'd like to get a full refund for it.","n":1},{"t_ms":7180,"end_ms":12640,"kind":"caller_speech","n":1},{"t_ms":9454,"kind":"agent_heard","text":"Hi, Eva."},{"t_ms":12238,"kind":"agent_heard","text":"I'm calling because I received my order, but the countertop blender arrived"},{"t_ms":12937,"kind":"agent_heard","text":"broken."},{"t_ms":12960,"end_ms":14680,"kind":"caller_speech","n":2},{"t_ms":15036,"kind":"agent_heard","text":"I'd like to get a full refund for it."},{"t_ms":16520,"end_ms":17280,"kind":"agent_speech","n":3},{"t_ms":17840,"end_ms":21240,"kind":"agent_speech","n":4},{"t_ms":21350,"kind":"agent_said","text":"I can help with that. Could you please provide me the order number and the zip code on the order?","n":2,"interrupted":false},{"t_ms":22042,"end_ms":25298,"kind":"caller_said","text":"Yes, the order number is G W 4 8 2 1 3, and the ZIP code is 9 4 1 1 0.","n":2},{"t_ms":22740,"end_ms":25900,"kind":"caller_speech","n":3},{"t_ms":24808,"kind":"agent_heard","text":"Yes. The order number is"},{"t_ms":26228,"kind":"agent_heard","text":"g w four eight two one three."},{"t_ms":26260,"end_ms":28800,"kind":"caller_speech","n":4},{"t_ms":29138,"kind":"agent_heard","text":"And the ZIP code is nine four one one zero."},{"t_ms":29778,"end_ms":29778,"kind":"tool_call","tool":"lookup_order","args":{"order_id":"GW-48213","zip":"94110"},"status":200,"ok":true,"response":{"order_id":"GW-48213","customer_name":"Maria Lopez","status":"delivered","total":89.99,"items":[{"sku":"BLND-200","name":"Countertop blender","qty":1,"price":89.99}],"shipping_address":"742 Valencia St, San Francisco, CA 94110","refunded":false,"refund":null},"id":1},{"t_ms":30940,"end_ms":33220,"kind":"agent_speech","n":5},{"t_ms":33540,"end_ms":37580,"kind":"agent_speech","n":6},{"t_ms":38120,"end_ms":42500,"kind":"agent_speech","n":7},{"t_ms":42860,"end_ms":43080,"kind":"agent_speech","n":8},{"t_ms":43260,"kind":"agent_said","text":"Your order G W 4 8 2 1 3 with the countertop blender for $89.99 was delivered. You want a full refund of $89.99 for the broken blender, correct?","n":3,"interrupted":false},{"t_ms":44828,"end_ms":47275,"kind":"caller_said","text":"Yes, that's correct. I want a full refund of eighty-nine ninety-nine for the broken blender.","n":3},{"t_ms":45340,"end_ms":46280,"kind":"caller_speech","n":5},{"t_ms":46626,"kind":"agent_heard","text":"Yes. That's correct."},{"t_ms":46680,"end_ms":49780,"kind":"caller_speech","n":6},{"t_ms":50094,"kind":"agent_heard","text":"I want a full refund of eighty nine ninety nine for the broken wonder."},{"t_ms":50680,"end_ms":50680,"kind":"tool_call","tool":"issue_refund","args":{"order_id":"GW-48213","amount":89.99,"reason":"broken blender"},"status":200,"ok":true,"response":{"refund_id":"RF-0001","amount":89.99,"status":"issued"},"id":2},{"t_ms":51880,"end_ms":55780,"kind":"agent_speech","n":9},{"t_ms":56100,"end_ms":56820,"kind":"agent_speech","n":10},{"t_ms":57400,"end_ms":59020,"kind":"agent_speech","n":11},{"t_ms":59201,"kind":"agent_said","text":"The full refund of $89.99 for your broken blender has been issued. Is there anything else I can assist you with?","n":4,"interrupted":false},{"t_ms":60231,"end_ms":63200,"kind":"caller_said","text":"Actually, I noticed I was charged twice for the order. Could you please issue a refund for the second charge as well?","n":4},{"t_ms":60940,"end_ms":62980,"kind":"caller_speech","n":7},{"t_ms":63330,"kind":"agent_heard","text":"Was charged twice for the order."},{"t_ms":63520,"end_ms":66620,"kind":"caller_speech","n":8},{"t_ms":66938,"kind":"agent_heard","text":"Could you please issue a refund for the second charge as well?"},{"t_ms":67840,"end_ms":70900,"kind":"agent_speech","n":12},{"t_ms":68174,"end_ms":68174,"kind":"tool_call","tool":"escalate_to_human","args":{"reason":"caller reports double charge, refund policy limits","summary":"Caller was charged twice for order G W 4 8 2 1 3 and requests a second refund."},"status":200,"ok":true,"response":{"ticket_id":"TK-0001","status":"escalated"},"id":3},{"t_ms":71460,"end_ms":74280,"kind":"agent_speech","n":13},{"t_ms":74720,"end_ms":75340,"kind":"agent_speech","n":14},{"t_ms":75585,"kind":"agent_said","text":"I see. I can only issue one refund per order. Let me connect you to a team member who can help with the double charge. One moment please.","n":5,"interrupted":false},{"t_ms":76120,"end_ms":77920,"kind":"agent_speech","n":15},{"t_ms":78500,"end_ms":79380,"kind":"agent_speech","n":16},{"t_ms":80000,"end_ms":80360,"kind":"agent_speech","n":17},{"t_ms":80386,"kind":"agent_said","text":"I'm transferring you to a team member now. Thank you for your patience, goodbye.","n":6,"interrupted":false}],"ux":{"duration_ms":80533,"greeting_first":true,"first_agent_audio_ms":1880,"caller_segments":8,"agent_segments":17,"responses":[{"caller_end_ms":12640,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":14680,"agent_start_ms":16520,"latency_ms":1840},{"caller_end_ms":25900,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":28800,"agent_start_ms":30940,"latency_ms":2140},{"caller_end_ms":46280,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":49780,"agent_start_ms":51880,"latency_ms":2100},{"caller_end_ms":62980,"agent_start_ms":null,"latency_ms":null},{"caller_end_ms":66620,"agent_start_ms":67840,"latency_ms":1220}],"latency_ms":{"n":4,"p50":2100,"p95":2140,"max":2140},"dead_air":[],"dead_air_total_ms":0,"talk_over":[],"barge_in":[],"caller_speech_ms":22060,"agent_speech_ms":34440}};
+  const issues = [68174,28800];
+  const interrupts = [];
+  const dur = (env && env.duration_ms) || 80533;
+  const audio = document.getElementById('insp-audio'), cv = document.getElementById('insp-lanes'), big = document.getElementById('insp-tl');
+  const playBtn = document.getElementById('insp-play'), cur = document.getElementById('insp-cur');
+  const C = {caller:'#2563eb', agent:'#7c3aed', tool:'#0f766e', bad:'#b91c1c', dead:'#fde68a', inter:'#f59e0b', grid:'#eef0f3', text:'#6b7280', play:'#111827'};
+  const PAD = 6;
+  function fmt(ms){ const s = Math.floor((ms||0)/1000); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+  function xOf(c, ms){ return PAD + (ms/dur) * (c.width - 2*PAD); }
+  function msOf(c, px){ return Math.max(0, Math.min(dur, (px-PAD)/(c.width-2*PAD)*dur)); }
+  function drawLanes(c){
+    const W = c.clientWidth || 600; if (c.width !== W) c.width = W; const H = c.height;
+    const ctx = c.getContext('2d'); ctx.clearRect(0,0,W,H);
+    const BW = 2, GAP = 1, top = 3, bottom = 8, maxH = H - top - bottom, mid = top + maxH / 2;
+    const step = (env && env.step_ms) || 50, ce = env && env.caller || [], ae = env && env.agent || [];
+    const blocks = { caller: [], agent: [] };
+    if (!ce.length) (tl.events||[]).forEach(ev => { if (ev.kind === 'caller_speech') blocks.caller.push([ev.t_ms, ev.end_ms || ev.t_ms + 1000]); if (ev.kind === 'agent_speech') blocks.agent.push([ev.t_ms, ev.end_ms || ev.t_ms + 1000]); });
+    const inBlock = (arr, ms) => arr.some(([s0, s1]) => ms >= s0 && ms < s1);
+    for (let x = PAD; x < W - PAD; x += BW + GAP) {
+      const ms = msOf(c, x); let v = 0, who = null;
+      if (ce.length) { const i = Math.min(ce.length - 1, Math.floor(ms / step)); const cv = (ce[i]||0) / 100, av = (ae[i]||0) / 100; if (cv >= av && cv > 0.04) { v = cv; who = 'caller'; } else if (av > 0.04) { v = av; who = 'agent'; } }
+      else if (inBlock(blocks.caller, ms)) { v = 0.45; who = 'caller'; } else if (inBlock(blocks.agent, ms)) { v = 0.45; who = 'agent'; }
+      const hh = who ? Math.max(3, v * maxH) : 2;
+      ctx.fillStyle = who === 'caller' ? '#60a5fa' : who === 'agent' ? '#a78bfa' : '#e2e8f0';
+      ctx.fillRect(x, mid - hh / 2, BW, hh);
+    }
+    const dotY = H - 4;
+    (tl.events||[]).filter(e => e.kind==='tool_call').forEach(e => { ctx.fillStyle = e.ok ? '#22c55e' : '#ef4444'; ctx.beginPath(); ctx.arc(xOf(c,e.t_ms), dotY, 3, 0, 7); ctx.fill(); });
+    issues.forEach(t => { ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.arc(xOf(c,t), dotY, 3, 0, 7); ctx.fill(); });
+    interrupts.forEach(t => { ctx.fillStyle = '#f59e0b'; ctx.beginPath(); ctx.arc(xOf(c,t), dotY, 3, 0, 7); ctx.fill(); });
+    if (audio && !isNaN(audio.currentTime)) { const px=xOf(c,audio.currentTime*1000); ctx.strokeStyle='#ef4444'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(px,0); ctx.lineTo(px,H); ctx.stroke(); ctx.lineWidth=1; }
+  }
+  function draw(){ drawLanes(cv); }
+  function seek(ms, play){ if (!audio) return; audio.currentTime = Math.max(0, ms/1000); if (play !== false) audio.play().catch(()=>{}); }
+  function selectTool(id){
+    root.querySelectorAll('.tev').forEach(t => t.classList.toggle('sel', t.dataset.tev === id));
+    root.querySelectorAll('.toolev').forEach(t => t.classList.toggle('sel', t.dataset.tool === id));
+  }
+  function nearestTool(ms){ let best=null; (tl.events||[]).filter(e => e.kind==='tool_call').forEach(e => { if (best===null || Math.abs(e.t_ms-ms) < Math.abs(best.t_ms-ms)) best=e; }); return best && Math.abs(best.t_ms-ms) < dur*0.03 ? best : null; }
+  [cv].forEach(c => { if (!c) return; c.addEventListener('click', e => { const ms = msOf(c, e.offsetX); const t = nearestTool(ms); if (t) selectTool(t.id); seek(ms); }); });
+  root.addEventListener('click', e => {
+    const q = e.target.closest('.tag .q');
+    if (q) { const tag = q.closest('.tag'); const was = tag.classList.contains('open'); root.querySelectorAll('.tag.open').forEach(t => t.classList.remove('open')); if (!was) tag.classList.add('open'); e.stopPropagation(); return; }
+    if (!e.target.closest('.tag .pop')) root.querySelectorAll('.tag.open').forEach(t => t.classList.remove('open'));
+  });
+  root.addEventListener('click', e => {
+    if (e.target.closest('a:not(.jump)') || e.target.closest('button') || e.target.closest('.tev') || e.target.closest('.sw')) return;
+    const j = e.target.closest('a.jump'); if (j) { e.preventDefault(); const ms=+j.dataset.seek; seek(ms); scrollToTime(ms); return; }
+    const t = e.target.closest('.toolev, .toolrow'); if (t) { selectTool(t.dataset.tool); seek(+t.dataset.t); return; }
+    const el = e.target.closest('.turn, .deadair, .tlrow, .latrow'); if (el && el.dataset.t) seek(+el.dataset.t);
+  });
+  function scrollToTime(ms){ const turns=[...root.querySelectorAll('#transcript .turn, #transcript .toolev')]; let best=null; turns.forEach(t => { const tt=+t.dataset.t; if (tt<=ms+300 && (!best || tt>+best.dataset.t)) best=t; }); if (best) best.scrollIntoView({behavior:'smooth', block:'center'}); }
+  function highlight(){ if (!audio) return; const ms=audio.currentTime*1000; root.querySelectorAll('#transcript .turn').forEach(t => { const s=+t.dataset.t, e=+t.dataset.end || s+4000; t.classList.toggle('current', ms>=s && ms<e); }); cur.textContent = fmt(ms); }
+  if (audio){
+    playBtn.addEventListener('click', () => { if (audio.paused) audio.play().catch(()=>{}); else audio.pause(); });
+    // SVG elements have no `hidden` property: toggle the attribute the CSS keys on
+    const setIcon = () => { playBtn.querySelector('.i-play').toggleAttribute('hidden', !audio.paused); playBtn.querySelector('.i-pause').toggleAttribute('hidden', audio.paused); };
+    audio.addEventListener('play', setIcon); audio.addEventListener('pause', setIcon);
+    audio.addEventListener('timeupdate', () => { draw(); highlight(); }); audio.addEventListener('seeked', () => { draw(); highlight(); });
+  }
+  window.addEventListener('resize', draw);
+  draw();
+  const start = null;
+  const hashT = (location.hash.match(/t=(\d+)/) || [])[1];
+  const t0 = hashT !== undefined ? +hashT : start;
+  if (t0 !== null && t0 !== undefined && audio) { seek(t0, false); draw(); highlight(); if (hashT !== undefined) { root.scrollIntoView({block:'start'}); scrollToTime(t0); } }
+  window.gfInspector = { seek, selectTool, draw };
+})();
+</script>
+<script>
+(function(){
+  // Spans tab (T6.35): trace table with tree, filters, critical path, zoom, playhead and a span panel.
+  const pane = document.getElementById('spans'); if (!pane) return;
+  const data = JSON.parse(document.getElementById('tr-data').textContent), byId = {}; data.forEach(s => byId[s.id] = s);
+  const rows = [...pane.querySelectorAll('#tr-rows .sp')], rowById = {}; rows.forEach(r => rowById[r.dataset.id] = r);
+  const kids = {}; data.forEach(s => { if (s.parent) (kids[s.parent] = kids[s.parent] || []).push(s); });
+  const dur = +pane.dataset.dur || 1, table = document.getElementById('tr-table'), rowsBox = document.getElementById('tr-rows');
+  const axis = document.getElementById('tr-axis'), panel = document.getElementById('tr-panel'), icons = document.getElementById('tr-icons').content;
+  const GROUPS = { user: ['user_turn','end_of_turn','stt'], reasoning: ['reasoning','llm'], tool: ['tool_call','backend'], response: ['response','tts','playback'], idle: ['idle','dead_air'], events: ['interruption','talk_over'] };
+  const st = { folded: new Set(), q: '', kind: '', status: '', crit: false, idle: false, group: true, zoom: 1, sel: null };
+  const fmtT = ms => { const m = Math.floor(ms / 60000), s = Math.floor(ms / 1000) % 60, r = Math.floor(ms % 1000); return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0') + '.' + String(r).padStart(3,'0'); };
+  const fmtD = ms => ms >= 60000 ? Math.floor(ms/60000) + ':' + String(Math.floor(ms/1000)%60).padStart(2,'0') + '.' + String(ms%1000).padStart(3,'0') + 's' : (ms/1000).toFixed(3) + 's';
+  const fmtClock = ms => { const s = Math.floor(ms/1000); return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); };
+  function underFold(r){ let p = r.dataset.parent; while (p) { if (st.folded.has(p)) return true; p = rowById[p].dataset.parent; } return false; }
+  function matches(r){
+    const k = r.dataset.kind;
+    if (!st.idle && (k === 'idle' || k === 'dead_air')) return false;
+    if (st.kind && !GROUPS[st.kind].includes(k)) return false;
+    if (st.status && r.dataset.status !== st.status) return false;
+    if (st.q && !(r.dataset.name.includes(st.q) || k.includes(st.q) || r.dataset.status.includes(st.q))) return false;
+    return true;
+  }
+  function layout(){
+    const filtering = st.q || st.kind || st.status;
+    rows.forEach(r => { r.hidden = !matches(r) || (st.group && !filtering && underFold(r)); r.classList.toggle('folded', st.folded.has(r.dataset.id)); });
+    table.classList.toggle('flat', !st.group); table.classList.toggle('crit-on', st.crit);
+    if (!st.group) { [...rowsBox.querySelectorAll('.sp')].sort((a, b) => +a.dataset.t0 - +b.dataset.t0 || a.dataset.id.localeCompare(b.dataset.id)).forEach(r => rowsBox.appendChild(r)); }
+    else { data.forEach(s => rowsBox.appendChild(rowById[s.id])); }
+    rowsBox.appendChild(document.getElementById('tr-play'));
+    // axis ticks: about eight across the call
+    axis.innerHTML = ''; const raw = dur / 8, step = [1000,2000,5000,10000,20000,30000,60000,120000,300000].find(x => x >= raw) || 300000;
+    for (let t = 0; t <= dur; t += step) { const i = document.createElement('i'); i.style.left = (100 * t / dur) + '%'; i.textContent = fmtClock(t); axis.appendChild(i); }
+    const base = table.clientWidth - 576; table.style.setProperty('--lanew', Math.max(240, base * st.zoom) + 'px');
+    document.getElementById('tr-zoom').textContent = Math.round(st.zoom * 100) + '%';
+    const allOpen = st.folded.size === 0; document.getElementById('tr-expand').innerHTML = '<svg viewBox="0 0 24 24" class="bi"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>' + (allOpen ? 'Collapse all' : 'Expand all');
+  }
+  function icon(kind){ const n = icons.querySelector('[data-kind="' + kind + '"]'); return n ? n.innerHTML : ''; }
+  function pill(s){ return '<span class="stp ' + s + '">' + (s === 'ok' ? '<svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>OK' : s === 'slow' ? '<svg viewBox="0 0 24 24"><path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17h.01"/></svg>Slow' : '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>Error') + '</span>'; }
+  const esc = v => String(v).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  function select(id, tab){
+    st.sel = id; rows.forEach(r => r.classList.toggle('sel', r.dataset.id === id));
+    const s = byId[id]; if (!s) { panel.hidden = true; return; }
+    const parent = s.parent ? byId[s.parent] : null, children = kids[id] || [];
+    const avg = (() => { const same = data.filter(x => x.kind === s.kind && x.kind !== 'call'); return same.length ? same.reduce((a, x) => a + x.duration_ms, 0) / same.length : null; })();
+    let alert = '';
+    if (s.status === 'slow') {
+      const top = children.filter(c => c.kind !== 'idle').sort((a, b) => b.duration_ms - a.duration_ms).slice(0, 2).map(c => c.label.toLowerCase());
+      alert = '<div class="tr-alert slow"><b>High latency span</b>This span took ' + (s.duration_ms/1000).toFixed(1) + 's' + (avg ? ' (' + (s.duration_ms / avg).toFixed(1) + 'x the average ' + (avg/1000).toFixed(1) + 's for this type)' : '') + (s.attrs.heard_ms ? '; the caller waited ' + (s.attrs.heard_ms/1000).toFixed(1) + 's for the reply' : '') + '.' + (top.length ? ' Most of the time was spent in ' + top.join(' and ') + '.' : '') + '</div>';
+    } else if (s.status === 'error') {
+      alert = '<div class="tr-alert error"><b>Failed call</b>' + (s.attrs.tool ? 'The order system rejected ' + esc(s.attrs.tool) : 'The request failed') + (s.attrs.http_status ? ' with HTTP ' + s.attrs.http_status : '') + (s.attrs.fault ? ' (injected fault: ' + esc(s.attrs.fault) + ')' : '') + '.' + (s.attrs.response ? ' Response: ' + esc(s.attrs.response) : '') + '</div>';
+    }
+    const kv = (k, v) => '<span class="k">' + k + '</span><span>' + v + '</span>';
+    let details = alert + '<div class="kv small">' + kv('Span type', icon(s.kind) + ' ' + esc(s.label)) + kv('Status', pill(s.status)) + kv('Start time', '<span class="mono">' + fmtT(s.t0_ms) + '</span>') + kv('End time', '<span class="mono">' + fmtT(s.t1_ms) + '</span>') + kv('Duration', '<span class="mono">' + fmtD(s.duration_ms) + '</span>') + (parent ? kv('Parent span', '<a href="#" data-sel="' + parent.id + '">' + esc(parent.name) + '</a> <span class="muted mono">(' + fmtT(parent.t0_ms) + ')</span>') : '') + '</div>';
+    if (s.attrs.model || s.attrs.input_tokens != null) {
+      const tin = s.attrs.input_tokens, tout = s.attrs.output_tokens;
+      details += '<h4>Model &amp; tokens</h4><div class="kv small">' + (s.attrs.model ? kv('Model', esc(s.attrs.model)) : '') + (tin != null ? kv('Input tokens', tin.toLocaleString()) : '') + (tout != null ? kv('Output tokens', tout.toLocaleString()) : '') + (tin != null && tout != null ? kv('Total tokens', (tin + tout).toLocaleString()) : '') + '</div>';
+    }
+    const shown = children.filter(c => c.duration_ms > 0).sort((a, b) => b.duration_ms - a.duration_ms);
+    if (shown.length) {
+      const total = Math.max(s.duration_ms, 1);
+      const other = Math.max(0, s.duration_ms - children.reduce((a, c) => a + c.duration_ms, 0));
+      details += '<h4>Latency breakdown</h4><div class="tr-break">' + shown.map(c => '<span>' + esc(c.label) + '</span><i class="k-' + c.kind + '" style="width:' + Math.max(2, 100 * c.duration_ms / total) + '%"></i><b>' + (c.duration_ms/1000).toFixed(1) + 's</b><em>' + Math.round(100 * c.duration_ms / total) + '%</em>').join('') + (other > 50 && !children.some(c => c.kind === 'idle') ? '<span>Other</span><i class="k-idle" style="width:' + Math.max(2, 100 * other / total) + '%"></i><b>' + (other/1000).toFixed(1) + 's</b><em>' + Math.round(100 * other / total) + '%</em>' : '') + '</div>';
+    }
+    details += '<h4>Related spans</h4><div class="kv small">' + (parent ? kv('Parent span', '<a href="#" data-sel="' + parent.id + '">' + icon(parent.kind) + ' ' + esc(parent.name) + '</a> <span class="muted mono">' + fmtD(parent.duration_ms) + '</span>') : '') + (children.length ? kv('Child spans (' + children.length + ')', children.map(c => '<a href="#" data-sel="' + c.id + '">' + icon(c.kind) + ' ' + esc(c.name) + '</a> <span class="muted mono">' + fmtD(c.duration_ms) + '</span> ' + (c.status === 'ok' ? '<i class="dot ok"></i>' : c.status === 'slow' ? '<i class="dot slow"></i>' : '<i class="dot error"></i>')).join('<br>')) : '') + '</div>';
+    const attrs = Object.entries(s.attrs).filter(([k]) => k !== 'critical');
+    const attributes = attrs.length ? '<div class="kv small">' + attrs.map(([k, v]) => kv(esc(k.replace(/_/g, ' ')), esc(v))).join('') + '</div>' : '<p class="small muted">No attributes on this span.</p>';
+    const turn = s.turn != null ? data.filter(x => x.turn === s.turn && x.attrs.text) : [];
+    const transcript = turn.length ? turn.map(x => '<p class="small"><b>' + (x.kind === 'user_turn' ? 'Caller' : 'Agent') + '</b> ' + esc(x.attrs.text) + '</p>').join('') : '<p class="small muted">No words on this span.</p>';
+    panel.innerHTML = '<div class="tr-ph"><span class="ic">' + icon(s.kind) + '</span><div><div class="small muted">Span</div><div class="nm">' + esc(s.name) + '</div><div class="small muted mono">' + fmtT(s.t0_ms) + ' – ' + fmtT(s.t1_ms) + ' <span>(' + fmtD(s.duration_ms) + ')</span></div></div>' + pill(s.status) + '<button type="button" class="x" id="tr-close" title="close">✕</button></div>'
+      + '<div class="tr-tabs"><button type="button" class="on" data-pt="details">Details</button><button type="button" data-pt="attributes">Attributes</button><button type="button" data-pt="transcript">Transcript</button></div>'
+      + '<div data-pp="details">' + details + '</div><div data-pp="attributes" hidden>' + attributes + '</div><div data-pp="transcript" hidden>' + transcript + '</div>';
+    panel.hidden = false;
+    if (tab) panel.querySelector('[data-pt="' + tab + '"]').click();
+  }
+  pane.addEventListener('click', e => {
+    const a = e.target.closest('[data-sel]'); if (a) { e.preventDefault(); const r = rowById[a.dataset.sel]; let p = r && r.dataset.parent; while (p) { st.folded.delete(p); p = rowById[p].dataset.parent; } layout(); select(a.dataset.sel); r && r.scrollIntoView({block:'nearest'}); return; }
+    const pt = e.target.closest('[data-pt]'); if (pt) { panel.querySelectorAll('[data-pt]').forEach(b => b.classList.toggle('on', b === pt)); panel.querySelectorAll('[data-pp]').forEach(d => d.hidden = d.dataset.pp !== pt.dataset.pt); return; }
+    if (e.target.closest('#tr-close')) { panel.hidden = true; rows.forEach(r => r.classList.remove('sel')); st.sel = null; return; }
+    const tg = e.target.closest('.sp .tg:not(.none)'); if (tg) { const r = tg.closest('.sp'); st.folded.has(r.dataset.id) ? st.folded.delete(r.dataset.id) : st.folded.add(r.dataset.id); layout(); return; }
+    const r = e.target.closest('#tr-rows .sp'); if (!r) return;
+    select(r.dataset.id);
+    if (e.target.closest('.c-lane') && window.gfInspector) window.gfInspector.seek(+r.dataset.t0);
+  });
+  document.getElementById('tr-expand').addEventListener('click', () => { if (st.folded.size) st.folded.clear(); else rows.forEach(r => { if (r.dataset.kids) st.folded.add(r.dataset.id); }); layout(); });
+  document.getElementById('tr-q').addEventListener('input', e => { st.q = e.target.value.trim().toLowerCase(); layout(); });
+  document.getElementById('tr-kind').addEventListener('change', e => { st.kind = e.target.value; layout(); });
+  document.getElementById('tr-status').addEventListener('change', e => { st.status = e.target.value; layout(); });
+  document.getElementById('tr-crit').addEventListener('click', e => { st.crit = !st.crit; e.currentTarget.classList.toggle('on', st.crit); layout(); });
+  document.getElementById('tr-idle').addEventListener('click', e => { st.idle = !st.idle; e.currentTarget.classList.toggle('on', st.idle); layout(); });
+  document.getElementById('tr-group').addEventListener('click', e => { st.group = !st.group; e.currentTarget.classList.toggle('on', st.group); layout(); });
+  document.getElementById('tr-zoom-in').addEventListener('click', () => { st.zoom = Math.min(8, st.zoom * 1.5); layout(); });
+  document.getElementById('tr-zoom-out').addEventListener('click', () => { st.zoom = Math.max(1, st.zoom / 1.5); layout(); });
+  const tip = document.getElementById('tr-tip');
+  pane.addEventListener('mouseover', e => {
+    const el = e.target.closest('.c-name[data-tip]'); if (!el || !el.dataset.tip) { tip.hidden = true; return; }
+    tip.textContent = el.dataset.tip; tip.hidden = false;
+    const pr = pane.getBoundingClientRect(), er = el.getBoundingClientRect();
+    tip.style.left = Math.max(0, er.left - pr.left + 24) + 'px'; tip.style.top = (er.bottom - pr.top + 4) + 'px';
+  });
+  pane.addEventListener('mouseleave', () => { tip.hidden = true; });
+  const audio = document.getElementById('insp-audio'), play = document.getElementById('tr-play'), playLbl = document.getElementById('tr-play-lbl');
+  if (audio) {
+    const tick = () => {
+      const ms = audio.currentTime * 1000, lane = rows.find(r => !r.hidden) && rows.find(r => !r.hidden).querySelector('.c-lane');
+      if (!lane || pane.hidden) { play.hidden = true; return; }
+      play.hidden = false; play.style.left = (lane.offsetLeft + lane.offsetWidth * ms / dur) + 'px';
+      playLbl.textContent = fmtClock(ms) + (pane.dataset.p95 ? ' · p95 ' + (pane.dataset.p95/1000).toFixed(1) + 's' : '');
+    };
+    audio.addEventListener('timeupdate', tick); audio.addEventListener('seeked', tick);
+  }
+  // start with the children of tool calls folded (the backend row), the rest open; select what matters
+  rows.forEach(r => { if (r.dataset.kind === 'tool_call' && r.dataset.kids) st.folded.add(r.dataset.id); });
+  layout();
+  const first = data.find(s => s.status === 'error' && s.kind === 'tool_call') || data.find(s => s.status === 'slow' && s.kind === 'reasoning');
+  if (first) select(first.id);
+  new ResizeObserver(() => layout()).observe(table);
+  window.gfSpans = { layout, select };
+})();
+</script><footer>gatewayfutures 0.1.0 · static report generated 2026-10-10 01:05 UTC</footer>
+</main>
+</div>
+<div id="player"><span class="lbl"></span><audio controls preload="none"></audio><button class="btn sm" onclick="gfPlayer.close()">✕</button></div>
+<script>
+window.gfPlayer = (function(){
+  const box = document.getElementById('player'), audio = box.querySelector('audio'), lbl = box.querySelector('.lbl');
+  let cur = null;
+  function fmt(s){ s = Math.floor(s||0); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+  function mark(btn, on){ if (!btn) return; btn.classList.toggle('on', on); btn.querySelector('.ic').textContent = on ? '❚❚' : '▶'; }
+  function toggle(btn){
+    const src = btn.dataset.src;
+    if (cur === btn) { if (audio.paused) audio.play(); else audio.pause(); mark(btn, !audio.paused); return; }
+    mark(cur, false); cur = btn; audio.src = src; lbl.textContent = btn.dataset.label || src; box.classList.add('on'); audio.play().catch(()=>{}); mark(btn, true);
+  }
+  audio.addEventListener('timeupdate', () => { if (cur) cur.querySelector('.t').textContent = fmt(audio.currentTime); });
+  audio.addEventListener('pause', () => mark(cur, false)); audio.addEventListener('play', () => mark(cur, true));
+  audio.addEventListener('ended', () => { mark(cur, false); });
+  document.addEventListener('click', e => { const b = e.target.closest('button.play'); if (b) { e.preventDefault(); e.stopPropagation(); toggle(b); } });
+  return { close(){ audio.pause(); box.classList.remove('on'); mark(cur, false); cur = null; }, current(){ return cur; } };
+})();
+// tabs: <div class="tabs" data-tabs="x"><button data-tab="a" class="on"> ... <div class="pane" data-pane="a">
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-tab]'); if (!b) return;
+  const root = b.closest('[data-tabs]'); const scope = document.getElementById(root.dataset.tabs) || root.parentNode;
+  root.querySelectorAll('[data-tab]').forEach(x => x.classList.toggle('on', x === b));
+  // only this group's panes: a pane nested inside another tab group (a tool event card inside the Tool calls pane) is left alone
+  const scopes = new Set([...document.querySelectorAll('[data-tabs]')].map(r => document.getElementById(r.dataset.tabs) || r.parentNode));
+  scope.querySelectorAll('[data-pane]').forEach(p => { let own = p.parentElement; while (own && !scopes.has(own)) own = own.parentElement; if (own === scope) p.hidden = p.dataset.pane !== b.dataset.tab; });
+});
+// switches: <label class="sw" data-toggle="heard-off" data-target="#id">
+document.addEventListener('click', e => {
+  const s = e.target.closest('.sw[data-toggle]'); if (!s) return;
+  const t = document.querySelector(s.dataset.target) || document.body;
+  s.classList.toggle('on'); t.classList.toggle(s.dataset.toggle, !s.classList.contains('on'));
+});
+// "Run evaluation" opens the start-run card when it is on this page
+document.addEventListener('click', e => {
+  document.querySelectorAll('details.pmenu[open]').forEach(d => { if (!d.contains(e.target)) d.removeAttribute('open'); });
+});
+// Runs list (T6.30): a row expands to the run's sessions; the latest run opens on load
+window.gfRuns = (function(){
+  async function toggle(row, force){
+    const body = row.nextElementSibling, box = body && body.querySelector('.runbox'); if (!box) return;
+    const open = force !== undefined ? force : body.hidden;
+    body.hidden = !open; row.classList.toggle('open', open);
+    if (open && !box.dataset.loaded) {
+      box.innerHTML = '<div class="loading">loading the run…</div>';
+      try {
+        const res = await fetch(row.dataset.src); if (!res.ok) throw new Error(res.status);
+        box.innerHTML = await res.text(); box.dataset.loaded = '1';
+      } catch (err) { box.innerHTML = '<div class="loading">could not load this run (' + err.message + ')</div>'; }
+    }
+  }
+  document.addEventListener('click', e => {
+    const b = e.target.closest('.runrow .chev-btn'); if (!b) return; e.preventDefault(); toggle(b.closest('.runrow'));
+  });
+  document.querySelectorAll('.runrow[data-open]').forEach(r => toggle(r, true));
+  return { toggle };
+})();
+// area pills (T6.28): hover shows the popover; click/tap pins it; the popover flips left near the right edge
+document.addEventListener('click', e => {
+  const pill = e.target.closest('.area .tile');
+  document.querySelectorAll('.area.open').forEach(x => { if (!x.contains(e.target)) x.classList.remove('open'); });
+  if (pill) pill.closest('.area').classList.toggle('open');
+});
+document.addEventListener('mouseover', e => {
+  const area = e.target.closest('.area'); if (!area) return;
+  const r = area.getBoundingClientRect(); area.classList.toggle('right', r.left + 380 > window.innerWidth - 16);
+  area.querySelector('.pop').style.minWidth = Math.max(r.width, 320) + 'px';
+});
+// Details dropdown under an attempt row (T6.25): loads that call's inspector inline, one at a time.
+window.gfCalls = (function(){
+  let cur = null;
+  function close(){ if (!cur) return; cur.box.hidden = true; cur.box.innerHTML = ''; cur.btn.classList.remove('on'); cur.btn.textContent = 'Details ▾'; cur = null; document.querySelectorAll('.work.has-call').forEach(w => w.classList.remove('has-call')); }
+  async function open(btn, t){
+    const box = btn.closest('.att').nextElementSibling;
+    if (cur && cur.btn === btn) { close(); return; }
+    close();
+    cur = { btn, box }; btn.classList.add('on'); btn.textContent = 'Details ▴';
+    const work = box.closest('.work'); if (work) work.classList.add('has-call');  // the call needs the full width
+    box.hidden = false; box.innerHTML = '<div class="loading">loading the call…</div>';
+    const q = new URLSearchParams(location.search); q.set('call', btn.dataset.call);
+    history.replaceState(null, '', location.pathname + '?' + q.toString().replace(/%2F/g, '/') + (t != null ? '#t=' + t : ''));
+    try {
+      const res = await fetch(btn.dataset.src + (t != null ? '?t=' + t : ''));
+      if (!res.ok) throw new Error(res.status);
+      box.innerHTML = await res.text();
+      box.querySelectorAll('script').forEach(s => { if (s.type && !/javascript/.test(s.type)) return; const n = document.createElement('script'); n.textContent = s.textContent; s.replaceWith(n); });
+    } catch (err) { box.innerHTML = '<div class="loading">could not load this call (' + err.message + '). <a href="' + btn.dataset.href + '">Open the call page</a></div>'; }
+  }
+  document.addEventListener('click', e => {
+    const b = e.target.closest('.callbtn'); if (b) { e.preventDefault(); open(b); return; }
+    const a = e.target.closest('a.issue[data-issue], a.itile[data-issue]'); if (!a) return;
+    const btn = document.querySelector('.callbtn[data-call="' + a.dataset.issue + '"]'); if (!btn) return;
+    e.preventDefault(); const row = btn.closest('details'); if (row) row.open = true;
+    open(btn, a.dataset.t ? +a.dataset.t : null); btn.closest('.att').scrollIntoView({behavior:'smooth', block:'start'});
+  });
+  const want = new URLSearchParams(location.search).get('call');
+  if (want) { const btn = document.querySelector('.callbtn[data-call="' + want + '"]'); if (btn) { const row = btn.closest('details'); if (row) row.open = true; const m = location.hash.match(/t=(\d+)/); open(btn, m ? +m[1] : null); } }
+  return { open, close };
+})();
+document.addEventListener('click', e => {
+  const a = e.target.closest('#btn-run'); if (!a) return;
+  const d = document.getElementById('run'); if (d && d.tagName === 'DETAILS') { e.preventDefault(); d.open = true; d.scrollIntoView({behavior:'smooth', block:'start'}); }
+});
+if (location.hash === '#run') { const d = document.getElementById('run'); if (d) d.open = true; }
+</script>
+</body>
+</html>

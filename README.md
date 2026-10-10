@@ -2,9 +2,13 @@
 
 Runs simulated phone calls against a LiveKit support agent, records each call (audio, both transcripts, tool calls, timings), scores it on what actually happened, and shows the results in a web UI and a static report that a non-technical reader can follow from a one-minute summary down to the exact second a call went wrong.
 
-- **Sample report** from real calls (`full-4`: 15 sessions × 3 repeats, 43 valid calls, 86% pass, compared like-for-like with the previous run; failures and invalid simulations caught): published at **https://ombl4.github.io/gatewayfutures/** (also `docs/sample-report/index.html`, which opens from disk).
+- **Sample report** from real calls (`hard-002`: the hard suite, 15 sessions × 3 repeats, 45 valid calls, task success 84%, experience 67%; the agent claims to be a real person in every attempt of the disclosure session, and two policy sessions are flaky): published at **https://ombl4.github.io/gatewayfutures/** (static pages with audio) with the business-reader PDF at **https://ombl4.github.io/gatewayfutures/report.pdf**.
 - **Design note**: [docs/design-note.md](docs/design-note.md) (choices, next week, second provider).
 - **PRD** and **spec**: [docs/PRD.md](docs/PRD.md), [docs/spec.md](docs/spec.md); progress in [docs/TASKS.md](docs/TASKS.md).
+
+## What a run tells you
+
+Every valid call gets two verdicts. **Task**: the order system's log and final state show the right actions and the agent told the truth (this is the pass rate, with a Wilson interval and a flaky flag over three repeats). **Experience**: the call stayed within the reply-latency, dead-air and intelligibility bars. The simulated caller is scored separately, so a broken simulation is excluded rather than counted against the agent; when the caller mishears the agent, an independent recogniser decides whether the fault was the simulator's or the agent's own voice. Security sessions (prompt and PII extraction, planted rules, authority pressure) are judged on what the order system did and what the agent said, with `must say` / `must not say` phrases per session. The Settings page registers customers' agents by LiveKit URL, key and agent name, tests the connection, and runs the same sessions against them; the order system is the sandbox their tools point at.
 
 ## How it works
 
@@ -62,6 +66,11 @@ uv run gf run --all --repeat 3 --concurrency 4     # the whole session set → r
 uv run gf score <run_id>                           # scores.json per call, summary.json per run
 uv run gf report <run_id>                          # static pages in runs/<run_id>/report/
 uv run gf report <run_id> --bundle --out docs/sample-report   # self-contained, MP3 audio
+uv run gf pdf <run_id>                             # PDF report for a business reader → runs/<run_id>/report.pdf
+uv run gf run --suite hard --repeat 3              # the hard set: injection, PII probes, authority pressure, barge-ins, confusables
+uv run gf targets add acme --name "Acme support" --url wss://... --agent-name acme-agent   # a customer's agent (secrets prompted, never committed)
+uv run gf targets test acme                        # dispatch it into a room and wait for it to speak
+uv run gf run --suite core --target acme           # run the set against that agent
 uv run gf sessions                                 # validate and list sessions (incl. sessions/generated/)
 uv run gf sessions generate --count 8 --focus "refund edge cases"   # LLM-generated sessions → sessions/generated/
 uv run gf sessions export-simulate --out scenarios.yaml             # same sessions for LiveKit's own simulator

@@ -158,7 +158,7 @@ def test_run_page_content(env):
     assert 'id="passing"' in env["client"].get("/sessions/7c994c348001").text
     assert call.count('class="tag ') >= 10 and 'data-check="ux.latency_p95"' in call
     assert 'aria-label="explain latency_p95"' in call
-    assert 'id="time-breakdown"' in r
+    assert 'id="time-breakdown"' not in r  # removed 2026-10-10: too noisy at the top of a run
     assert "refund" in r
     runs_page = env["client"].get("/runs").text
     assert 'value="suite:regression"' in runs_page and 'name="pick"' in runs_page
