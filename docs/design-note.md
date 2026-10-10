@@ -44,14 +44,16 @@ Fifteen harder sessions (prompt and data extraction, a planted rule, authority p
 - **The degraded line with a non-native voice** is the weakest ordinary task: 0 of 3 then 2 of 3, including one attempt where the agent said the address was changed with no write behind it.
 - The scorer was corrected more often than the agent that evening, on purpose: digit read-backs are not stutters, "$89.99" and "eighty nine ninety nine" are the same number, "ZIP" is a word, dead air belongs to whoever went quiet, a scripted fault is not a failure, a rejection by the sandbox is the sandbox doing its job, the simulated caller's own tool syntax must never be spoken, and a mishearing is attributed by listening to the agent's audio with an independent recogniser (two of three "Beacon" calls were the agent's own voice swallowing the B).
 
-## With another week
+## To be continued
 
-1. **Finish the sandbox story** (spec Part 9): sandbox wording everywhere, a README page on pointing a customer's agent tools at the sandbox, and the gate run where the reference agent is registered as a target through the UI.
-2. **Harder callers the simulator cannot play yet**: audio-borne injection (a played "system message"), backchannels that must not take the turn, mid-sentence pauses, a caller that goes silent, and a must-not-invent fact list for hallucinated policy answers. Each is one condition or one expectation field; the checks already exist.
-3. **The score decision.** No industry-standard score exists; `docs/research/scoring-standards.md` surveys what is published and proposes a gated, weighted scorecard. A composite was built and withdrawn the same evening because the components said more than the number; decide with a customer in the room.
-4. **A like-for-like `base-002`** of the original nineteen core sessions by id, so the baseline has its own pair the way the hard set does.
-5. **Simulator fixes that cost us calls**: boost the caller's recogniser with its own facts (B6), a successor disclosure session with a broader must-not pattern (B12), and the caller's own reply latency (the main "paused after the agent spoke" cause).
-6. **Second engine cross-check, trend view, hosted instance**, as before: run every session on both LiveKit's simulator and ours and read where they disagree; pass rate and latency per session across runs with the same stamp; the compose stack behind a reverse proxy for a shared always-on UI.
+The plan from here, in order. Each step builds on the one before it.
+
+1. **Connectors for other agent providers.** Today an agent under test is a LiveKit target (URL, key, agent name). Add a target kind per provider behind the same three methods (reach the agent with real audio, collect its tool calls and transcript, hash its configuration): Pipecat on the LiveKit transport first, then telephony providers (Retell, Vapi, Bland, ElevenLabs Agents) through a SIP trunk into the caller's room. The simulated caller, the recording and every audio-based check stay as they are; the provider only changes how the call is placed and how events are collected.
+2. **Personas and practice sessions by industry.** Build a persona library and a session set per industry (retail support first, then banking, insurance, healthcare scheduling, telecom), each with its own sandbox fixture and tool set, so a customer's agent is tested on the situations its callers actually bring.
+3. **Realistic personas.** Tune each persona against recordings of real callers: gather voice samples, measure pace, pauses, interruptions and accent, and move to higher-end voice providers where the current voices read as synthetic. A persona should be mistaken for a person by the agent's own recogniser as often as a person would be.
+4. **Practice sessions from real data.** Derive each industry's session set from customer call data where it exists, otherwise from thorough research and sample calls, so the split of situations (plain requests, denials, faults, hard callers, security probes) matches what happens in that industry rather than what is easy to write.
+5. **UI polish.** Work through the remaining visual and interaction bugs on the dashboard with a non-technical reader in front of it, one pass per page.
+6. **Validate every grader.** For each check, judge and claim the platform makes, build a hand-labelled set of real calls, measure agreement, and tune the rule with a human reviewing disagreements. A grader stays advisory until it reaches agreement; the second-opinion recogniser and the negative controls are the pattern.
 
 ## Adding a second provider
 

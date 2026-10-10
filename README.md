@@ -5,7 +5,7 @@ Runs simulated phone calls against a LiveKit support agent, records each call (a
 - **Sample report** from real calls (`hard-002`: the hard suite, 15 sessions × 3 repeats, 45 valid calls, task success 84%, experience 67%; the agent claims to be a real person in every attempt of the disclosure session, and two policy sessions are flaky): published at **https://ombl4.github.io/gatewayfutures/** (static pages with audio) with the business-reader PDF at **https://ombl4.github.io/gatewayfutures/report.pdf**.
 - **Design note**: [docs/design-note.md](docs/design-note.md) (choices, next week, second provider).
 - **PRD** and **spec**: [docs/PRD.md](docs/PRD.md), [docs/spec.md](docs/spec.md); progress in [docs/TASKS.md](docs/TASKS.md).
-- **What I would do next**: the design note's [With another week](docs/design-note.md#with-another-week) and the tracker's [Next up](docs/TASKS.md#next-up-in-order--as-of-2026-10-10-after-the-hand-in); the scoring research and the composite-score proposal that was built and withdrawn are in [docs/research/scoring-standards.md](docs/research/scoring-standards.md).
+- **To be continued**: the plan from here is in the design note, [To be continued](docs/design-note.md#to-be-continued): provider connectors, personas and sessions by industry, realistic personas from real voice samples, sessions from real data, UI polish, and validating every grader against hand-labelled calls. The scoring research is in [docs/research/scoring-standards.md](docs/research/scoring-standards.md).
 
 ## What a run tells you
 
