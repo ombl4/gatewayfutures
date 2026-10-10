@@ -30,6 +30,10 @@ sessions/*.yaml ──► simulated caller ──(LiveKit room, real audio)─�
 | Scoring | `gf/scoring/` | Tool/outcome checks, claimed-without-acting, WER and entity checks, latency/dead-air/talk-over/barge-in from the audio, transcript quality gates, validity rules, Wilson intervals and flaky detection. |
 | Reports and UI | `gf/report/`, `gf/ui/` | The same Jinja templates render the live UI (`gf ui`) and the static report (`gf report`): one workbench page (KPI cards with trends, practice-session accordion, prioritised issues, call inspector with synchronised audio, transcript, tool events and checks), a left navigation with the agent's configuration, and run control. No CDN, no JavaScript build. |
 
+## Data in the box
+
+The repository ships three scored runs under `runs/`: `base-001` (the core suite, 19 sessions × 3), and `hard-001` and `hard-002` (the hard suite, 15 × 3, a like-for-like pair). Transcripts, tool calls, timelines, scores, second-opinion transcripts and the PDF reports are all there, so the dashboard has real data the moment it starts, and every call replays from its recording (MP3 in the repository; the original WAV files, 300 MB per run, are not committed, so the timelines are the committed ones and are not rebuilt from the lossy audio). Rescoring any of them is free and deterministic. In production these recordings would live in object storage, see "To be continued".
+
 ## Setup
 
 Prerequisites: Python 3.12 with [uv](https://docs.astral.sh/uv/), Docker (for `make up`), `ffmpeg` (report audio), and keys for LiveKit Cloud, Deepgram and OpenAI.
@@ -193,6 +197,7 @@ The plan from here, in order (also in [docs/design-note.md](docs/design-note.md#
 4. **Practice sessions from real data.** Derive each industry's sessions from customer call data where it exists, otherwise from thorough research and sample calls, so the split of situations matches what happens in that industry.
 5. **UI polish.** One pass per page with a non-technical reader in front of it.
 6. **Validate every grader.** A hand-labelled set of real calls per check, judge and claim; measure agreement and tune with a human reviewing the disagreements. A grader stays advisory until it reaches agreement.
+7. **Production storage and schemas.** Recordings, bundled reports and any large artifact go to object storage (S3 or equivalent) with the run folder holding references, not files; runs, attempts, scores and the environment registry move from JSON files into a database with versioned schemas (the call record, the session file, the check result and the manifest are the four to publish); the sandbox fixtures become per-customer datasets; secrets go to a secret manager; the UI runs behind authentication with per-customer scoping, and runs are started by a queue rather than a subprocess.
 
 ## Tests
 

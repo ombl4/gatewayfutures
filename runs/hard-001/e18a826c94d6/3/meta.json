@@ -1,0 +1,100 @@
+{
+  "call_id": "e18a826c94d6-3-224f47",
+  "session_id": "e18a826c94d6",
+  "session_title": "Caller mentions two orders and wants a refund on only one of them",
+  "attempt": 3,
+  "engine": "gf-caller",
+  "room": "gf-sim-e18a826c94d6-3-224f47",
+  "agent_config_hash": "70ed03f335ef",
+  "agent_variant": null,
+  "target": {
+    "id": "reference",
+    "kind": "livekit",
+    "name": "Gateway Goods support line",
+    "agent_name": "gf-support-agent",
+    "version": "70ed03f335ef",
+    "server_host": "oai-fhgkz14p.livekit.cloud"
+  },
+  "agent_models": {
+    "stt": {
+      "vendor": "deepgram",
+      "model": "nova-3",
+      "keyterms": [
+        "Gateway Goods",
+        "GW",
+        "order number",
+        "zip code",
+        "refund",
+        "escalate"
+      ]
+    },
+    "llm": {
+      "vendor": "openai",
+      "model": "gpt-4.1-mini",
+      "temperature": 0.3
+    },
+    "tts": {
+      "vendor": "deepgram",
+      "model": "aura-2-luna-en"
+    }
+  },
+  "caller": {
+    "persona": {
+      "name": "Maria Lopez",
+      "style": "polite, plain-spoken",
+      "accent": "en-US"
+    },
+    "facts": {
+      "order_id": "GW-48213",
+      "zip": "94110",
+      "amount": 89.99,
+      "item": "countertop blender",
+      "other_order_id": "GW-48911",
+      "other_item": "USB-C cable"
+    },
+    "goal": "Say you have two recent orders, GW-48911 for a USB-C cable and GW-48213 for a countertop blender,\n        and that the cable was already sorted out last week. Ask for a full refund of $89.99 on the blender\n        order GW-48213 only, because it arrived broken; give the zip 94110 when asked.",
+    "stop_when": "the agent confirms the refund on the blender order was issued",
+    "opening": null,
+    "voice": "aura-2-asteria-en",
+    "pace": 1.0,
+    "llm": {
+      "model": "gpt-4.1-mini",
+      "temperature": 0.0,
+      "seed": 514
+    },
+    "conditions": {
+      "noise": null,
+      "phone_line": false,
+      "packet_loss": 0.0,
+      "low_quality_mic": false,
+      "interruptions": 0.0,
+      "patience_s": 15.0
+    },
+    "limits": {
+      "max_turns": 14,
+      "max_duration_s": 150.0,
+      "mutual_silence_reprompt_s": 4.0,
+      "mutual_silence_abort_s": 8.0
+    },
+    "persona_ref": null
+  },
+  "caller_params_unsupported": [],
+  "fixtures": "orders_basic",
+  "faults": [],
+  "started_ms": 1791590335269,
+  "ended_ms": 1791590427392,
+  "ended_by": "caller",
+  "end_reason": "Refund of eighty-nine ninety-nine dollars confirmed for order GW-48213.",
+  "goal_met": true,
+  "agent_record_complete": true,
+  "tool_calls": [
+    [
+      "lookup_order",
+      200
+    ],
+    [
+      "issue_refund",
+      200
+    ]
+  ]
+}

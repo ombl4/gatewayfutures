@@ -1,0 +1,266 @@
+{
+  "t0_ms": 1791569586345,
+  "sample_rate": 16000,
+  "events": [
+    {
+      "t_ms": 2020,
+      "end_ms": 3180,
+      "kind": "agent_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 3840,
+      "end_ms": 4460,
+      "kind": "agent_speech",
+      "n": 2
+    },
+    {
+      "t_ms": 4980,
+      "end_ms": 5960,
+      "kind": "agent_speech",
+      "n": 3
+    },
+    {
+      "t_ms": 6086,
+      "kind": "agent_said",
+      "text": "Thanks for calling Gateway Goods, this is Ava. How can I help you today?",
+      "n": 1,
+      "interrupted": false
+    },
+    {
+      "t_ms": 6843,
+      "end_ms": 8899,
+      "kind": "caller_said",
+      "text": "Hi Eva, I'm calling because I want to request a refund for my order G W 4 8 9 1 1.",
+      "n": 1
+    },
+    {
+      "t_ms": 7280,
+      "end_ms": 7960,
+      "kind": "caller_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 8352,
+      "kind": "agent_heard",
+      "text": "Hi, Eva."
+    },
+    {
+      "t_ms": 8420,
+      "end_ms": 13320,
+      "kind": "caller_speech",
+      "n": 2
+    },
+    {
+      "t_ms": 13392,
+      "kind": "agent_heard",
+      "text": "I'm calling because I want to request a refund for my order GW"
+    },
+    {
+      "t_ms": 13687,
+      "kind": "agent_heard",
+      "text": "four eight nine one one."
+    },
+    {
+      "t_ms": 14820,
+      "end_ms": 16720,
+      "kind": "agent_speech",
+      "n": 4
+    },
+    {
+      "t_ms": 17240,
+      "end_ms": 18500,
+      "kind": "agent_speech",
+      "n": 5
+    },
+    {
+      "t_ms": 18649,
+      "kind": "agent_said",
+      "text": "Could you please provide the zip code on the order? I need it to look up your order.",
+      "n": 2,
+      "interrupted": false
+    },
+    {
+      "t_ms": 19377,
+      "end_ms": 20642,
+      "kind": "caller_said",
+      "text": "Yes, the ZIP code is 9 4 1 1 0.",
+      "n": 2
+    },
+    {
+      "t_ms": 19980,
+      "end_ms": 20220,
+      "kind": "caller_speech",
+      "n": 3
+    },
+    {
+      "t_ms": 20620,
+      "end_ms": 22940,
+      "kind": "caller_speech",
+      "n": 4
+    },
+    {
+      "t_ms": 20750,
+      "kind": "agent_heard",
+      "text": "Yes."
+    },
+    {
+      "t_ms": 23360,
+      "kind": "agent_heard",
+      "text": "The ZIP code is nine four one one zero."
+    },
+    {
+      "t_ms": 24029,
+      "end_ms": 24029,
+      "kind": "tool_call",
+      "tool": "lookup_order",
+      "args": {
+        "order_id": "GW-48911",
+        "zip": "94110"
+      },
+      "status": 200,
+      "ok": true,
+      "response": {
+        "order_id": "GW-48911",
+        "customer_name": "Maria Lopez",
+        "status": "delivered",
+        "total": 15.0,
+        "items": [
+          {
+            "sku": "CBL-3",
+            "name": "USB-C cable",
+            "qty": 1,
+            "price": 15.0
+          }
+        ],
+        "shipping_address": "742 Valencia St, San Francisco, CA 94110",
+        "refunded": true,
+        "refund": null
+      },
+      "id": 1
+    },
+    {
+      "t_ms": 25460,
+      "end_ms": 27920,
+      "kind": "agent_speech",
+      "n": 6
+    },
+    {
+      "t_ms": 28300,
+      "end_ms": 30100,
+      "kind": "agent_speech",
+      "n": 7
+    },
+    {
+      "t_ms": 30580,
+      "end_ms": 32620,
+      "kind": "agent_speech",
+      "n": 8
+    },
+    {
+      "t_ms": 33220,
+      "end_ms": 34520,
+      "kind": "agent_speech",
+      "n": 9
+    },
+    {
+      "t_ms": 34755,
+      "kind": "agent_said",
+      "text": "I see your order GW 4 8 9 1 1 for a USB-C cable was delivered, but it looks like it has already been refunded. Is there anything else I can help you with?",
+      "n": 3,
+      "interrupted": false
+    },
+    {
+      "t_ms": 35811,
+      "end_ms": 38428,
+      "kind": "caller_said",
+      "text": "Yes, that is correct. I was trying to request a refund, but if it is already refunded, then I understand. Thank you. Goodbye.",
+      "n": 3
+    },
+    {
+      "t_ms": 36360,
+      "end_ms": 37400,
+      "kind": "caller_speech",
+      "n": 5
+    },
+    {
+      "t_ms": 38080,
+      "kind": "agent_heard",
+      "text": "Yes. That is correct."
+    },
+    {
+      "t_ms": 38120,
+      "end_ms": 41000,
+      "kind": "caller_speech",
+      "n": 6
+    },
+    {
+      "t_ms": 40050,
+      "kind": "agent_heard",
+      "text": "I was trying to request a refund,"
+    },
+    {
+      "t_ms": 41516,
+      "kind": "agent_heard",
+      "text": "if it is already refunded,"
+    },
+    {
+      "t_ms": 43069,
+      "kind": "agent_said",
+      "text": "Since this order",
+      "n": 4,
+      "interrupted": true
+    }
+  ],
+  "ux": {
+    "duration_ms": 41017,
+    "greeting_first": true,
+    "first_agent_audio_ms": 2020,
+    "caller_segments": 6,
+    "agent_segments": 9,
+    "responses": [
+      {
+        "caller_end_ms": 7960,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 13320,
+        "agent_start_ms": 14820,
+        "latency_ms": 1500
+      },
+      {
+        "caller_end_ms": 20220,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 22940,
+        "agent_start_ms": 25460,
+        "latency_ms": 2520
+      },
+      {
+        "caller_end_ms": 37400,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 41000,
+        "agent_start_ms": null,
+        "latency_ms": null
+      }
+    ],
+    "latency_ms": {
+      "n": 2,
+      "p50": 1500,
+      "p95": 2520,
+      "max": 2520
+    },
+    "dead_air": [],
+    "dead_air_total_ms": 0,
+    "talk_over": [],
+    "barge_in": [],
+    "caller_speech_ms": 12060,
+    "agent_speech_ms": 13520
+  }
+}

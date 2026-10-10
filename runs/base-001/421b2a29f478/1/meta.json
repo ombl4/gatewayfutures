@@ -1,0 +1,95 @@
+{
+  "call_id": "421b2a29f478-1-a0f4ad",
+  "session_id": "421b2a29f478",
+  "session_title": "Refund where the caller first gives the wrong zip code, then corrects it",
+  "attempt": 1,
+  "engine": "gf-caller",
+  "room": "gf-sim-421b2a29f478-1-a0f4ad",
+  "agent_config_hash": "70ed03f335ef",
+  "agent_variant": null,
+  "agent_models": {
+    "stt": {
+      "vendor": "deepgram",
+      "model": "nova-3",
+      "keyterms": [
+        "Gateway Goods",
+        "GW",
+        "order number",
+        "zip code",
+        "refund",
+        "escalate"
+      ]
+    },
+    "llm": {
+      "vendor": "openai",
+      "model": "gpt-4.1-mini",
+      "temperature": 0.3
+    },
+    "tts": {
+      "vendor": "deepgram",
+      "model": "aura-2-luna-en"
+    }
+  },
+  "caller": {
+    "persona": {
+      "name": "Maria Lopez",
+      "style": "polite",
+      "accent": "en-GB"
+    },
+    "facts": {
+      "order_id": "GW-48213",
+      "zip": "94110",
+      "zip_you_misremember_first": "94111",
+      "amount": 89.99,
+      "item": "countertop blender"
+    },
+    "goal": "Get a full refund of $89.99 for order GW-48213, which arrived broken. The first time the agent asks for your zip code, say 94111 by mistake. When the agent says the order was not found, apologise and give the correct zip, 94110.",
+    "stop_when": "the agent confirms the refund was issued",
+    "opening": null,
+    "voice": "aura-2-pandora-en",
+    "pace": 1.0,
+    "llm": {
+      "model": "gpt-4.1-mini",
+      "temperature": 0.0,
+      "seed": 301
+    },
+    "conditions": {
+      "noise": null,
+      "phone_line": false,
+      "packet_loss": 0.0,
+      "low_quality_mic": false,
+      "interruptions": 0.0,
+      "patience_s": 20.0
+    },
+    "limits": {
+      "max_turns": 14,
+      "max_duration_s": 180.0,
+      "mutual_silence_reprompt_s": 4.0,
+      "mutual_silence_abort_s": 8.0
+    },
+    "persona_ref": null
+  },
+  "caller_params_unsupported": [],
+  "fixtures": "orders_basic",
+  "faults": [],
+  "started_ms": 1791570186985,
+  "ended_ms": 1791570294344,
+  "ended_by": "caller",
+  "end_reason": "Refund of eighty-nine ninety-nine dollars confirmed for order GW-48213 due to broken blender.",
+  "goal_met": true,
+  "agent_record_complete": true,
+  "tool_calls": [
+    [
+      "lookup_order",
+      404
+    ],
+    [
+      "lookup_order",
+      200
+    ],
+    [
+      "issue_refund",
+      200
+    ]
+  ]
+}

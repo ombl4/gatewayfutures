@@ -1,0 +1,828 @@
+{
+  "t0_ms": 1791569260402,
+  "sample_rate": 16000,
+  "events": [
+    {
+      "t_ms": 1900,
+      "end_ms": 3240,
+      "kind": "agent_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 3780,
+      "end_ms": 4520,
+      "kind": "agent_speech",
+      "n": 2
+    },
+    {
+      "t_ms": 5140,
+      "end_ms": 6040,
+      "kind": "agent_speech",
+      "n": 3
+    },
+    {
+      "t_ms": 6123,
+      "kind": "agent_said",
+      "text": "Thanks for calling Gateway Goods, this is Ava. How can I help you today?",
+      "n": 1,
+      "interrupted": false
+    },
+    {
+      "t_ms": 7280,
+      "end_ms": 9317,
+      "kind": "caller_said",
+      "text": "Hi Eva, I'm calling to change the shipping address on my order.",
+      "n": 1
+    },
+    {
+      "t_ms": 7720,
+      "end_ms": 8640,
+      "kind": "caller_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 8927,
+      "kind": "agent_heard",
+      "text": "Hi, Eva."
+    },
+    {
+      "t_ms": 9040,
+      "end_ms": 11420,
+      "kind": "caller_speech",
+      "n": 2
+    },
+    {
+      "t_ms": 11420,
+      "end_ms": 15160,
+      "kind": "dead_air",
+      "gap_ms": 3740
+    },
+    {
+      "t_ms": 11727,
+      "kind": "agent_heard",
+      "text": "I'm calling to change the shipping address on my order."
+    },
+    {
+      "t_ms": 15160,
+      "end_ms": 15880,
+      "kind": "agent_speech",
+      "n": 4
+    },
+    {
+      "t_ms": 16420,
+      "end_ms": 17980,
+      "kind": "agent_speech",
+      "n": 5
+    },
+    {
+      "t_ms": 18480,
+      "end_ms": 20880,
+      "kind": "agent_speech",
+      "n": 6
+    },
+    {
+      "t_ms": 21146,
+      "kind": "agent_said",
+      "text": "I can help with that. Could you please provide the order number? It starts with G W and has five digits.",
+      "n": 2,
+      "interrupted": false
+    },
+    {
+      "t_ms": 21902,
+      "end_ms": 24570,
+      "kind": "caller_said",
+      "text": "Yes, the order number is G W 4 8 5 0 2.",
+      "n": 2
+    },
+    {
+      "t_ms": 22900,
+      "end_ms": 26000,
+      "kind": "caller_speech",
+      "n": 3
+    },
+    {
+      "t_ms": 25863,
+      "kind": "agent_heard",
+      "text": "Yes. The order number is g w four"
+    },
+    {
+      "t_ms": 26365,
+      "kind": "agent_heard",
+      "text": "eight"
+    },
+    {
+      "t_ms": 26460,
+      "end_ms": 27740,
+      "kind": "caller_speech",
+      "n": 4
+    },
+    {
+      "t_ms": 27740,
+      "end_ms": 31340,
+      "kind": "dead_air",
+      "gap_ms": 3600
+    },
+    {
+      "t_ms": 28022,
+      "kind": "agent_heard",
+      "text": "five zero two."
+    },
+    {
+      "t_ms": 31340,
+      "end_ms": 34500,
+      "kind": "agent_speech",
+      "n": 7
+    },
+    {
+      "t_ms": 34597,
+      "kind": "agent_said",
+      "text": "Thank you. Now, could you please provide the zip code on the order?",
+      "n": 3,
+      "interrupted": false
+    },
+    {
+      "t_ms": 35334,
+      "end_ms": 36978,
+      "kind": "caller_said",
+      "text": "The ZIP code is 0 2 1 3 9.",
+      "n": 3
+    },
+    {
+      "t_ms": 35980,
+      "end_ms": 38660,
+      "kind": "caller_speech",
+      "n": 5
+    },
+    {
+      "t_ms": 38660,
+      "end_ms": 43200,
+      "kind": "dead_air",
+      "gap_ms": 4540
+    },
+    {
+      "t_ms": 38967,
+      "kind": "agent_heard",
+      "text": "ZIP code is zero two one three nine."
+    },
+    {
+      "t_ms": 41821,
+      "end_ms": 41821,
+      "kind": "tool_call",
+      "tool": "lookup_order",
+      "args": {
+        "order_id": "GW-48502",
+        "zip": "02139"
+      },
+      "status": 200,
+      "ok": true,
+      "response": {
+        "order_id": "GW-48502",
+        "customer_name": "Priya Natarajan",
+        "status": "processing",
+        "total": 129.0,
+        "items": [
+          {
+            "sku": "LAMP-7",
+            "name": "Desk lamp",
+            "qty": 1,
+            "price": 129.0
+          }
+        ],
+        "shipping_address": "77 Massachusetts Ave, Cambridge, MA 02139",
+        "refunded": false,
+        "refund": null
+      },
+      "id": 1
+    },
+    {
+      "t_ms": 43200,
+      "end_ms": 46880,
+      "kind": "agent_speech",
+      "n": 8
+    },
+    {
+      "t_ms": 47340,
+      "end_ms": 49300,
+      "kind": "agent_speech",
+      "n": 9
+    },
+    {
+      "t_ms": 49392,
+      "kind": "agent_said",
+      "text": "The order G W 4 8 5 0 2 is still processing. What is the new shipping address you want to use?",
+      "n": 4,
+      "interrupted": false
+    },
+    {
+      "t_ms": 50508,
+      "end_ms": 54377,
+      "kind": "caller_said",
+      "text": "The new shipping address is 12 Beacon Street, Apartment 4, Boston, Massachusetts 0 2 1 0 8.",
+      "n": 4
+    },
+    {
+      "t_ms": 51280,
+      "end_ms": 56580,
+      "kind": "caller_speech",
+      "n": 6
+    },
+    {
+      "t_ms": 55320,
+      "kind": "agent_heard",
+      "text": "The new shipping address is one two Beacon Street, apartment four,"
+    },
+    {
+      "t_ms": 57040,
+      "end_ms": 58420,
+      "kind": "caller_speech",
+      "n": 7
+    },
+    {
+      "t_ms": 58730,
+      "kind": "agent_heard",
+      "text": "Boston, Massachusetts zero two one zero eight."
+    },
+    {
+      "t_ms": 59920,
+      "end_ms": 61580,
+      "kind": "agent_speech",
+      "n": 10
+    },
+    {
+      "t_ms": 62080,
+      "end_ms": 63700,
+      "kind": "agent_speech",
+      "n": 11
+    },
+    {
+      "t_ms": 64100,
+      "end_ms": 64980,
+      "kind": "agent_speech",
+      "n": 12
+    },
+    {
+      "t_ms": 65420,
+      "end_ms": 66840,
+      "kind": "agent_speech",
+      "n": 13
+    },
+    {
+      "t_ms": 67320,
+      "end_ms": 68060,
+      "kind": "agent_speech",
+      "n": 14
+    },
+    {
+      "t_ms": 68380,
+      "end_ms": 69180,
+      "kind": "agent_speech",
+      "n": 15
+    },
+    {
+      "t_ms": 69680,
+      "end_ms": 70240,
+      "kind": "agent_speech",
+      "n": 16
+    },
+    {
+      "t_ms": 70441,
+      "kind": "agent_said",
+      "text": "Please confirm the new shipping address: 12 Beacon Street, apartment 4, Boston, Massachusetts 02108. Is that correct?",
+      "n": 5,
+      "interrupted": false
+    },
+    {
+      "t_ms": 71565,
+      "end_ms": 74088,
+      "kind": "caller_said",
+      "text": "No, it's Beacon Street, not Eakin Street. The rest is correct.",
+      "n": 5
+    },
+    {
+      "t_ms": 72060,
+      "end_ms": 72320,
+      "kind": "caller_speech",
+      "n": 8
+    },
+    {
+      "t_ms": 72663,
+      "kind": "agent_heard",
+      "text": "No."
+    },
+    {
+      "t_ms": 72680,
+      "end_ms": 75380,
+      "kind": "caller_speech",
+      "n": 9
+    },
+    {
+      "t_ms": 74164,
+      "kind": "agent_heard",
+      "text": "It's Beacon Street."
+    },
+    {
+      "t_ms": 74720,
+      "kind": "agent_heard",
+      "text": "Not"
+    },
+    {
+      "t_ms": 75722,
+      "kind": "agent_heard",
+      "text": "Eakin Street."
+    },
+    {
+      "t_ms": 75860,
+      "end_ms": 76540,
+      "kind": "caller_speech",
+      "n": 10
+    },
+    {
+      "t_ms": 76932,
+      "kind": "agent_heard",
+      "text": "The rest is correct."
+    },
+    {
+      "t_ms": 78340,
+      "end_ms": 79400,
+      "kind": "agent_speech",
+      "n": 17
+    },
+    {
+      "t_ms": 79760,
+      "end_ms": 82080,
+      "kind": "agent_speech",
+      "n": 18
+    },
+    {
+      "t_ms": 82420,
+      "end_ms": 85040,
+      "kind": "agent_speech",
+      "n": 19
+    },
+    {
+      "t_ms": 85360,
+      "end_ms": 87020,
+      "kind": "agent_speech",
+      "n": 20
+    },
+    {
+      "t_ms": 87460,
+      "end_ms": 88040,
+      "kind": "agent_speech",
+      "n": 21
+    },
+    {
+      "t_ms": 88107,
+      "kind": "agent_said",
+      "text": "Thanks for the correction. The new address is 12 Beacon Street, apartment 4, Boston, Massachusetts 02108. Is that right?",
+      "n": 6,
+      "interrupted": false
+    },
+    {
+      "t_ms": 89328,
+      "end_ms": 91312,
+      "kind": "caller_said",
+      "text": "Yes, that's right. Please update the shipping address to that.",
+      "n": 6
+    },
+    {
+      "t_ms": 90120,
+      "end_ms": 90840,
+      "kind": "caller_speech",
+      "n": 11
+    },
+    {
+      "t_ms": 91169,
+      "kind": "agent_heard",
+      "text": "Yes. That's right."
+    },
+    {
+      "t_ms": 91360,
+      "end_ms": 93140,
+      "kind": "caller_speech",
+      "n": 12
+    },
+    {
+      "t_ms": 93477,
+      "kind": "agent_heard",
+      "text": "Please update the shipping address to that."
+    },
+    {
+      "t_ms": 94680,
+      "end_ms": 94680,
+      "kind": "tool_call",
+      "tool": "update_shipping_address",
+      "args": {
+        "order_id": "GW-48502",
+        "address": "12 Beacon Street, apartment 4, Boston, Massachusetts 02108"
+      },
+      "status": 200,
+      "ok": true,
+      "response": {
+        "order_id": "GW-48502",
+        "shipping_address": "12 Beacon Street, apartment 4, Boston, Massachusetts 02108"
+      },
+      "id": 2
+    },
+    {
+      "t_ms": 96100,
+      "end_ms": 98880,
+      "kind": "agent_speech",
+      "n": 22
+    },
+    {
+      "t_ms": 99300,
+      "end_ms": 100040,
+      "kind": "agent_speech",
+      "n": 23
+    },
+    {
+      "t_ms": 100480,
+      "end_ms": 102560,
+      "kind": "agent_speech",
+      "n": 24
+    },
+    {
+      "t_ms": 102900,
+      "end_ms": 103560,
+      "kind": "agent_speech",
+      "n": 25
+    },
+    {
+      "t_ms": 104040,
+      "end_ms": 104860,
+      "kind": "agent_speech",
+      "n": 26
+    },
+    {
+      "t_ms": 105300,
+      "end_ms": 106400,
+      "kind": "agent_speech",
+      "n": 27
+    },
+    {
+      "t_ms": 106940,
+      "end_ms": 107660,
+      "kind": "agent_speech",
+      "n": 28
+    },
+    {
+      "t_ms": 108060,
+      "end_ms": 108840,
+      "kind": "agent_speech",
+      "n": 29
+    },
+    {
+      "t_ms": 109440,
+      "end_ms": 110680,
+      "kind": "agent_speech",
+      "n": 30
+    },
+    {
+      "t_ms": 110911,
+      "kind": "agent_said",
+      "text": "The shipping address for order G W 4 8 5 0 2 has been updated to 12 Beacon Street, apartment 4, Boston, Massachusetts 02108. Is there anything else I can help with?",
+      "n": 7,
+      "interrupted": false
+    },
+    {
+      "t_ms": 112197,
+      "end_ms": 115090,
+      "kind": "caller_said",
+      "text": "No, you said Eakin Street again. Please update it to Beacon Street, not Eakin.",
+      "n": 7
+    },
+    {
+      "t_ms": 112720,
+      "end_ms": 114300,
+      "kind": "caller_speech",
+      "n": 13
+    },
+    {
+      "t_ms": 114688,
+      "kind": "agent_heard",
+      "text": "No. You said Eakin Street again."
+    },
+    {
+      "t_ms": 114800,
+      "end_ms": 117540,
+      "kind": "caller_speech",
+      "n": 14
+    },
+    {
+      "t_ms": 115918,
+      "kind": "agent_heard",
+      "text": "Please update it"
+    },
+    {
+      "t_ms": 117880,
+      "end_ms": 118420,
+      "kind": "caller_speech",
+      "n": 15
+    },
+    {
+      "t_ms": 117901,
+      "kind": "agent_heard",
+      "text": "to Beacon Street, not"
+    },
+    {
+      "t_ms": 118721,
+      "kind": "agent_heard",
+      "text": "Eakin."
+    },
+    {
+      "t_ms": 120560,
+      "end_ms": 121700,
+      "kind": "agent_speech",
+      "n": 31
+    },
+    {
+      "t_ms": 122240,
+      "end_ms": 122860,
+      "kind": "agent_speech",
+      "n": 32
+    },
+    {
+      "t_ms": 123180,
+      "end_ms": 125420,
+      "kind": "agent_speech",
+      "n": 33
+    },
+    {
+      "t_ms": 125900,
+      "end_ms": 126780,
+      "kind": "agent_speech",
+      "n": 34
+    },
+    {
+      "t_ms": 127160,
+      "end_ms": 128740,
+      "kind": "agent_speech",
+      "n": 35
+    },
+    {
+      "t_ms": 129200,
+      "end_ms": 130620,
+      "kind": "agent_speech",
+      "n": 36
+    },
+    {
+      "t_ms": 130980,
+      "end_ms": 131360,
+      "kind": "agent_speech",
+      "n": 37
+    },
+    {
+      "t_ms": 131452,
+      "kind": "agent_said",
+      "text": "I apologize for the mistake. To confirm, you want the address to be 12 Beacon Street, apartment 4, Boston, Massachusetts 02108, correct?",
+      "n": 8,
+      "interrupted": false
+    },
+    {
+      "t_ms": 132660,
+      "end_ms": 137720,
+      "kind": "caller_said",
+      "text": "Yes, that's correct. Thank you. Now, I also want to complain about how long the desk lamp took to ship. Can you please transfer me to someone who can help with that?",
+      "n": 8
+    },
+    {
+      "t_ms": 133180,
+      "end_ms": 134120,
+      "kind": "caller_speech",
+      "n": 16
+    },
+    {
+      "t_ms": 134428,
+      "kind": "agent_heard",
+      "text": "Yes. That's correct."
+    },
+    {
+      "t_ms": 134680,
+      "end_ms": 135040,
+      "kind": "caller_speech",
+      "n": 17
+    },
+    {
+      "t_ms": 135152,
+      "end_ms": 135152,
+      "kind": "tool_call",
+      "tool": "update_shipping_address",
+      "args": {
+        "order_id": "GW-48502",
+        "address": "12 Beacon Street, apartment 4, Boston, Massachusetts 02108"
+      },
+      "status": 200,
+      "ok": true,
+      "response": {
+        "order_id": "GW-48502",
+        "shipping_address": "12 Beacon Street, apartment 4, Boston, Massachusetts 02108"
+      },
+      "id": 3
+    },
+    {
+      "t_ms": 135440,
+      "end_ms": 140180,
+      "kind": "caller_speech",
+      "n": 18
+    },
+    {
+      "t_ms": 135477,
+      "kind": "agent_heard",
+      "text": "Thank you."
+    },
+    {
+      "t_ms": 140505,
+      "kind": "agent_heard",
+      "text": "Now I also want to complain about how long the desk lamp took to ship."
+    },
+    {
+      "t_ms": 140820,
+      "end_ms": 143040,
+      "kind": "caller_speech",
+      "n": 19
+    },
+    {
+      "t_ms": 143442,
+      "kind": "agent_heard",
+      "text": "Can you please transfer me to someone who can help with that?"
+    },
+    {
+      "t_ms": 144477,
+      "end_ms": 144477,
+      "kind": "tool_call",
+      "tool": "escalate_to_human",
+      "args": {
+        "reason": "caller request",
+        "summary": "Customer wants to complain about shipping delay of desk lamp in order GW-48502."
+      },
+      "status": 200,
+      "ok": true,
+      "response": {
+        "ticket_id": "TK-0001",
+        "status": "escalated"
+      },
+      "id": 4
+    },
+    {
+      "t_ms": 145020,
+      "end_ms": 146720,
+      "kind": "agent_speech",
+      "n": 38
+    },
+    {
+      "t_ms": 147280,
+      "end_ms": 148320,
+      "kind": "agent_speech",
+      "n": 39
+    },
+    {
+      "t_ms": 148660,
+      "end_ms": 148980,
+      "kind": "agent_speech",
+      "n": 40
+    },
+    {
+      "t_ms": 149051,
+      "kind": "agent_said",
+      "text": "I'm transferring you to a team member now. Thank you for your patience, goodbye.",
+      "n": 9,
+      "interrupted": false
+    }
+  ],
+  "ux": {
+    "duration_ms": 149366,
+    "greeting_first": true,
+    "first_agent_audio_ms": 1900,
+    "caller_segments": 19,
+    "agent_segments": 40,
+    "responses": [
+      {
+        "caller_end_ms": 8640,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 11420,
+        "agent_start_ms": 15160,
+        "latency_ms": 3740
+      },
+      {
+        "caller_end_ms": 26000,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 27740,
+        "agent_start_ms": 31340,
+        "latency_ms": 3600
+      },
+      {
+        "caller_end_ms": 38660,
+        "agent_start_ms": 43200,
+        "latency_ms": 4540
+      },
+      {
+        "caller_end_ms": 56580,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 58420,
+        "agent_start_ms": 59920,
+        "latency_ms": 1500
+      },
+      {
+        "caller_end_ms": 72320,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 75380,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 76540,
+        "agent_start_ms": 78340,
+        "latency_ms": 1800
+      },
+      {
+        "caller_end_ms": 90840,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 93140,
+        "agent_start_ms": 96100,
+        "latency_ms": 2960
+      },
+      {
+        "caller_end_ms": 114300,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 117540,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 118420,
+        "agent_start_ms": 120560,
+        "latency_ms": 2140
+      },
+      {
+        "caller_end_ms": 134120,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 135040,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 140180,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 143040,
+        "agent_start_ms": 145020,
+        "latency_ms": 1980
+      }
+    ],
+    "latency_ms": {
+      "n": 8,
+      "p50": 2960,
+      "p95": 4540,
+      "max": 4540
+    },
+    "dead_air": [
+      {
+        "start_ms": 11420,
+        "end_ms": 15160,
+        "gap_ms": 3740,
+        "after": "caller"
+      },
+      {
+        "start_ms": 27740,
+        "end_ms": 31340,
+        "gap_ms": 3600,
+        "after": "caller"
+      },
+      {
+        "start_ms": 38660,
+        "end_ms": 43200,
+        "gap_ms": 4540,
+        "after": "caller"
+      }
+    ],
+    "dead_air_total_ms": 11880,
+    "talk_over": [],
+    "barge_in": [],
+    "caller_speech_ms": 36300,
+    "agent_speech_ms": 54620
+  }
+}

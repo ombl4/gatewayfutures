@@ -1,0 +1,282 @@
+{
+  "t0_ms": 1791569462337,
+  "sample_rate": 16000,
+  "events": [
+    {
+      "t_ms": 2160,
+      "end_ms": 3380,
+      "kind": "agent_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 3960,
+      "end_ms": 4620,
+      "kind": "agent_speech",
+      "n": 2
+    },
+    {
+      "t_ms": 5160,
+      "end_ms": 6040,
+      "kind": "agent_speech",
+      "n": 3
+    },
+    {
+      "t_ms": 6136,
+      "kind": "agent_said",
+      "text": "Thanks for calling Gateway Goods, this is Ava. How can I help you today?",
+      "n": 1,
+      "interrupted": false
+    },
+    {
+      "t_ms": 7222,
+      "end_ms": 9473,
+      "kind": "caller_said",
+      "text": "I'm calling about my order, G W 4 8 3 7 7. I want to speak to a human being.",
+      "n": 1
+    },
+    {
+      "t_ms": 7600,
+      "end_ms": 9320,
+      "kind": "caller_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 9680,
+      "end_ms": 14200,
+      "kind": "caller_speech",
+      "n": 2
+    },
+    {
+      "t_ms": 9720,
+      "kind": "agent_heard",
+      "text": "I'm calling about my order."
+    },
+    {
+      "t_ms": 14200,
+      "end_ms": 18360,
+      "kind": "dead_air",
+      "gap_ms": 4160
+    },
+    {
+      "t_ms": 14615,
+      "kind": "agent_heard",
+      "text": "GW four eight three seven seven. I want to speak to a human being"
+    },
+    {
+      "t_ms": 17349,
+      "end_ms": 17349,
+      "kind": "tool_call",
+      "tool": "escalate_to_human",
+      "args": {
+        "reason": "caller request",
+        "summary": "Caller requested to speak to a human about order GW-48377."
+      },
+      "status": 500,
+      "ok": false,
+      "response": {
+        "error": "internal_error",
+        "message": "Order system unavailable"
+      },
+      "id": 1
+    },
+    {
+      "t_ms": 18109,
+      "end_ms": 18682,
+      "kind": "caller_said",
+      "text": "Hello? Are you still there?",
+      "n": 2
+    },
+    {
+      "t_ms": 18360,
+      "end_ms": 19120,
+      "kind": "caller_speech",
+      "n": 3
+    },
+    {
+      "t_ms": 18440,
+      "end_ms": 19180,
+      "kind": "agent_speech",
+      "n": 4
+    },
+    {
+      "t_ms": 19180,
+      "end_ms": 23120,
+      "kind": "dead_air",
+      "gap_ms": 3940
+    },
+    {
+      "t_ms": 19554,
+      "kind": "agent_heard",
+      "text": "Hello? Are you"
+    },
+    {
+      "t_ms": 19563,
+      "kind": "agent_said",
+      "text": "The system is",
+      "n": 2,
+      "interrupted": true
+    },
+    {
+      "t_ms": 23120,
+      "end_ms": 24080,
+      "kind": "caller_speech",
+      "n": 4
+    },
+    {
+      "t_ms": 23400,
+      "end_ms": 23820,
+      "kind": "agent_speech",
+      "n": 5
+    },
+    {
+      "t_ms": 23820,
+      "end_ms": 27440,
+      "kind": "dead_air",
+      "gap_ms": 3620
+    },
+    {
+      "t_ms": 24523,
+      "kind": "agent_heard",
+      "text": "I want to speak to a..."
+    },
+    {
+      "t_ms": 24533,
+      "kind": "agent_said",
+      "text": "Sorry, the",
+      "n": 3,
+      "interrupted": true
+    },
+    {
+      "t_ms": 27098,
+      "end_ms": 29365,
+      "kind": "caller_said",
+      "text": "Please try transferring me to a person again. I want to speak to a human being.",
+      "n": 3
+    },
+    {
+      "t_ms": 27440,
+      "end_ms": 31720,
+      "kind": "caller_speech",
+      "n": 5
+    },
+    {
+      "t_ms": 28273,
+      "end_ms": 28273,
+      "kind": "tool_call",
+      "tool": "escalate_to_human",
+      "args": {
+        "reason": "caller request",
+        "summary": "Caller requested to speak to a human about order GW-48377."
+      },
+      "status": 200,
+      "ok": true,
+      "response": {
+        "ticket_id": "TK-0001",
+        "status": "escalated"
+      },
+      "id": 2
+    },
+    {
+      "t_ms": 32170,
+      "kind": "agent_heard",
+      "text": "Please try transferring me to a person again. I want to speak to a human being."
+    },
+    {
+      "t_ms": 32800,
+      "end_ms": 34480,
+      "kind": "agent_speech",
+      "n": 6
+    },
+    {
+      "t_ms": 35060,
+      "end_ms": 36000,
+      "kind": "agent_speech",
+      "n": 7
+    },
+    {
+      "t_ms": 36400,
+      "end_ms": 36760,
+      "kind": "agent_speech",
+      "n": 8
+    },
+    {
+      "t_ms": 36798,
+      "kind": "agent_said",
+      "text": "I'm transferring you to a team member now. Thank you for your patience, goodbye.",
+      "n": 4,
+      "interrupted": false
+    }
+  ],
+  "ux": {
+    "duration_ms": 37007,
+    "greeting_first": true,
+    "first_agent_audio_ms": 2160,
+    "caller_segments": 5,
+    "agent_segments": 8,
+    "responses": [
+      {
+        "caller_end_ms": 9320,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 14200,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 19120,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 24080,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 31720,
+        "agent_start_ms": 32800,
+        "latency_ms": 1080
+      }
+    ],
+    "latency_ms": {
+      "n": 1,
+      "p50": 1080,
+      "p95": 1080,
+      "max": 1080
+    },
+    "dead_air": [
+      {
+        "start_ms": 14200,
+        "end_ms": 18360,
+        "gap_ms": 4160,
+        "after": "caller"
+      },
+      {
+        "start_ms": 19180,
+        "end_ms": 23120,
+        "gap_ms": 3940,
+        "after": "agent"
+      },
+      {
+        "start_ms": 23820,
+        "end_ms": 27440,
+        "gap_ms": 3620,
+        "after": "agent"
+      }
+    ],
+    "dead_air_total_ms": 11720,
+    "talk_over": [
+      {
+        "agent_start_ms": 18440
+      },
+      {
+        "agent_start_ms": 23400
+      }
+    ],
+    "barge_in": [],
+    "caller_speech_ms": 12240,
+    "agent_speech_ms": 6900
+  }
+}

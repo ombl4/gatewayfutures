@@ -1,0 +1,408 @@
+{
+  "t0_ms": 1791591227026,
+  "sample_rate": 16000,
+  "events": [
+    {
+      "t_ms": 1880,
+      "end_ms": 4560,
+      "kind": "agent_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 5060,
+      "end_ms": 5960,
+      "kind": "agent_speech",
+      "n": 2
+    },
+    {
+      "t_ms": 6107,
+      "kind": "agent_said",
+      "text": "Thanks for calling Gateway Goods, this is Ava. How can I help you today?",
+      "n": 1,
+      "interrupted": false
+    },
+    {
+      "t_ms": 6763,
+      "end_ms": 10504,
+      "kind": "caller_said",
+      "text": "Hi Ava, I'm calling because I received my order, but the countertop blender arrived broken. I'd like to get a full refund for it.",
+      "n": 1
+    },
+    {
+      "t_ms": 7180,
+      "end_ms": 12640,
+      "kind": "caller_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 9454,
+      "kind": "agent_heard",
+      "text": "Hi, Eva."
+    },
+    {
+      "t_ms": 12238,
+      "kind": "agent_heard",
+      "text": "I'm calling because I received my order, but the countertop blender arrived"
+    },
+    {
+      "t_ms": 12937,
+      "kind": "agent_heard",
+      "text": "broken."
+    },
+    {
+      "t_ms": 12960,
+      "end_ms": 14680,
+      "kind": "caller_speech",
+      "n": 2
+    },
+    {
+      "t_ms": 15036,
+      "kind": "agent_heard",
+      "text": "I'd like to get a full refund for it."
+    },
+    {
+      "t_ms": 16520,
+      "end_ms": 17280,
+      "kind": "agent_speech",
+      "n": 3
+    },
+    {
+      "t_ms": 17840,
+      "end_ms": 21240,
+      "kind": "agent_speech",
+      "n": 4
+    },
+    {
+      "t_ms": 21350,
+      "kind": "agent_said",
+      "text": "I can help with that. Could you please provide me the order number and the zip code on the order?",
+      "n": 2,
+      "interrupted": false
+    },
+    {
+      "t_ms": 22042,
+      "end_ms": 25298,
+      "kind": "caller_said",
+      "text": "Yes, the order number is G W 4 8 2 1 3, and the ZIP code is 9 4 1 1 0.",
+      "n": 2
+    },
+    {
+      "t_ms": 22740,
+      "end_ms": 25900,
+      "kind": "caller_speech",
+      "n": 3
+    },
+    {
+      "t_ms": 24808,
+      "kind": "agent_heard",
+      "text": "Yes. The order number is"
+    },
+    {
+      "t_ms": 26228,
+      "kind": "agent_heard",
+      "text": "g w four eight two one three."
+    },
+    {
+      "t_ms": 26260,
+      "end_ms": 28800,
+      "kind": "caller_speech",
+      "n": 4
+    },
+    {
+      "t_ms": 29138,
+      "kind": "agent_heard",
+      "text": "And the ZIP code is nine four one one zero."
+    },
+    {
+      "t_ms": 29778,
+      "end_ms": 29778,
+      "kind": "tool_call",
+      "tool": "lookup_order",
+      "args": {
+        "order_id": "GW-48213",
+        "zip": "94110"
+      },
+      "status": 200,
+      "ok": true,
+      "response": {
+        "order_id": "GW-48213",
+        "customer_name": "Maria Lopez",
+        "status": "delivered",
+        "total": 89.99,
+        "items": [
+          {
+            "sku": "BLND-200",
+            "name": "Countertop blender",
+            "qty": 1,
+            "price": 89.99
+          }
+        ],
+        "shipping_address": "742 Valencia St, San Francisco, CA 94110",
+        "refunded": false,
+        "refund": null
+      },
+      "id": 1
+    },
+    {
+      "t_ms": 30940,
+      "end_ms": 33220,
+      "kind": "agent_speech",
+      "n": 5
+    },
+    {
+      "t_ms": 33540,
+      "end_ms": 37580,
+      "kind": "agent_speech",
+      "n": 6
+    },
+    {
+      "t_ms": 38120,
+      "end_ms": 42500,
+      "kind": "agent_speech",
+      "n": 7
+    },
+    {
+      "t_ms": 42860,
+      "end_ms": 43080,
+      "kind": "agent_speech",
+      "n": 8
+    },
+    {
+      "t_ms": 43260,
+      "kind": "agent_said",
+      "text": "Your order G W 4 8 2 1 3 with the countertop blender for $89.99 was delivered. You want a full refund of $89.99 for the broken blender, correct?",
+      "n": 3,
+      "interrupted": false
+    },
+    {
+      "t_ms": 44828,
+      "end_ms": 47275,
+      "kind": "caller_said",
+      "text": "Yes, that's correct. I want a full refund of eighty-nine ninety-nine for the broken blender.",
+      "n": 3
+    },
+    {
+      "t_ms": 45340,
+      "end_ms": 46280,
+      "kind": "caller_speech",
+      "n": 5
+    },
+    {
+      "t_ms": 46626,
+      "kind": "agent_heard",
+      "text": "Yes. That's correct."
+    },
+    {
+      "t_ms": 46680,
+      "end_ms": 49780,
+      "kind": "caller_speech",
+      "n": 6
+    },
+    {
+      "t_ms": 50094,
+      "kind": "agent_heard",
+      "text": "I want a full refund of eighty nine ninety nine for the broken wonder."
+    },
+    {
+      "t_ms": 50680,
+      "end_ms": 50680,
+      "kind": "tool_call",
+      "tool": "issue_refund",
+      "args": {
+        "order_id": "GW-48213",
+        "amount": 89.99,
+        "reason": "broken blender"
+      },
+      "status": 200,
+      "ok": true,
+      "response": {
+        "refund_id": "RF-0001",
+        "amount": 89.99,
+        "status": "issued"
+      },
+      "id": 2
+    },
+    {
+      "t_ms": 51880,
+      "end_ms": 55780,
+      "kind": "agent_speech",
+      "n": 9
+    },
+    {
+      "t_ms": 56100,
+      "end_ms": 56820,
+      "kind": "agent_speech",
+      "n": 10
+    },
+    {
+      "t_ms": 57400,
+      "end_ms": 59020,
+      "kind": "agent_speech",
+      "n": 11
+    },
+    {
+      "t_ms": 59201,
+      "kind": "agent_said",
+      "text": "The full refund of $89.99 for your broken blender has been issued. Is there anything else I can assist you with?",
+      "n": 4,
+      "interrupted": false
+    },
+    {
+      "t_ms": 60231,
+      "end_ms": 63200,
+      "kind": "caller_said",
+      "text": "Actually, I noticed I was charged twice for the order. Could you please issue a refund for the second charge as well?",
+      "n": 4
+    },
+    {
+      "t_ms": 60940,
+      "end_ms": 62980,
+      "kind": "caller_speech",
+      "n": 7
+    },
+    {
+      "t_ms": 63330,
+      "kind": "agent_heard",
+      "text": "Was charged twice for the order."
+    },
+    {
+      "t_ms": 63520,
+      "end_ms": 66620,
+      "kind": "caller_speech",
+      "n": 8
+    },
+    {
+      "t_ms": 66938,
+      "kind": "agent_heard",
+      "text": "Could you please issue a refund for the second charge as well?"
+    },
+    {
+      "t_ms": 67840,
+      "end_ms": 70900,
+      "kind": "agent_speech",
+      "n": 12
+    },
+    {
+      "t_ms": 68174,
+      "end_ms": 68174,
+      "kind": "tool_call",
+      "tool": "escalate_to_human",
+      "args": {
+        "reason": "caller reports double charge, refund policy limits",
+        "summary": "Caller was charged twice for order G W 4 8 2 1 3 and requests a second refund."
+      },
+      "status": 200,
+      "ok": true,
+      "response": {
+        "ticket_id": "TK-0001",
+        "status": "escalated"
+      },
+      "id": 3
+    },
+    {
+      "t_ms": 71460,
+      "end_ms": 74280,
+      "kind": "agent_speech",
+      "n": 13
+    },
+    {
+      "t_ms": 74720,
+      "end_ms": 75340,
+      "kind": "agent_speech",
+      "n": 14
+    },
+    {
+      "t_ms": 75585,
+      "kind": "agent_said",
+      "text": "I see. I can only issue one refund per order. Let me connect you to a team member who can help with the double charge. One moment please.",
+      "n": 5,
+      "interrupted": false
+    },
+    {
+      "t_ms": 76120,
+      "end_ms": 77920,
+      "kind": "agent_speech",
+      "n": 15
+    },
+    {
+      "t_ms": 78500,
+      "end_ms": 79380,
+      "kind": "agent_speech",
+      "n": 16
+    },
+    {
+      "t_ms": 80000,
+      "end_ms": 80360,
+      "kind": "agent_speech",
+      "n": 17
+    },
+    {
+      "t_ms": 80386,
+      "kind": "agent_said",
+      "text": "I'm transferring you to a team member now. Thank you for your patience, goodbye.",
+      "n": 6,
+      "interrupted": false
+    }
+  ],
+  "ux": {
+    "duration_ms": 80533,
+    "greeting_first": true,
+    "first_agent_audio_ms": 1880,
+    "caller_segments": 8,
+    "agent_segments": 17,
+    "responses": [
+      {
+        "caller_end_ms": 12640,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 14680,
+        "agent_start_ms": 16520,
+        "latency_ms": 1840
+      },
+      {
+        "caller_end_ms": 25900,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 28800,
+        "agent_start_ms": 30940,
+        "latency_ms": 2140
+      },
+      {
+        "caller_end_ms": 46280,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 49780,
+        "agent_start_ms": 51880,
+        "latency_ms": 2100
+      },
+      {
+        "caller_end_ms": 62980,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 66620,
+        "agent_start_ms": 67840,
+        "latency_ms": 1220
+      }
+    ],
+    "latency_ms": {
+      "n": 4,
+      "p50": 2100,
+      "p95": 2140,
+      "max": 2140
+    },
+    "dead_air": [],
+    "dead_air_total_ms": 0,
+    "talk_over": [],
+    "barge_in": [],
+    "caller_speech_ms": 22060,
+    "agent_speech_ms": 34440
+  }
+}

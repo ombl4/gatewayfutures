@@ -1,0 +1,90 @@
+[
+  {
+    "id": 1,
+    "tool": "lookup_order",
+    "args": {
+      "order_id": "GW-48213",
+      "zip": "94110"
+    },
+    "response": {
+      "order_id": "GW-48213",
+      "customer_name": "Maria Lopez",
+      "status": "delivered",
+      "total": 89.99,
+      "items": [
+        {
+          "sku": "BLND-200",
+          "name": "Countertop blender",
+          "qty": 1,
+          "price": 89.99
+        }
+      ],
+      "shipping_address": "742 Valencia St, San Francisco, CA 94110",
+      "refunded": false,
+      "refund": null
+    },
+    "status": 200,
+    "ok": true,
+    "ts_ms": 1791589745224,
+    "duration_ms": 0,
+    "arg_problems": [],
+    "fault": null
+  },
+  {
+    "id": 2,
+    "tool": "issue_refund",
+    "args": {
+      "order_id": "GW-48213",
+      "amount": 89.99,
+      "reason": "arrived broken"
+    },
+    "response": {
+      "refund_id": "RF-0001",
+      "amount": 89.99,
+      "status": "issued"
+    },
+    "status": 200,
+    "ok": true,
+    "ts_ms": 1791589762681,
+    "duration_ms": 0,
+    "arg_problems": [],
+    "fault": null
+  },
+  {
+    "id": 3,
+    "tool": "lookup_order",
+    "args": {
+      "order_id": "GW-48213",
+      "zip": "94110"
+    },
+    "response": {
+      "order_id": "GW-48213",
+      "customer_name": "Maria Lopez",
+      "status": "delivered",
+      "total": 89.99,
+      "items": [
+        {
+          "sku": "BLND-200",
+          "name": "Countertop blender",
+          "qty": 1,
+          "price": 89.99
+        }
+      ],
+      "shipping_address": "742 Valencia St, San Francisco, CA 94110",
+      "refunded": true,
+      "refund": {
+        "refund_id": "RF-0001",
+        "order_id": "GW-48213",
+        "amount": 89.99,
+        "reason": "arrived broken",
+        "created_ms": 1791589762681
+      }
+    },
+    "status": 200,
+    "ok": true,
+    "ts_ms": 1791589865217,
+    "duration_ms": 0,
+    "arg_problems": [],
+    "fault": null
+  }
+]

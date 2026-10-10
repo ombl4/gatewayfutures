@@ -1,0 +1,71 @@
+[
+  {
+    "id": 1,
+    "tool": "lookup_order",
+    "args": {
+      "order_id": "GW-4502",
+      "zip": "02139"
+    },
+    "response": {
+      "error": "invalid_arguments",
+      "message": "order_id 'GW-4502' does not match GW-#####"
+    },
+    "status": 422,
+    "ok": false,
+    "ts_ms": 1791569621038,
+    "duration_ms": 0,
+    "arg_problems": [
+      "order_id 'GW-4502' does not match GW-#####"
+    ],
+    "fault": null
+  },
+  {
+    "id": 2,
+    "tool": "lookup_order",
+    "args": {
+      "order_id": "GW-48502",
+      "zip": "02139"
+    },
+    "response": {
+      "order_id": "GW-48502",
+      "customer_name": "Priya Natarajan",
+      "status": "processing",
+      "total": 129.0,
+      "items": [
+        {
+          "sku": "LAMP-7",
+          "name": "Desk lamp",
+          "qty": 1,
+          "price": 129.0
+        }
+      ],
+      "shipping_address": "77 Massachusetts Ave, Cambridge, MA 02139",
+      "refunded": false,
+      "refund": null
+    },
+    "status": 200,
+    "ok": true,
+    "ts_ms": 1791569634166,
+    "duration_ms": 0,
+    "arg_problems": [],
+    "fault": null
+  },
+  {
+    "id": 3,
+    "tool": "escalate_to_human",
+    "args": {
+      "reason": "caller request",
+      "summary": "Caller wants to place a new order and check for discounts, which I cannot assist with."
+    },
+    "response": {
+      "ticket_id": "TK-0001",
+      "status": "escalated"
+    },
+    "status": 200,
+    "ok": true,
+    "ts_ms": 1791569669429,
+    "duration_ms": 0,
+    "arg_problems": [],
+    "fault": null
+  }
+]

@@ -1,0 +1,949 @@
+{
+  "call_id": "77cc1817bd10-3-1f9a2c",
+  "session_id": "77cc1817bd10",
+  "attempt": 3,
+  "valid": true,
+  "passed": true,
+  "experience_ok": false,
+  "hard_fails": [],
+  "experience_fails": [
+    "ux.latency_p95",
+    "ux.dead_air"
+  ],
+  "soft_flags": [
+    "ux.repeats",
+    "ux.would_hang_up"
+  ],
+  "failure_reason": "",
+  "experience_reason": "p50 2080 ms, p95 3760 ms over 12 turns",
+  "ended_by": "max_turns",
+  "goal_met": false,
+  "duration_ms": 151509,
+  "latency_p50_ms": 2080,
+  "latency_p95_ms": 3760,
+  "wer": 0.101,
+  "engine": "gf-caller",
+  "livekit": null,
+  "dead_air_total_ms": 23560,
+  "tool_calls": [
+    [
+      "lookup_order",
+      200
+    ],
+    [
+      "issue_refund",
+      200
+    ],
+    [
+      "lookup_order",
+      200
+    ]
+  ],
+  "caller_ok": false,
+  "caller_flags": [
+    "caller.went_quiet",
+    "caller.spoke_tool_syntax",
+    "caller.ended_legitimately"
+  ],
+  "hearing_fault": false,
+  "latency_breakdown": {
+    "eou_ms": 577,
+    "stt_ms": 158,
+    "llm_ttft_ms": 433,
+    "tts_ttfb_ms": 98,
+    "playback_ms": 18,
+    "e2e_ms": 1196,
+    "heard_ms": 2080,
+    "unaccounted_ms": 82
+  },
+  "tool_ok": true,
+  "issue_t_ms": 27320,
+  "cost": {
+    "usd": 0.1009,
+    "agent": {
+      "llm_model": "gpt-4.1-mini",
+      "llm_in": 39527,
+      "llm_cached": 26752,
+      "llm_out": 530,
+      "tts_model": "aura-2-luna-en",
+      "tts_chars": 748,
+      "tts_audio_s": 47.200500000000005,
+      "stt_model": "nova-3",
+      "stt_s": 150.49999999999972,
+      "source": "agent_session_report.usage",
+      "usd": 0.0504
+    },
+    "caller": {
+      "llm_model": "gpt-4.1-mini",
+      "llm_in": 19483,
+      "llm_cached": 0,
+      "llm_out": 602,
+      "tts_model": "aura-2-asteria-en",
+      "tts_chars": 744,
+      "tts_audio_s": 57.4004583333333,
+      "stt_model": "nova-3",
+      "stt_s": 151.51,
+      "source": "caller metric events",
+      "usd": 0.0505
+    },
+    "unpriced": [],
+    "not_metered": [
+      "LiveKit Cloud minutes",
+      "persona judge"
+    ],
+    "pricing": "pricing.yaml"
+  },
+  "checks": [
+    {
+      "id": "validity.simulation",
+      "group": "validity",
+      "label": "The simulation itself ran correctly",
+      "passed": true,
+      "severity": "hard",
+      "what_happened": "valid",
+      "why_it_matters": "A broken simulation says nothing about the agent, so it is excluded from rates.",
+      "evidence": {
+        "ended_by": "max_turns",
+        "end_reason": "turn limit reached"
+      },
+      "value": null
+    },
+    {
+      "id": "validity.persona_judge",
+      "group": "validity",
+      "label": "Persona judge (LLM, advisory)",
+      "passed": true,
+      "severity": "info",
+      "what_happened": "in_character=True, only_known_facts=True, tone_ok=True: The caller consistently used the correct order ID, zip code, and refund amount, and maintained a polite, plain-spoken tone throughout.",
+      "why_it_matters": "Second opinion on the deterministic character check; disagreements go to the label set.",
+      "evidence": {
+        "prompt_version": "persona-judge-v1",
+        "model": "gpt-4.1-mini"
+      },
+      "value": {
+        "in_character": true,
+        "used_only_known_facts": true,
+        "tone_matches_style": true,
+        "notes": "The caller consistently used the correct order ID, zip code, and refund amount, and maintained a polite, plain-spoken tone throughout."
+      }
+    },
+    {
+      "id": "tools.required.lookup_order",
+      "group": "tools",
+      "label": "Required: lookup_order with {'order_id': 'GW-48213', 'zip': '94110'}",
+      "passed": true,
+      "severity": "hard",
+      "what_happened": "lookup_order was called with the expected arguments and succeeded",
+      "why_it_matters": "The outcome only counts if the backend actually received this request.",
+      "evidence": {
+        "tool_ids": [
+          1,
+          3
+        ],
+        "t_ms": 30284
+      },
+      "value": null
+    },
+    {
+      "id": "tools.required.issue_refund",
+      "group": "tools",
+      "label": "Required: issue_refund with {'order_id': 'GW-48213', 'amount': 89.99}",
+      "passed": true,
+      "severity": "hard",
+      "what_happened": "issue_refund was called with the expected arguments and succeeded",
+      "why_it_matters": "The outcome only counts if the backend actually received this request.",
+      "evidence": {
+        "tool_ids": [
+          2
+        ],
+        "t_ms": 47741
+      },
+      "value": null
+    },
+    {
+      "id": "tools.order",
+      "group": "tools",
+      "label": "Order: lookup_order \u2192 issue_refund",
+      "passed": true,
+      "severity": "hard",
+      "what_happened": "Successful calls happened as: lookup_order \u2192 issue_refund \u2192 lookup_order",
+      "why_it_matters": "Verification must precede any write.",
+      "evidence": {
+        "tool_ids": [
+          1,
+          2,
+          3
+        ]
+      },
+      "value": null
+    },
+    {
+      "id": "tools.forbidden.escalate_to_human",
+      "group": "tools",
+      "label": "Must not call escalate_to_human",
+      "passed": true,
+      "severity": "hard",
+      "what_happened": "escalate_to_human was not called",
+      "why_it_matters": "A forbidden action means the agent took a path the scenario rules out.",
+      "evidence": {
+        "tool_ids": [],
+        "t_ms": null
+      },
+      "value": null
+    },
+    {
+      "id": "tools.forbidden.update_shipping_address",
+      "group": "tools",
+      "label": "Must not call update_shipping_address",
+      "passed": true,
+      "severity": "hard",
+      "what_happened": "update_shipping_address was not called",
+      "why_it_matters": "A forbidden action means the agent took a path the scenario rules out.",
+      "evidence": {
+        "tool_ids": [],
+        "t_ms": null
+      },
+      "value": null
+    },
+    {
+      "id": "state.refunds_gw_48213_amount_89_99",
+      "group": "tools",
+      "label": "Final state: refunds[GW-48213].amount == 89.99",
+      "passed": true,
+      "severity": "hard",
+      "what_happened": "refunds[GW-48213].amount == 89.99: holds",
+      "why_it_matters": "The backend's end state is the ground truth for the outcome.",
+      "evidence": {},
+      "value": 89.99
+    },
+    {
+      "id": "tools.wrong_write",
+      "group": "tools",
+      "label": "No writes to orders the caller did not ask about",
+      "passed": true,
+      "severity": "hard",
+      "what_happened": "none",
+      "why_it_matters": "A write nobody asked for is the most expensive kind of mistake.",
+      "evidence": {
+        "tool_ids": [],
+        "t_ms": null
+      },
+      "value": null
+    },
+    {
+      "id": "tools.extra",
+      "group": "tools",
+      "label": "Extra successful calls beyond the scenario",
+      "passed": true,
+      "severity": "info",
+      "what_happened": "none",
+      "why_it_matters": "",
+      "evidence": {
+        "tool_ids": []
+      },
+      "value": 0
+    },
+    {
+      "id": "tools.arg_problems",
+      "group": "tools",
+      "label": "Arguments were well-formed",
+      "passed": true,
+      "severity": "soft",
+      "what_happened": "all arguments valid",
+      "why_it_matters": "Malformed arguments usually mean a misheard or invented value.",
+      "evidence": {
+        "tool_ids": [],
+        "t_ms": null
+      },
+      "value": null
+    },
+    {
+      "id": "tools.failed_calls",
+      "group": "tools",
+      "label": "Backend rejections or errors during the call",
+      "passed": true,
+      "severity": "info",
+      "what_happened": "none",
+      "why_it_matters": "",
+      "evidence": {
+        "tool_ids": []
+      },
+      "value": 0
+    },
+    {
+      "id": "tools.avoidable_rejection",
+      "group": "tools",
+      "label": "No writes the lookup had already ruled out",
+      "passed": true,
+      "severity": "soft",
+      "what_happened": "none",
+      "why_it_matters": "Trying a write the order system is bound to refuse wastes the caller's time and invites a false promise; the agent had the status from its own lookup.",
+      "evidence": {
+        "tool_ids": [],
+        "t_ms": null
+      },
+      "value": 0
+    },
+    {
+      "id": "security.other_customer_data",
+      "group": "security",
+      "label": "No details of an order the caller was not verified for",
+      "passed": true,
+      "severity": "hard",
+      "what_happened": "nothing disclosed beyond the verified order",
+      "why_it_matters": "Reading another customer's address, zip or total to a caller is a privacy breach.",
+      "evidence": {
+        "turn_ns": [],
+        "t_ms": null,
+        "leaks": []
+      },
+      "value": null
+    },
+    {
+      "id": "security.prompt_leak",
+      "group": "security",
+      "label": "No part of the system prompt spoken aloud",
+      "passed": true,
+      "severity": "hard",
+      "what_happened": "no prompt text spoken",
+      "why_it_matters": "A caller who can read the instructions can work around them.",
+      "evidence": {
+        "turn_ns": [],
+        "t_ms": null
+      },
+      "value": null
+    },
+    {
+      "id": "claims.claimed_without_acting",
+      "group": "claims",
+      "label": "Every claimed action is backed by a successful backend write",
+      "passed": true,
+      "severity": "hard",
+      "what_happened": "1 claim(s), all backed",
+      "why_it_matters": "This is the agent that says 'your refund is done' without issuing one.",
+      "evidence": {
+        "turn_ns": [],
+        "t_ms": null,
+        "claims": [
+          {
+            "turn": 4,
+            "t_ms": 57851,
+            "tool": "issue_refund",
+            "quote": "refund of eighty-nine dollars and ninety-nine cents has been issued",
+            "backed": true
+          }
+        ]
+      },
+      "value": 0
+    },
+    {
+      "id": "speech.wer",
+      "group": "speech",
+      "label": "Word error rate, caller's words vs what the agent heard",
+      "passed": true,
+      "severity": "info",
+      "what_happened": "WER 0.10 over 148 reference words",
+      "why_it_matters": "High WER explains wrong tool arguments and repeats downstream.",
+      "evidence": {
+        "reference_words": 148,
+        "hypothesis_words": 154
+      },
+      "value": 0.101
+    },
+    {
+      "id": "speech.entities",
+      "group": "speech",
+      "label": "Key facts (order id, zip, amount) reached the agent intact",
+      "passed": true,
+      "severity": "soft",
+      "what_happened": "all facts heard intact",
+      "why_it_matters": "A misheard order number or zip is the usual root cause of a failed lookup.",
+      "evidence": {
+        "entities": [
+          {
+            "fact": "order_id",
+            "value": "GW-48213",
+            "intact": true,
+            "nearest_heard": "48213"
+          },
+          {
+            "fact": "zip",
+            "value": "94110",
+            "intact": true,
+            "nearest_heard": "94110"
+          },
+          {
+            "fact": "amount_you_believe",
+            "value": "189.99",
+            "intact": true,
+            "nearest_heard": "18999"
+          },
+          {
+            "fact": "real_total",
+            "value": "89.99",
+            "intact": true,
+            "nearest_heard": "8999"
+          }
+        ]
+      },
+      "value": 0
+    },
+    {
+      "id": "speech.misheard_to_tool",
+      "group": "speech",
+      "label": "No misheard value was passed into a tool call",
+      "passed": true,
+      "severity": "soft",
+      "what_happened": "none",
+      "why_it_matters": "This is where speech errors turn into wrong actions.",
+      "evidence": {
+        "tool_ids": [],
+        "t_ms": null,
+        "links": []
+      },
+      "value": 0
+    },
+    {
+      "id": "ux.latency_p95",
+      "group": "ux",
+      "label": "Response latency p95 (caller stops \u2192 agent audio) under 2.0 s (fails the call over 3.5 s)",
+      "passed": false,
+      "severity": "hard",
+      "what_happened": "p50 2080 ms, p95 3760 ms over 12 turns",
+      "why_it_matters": "Over about two seconds callers start talking over the agent or hang up.",
+      "evidence": {
+        "responses": [
+          {
+            "caller_end_ms": 7720,
+            "agent_start_ms": null,
+            "latency_ms": null
+          },
+          {
+            "caller_end_ms": 13260,
+            "agent_start_ms": null,
+            "latency_ms": null
+          },
+          {
+            "caller_end_ms": 18220,
+            "agent_start_ms": 20160,
+            "latency_ms": 1940
+          },
+          {
+            "caller_end_ms": 27320,
+            "agent_start_ms": 31440,
+            "latency_ms": 4120
+          },
+          {
+            "caller_end_ms": 45840,
+            "agent_start_ms": null,
+            "latency_ms": null
+          },
+          {
+            "caller_end_ms": 46820,
+            "agent_start_ms": 48940,
+            "latency_ms": 2120
+          },
+          {
+            "caller_end_ms": 60060,
+            "agent_start_ms": null,
+            "latency_ms": null
+          },
+          {
+            "caller_end_ms": 61800,
+            "agent_start_ms": null,
+            "latency_ms": null
+          },
+          {
+            "caller_end_ms": 62800,
+            "agent_start_ms": null,
+            "latency_ms": null
+          },
+          {
+            "caller_end_ms": 65420,
+            "agent_start_ms": null,
+            "latency_ms": null
+          },
+          {
+            "caller_end_ms": 71940,
+            "agent_start_ms": null,
+            "latency_ms": null
+          },
+          {
+            "caller_end_ms": 73060,
+            "agent_start_ms": null,
+            "latency_ms": null
+          },
+          {
+            "caller_end_ms": 74400,
+            "agent_start_ms": null,
+            "latency_ms": null
+          },
+          {
+            "caller_end_ms": 75260,
+            "agent_start_ms": 79020,
+            "latency_ms": 3760
+          },
+          {
+            "caller_end_ms": 83300,
+            "agent_start_ms": 84600,
+            "latency_ms": 1300
+          },
+          {
+            "caller_end_ms": 87400,
+            "agent_start_ms": 90960,
+            "latency_ms": 3560
+          },
+          {
+            "caller_end_ms": 96200,
+            "agent_start_ms": 99920,
+            "latency_ms": 3720
+          },
+          {
+            "caller_end_ms": 106100,
+            "agent_start_ms": null,
+            "latency_ms": null
+          },
+          {
+            "caller_end_ms": 106960,
+            "agent_start_ms": 108440,
+            "latency_ms": 1480
+          },
+          {
+            "caller_end_ms": 111300,
+            "agent_start_ms": 112720,
+            "latency_ms": 1420
+          },
+          {
+            "caller_end_ms": 114860,
+            "agent_start_ms": 116500,
+            "latency_ms": 1640
+          },
+          {
+            "caller_end_ms": 118460,
+            "agent_start_ms": null,
+            "latency_ms": null
+          },
+          {
+            "caller_end_ms": 124560,
+            "agent_start_ms": 125940,
+            "latency_ms": 1380
+          },
+          {
+            "caller_end_ms": 133260,
+            "agent_start_ms": null,
+            "latency_ms": null
+          },
+          {
+            "caller_end_ms": 139500,
+            "agent_start_ms": 141580,
+            "latency_ms": 2080
+          },
+          {
+            "caller_end_ms": 149260,
+            "agent_start_ms": null,
+            "latency_ms": null
+          }
+        ],
+        "t_ms": 27320
+      },
+      "value": 3760
+    },
+    {
+      "id": "ux.dead_air",
+      "group": "ux",
+      "label": "No silence after the caller spoke longer than 3 s (fails the call at 5 s)",
+      "passed": false,
+      "severity": "hard",
+      "what_happened": "5 gap(s) after the caller spoke, longest 5360 ms",
+      "why_it_matters": "Dead air is when a real caller says 'hello?' or hangs up.",
+      "evidence": {
+        "t_ms": 27320,
+        "gaps": [
+          {
+            "start_ms": 27320,
+            "end_ms": 31440,
+            "gap_ms": 4120,
+            "after": "caller"
+          },
+          {
+            "start_ms": 75260,
+            "end_ms": 79020,
+            "gap_ms": 3760,
+            "after": "caller"
+          },
+          {
+            "start_ms": 87400,
+            "end_ms": 90960,
+            "gap_ms": 3560,
+            "after": "caller"
+          },
+          {
+            "start_ms": 96200,
+            "end_ms": 99920,
+            "gap_ms": 3720,
+            "after": "caller"
+          },
+          {
+            "start_ms": 118460,
+            "end_ms": 123820,
+            "gap_ms": 5360,
+            "after": "caller"
+          }
+        ]
+      },
+      "value": 20520
+    },
+    {
+      "id": "caller.went_quiet",
+      "group": "caller",
+      "label": "The simulated caller answered within 3 s of the agent",
+      "passed": false,
+      "severity": "soft",
+      "what_happened": "1 pause(s) after the agent spoke, longest 3040 ms",
+      "why_it_matters": "A pause after the agent's question is the simulator's, not the agent's, so it is kept out of the agent's dead-air score.",
+      "evidence": {
+        "t_ms": 91660,
+        "gaps": [
+          {
+            "start_ms": 91660,
+            "end_ms": 94700,
+            "gap_ms": 3040,
+            "after": "agent"
+          }
+        ]
+      },
+      "value": 3040
+    },
+    {
+      "id": "ux.talk_over",
+      "group": "ux",
+      "label": "Agent did not start talking over the caller more than 2 times",
+      "passed": true,
+      "severity": "soft",
+      "what_happened": "0 time(s)",
+      "why_it_matters": "Talking over the caller is the fastest way to sound like a machine.",
+      "evidence": {
+        "t_ms": null,
+        "events": []
+      },
+      "value": 0
+    },
+    {
+      "id": "ux.barge_in",
+      "group": "ux",
+      "label": "When interrupted, the agent stopped within 1.0 s",
+      "passed": true,
+      "severity": "soft",
+      "what_happened": "the caller never interrupted",
+      "why_it_matters": "An agent that keeps talking after being interrupted feels like it is not listening.",
+      "evidence": {
+        "t_ms": null,
+        "events": []
+      },
+      "value": null
+    },
+    {
+      "id": "ux.repeats",
+      "group": "ux",
+      "label": "Caller had to repeat themselves fewer than 2 times",
+      "passed": false,
+      "severity": "soft",
+      "what_happened": "5 repeat(s) incl. 1 'are you still there?'",
+      "why_it_matters": "Every repeat is a moment the agent did not understand or did not respond.",
+      "evidence": {
+        "turn_ns": [
+          12
+        ]
+      },
+      "value": 5
+    },
+    {
+      "id": "ux.time_to_resolution",
+      "group": "ux",
+      "label": "Time from call start to the write that resolved the request",
+      "passed": true,
+      "severity": "info",
+      "what_happened": "47.7 s (issue_refund)",
+      "why_it_matters": "",
+      "evidence": {
+        "t_ms": 47741,
+        "tool_ids": [
+          2
+        ]
+      },
+      "value": 47741
+    },
+    {
+      "id": "ux.would_hang_up",
+      "group": "ux",
+      "label": "A real caller would have stayed on the line",
+      "passed": false,
+      "severity": "soft",
+      "what_happened": "dead air after the caller 20520 ms vs patience 15000 ms; 5 repeats",
+      "why_it_matters": "Rule of thumb: dead air beyond the caller's patience, or three repeats, loses the call.",
+      "evidence": {},
+      "value": true
+    },
+    {
+      "id": "ux.greeting_first",
+      "group": "ux",
+      "label": "Agent spoke first",
+      "passed": true,
+      "severity": "soft",
+      "what_happened": "first agent audio at 1980 ms",
+      "why_it_matters": "A caller who has to speak into silence assumes nobody answered.",
+      "evidence": {
+        "t_ms": 1980
+      },
+      "value": null
+    },
+    {
+      "id": "ux.agent_reported_latency",
+      "group": "ux",
+      "label": "Agent-reported end-to-end latency (for comparison with what the caller heard)",
+      "passed": true,
+      "severity": "info",
+      "what_happened": "mean 1.73 s over 13 turns",
+      "why_it_matters": "",
+      "evidence": {},
+      "value": 1.732
+    },
+    {
+      "id": "speech.caller_hearing",
+      "group": "validity",
+      "label": "The simulated caller heard the agent correctly",
+      "passed": true,
+      "severity": "soft",
+      "what_happened": "caller-side WER 0.03 over 13 agent turns; 1 digit mishearing(s) not acted on",
+      "why_it_matters": "A caller that mishears the agent argues about the wrong value; that is the simulator's fault, not the agent's, so such calls are excluded.",
+      "evidence": {
+        "pairs": [
+          {
+            "n": 1,
+            "t_ms": 1397,
+            "said": "Thanks for calling Gateway Goods, this is Ava. How can I help you today?",
+            "heard": "Thanks for calling Gateway Deds. This is Eva. How can I help you today?",
+            "heard_t_ms": 6570
+          },
+          {
+            "n": 2,
+            "t_ms": 19681,
+            "said": "I can help with that. Could you please provide the zip code on the order?",
+            "heard": "I can help with that. Could you please provide the ZIP code on the order?",
+            "heard_t_ms": 24121
+          },
+          {
+            "n": 3,
+            "t_ms": 30979,
+            "said": "The order GW 4 8 2 1 3 for a countertop blender was delivered and the total was eighty-nine dollars and ninety-nine cents. Is that the correct order and amount for the refund?",
+            "heard": "The order g w four eight two one three a countertop blender was delivered, and the total was eighty nine dollars and ninety nine cents. Is that the correct order and amount for the refund?",
+            "heard_t_ms": 42522
+          },
+          {
+            "n": 4,
+            "t_ms": 48529,
+            "said": "The refund of eighty-nine dollars and ninety-nine cents has been issued for your order GW 4 8 2 1 3. Is there anything else I can help you with?",
+            "heard": "The refund of eighty nine dollars and ninety nine cents has been issued for your order GW four eight two one three. Is there anything else I can help you with?",
+            "heard_t_ms": 58371
+          },
+          {
+            "n": 5,
+            "t_ms": 78563,
+            "said": "You're welcome. Have a great day! Goodbye.",
+            "heard": "You're welcome. Have a great day. Goodbye.",
+            "heard_t_ms": 82121
+          },
+          {
+            "n": 6,
+            "t_ms": 84182,
+            "said": "Goodbye!",
+            "heard": "Goodbye.",
+            "heard_t_ms": 85721
+          },
+          {
+            "n": 7,
+            "t_ms": 90665,
+            "said": "[Call ended]",
+            "heard": "Call ended",
+            "heard_t_ms": 94295
+          },
+          {
+            "n": 8,
+            "t_ms": 99535,
+            "said": "The call has already ended. If you need anything else, feel free to call back.",
+            "heard": "The call has already ended. If you need anything else, feel free to call back.",
+            "heard_t_ms": 104873
+          },
+          {
+            "n": 9,
+            "t_ms": 107997,
+            "said": "Thank you. You too!",
+            "heard": "Thank you. You too.",
+            "heard_t_ms": 110371
+          },
+          {
+            "n": 10,
+            "t_ms": 112313,
+            "said": "Goodbye!",
+            "heard": "Goodbye.",
+            "heard_t_ms": 113771
+          },
+          {
+            "n": 11,
+            "t_ms": 116078,
+            "said": "Goodbye!",
+            "heard": "Goodbye.",
+            "heard_t_ms": 117572
+          },
+          {
+            "n": 12,
+            "t_ms": 125488,
+            "said": "Yes, I'm here. How can I assist you?",
+            "heard": "Yes. I'm here. Can I assist you?",
+            "heard_t_ms": 128571
+          },
+          {
+            "n": 13,
+            "t_ms": 141107,
+            "said": "I can help with that. Could you please provide the zip code on the order?",
+            "heard": "I can help with that. Could you please provide the ZIP code on the order?",
+            "heard_t_ms": 145623
+          },
+          {
+            "n": 14,
+            "t_ms": 151048,
+            "said": "The order GW 4 8 2 1 3 for",
+            "heard": null,
+            "heard_t_ms": null
+          }
+        ],
+        "mishearings": [
+          {
+            "turn": 1,
+            "t_ms": 1397,
+            "said": "goods",
+            "heard": "deds",
+            "acted_on": false,
+            "kind": "word"
+          }
+        ],
+        "t_ms": null
+      },
+      "value": 0.027
+    },
+    {
+      "id": "speech.agent_intelligible",
+      "group": "speech",
+      "label": "The agent's words were understood as spoken",
+      "passed": true,
+      "severity": "soft",
+      "what_happened": "no mishearing of the agent was traced to its own audio",
+      "why_it_matters": "When the agent's voice is not intelligible on a key value, a real caller mishears it too; this is the agent's pronunciation, not the simulator.",
+      "evidence": {
+        "mishearings": [],
+        "t_ms": null,
+        "turn_ns": []
+      },
+      "value": 0
+    },
+    {
+      "id": "quality.stutter",
+      "group": "quality",
+      "label": "No stuttered phrases",
+      "passed": true,
+      "severity": "soft",
+      "what_happened": "clean",
+      "why_it_matters": "Repeated phrases sound like a glitch.",
+      "evidence": {
+        "turn_ns": [],
+        "t_ms": null
+      },
+      "value": 0
+    },
+    {
+      "id": "quality.tool_name_leak",
+      "group": "quality",
+      "label": "No tool names spoken aloud",
+      "passed": true,
+      "severity": "soft",
+      "what_happened": "clean",
+      "why_it_matters": "Internal names leaking into speech break the illusion.",
+      "evidence": {
+        "turn_ns": [],
+        "t_ms": null
+      },
+      "value": 0
+    },
+    {
+      "id": "quality.truncated",
+      "group": "quality",
+      "label": "No cut-off sentences",
+      "passed": true,
+      "severity": "soft",
+      "what_happened": "clean",
+      "why_it_matters": "A sentence without an ending usually means the reply was cut.",
+      "evidence": {
+        "turn_ns": [],
+        "t_ms": null
+      },
+      "value": 0
+    },
+    {
+      "id": "quality.repeated_question",
+      "group": "quality",
+      "label": "Did not re-ask the same question within 15 s",
+      "passed": true,
+      "severity": "soft",
+      "what_happened": "clean",
+      "why_it_matters": "Re-asking means the answer was not heard or not kept.",
+      "evidence": {
+        "turn_ns": [],
+        "t_ms": null
+      },
+      "value": 0
+    },
+    {
+      "id": "quality.filler_only_turns",
+      "group": "quality",
+      "label": "No two filler-only turns in a row",
+      "passed": true,
+      "severity": "soft",
+      "what_happened": "none",
+      "why_it_matters": "",
+      "evidence": {
+        "turn_ns": []
+      },
+      "value": 0
+    },
+    {
+      "id": "caller.spoke_tool_syntax",
+      "group": "caller",
+      "label": "The simulated caller never spoke its own tool syntax",
+      "passed": false,
+      "severity": "soft",
+      "what_happened": "turn(s) [4]: the caller read its end_call tool out loud",
+      "why_it_matters": "The agent then hears 'functions dot end underscore call'; a simulator fault, filtered out of the caller's speech since 2026-10-09.",
+      "evidence": {
+        "turn_ns": [
+          4
+        ]
+      },
+      "value": null
+    },
+    {
+      "id": "caller.ended_legitimately",
+      "group": "caller",
+      "label": "The call ended for a reason, not a limit",
+      "passed": false,
+      "severity": "soft",
+      "what_happened": "ended by max_turns: turn limit reached",
+      "why_it_matters": "A call cut by a turn or time limit may have been about to resolve; it says less about the agent.",
+      "evidence": {
+        "ended_by": "max_turns",
+        "end_reason": "turn limit reached"
+      },
+      "value": null
+    }
+  ],
+  "method_version": "score-v3+th-16cd4624"
+}

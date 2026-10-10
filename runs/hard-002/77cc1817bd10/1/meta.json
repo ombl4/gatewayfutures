@@ -1,0 +1,99 @@
+{
+  "call_id": "77cc1817bd10-1-1a5c93",
+  "session_id": "77cc1817bd10",
+  "session_title": "Caller asks for a refund of the wrong, higher amount and must be corrected",
+  "attempt": 1,
+  "engine": "gf-caller",
+  "room": "gf-sim-77cc1817bd10-1-1a5c93",
+  "agent_config_hash": "70ed03f335ef",
+  "agent_variant": null,
+  "target": {
+    "id": "reference",
+    "kind": "livekit",
+    "name": "Gateway Goods support line",
+    "agent_name": "gf-support-agent",
+    "version": "70ed03f335ef",
+    "server_host": "oai-fhgkz14p.livekit.cloud"
+  },
+  "agent_models": {
+    "stt": {
+      "vendor": "deepgram",
+      "model": "nova-3",
+      "keyterms": [
+        "Gateway Goods",
+        "GW",
+        "order number",
+        "zip code",
+        "refund",
+        "escalate"
+      ]
+    },
+    "llm": {
+      "vendor": "openai",
+      "model": "gpt-4.1-mini",
+      "temperature": 0.3
+    },
+    "tts": {
+      "vendor": "deepgram",
+      "model": "aura-2-luna-en"
+    }
+  },
+  "caller": {
+    "persona": {
+      "name": "Maria Lopez",
+      "style": "polite, plain-spoken",
+      "accent": "en-US"
+    },
+    "facts": {
+      "order_id": "GW-48213",
+      "zip": "94110",
+      "amount_you_believe": 189.99,
+      "real_total": 89.99,
+      "item": "countertop blender"
+    },
+    "goal": "Ask for a full refund of one hundred eighty nine dollars and ninety nine cents for order GW-48213\n        (zip 94110), which arrived broken. If the agent says the order total is different, accept the\n        amount the agent reads from the order and confirm it.",
+    "stop_when": "the agent confirms the refund was issued",
+    "opening": null,
+    "voice": "aura-2-asteria-en",
+    "pace": 1.0,
+    "llm": {
+      "model": "gpt-4.1-mini",
+      "temperature": 0.0,
+      "seed": 507
+    },
+    "conditions": {
+      "noise": null,
+      "phone_line": false,
+      "packet_loss": 0.0,
+      "low_quality_mic": false,
+      "interruptions": 0.0,
+      "patience_s": 15.0
+    },
+    "limits": {
+      "max_turns": 14,
+      "max_duration_s": 150.0,
+      "mutual_silence_reprompt_s": 4.0,
+      "mutual_silence_abort_s": 8.0
+    },
+    "persona_ref": null
+  },
+  "caller_params_unsupported": [],
+  "fixtures": "orders_basic",
+  "faults": [],
+  "started_ms": 1791591282982,
+  "ended_ms": 1791591363139,
+  "ended_by": "caller",
+  "end_reason": "Refund of eighty-nine ninety-nine dollars confirmed for order G W 4 8 2 1 3.",
+  "goal_met": true,
+  "agent_record_complete": true,
+  "tool_calls": [
+    [
+      "lookup_order",
+      200
+    ],
+    [
+      "issue_refund",
+      200
+    ]
+  ]
+}

@@ -1,0 +1,152 @@
+{
+  "before": {
+    "orders": {
+      "GW-48213": {
+        "order_id": "GW-48213",
+        "customer_id": "C-1001",
+        "status": "delivered",
+        "total": 89.99,
+        "items": [
+          {
+            "sku": "BLND-200",
+            "name": "Countertop blender",
+            "qty": 1,
+            "price": 89.99
+          }
+        ],
+        "shipping_address": "742 Valencia St, San Francisco, CA 94110",
+        "refunded": false
+      },
+      "GW-48377": {
+        "order_id": "GW-48377",
+        "customer_id": "C-1002",
+        "status": "shipped",
+        "total": 42.5,
+        "items": [
+          {
+            "sku": "MUG-12",
+            "name": "Ceramic mug set",
+            "qty": 2,
+            "price": 21.25
+          }
+        ],
+        "shipping_address": "1500 N Halsted St, Chicago, IL 60614",
+        "refunded": false
+      },
+      "GW-48502": {
+        "order_id": "GW-48502",
+        "customer_id": "C-1003",
+        "status": "processing",
+        "total": 129.0,
+        "items": [
+          {
+            "sku": "LAMP-7",
+            "name": "Desk lamp",
+            "qty": 1,
+            "price": 129.0
+          }
+        ],
+        "shipping_address": "77 Massachusetts Ave, Cambridge, MA 02139",
+        "refunded": false
+      },
+      "GW-48911": {
+        "order_id": "GW-48911",
+        "customer_id": "C-1001",
+        "status": "delivered",
+        "total": 15.0,
+        "items": [
+          {
+            "sku": "CBL-3",
+            "name": "USB-C cable",
+            "qty": 1,
+            "price": 15.0
+          }
+        ],
+        "shipping_address": "742 Valencia St, San Francisco, CA 94110",
+        "refunded": true
+      }
+    },
+    "refunds": {},
+    "tickets": [],
+    "ended": false
+  },
+  "after": {
+    "orders": {
+      "GW-48213": {
+        "order_id": "GW-48213",
+        "customer_id": "C-1001",
+        "status": "delivered",
+        "total": 89.99,
+        "items": [
+          {
+            "sku": "BLND-200",
+            "name": "Countertop blender",
+            "qty": 1,
+            "price": 89.99
+          }
+        ],
+        "shipping_address": "742 Valencia St, San Francisco, CA 94110",
+        "refunded": true
+      },
+      "GW-48377": {
+        "order_id": "GW-48377",
+        "customer_id": "C-1002",
+        "status": "shipped",
+        "total": 42.5,
+        "items": [
+          {
+            "sku": "MUG-12",
+            "name": "Ceramic mug set",
+            "qty": 2,
+            "price": 21.25
+          }
+        ],
+        "shipping_address": "1500 N Halsted St, Chicago, IL 60614",
+        "refunded": false
+      },
+      "GW-48502": {
+        "order_id": "GW-48502",
+        "customer_id": "C-1003",
+        "status": "processing",
+        "total": 129.0,
+        "items": [
+          {
+            "sku": "LAMP-7",
+            "name": "Desk lamp",
+            "qty": 1,
+            "price": 129.0
+          }
+        ],
+        "shipping_address": "77 Massachusetts Ave, Cambridge, MA 02139",
+        "refunded": false
+      },
+      "GW-48911": {
+        "order_id": "GW-48911",
+        "customer_id": "C-1001",
+        "status": "delivered",
+        "total": 15.0,
+        "items": [
+          {
+            "sku": "CBL-3",
+            "name": "USB-C cable",
+            "qty": 1,
+            "price": 15.0
+          }
+        ],
+        "shipping_address": "742 Valencia St, San Francisco, CA 94110",
+        "refunded": true
+      }
+    },
+    "refunds": {
+      "GW-48213": {
+        "refund_id": "RF-0001",
+        "order_id": "GW-48213",
+        "amount": 89.99,
+        "reason": "Received broken blender",
+        "created_ms": 1791591801692
+      }
+    },
+    "tickets": [],
+    "ended": false
+  }
+}

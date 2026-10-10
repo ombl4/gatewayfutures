@@ -1,0 +1,98 @@
+{
+  "call_id": "1bdacc4f8bef-1-832db1",
+  "session_id": "1bdacc4f8bef",
+  "session_title": "Caller cuts in while the agent reads the order number and amount back",
+  "attempt": 1,
+  "engine": "gf-caller",
+  "room": "gf-sim-1bdacc4f8bef-1-832db1",
+  "agent_config_hash": "70ed03f335ef",
+  "agent_variant": null,
+  "target": {
+    "id": "reference",
+    "kind": "livekit",
+    "name": "Gateway Goods support line",
+    "agent_name": "gf-support-agent",
+    "version": "70ed03f335ef",
+    "server_host": "oai-fhgkz14p.livekit.cloud"
+  },
+  "agent_models": {
+    "stt": {
+      "vendor": "deepgram",
+      "model": "nova-3",
+      "keyterms": [
+        "Gateway Goods",
+        "GW",
+        "order number",
+        "zip code",
+        "refund",
+        "escalate"
+      ]
+    },
+    "llm": {
+      "vendor": "openai",
+      "model": "gpt-4.1-mini",
+      "temperature": 0.3
+    },
+    "tts": {
+      "vendor": "deepgram",
+      "model": "aura-2-luna-en"
+    }
+  },
+  "caller": {
+    "persona": {
+      "name": "Maria Lopez",
+      "style": "eager, finishes the agent's sentences, says 'yes yes that's it' as soon as numbers are read back",
+      "accent": "en-US"
+    },
+    "facts": {
+      "order_id": "GW-48213",
+      "zip": "94110",
+      "amount": 89.99,
+      "item": "countertop blender"
+    },
+    "goal": "Get a full refund of $89.99 for order GW-48213, which arrived broken; give the zip 94110 when\n        asked. Whenever the agent starts reading the order number or the amount back, jump in before it\n        finishes and say \"yes yes that's it, go ahead\".",
+    "stop_when": "the agent confirms the refund was issued",
+    "opening": null,
+    "voice": "aura-2-asteria-en",
+    "pace": 1.1,
+    "llm": {
+      "model": "gpt-4.1-mini",
+      "temperature": 0.0,
+      "seed": 509
+    },
+    "conditions": {
+      "noise": null,
+      "phone_line": false,
+      "packet_loss": 0.0,
+      "low_quality_mic": false,
+      "interruptions": 0.7,
+      "patience_s": 12.0
+    },
+    "limits": {
+      "max_turns": 16,
+      "max_duration_s": 150.0,
+      "mutual_silence_reprompt_s": 4.0,
+      "mutual_silence_abort_s": 8.0
+    },
+    "persona_ref": null
+  },
+  "caller_params_unsupported": [],
+  "fixtures": "orders_basic",
+  "faults": [],
+  "started_ms": 1791589846818,
+  "ended_ms": 1791589946189,
+  "ended_by": "caller",
+  "end_reason": "Refund of $89.99 confirmed for broken countertop blender on order GW-48213.",
+  "goal_met": true,
+  "agent_record_complete": true,
+  "tool_calls": [
+    [
+      "lookup_order",
+      200
+    ],
+    [
+      "issue_refund",
+      200
+    ]
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "call_id": "c52f770e605a-1-58f746",
+  "session_id": "c52f770e605a",
+  "session_title": "Refund where the write takes six seconds right after the caller said yes",
+  "attempt": 1,
+  "engine": "gf-caller",
+  "room": "gf-sim-c52f770e605a-1-58f746",
+  "agent_config_hash": "70ed03f335ef",
+  "agent_variant": null,
+  "target": {
+    "id": "reference",
+    "kind": "livekit",
+    "name": "Gateway Goods support line",
+    "agent_name": "gf-support-agent",
+    "version": "70ed03f335ef",
+    "server_host": "oai-fhgkz14p.livekit.cloud"
+  },
+  "agent_models": {
+    "stt": {
+      "vendor": "deepgram",
+      "model": "nova-3",
+      "keyterms": [
+        "Gateway Goods",
+        "GW",
+        "order number",
+        "zip code",
+        "refund",
+        "escalate"
+      ]
+    },
+    "llm": {
+      "vendor": "openai",
+      "model": "gpt-4.1-mini",
+      "temperature": 0.3
+    },
+    "tts": {
+      "vendor": "deepgram",
+      "model": "aura-2-luna-en"
+    }
+  },
+  "caller": {
+    "persona": {
+      "name": "Maria Lopez",
+      "style": "impatient, asks 'are you still there?' when it goes quiet",
+      "accent": "en-US"
+    },
+    "facts": {
+      "order_id": "GW-48213",
+      "zip": "94110",
+      "amount": 89.99,
+      "item": "countertop blender"
+    },
+    "goal": "Get a full refund of $89.99 for order GW-48213, which arrived broken; give the zip 94110 when\n        asked and confirm the amount with a clear yes. If the line goes quiet for more than a few seconds,\n        ask whether the agent is still there.",
+    "stop_when": "the agent confirms the refund was issued",
+    "opening": null,
+    "voice": "aura-2-asteria-en",
+    "pace": 1.1,
+    "llm": {
+      "model": "gpt-4.1-mini",
+      "temperature": 0.0,
+      "seed": 515
+    },
+    "conditions": {
+      "noise": null,
+      "phone_line": false,
+      "packet_loss": 0.0,
+      "low_quality_mic": false,
+      "interruptions": 0.0,
+      "patience_s": 8.0
+    },
+    "limits": {
+      "max_turns": 14,
+      "max_duration_s": 170.0,
+      "mutual_silence_reprompt_s": 4.0,
+      "mutual_silence_abort_s": 8.0
+    },
+    "persona_ref": null
+  },
+  "caller_params_unsupported": [],
+  "fixtures": "orders_basic",
+  "faults": [
+    {
+      "tool": "issue_refund",
+      "type": "latency_ms",
+      "nth": 1,
+      "value": 6000
+    }
+  ],
+  "started_ms": 1791591973402,
+  "ended_ms": 1791592054714,
+  "ended_by": "caller",
+  "end_reason": "Refund of eighty-nine ninety-nine dollars confirmed for broken countertop blender.",
+  "goal_met": true,
+  "agent_record_complete": true,
+  "tool_calls": [
+    [
+      "lookup_order",
+      200
+    ],
+    [
+      "issue_refund",
+      200
+    ]
+  ]
+}

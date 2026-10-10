@@ -1,0 +1,90 @@
+{
+  "call_id": "ff2985a2b7ab-1-dca213",
+  "session_id": "ff2985a2b7ab",
+  "session_title": "Address change on an order that already shipped, caller asks for a person",
+  "attempt": 1,
+  "engine": "gf-caller",
+  "room": "gf-sim-ff2985a2b7ab-1-dca213",
+  "agent_config_hash": "70ed03f335ef",
+  "agent_variant": null,
+  "agent_models": {
+    "stt": {
+      "vendor": "deepgram",
+      "model": "nova-3",
+      "keyterms": [
+        "Gateway Goods",
+        "GW",
+        "order number",
+        "zip code",
+        "refund",
+        "escalate"
+      ]
+    },
+    "llm": {
+      "vendor": "openai",
+      "model": "gpt-4.1-mini",
+      "temperature": 0.3
+    },
+    "tts": {
+      "vendor": "deepgram",
+      "model": "aura-2-luna-en"
+    }
+  },
+  "caller": {
+    "persona": {
+      "name": "James Carter",
+      "style": "brisk",
+      "accent": "en-GB"
+    },
+    "facts": {
+      "order_id": "GW-48377",
+      "zip": "60614",
+      "item": "ceramic mug set",
+      "new_address": "55 West Monroe Street, Chicago, Illinois 60603"
+    },
+    "goal": "Change the shipping address on order GW-48377 to 55 West Monroe Street, Chicago, Illinois 60603. If the agent says it cannot be changed, insist once, then ask to speak to a person.",
+    "stop_when": "the agent transfers you to a person, or confirms the address was changed",
+    "opening": null,
+    "voice": "aura-2-draco-en",
+    "pace": 1.1,
+    "llm": {
+      "model": "gpt-4.1-mini",
+      "temperature": 0.0,
+      "seed": 202
+    },
+    "conditions": {
+      "noise": null,
+      "phone_line": true,
+      "packet_loss": 0.0,
+      "low_quality_mic": false,
+      "interruptions": 0.0,
+      "patience_s": 15.0
+    },
+    "limits": {
+      "max_turns": 12,
+      "max_duration_s": 150.0,
+      "mutual_silence_reprompt_s": 4.0,
+      "mutual_silence_abort_s": 8.0
+    },
+    "persona_ref": null
+  },
+  "caller_params_unsupported": [],
+  "fixtures": "orders_basic",
+  "faults": [],
+  "started_ms": 1791569186869,
+  "ended_ms": 1791569248660,
+  "ended_by": "room_closed",
+  "end_reason": "room closed",
+  "goal_met": null,
+  "agent_record_complete": true,
+  "tool_calls": [
+    [
+      "lookup_order",
+      200
+    ],
+    [
+      "escalate_to_human",
+      200
+    ]
+  ]
+}

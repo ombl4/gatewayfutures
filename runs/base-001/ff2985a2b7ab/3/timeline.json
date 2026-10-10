@@ -1,0 +1,252 @@
+{
+  "t0_ms": 1791569245991,
+  "sample_rate": 16000,
+  "events": [
+    {
+      "t_ms": 1940,
+      "end_ms": 3160,
+      "kind": "agent_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 3720,
+      "end_ms": 4400,
+      "kind": "agent_speech",
+      "n": 2
+    },
+    {
+      "t_ms": 5020,
+      "end_ms": 5840,
+      "kind": "agent_speech",
+      "n": 3
+    },
+    {
+      "t_ms": 5960,
+      "kind": "agent_said",
+      "text": "Thanks for calling Gateway Goods, this is Ava. How can I help you today?",
+      "n": 1,
+      "interrupted": false
+    },
+    {
+      "t_ms": 6609,
+      "end_ms": 9429,
+      "kind": "caller_said",
+      "text": "Hi Eva, I'm calling to change the shipping address on my order G W 4 8 3 7 7.",
+      "n": 1
+    },
+    {
+      "t_ms": 6900,
+      "end_ms": 12440,
+      "kind": "caller_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 10841,
+      "kind": "agent_heard",
+      "text": "Hi, Eva. I'm calling to change the"
+    },
+    {
+      "t_ms": 12797,
+      "kind": "agent_heard",
+      "text": "shipping address on my order GW four eight three seven seven."
+    },
+    {
+      "t_ms": 13920,
+      "end_ms": 15960,
+      "kind": "agent_speech",
+      "n": 4
+    },
+    {
+      "t_ms": 16460,
+      "end_ms": 17700,
+      "kind": "agent_speech",
+      "n": 5
+    },
+    {
+      "t_ms": 17822,
+      "kind": "agent_said",
+      "text": "Could you please provide the zip code on the order? I need it to look up your order.",
+      "n": 2,
+      "interrupted": false
+    },
+    {
+      "t_ms": 18440,
+      "end_ms": 20514,
+      "kind": "caller_said",
+      "text": "Yes, the zip code on the order is 6 0 6 1 4.",
+      "n": 2
+    },
+    {
+      "t_ms": 18900,
+      "end_ms": 22620,
+      "kind": "caller_speech",
+      "n": 2
+    },
+    {
+      "t_ms": 21631,
+      "kind": "agent_heard",
+      "text": "Yes. The zip code on the order is six zero"
+    },
+    {
+      "t_ms": 22131,
+      "kind": "agent_heard",
+      "text": "six."
+    },
+    {
+      "t_ms": 22989,
+      "kind": "agent_heard",
+      "text": "One four."
+    },
+    {
+      "t_ms": 23622,
+      "end_ms": 23622,
+      "kind": "tool_call",
+      "tool": "lookup_order",
+      "args": {
+        "order_id": "GW-48377",
+        "zip": "60614"
+      },
+      "status": 200,
+      "ok": true,
+      "response": {
+        "order_id": "GW-48377",
+        "customer_name": "James Carter",
+        "status": "shipped",
+        "total": 42.5,
+        "items": [
+          {
+            "sku": "MUG-12",
+            "name": "Ceramic mug set",
+            "qty": 2,
+            "price": 21.25
+          }
+        ],
+        "shipping_address": "1500 N Halsted St, Chicago, IL 60614",
+        "refunded": false,
+        "refund": null
+      },
+      "id": 1
+    },
+    {
+      "t_ms": 24580,
+      "end_ms": 28880,
+      "kind": "agent_speech",
+      "n": 6
+    },
+    {
+      "t_ms": 29260,
+      "end_ms": 31080,
+      "kind": "agent_speech",
+      "n": 7
+    },
+    {
+      "t_ms": 31680,
+      "end_ms": 34320,
+      "kind": "agent_speech",
+      "n": 8
+    },
+    {
+      "t_ms": 34524,
+      "kind": "agent_said",
+      "text": "The order GW 4 8 3 7 7 has already shipped, so the shipping address cannot be changed. Would you like me to connect you to a team member for further help?",
+      "n": 3,
+      "interrupted": false
+    },
+    {
+      "t_ms": 35543,
+      "end_ms": 37279,
+      "kind": "caller_said",
+      "text": "Please, connect me to a team member for further help.",
+      "n": 3
+    },
+    {
+      "t_ms": 35920,
+      "end_ms": 39060,
+      "kind": "caller_speech",
+      "n": 3
+    },
+    {
+      "t_ms": 39322,
+      "kind": "agent_heard",
+      "text": "Please connect me to a team member for further help."
+    },
+    {
+      "t_ms": 40510,
+      "end_ms": 40510,
+      "kind": "tool_call",
+      "tool": "escalate_to_human",
+      "args": {
+        "reason": "Caller requested human assistance for shipped order address change",
+        "summary": "Caller wants to change shipping address on order GW-48377 which has already shipped."
+      },
+      "status": 200,
+      "ok": true,
+      "response": {
+        "ticket_id": "TK-0001",
+        "status": "escalated"
+      },
+      "id": 2
+    },
+    {
+      "t_ms": 41020,
+      "end_ms": 42680,
+      "kind": "agent_speech",
+      "n": 9
+    },
+    {
+      "t_ms": 43220,
+      "end_ms": 44300,
+      "kind": "agent_speech",
+      "n": 10
+    },
+    {
+      "t_ms": 44620,
+      "end_ms": 44980,
+      "kind": "agent_speech",
+      "n": 11
+    },
+    {
+      "t_ms": 45053,
+      "kind": "agent_said",
+      "text": "I'm transferring you to a team member now. Thank you for your patience, goodbye.",
+      "n": 4,
+      "interrupted": false
+    }
+  ],
+  "ux": {
+    "duration_ms": 45197,
+    "greeting_first": true,
+    "first_agent_audio_ms": 1940,
+    "caller_segments": 3,
+    "agent_segments": 11,
+    "responses": [
+      {
+        "caller_end_ms": 12440,
+        "agent_start_ms": 13920,
+        "latency_ms": 1480
+      },
+      {
+        "caller_end_ms": 22620,
+        "agent_start_ms": 24580,
+        "latency_ms": 1960
+      },
+      {
+        "caller_end_ms": 39060,
+        "agent_start_ms": 41020,
+        "latency_ms": 1960
+      }
+    ],
+    "latency_ms": {
+      "n": 3,
+      "p50": 1960,
+      "p95": 1960,
+      "max": 1960
+    },
+    "dead_air": [],
+    "dead_air_total_ms": 0,
+    "talk_over": [],
+    "barge_in": [],
+    "caller_speech_ms": 12400,
+    "agent_speech_ms": 17860
+  }
+}

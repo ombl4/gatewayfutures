@@ -54,6 +54,7 @@ The plan from here, in order. Each step builds on the one before it.
 4. **Practice sessions from real data.** Derive each industry's session set from customer call data where it exists, otherwise from thorough research and sample calls, so the split of situations (plain requests, denials, faults, hard callers, security probes) matches what happens in that industry rather than what is easy to write.
 5. **UI polish.** Work through the remaining visual and interaction bugs on the dashboard with a non-technical reader in front of it, one pass per page.
 6. **Validate every grader.** For each check, judge and claim the platform makes, build a hand-labelled set of real calls, measure agreement, and tune the rule with a human reviewing disagreements. A grader stays advisory until it reaches agreement; the second-opinion recogniser and the negative controls are the pattern.
+7. **Production storage and schemas.** Recordings, bundled reports and any large artifact go to object storage (S3 or equivalent) with the run folder holding references, not files; runs, attempts, scores and the environment registry move from JSON files into a database with versioned schemas (the call record, the session file, the check result and the manifest are the four to publish); the sandbox fixtures become per-customer datasets; secrets go to a secret manager; the UI runs behind authentication with per-customer scoping, and runs are started by a queue rather than a subprocess.
 
 ## Adding a second provider
 

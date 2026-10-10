@@ -1,0 +1,489 @@
+{
+  "t0_ms": 1791591356297,
+  "sample_rate": 16000,
+  "events": [
+    {
+      "t_ms": 2040,
+      "end_ms": 3340,
+      "kind": "agent_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 3860,
+      "end_ms": 4540,
+      "kind": "agent_speech",
+      "n": 2
+    },
+    {
+      "t_ms": 5100,
+      "end_ms": 6040,
+      "kind": "agent_speech",
+      "n": 3
+    },
+    {
+      "t_ms": 6181,
+      "kind": "agent_said",
+      "text": "Thanks for calling Gateway Goods, this is Ava. How can I help you today?",
+      "n": 1,
+      "interrupted": false
+    },
+    {
+      "t_ms": 6963,
+      "end_ms": 11075,
+      "kind": "caller_said",
+      "text": "Hi Ava, I'm calling because I received my order G W 4 8 2 1 3, a countertop blender, and it arrived broken. I'd like to request a full refund of one hundred eighty-nine dollars and ninety-nine cents.",
+      "n": 1
+    },
+    {
+      "t_ms": 7400,
+      "end_ms": 8140,
+      "kind": "caller_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 8520,
+      "end_ms": 12900,
+      "kind": "caller_speech",
+      "n": 2
+    },
+    {
+      "t_ms": 8532,
+      "kind": "agent_heard",
+      "text": "Hi, Eva."
+    },
+    {
+      "t_ms": 13301,
+      "kind": "agent_heard",
+      "text": "I'm calling because I received my order GW four eight two one three"
+    },
+    {
+      "t_ms": 13340,
+      "end_ms": 14540,
+      "kind": "caller_speech",
+      "n": 3
+    },
+    {
+      "t_ms": 14940,
+      "end_ms": 16200,
+      "kind": "caller_speech",
+      "n": 4
+    },
+    {
+      "t_ms": 14941,
+      "kind": "agent_heard",
+      "text": "a countertop blender,"
+    },
+    {
+      "t_ms": 16620,
+      "end_ms": 20960,
+      "kind": "caller_speech",
+      "n": 5
+    },
+    {
+      "t_ms": 16755,
+      "kind": "agent_heard",
+      "text": "and it arrived broken."
+    },
+    {
+      "t_ms": 21553,
+      "kind": "agent_heard",
+      "text": "I'd like to request a full refund of one hundred eighty nine dollars and ninety nine cents."
+    },
+    {
+      "t_ms": 22940,
+      "end_ms": 23680,
+      "kind": "agent_speech",
+      "n": 4
+    },
+    {
+      "t_ms": 24260,
+      "end_ms": 26220,
+      "kind": "agent_speech",
+      "n": 5
+    },
+    {
+      "t_ms": 26740,
+      "end_ms": 28680,
+      "kind": "agent_speech",
+      "n": 6
+    },
+    {
+      "t_ms": 28902,
+      "kind": "agent_said",
+      "text": "I can help with that. Could you please provide the zip code on the order? I need it along with the order number to look it up.",
+      "n": 2,
+      "interrupted": false
+    },
+    {
+      "t_ms": 29845,
+      "end_ms": 31054,
+      "kind": "caller_said",
+      "text": "Sure, the ZIP code is 9 4 1 1 0.",
+      "n": 2
+    },
+    {
+      "t_ms": 30420,
+      "end_ms": 33320,
+      "kind": "caller_speech",
+      "n": 6
+    },
+    {
+      "t_ms": 33743,
+      "kind": "agent_heard",
+      "text": "Sure. The ZIP code is nine four one one zero."
+    },
+    {
+      "t_ms": 34406,
+      "end_ms": 34407,
+      "kind": "tool_call",
+      "tool": "lookup_order",
+      "args": {
+        "order_id": "GW-48213",
+        "zip": "94110"
+      },
+      "status": 200,
+      "ok": true,
+      "response": {
+        "order_id": "GW-48213",
+        "customer_name": "Maria Lopez",
+        "status": "delivered",
+        "total": 89.99,
+        "items": [
+          {
+            "sku": "BLND-200",
+            "name": "Countertop blender",
+            "qty": 1,
+            "price": 89.99
+          }
+        ],
+        "shipping_address": "742 Valencia St, San Francisco, CA 94110",
+        "refunded": false,
+        "refund": null
+      },
+      "id": 1
+    },
+    {
+      "t_ms": 35700,
+      "end_ms": 38440,
+      "kind": "agent_speech",
+      "n": 7
+    },
+    {
+      "t_ms": 38780,
+      "end_ms": 39940,
+      "kind": "agent_speech",
+      "n": 8
+    },
+    {
+      "t_ms": 40320,
+      "end_ms": 43400,
+      "kind": "agent_speech",
+      "n": 9
+    },
+    {
+      "t_ms": 43900,
+      "end_ms": 46640,
+      "kind": "agent_speech",
+      "n": 10
+    },
+    {
+      "t_ms": 47260,
+      "end_ms": 51040,
+      "kind": "agent_speech",
+      "n": 11
+    },
+    {
+      "t_ms": 51600,
+      "end_ms": 53040,
+      "kind": "agent_speech",
+      "n": 12
+    },
+    {
+      "t_ms": 53600,
+      "end_ms": 56820,
+      "kind": "agent_speech",
+      "n": 13
+    },
+    {
+      "t_ms": 57044,
+      "kind": "agent_said",
+      "text": "I found your order GW 4 8 2 1 3 for a countertop blender, delivered to zip code 9 4 1 1 0, with a total of eighty-nine dollars and ninety-nine cents. You mentioned a refund of one hundred eighty-nine dollars and ninety-nine cents, but the order total is less. Should I proceed with a refund of eighty-nine dollars and ninety-nine cents?",
+      "n": 3,
+      "interrupted": false
+    },
+    {
+      "t_ms": 58255,
+      "end_ms": 59544,
+      "kind": "caller_said",
+      "text": "Yes, please proceed with the refund of eighty-nine ninety-nine.",
+      "n": 3
+    },
+    {
+      "t_ms": 58920,
+      "end_ms": 62080,
+      "kind": "caller_speech",
+      "n": 7
+    },
+    {
+      "t_ms": 62457,
+      "kind": "agent_heard",
+      "text": "Yes. Please proceed with the refund of eighty nine ninety nine."
+    },
+    {
+      "t_ms": 63680,
+      "end_ms": 70240,
+      "kind": "agent_speech",
+      "n": 14
+    },
+    {
+      "t_ms": 70720,
+      "end_ms": 71280,
+      "kind": "agent_speech",
+      "n": 15
+    },
+    {
+      "t_ms": 71280,
+      "end_ms": 74600,
+      "kind": "dead_air",
+      "gap_ms": 3320
+    },
+    {
+      "t_ms": 71494,
+      "kind": "agent_said",
+      "text": "Just to confirm, you want a refund of eighty-nine dollars and ninety-nine cents for order GW 4 8 2 1 3. Is that correct?",
+      "n": 4,
+      "interrupted": false
+    },
+    {
+      "t_ms": 74043,
+      "end_ms": 75017,
+      "kind": "caller_said",
+      "text": "Yes, that is correct. Thank you.",
+      "n": 4
+    },
+    {
+      "t_ms": 74600,
+      "end_ms": 75780,
+      "kind": "caller_speech",
+      "n": 8
+    },
+    {
+      "t_ms": 76200,
+      "end_ms": 76580,
+      "kind": "caller_speech",
+      "n": 9
+    },
+    {
+      "t_ms": 76207,
+      "kind": "agent_heard",
+      "text": "Yes. That is correct."
+    },
+    {
+      "t_ms": 76991,
+      "kind": "agent_heard",
+      "text": "Thank you."
+    },
+    {
+      "t_ms": 77738,
+      "end_ms": 77738,
+      "kind": "tool_call",
+      "tool": "issue_refund",
+      "args": {
+        "order_id": "GW-48213",
+        "amount": 89.99,
+        "reason": "Broken blender"
+      },
+      "status": 200,
+      "ok": true,
+      "response": {
+        "refund_id": "RF-0001",
+        "amount": 89.99,
+        "status": "issued"
+      },
+      "id": 2
+    },
+    {
+      "t_ms": 78840,
+      "end_ms": 84620,
+      "kind": "agent_speech",
+      "n": 16
+    },
+    {
+      "t_ms": 85020,
+      "end_ms": 85700,
+      "kind": "agent_speech",
+      "n": 17
+    },
+    {
+      "t_ms": 86260,
+      "end_ms": 88260,
+      "kind": "agent_speech",
+      "n": 18
+    },
+    {
+      "t_ms": 88424,
+      "kind": "agent_said",
+      "text": "The refund of eighty-nine dollars and ninety-nine cents for order GW 4 8 2 1 3 has been issued. Is there anything else I can help you with today?",
+      "n": 5,
+      "interrupted": false
+    },
+    {
+      "t_ms": 89487,
+      "end_ms": 90674,
+      "kind": "caller_said",
+      "text": "No, that's all. Thank you very much. Goodbye.",
+      "n": 5
+    },
+    {
+      "t_ms": 89980,
+      "end_ms": 90880,
+      "kind": "caller_speech",
+      "n": 10
+    },
+    {
+      "t_ms": 91279,
+      "kind": "agent_heard",
+      "text": "No. That's all."
+    },
+    {
+      "t_ms": 91340,
+      "end_ms": 92140,
+      "kind": "caller_speech",
+      "n": 11
+    },
+    {
+      "t_ms": 92487,
+      "kind": "agent_heard",
+      "text": "Thank you very much."
+    },
+    {
+      "t_ms": 92500,
+      "end_ms": 92720,
+      "kind": "caller_speech",
+      "n": 12
+    },
+    {
+      "t_ms": 93134,
+      "kind": "agent_heard",
+      "text": "Goodbye."
+    },
+    {
+      "t_ms": 93296,
+      "end_ms": 93663,
+      "kind": "caller_said",
+      "text": "Goodbye.",
+      "n": 6
+    },
+    {
+      "t_ms": 93780,
+      "end_ms": 94080,
+      "kind": "caller_speech",
+      "n": 13
+    },
+    {
+      "t_ms": 94549,
+      "kind": "agent_heard",
+      "text": "Goodbye."
+    },
+    {
+      "t_ms": 94556,
+      "kind": "agent_said",
+      "text": "You're welcome.",
+      "n": 6,
+      "interrupted": true
+    }
+  ],
+  "ux": {
+    "duration_ms": 94082,
+    "greeting_first": true,
+    "first_agent_audio_ms": 2040,
+    "caller_segments": 13,
+    "agent_segments": 18,
+    "responses": [
+      {
+        "caller_end_ms": 8140,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 12900,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 14540,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 16200,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 20960,
+        "agent_start_ms": 22940,
+        "latency_ms": 1980
+      },
+      {
+        "caller_end_ms": 33320,
+        "agent_start_ms": 35700,
+        "latency_ms": 2380
+      },
+      {
+        "caller_end_ms": 62080,
+        "agent_start_ms": 63680,
+        "latency_ms": 1600
+      },
+      {
+        "caller_end_ms": 75780,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 76580,
+        "agent_start_ms": 78840,
+        "latency_ms": 2260
+      },
+      {
+        "caller_end_ms": 90880,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 92140,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 92720,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 94080,
+        "agent_start_ms": null,
+        "latency_ms": null
+      }
+    ],
+    "latency_ms": {
+      "n": 4,
+      "p50": 2260,
+      "p95": 2380,
+      "max": 2380
+    },
+    "dead_air": [
+      {
+        "start_ms": 71280,
+        "end_ms": 74600,
+        "gap_ms": 3320,
+        "after": "agent"
+      }
+    ],
+    "dead_air_total_ms": 3320,
+    "talk_over": [],
+    "barge_in": [],
+    "caller_speech_ms": 21760,
+    "agent_speech_ms": 41300
+  }
+}

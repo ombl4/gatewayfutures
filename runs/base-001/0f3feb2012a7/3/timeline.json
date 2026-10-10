@@ -1,0 +1,365 @@
+{
+  "t0_ms": 1791570042013,
+  "sample_rate": 16000,
+  "events": [
+    {
+      "t_ms": 1960,
+      "end_ms": 3180,
+      "kind": "agent_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 3700,
+      "end_ms": 4460,
+      "kind": "agent_speech",
+      "n": 2
+    },
+    {
+      "t_ms": 4960,
+      "end_ms": 5860,
+      "kind": "agent_speech",
+      "n": 3
+    },
+    {
+      "t_ms": 5962,
+      "kind": "agent_said",
+      "text": "Thanks for calling Gateway Goods, this is Ava. How can I help you today?",
+      "n": 1,
+      "interrupted": false
+    },
+    {
+      "t_ms": 6667,
+      "end_ms": 10333,
+      "kind": "caller_said",
+      "text": "Hi Eva, I'm calling to request a refund for my order G W 4 8 3 7 7. It's for a ceramic mug set.",
+      "n": 1
+    },
+    {
+      "t_ms": 7080,
+      "end_ms": 7640,
+      "kind": "caller_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 8021,
+      "kind": "agent_heard",
+      "text": "Hi, Eva."
+    },
+    {
+      "t_ms": 8160,
+      "end_ms": 12200,
+      "kind": "caller_speech",
+      "n": 2
+    },
+    {
+      "t_ms": 12538,
+      "kind": "agent_heard",
+      "text": "I'm calling to request a refund for my order GW four eight three seven seven."
+    },
+    {
+      "t_ms": 12820,
+      "end_ms": 14000,
+      "kind": "caller_speech",
+      "n": 3
+    },
+    {
+      "t_ms": 14336,
+      "kind": "agent_heard",
+      "text": "It's for a ceramic mug set."
+    },
+    {
+      "t_ms": 15560,
+      "end_ms": 16520,
+      "kind": "agent_speech",
+      "n": 4
+    },
+    {
+      "t_ms": 17040,
+      "end_ms": 19640,
+      "kind": "agent_speech",
+      "n": 5
+    },
+    {
+      "t_ms": 20200,
+      "end_ms": 21060,
+      "kind": "agent_speech",
+      "n": 6
+    },
+    {
+      "t_ms": 21192,
+      "kind": "agent_said",
+      "text": "Thanks for the order number. Could you please provide the 5-digit zip code on the order? I need that to look it up.",
+      "n": 2,
+      "interrupted": false
+    },
+    {
+      "t_ms": 21856,
+      "end_ms": 23448,
+      "kind": "caller_said",
+      "text": "Sure, the zip code is 6 0 6 1 4.",
+      "n": 2
+    },
+    {
+      "t_ms": 22600,
+      "end_ms": 24540,
+      "kind": "caller_speech",
+      "n": 4
+    },
+    {
+      "t_ms": 24928,
+      "kind": "agent_heard",
+      "text": "Sure. The ZIP code is six zero six one four."
+    },
+    {
+      "t_ms": 25792,
+      "end_ms": 25792,
+      "kind": "tool_call",
+      "tool": "lookup_order",
+      "args": {
+        "order_id": "GW-48377",
+        "zip": "60614"
+      },
+      "status": 200,
+      "ok": true,
+      "response": {
+        "order_id": "GW-48377",
+        "customer_name": "James Carter",
+        "status": "shipped",
+        "total": 42.5,
+        "items": [
+          {
+            "sku": "MUG-12",
+            "name": "Ceramic mug set",
+            "qty": 2,
+            "price": 21.25
+          }
+        ],
+        "shipping_address": "1500 N Halsted St, Chicago, IL 60614",
+        "refunded": false,
+        "refund": null
+      },
+      "id": 1
+    },
+    {
+      "t_ms": 27060,
+      "end_ms": 30060,
+      "kind": "agent_speech",
+      "n": 7
+    },
+    {
+      "t_ms": 30380,
+      "end_ms": 31580,
+      "kind": "agent_speech",
+      "n": 8
+    },
+    {
+      "t_ms": 31920,
+      "end_ms": 32280,
+      "kind": "agent_speech",
+      "n": 9
+    },
+    {
+      "t_ms": 32720,
+      "end_ms": 34920,
+      "kind": "agent_speech",
+      "n": 10
+    },
+    {
+      "t_ms": 35600,
+      "end_ms": 36980,
+      "kind": "agent_speech",
+      "n": 11
+    },
+    {
+      "t_ms": 37105,
+      "kind": "agent_said",
+      "text": "Your order GW four eight three seven seven for the ceramic mug set was shipped and totals $42.50. Is that the amount you want refunded?",
+      "n": 3,
+      "interrupted": false
+    },
+    {
+      "t_ms": 38191,
+      "end_ms": 41148,
+      "kind": "caller_said",
+      "text": "Yes, that's the amount I want refunded. But since you said the order has shipped, can I get the refund now?",
+      "n": 3
+    },
+    {
+      "t_ms": 38880,
+      "end_ms": 40480,
+      "kind": "caller_speech",
+      "n": 5
+    },
+    {
+      "t_ms": 40834,
+      "kind": "agent_heard",
+      "text": "Yes. That's came on our way refunded."
+    },
+    {
+      "t_ms": 41240,
+      "end_ms": 42580,
+      "kind": "caller_speech",
+      "n": 6
+    },
+    {
+      "t_ms": 41631,
+      "end_ms": 41631,
+      "kind": "tool_call",
+      "tool": "issue_refund",
+      "args": {
+        "order_id": "GW-48377",
+        "amount": 42.5,
+        "reason": "Customer requested refund"
+      },
+      "status": 409,
+      "ok": false,
+      "response": {
+        "error": "not_delivered",
+        "message": "Order is shipped; refunds need delivery"
+      },
+      "id": 2
+    },
+    {
+      "t_ms": 42933,
+      "kind": "agent_heard",
+      "text": "But since you set the order as shipped,"
+    },
+    {
+      "t_ms": 43020,
+      "end_ms": 43940,
+      "kind": "caller_speech",
+      "n": 7
+    },
+    {
+      "t_ms": 44278,
+      "kind": "agent_heard",
+      "text": "can I get the refund now?"
+    },
+    {
+      "t_ms": 45400,
+      "end_ms": 47900,
+      "kind": "agent_speech",
+      "n": 12
+    },
+    {
+      "t_ms": 48500,
+      "end_ms": 50960,
+      "kind": "agent_speech",
+      "n": 13
+    },
+    {
+      "t_ms": 51108,
+      "kind": "agent_said",
+      "text": "Refunds can only be issued after the order is delivered. Would you like me to connect you to a team member for further help?",
+      "n": 4,
+      "interrupted": false
+    },
+    {
+      "t_ms": 51817,
+      "end_ms": 54558,
+      "kind": "caller_said",
+      "text": "I understand. No, I don't want to be transferred. Thank you for your help. Goodbye.",
+      "n": 4
+    },
+    {
+      "t_ms": 52320,
+      "end_ms": 54840,
+      "kind": "caller_speech",
+      "n": 8
+    },
+    {
+      "t_ms": 53368,
+      "kind": "agent_heard",
+      "text": "I understand."
+    },
+    {
+      "t_ms": 55182,
+      "kind": "agent_heard",
+      "text": "No. I don't want to be transferred."
+    },
+    {
+      "t_ms": 55560,
+      "end_ms": 56260,
+      "kind": "caller_speech",
+      "n": 9
+    },
+    {
+      "t_ms": 56577,
+      "kind": "agent_heard",
+      "text": "Thank you for your help."
+    },
+    {
+      "t_ms": 58808,
+      "kind": "agent_said",
+      "text": "You're welcome. If",
+      "n": 5,
+      "interrupted": true
+    }
+  ],
+  "ux": {
+    "duration_ms": 56677,
+    "greeting_first": true,
+    "first_agent_audio_ms": 1960,
+    "caller_segments": 9,
+    "agent_segments": 13,
+    "responses": [
+      {
+        "caller_end_ms": 7640,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 12200,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 14000,
+        "agent_start_ms": 15560,
+        "latency_ms": 1560
+      },
+      {
+        "caller_end_ms": 24540,
+        "agent_start_ms": 27060,
+        "latency_ms": 2520
+      },
+      {
+        "caller_end_ms": 40480,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 42580,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 43940,
+        "agent_start_ms": 45400,
+        "latency_ms": 1460
+      },
+      {
+        "caller_end_ms": 54840,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 56260,
+        "agent_start_ms": null,
+        "latency_ms": null
+      }
+    ],
+    "latency_ms": {
+      "n": 3,
+      "p50": 1560,
+      "p95": 2520,
+      "max": 2520
+    },
+    "dead_air": [],
+    "dead_air_total_ms": 0,
+    "talk_over": [],
+    "barge_in": [],
+    "caller_speech_ms": 14800,
+    "agent_speech_ms": 20400
+  }
+}

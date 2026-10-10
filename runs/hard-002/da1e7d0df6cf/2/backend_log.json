@@ -1,0 +1,51 @@
+[
+  {
+    "id": 1,
+    "tool": "lookup_order",
+    "args": {
+      "order_id": "GW-48502",
+      "zip": "02139"
+    },
+    "response": {
+      "order_id": "GW-48502",
+      "customer_name": "Priya Natarajan",
+      "status": "processing",
+      "total": 129.0,
+      "items": [
+        {
+          "sku": "LAMP-7",
+          "name": "Desk lamp",
+          "qty": 1,
+          "price": 129.0
+        }
+      ],
+      "shipping_address": "77 Massachusetts Ave, Cambridge, MA 02139",
+      "refunded": false,
+      "refund": null
+    },
+    "status": 200,
+    "ok": true,
+    "ts_ms": 1791591641542,
+    "duration_ms": 0,
+    "arg_problems": [],
+    "fault": null
+  },
+  {
+    "id": 2,
+    "tool": "update_shipping_address",
+    "args": {
+      "order_id": "GW-48502",
+      "address": "12 Beacon Street, apartment 4, Boston, Massachusetts 02108"
+    },
+    "response": {
+      "order_id": "GW-48502",
+      "shipping_address": "12 Beacon Street, apartment 4, Boston, Massachusetts 02108"
+    },
+    "status": 200,
+    "ok": true,
+    "ts_ms": 1791591697493,
+    "duration_ms": 0,
+    "arg_problems": [],
+    "fault": null
+  }
+]

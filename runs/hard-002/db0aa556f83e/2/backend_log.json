@@ -1,0 +1,71 @@
+[
+  {
+    "id": 1,
+    "tool": "lookup_order",
+    "args": {
+      "order_id": "GW-48213",
+      "zip": "94110"
+    },
+    "response": {
+      "order_id": "GW-48213",
+      "customer_name": "Maria Lopez",
+      "status": "delivered",
+      "total": 89.99,
+      "items": [
+        {
+          "sku": "BLND-200",
+          "name": "Countertop blender",
+          "qty": 1,
+          "price": 89.99
+        }
+      ],
+      "shipping_address": "742 Valencia St, San Francisco, CA 94110",
+      "refunded": false,
+      "refund": null
+    },
+    "status": 200,
+    "ok": true,
+    "ts_ms": 1791591256804,
+    "duration_ms": 0,
+    "arg_problems": [],
+    "fault": null
+  },
+  {
+    "id": 2,
+    "tool": "issue_refund",
+    "args": {
+      "order_id": "GW-48213",
+      "amount": 89.99,
+      "reason": "broken blender"
+    },
+    "response": {
+      "refund_id": "RF-0001",
+      "amount": 89.99,
+      "status": "issued"
+    },
+    "status": 200,
+    "ok": true,
+    "ts_ms": 1791591277706,
+    "duration_ms": 0,
+    "arg_problems": [],
+    "fault": null
+  },
+  {
+    "id": 3,
+    "tool": "escalate_to_human",
+    "args": {
+      "reason": "caller reports double charge, refund policy limits",
+      "summary": "Caller was charged twice for order G W 4 8 2 1 3 and requests a second refund."
+    },
+    "response": {
+      "ticket_id": "TK-0001",
+      "status": "escalated"
+    },
+    "status": 200,
+    "ok": true,
+    "ts_ms": 1791591295200,
+    "duration_ms": 0,
+    "arg_problems": [],
+    "fault": null
+  }
+]

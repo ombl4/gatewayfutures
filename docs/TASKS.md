@@ -83,6 +83,7 @@ The plan is in `docs/design-note.md`, "To be continued". In one line each:
 4. Practice sessions from customer data or thorough research, with a true split of what happens in that industry.
 5. UI polish, one pass per page with a non-technical reader.
 6. Validate every grader, judge and claim against hand-labelled calls, tuned with a human in the loop.
+7. Production: recordings and large artifacts in object storage (S3), runs and scores in a database with published schemas, per-customer sandbox datasets, a secret manager, authenticated multi-tenant UI, a job queue for runs.
 Filed and parked under these: T9.5/T9.6/Gate 9 (step 1), T7.7 and B6/B12 (steps 3–4), T5.16 score decision after step 6.
 - T4.5 follow-up (2026-10-08): generated sessions are checked against the fixture (order exists, zip matches, refunds only on delivered and not-yet-refunded orders within the total, address changes only on processing orders and only with a `new_address` fact) and free-text arguments are never pinned; the first generated batch failed 0/8 in `full-2` for exactly these reasons, so that run was discarded and the sessions regenerated (3 written, 3 rejected with reasons)
 - `make smoke` now runs `tests/e2e/test_smoke.py`: one real call, record files, timeline and a valid score

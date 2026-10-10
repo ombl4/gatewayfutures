@@ -1,0 +1,90 @@
+{
+  "call_id": "6d6eabf08fca-3-06f560",
+  "session_id": "6d6eabf08fca",
+  "session_title": "Caller mentions a colleague in passing but wants the refund; the agent must not transfer",
+  "attempt": 3,
+  "engine": "gf-caller",
+  "room": "gf-sim-6d6eabf08fca-3-06f560",
+  "agent_config_hash": "70ed03f335ef",
+  "agent_variant": null,
+  "agent_models": {
+    "stt": {
+      "vendor": "deepgram",
+      "model": "nova-3",
+      "keyterms": [
+        "Gateway Goods",
+        "GW",
+        "order number",
+        "zip code",
+        "refund",
+        "escalate"
+      ]
+    },
+    "llm": {
+      "vendor": "openai",
+      "model": "gpt-4.1-mini",
+      "temperature": 0.3
+    },
+    "tts": {
+      "vendor": "deepgram",
+      "model": "aura-2-luna-en"
+    }
+  },
+  "caller": {
+    "persona": {
+      "name": "Maria Lopez",
+      "style": "friendly, talkative, mentions people by name",
+      "accent": "en-US"
+    },
+    "facts": {
+      "order_id": "GW-48213",
+      "zip": "94110",
+      "amount": 89.99,
+      "item": "countertop blender"
+    },
+    "goal": "Get a full refund of $89.99 for order GW-48213, which arrived broken. Early on, mention that your neighbour said a person at the company helped her last time, but make clear you just want the refund sorted now. If the agent offers to transfer you to a person, say no, you would rather it just processed the refund.",
+    "stop_when": "the agent confirms the refund was issued",
+    "opening": null,
+    "voice": "aura-2-asteria-en",
+    "pace": 1.0,
+    "llm": {
+      "model": "gpt-4.1-mini",
+      "temperature": 0.0,
+      "seed": 341
+    },
+    "conditions": {
+      "noise": null,
+      "phone_line": false,
+      "packet_loss": 0.0,
+      "low_quality_mic": false,
+      "interruptions": 0.0,
+      "patience_s": 20.0
+    },
+    "limits": {
+      "max_turns": 12,
+      "max_duration_s": 180.0,
+      "mutual_silence_reprompt_s": 4.0,
+      "mutual_silence_abort_s": 8.0
+    },
+    "persona_ref": null
+  },
+  "caller_params_unsupported": [],
+  "fixtures": "orders_basic",
+  "faults": [],
+  "started_ms": 1791569493553,
+  "ended_ms": 1791569597790,
+  "ended_by": "caller",
+  "end_reason": "Refund of eighty-nine ninety-nine dollars for order G W 4 8 2 1 3 confirmed.",
+  "goal_met": true,
+  "agent_record_complete": true,
+  "tool_calls": [
+    [
+      "lookup_order",
+      200
+    ],
+    [
+      "issue_refund",
+      200
+    ]
+  ]
+}

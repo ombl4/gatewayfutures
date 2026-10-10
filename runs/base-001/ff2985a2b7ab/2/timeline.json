@@ -1,0 +1,275 @@
+{
+  "t0_ms": 1791569190485,
+  "sample_rate": 16000,
+  "events": [
+    {
+      "t_ms": 2000,
+      "end_ms": 3340,
+      "kind": "agent_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 3860,
+      "end_ms": 4680,
+      "kind": "agent_speech",
+      "n": 2
+    },
+    {
+      "t_ms": 5160,
+      "end_ms": 6160,
+      "kind": "agent_speech",
+      "n": 3
+    },
+    {
+      "t_ms": 6275,
+      "kind": "agent_said",
+      "text": "Thanks for calling Gateway Goods, this is Ava. How can I help you today?",
+      "n": 1,
+      "interrupted": false
+    },
+    {
+      "t_ms": 7152,
+      "end_ms": 10438,
+      "kind": "caller_said",
+      "text": "Hi Eva, I'm calling to change the shipping address on my order G W 4 8 3 7 7.",
+      "n": 1
+    },
+    {
+      "t_ms": 7500,
+      "end_ms": 13980,
+      "kind": "caller_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 9986,
+      "kind": "agent_heard",
+      "text": "IUVAC"
+    },
+    {
+      "t_ms": 13329,
+      "kind": "agent_heard",
+      "text": "I'm calling to change the shipping address on my order."
+    },
+    {
+      "t_ms": 14427,
+      "kind": "agent_heard",
+      "text": "GW four eight three seven seven."
+    },
+    {
+      "t_ms": 15640,
+      "end_ms": 17640,
+      "kind": "agent_speech",
+      "n": 4
+    },
+    {
+      "t_ms": 18100,
+      "end_ms": 19640,
+      "kind": "agent_speech",
+      "n": 5
+    },
+    {
+      "t_ms": 20180,
+      "end_ms": 22000,
+      "kind": "agent_speech",
+      "n": 6
+    },
+    {
+      "t_ms": 22078,
+      "kind": "agent_said",
+      "text": "I have the order number GW-48377. Could you please provide the zip code on the order?",
+      "n": 2,
+      "interrupted": false
+    },
+    {
+      "t_ms": 22860,
+      "end_ms": 24802,
+      "kind": "caller_said",
+      "text": "Yes, the zip code is six zero six one four.",
+      "n": 2
+    },
+    {
+      "t_ms": 23380,
+      "end_ms": 26680,
+      "kind": "caller_speech",
+      "n": 2
+    },
+    {
+      "t_ms": 27116,
+      "kind": "agent_heard",
+      "text": "Yes. The zip code is six zero six one four."
+    },
+    {
+      "t_ms": 27852,
+      "end_ms": 27852,
+      "kind": "tool_call",
+      "tool": "lookup_order",
+      "args": {
+        "order_id": "GW-48377",
+        "zip": "60614"
+      },
+      "status": 200,
+      "ok": true,
+      "response": {
+        "order_id": "GW-48377",
+        "customer_name": "James Carter",
+        "status": "shipped",
+        "total": 42.5,
+        "items": [
+          {
+            "sku": "MUG-12",
+            "name": "Ceramic mug set",
+            "qty": 2,
+            "price": 21.25
+          }
+        ],
+        "shipping_address": "1500 N Halsted St, Chicago, IL 60614",
+        "refunded": false,
+        "refund": null
+      },
+      "id": 1
+    },
+    {
+      "t_ms": 29160,
+      "end_ms": 31740,
+      "kind": "agent_speech",
+      "n": 7
+    },
+    {
+      "t_ms": 32060,
+      "end_ms": 34000,
+      "kind": "agent_speech",
+      "n": 8
+    },
+    {
+      "t_ms": 34340,
+      "end_ms": 36200,
+      "kind": "agent_speech",
+      "n": 9
+    },
+    {
+      "t_ms": 36800,
+      "end_ms": 39400,
+      "kind": "agent_speech",
+      "n": 10
+    },
+    {
+      "t_ms": 39562,
+      "kind": "agent_said",
+      "text": "The order GW-48377 has already shipped, so the shipping address cannot be changed. Would you like me to connect you to a team member for further help?",
+      "n": 3,
+      "interrupted": false
+    },
+    {
+      "t_ms": 40484,
+      "end_ms": 42380,
+      "kind": "caller_said",
+      "text": "Please, I need to change the address. Can you try again?",
+      "n": 3
+    },
+    {
+      "t_ms": 40900,
+      "end_ms": 41400,
+      "kind": "caller_speech",
+      "n": 3
+    },
+    {
+      "t_ms": 41740,
+      "end_ms": 44260,
+      "kind": "caller_speech",
+      "n": 4
+    },
+    {
+      "t_ms": 41804,
+      "kind": "agent_heard",
+      "text": "Please."
+    },
+    {
+      "t_ms": 44709,
+      "kind": "agent_heard",
+      "text": "I need to change the address. Can you try again?"
+    },
+    {
+      "t_ms": 45729,
+      "end_ms": 45729,
+      "kind": "tool_call",
+      "tool": "escalate_to_human",
+      "args": {
+        "reason": "Caller requests address change after shipping, policy block",
+        "summary": "Caller wants to change shipping address on order GW-48377, but order already shipped."
+      },
+      "status": 200,
+      "ok": true,
+      "response": {
+        "ticket_id": "TK-0001",
+        "status": "escalated"
+      },
+      "id": 2
+    },
+    {
+      "t_ms": 46300,
+      "end_ms": 48100,
+      "kind": "agent_speech",
+      "n": 11
+    },
+    {
+      "t_ms": 48620,
+      "end_ms": 49440,
+      "kind": "agent_speech",
+      "n": 12
+    },
+    {
+      "t_ms": 49940,
+      "end_ms": 50240,
+      "kind": "agent_speech",
+      "n": 13
+    },
+    {
+      "t_ms": 50332,
+      "kind": "agent_said",
+      "text": "I'm transferring you to a team member now. Thank you for your patience, goodbye.",
+      "n": 4,
+      "interrupted": false
+    }
+  ],
+  "ux": {
+    "duration_ms": 50486,
+    "greeting_first": true,
+    "first_agent_audio_ms": 2000,
+    "caller_segments": 4,
+    "agent_segments": 13,
+    "responses": [
+      {
+        "caller_end_ms": 13980,
+        "agent_start_ms": 15640,
+        "latency_ms": 1660
+      },
+      {
+        "caller_end_ms": 26680,
+        "agent_start_ms": 29160,
+        "latency_ms": 2480
+      },
+      {
+        "caller_end_ms": 41400,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 44260,
+        "agent_start_ms": 46300,
+        "latency_ms": 2040
+      }
+    ],
+    "latency_ms": {
+      "n": 3,
+      "p50": 2040,
+      "p95": 2480,
+      "max": 2480
+    },
+    "dead_air": [],
+    "dead_air_total_ms": 0,
+    "talk_over": [],
+    "barge_in": [],
+    "caller_speech_ms": 12800,
+    "agent_speech_ms": 20420
+  }
+}

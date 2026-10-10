@@ -70,7 +70,7 @@ def _call_ctx(run_id: str, sid: str, n: int, t: int | None = None) -> dict[str, 
     folder = model.call_folder(run_id, sid, n)
     if not (folder / "meta.json").exists():
         raise HTTPException(404, f"no call record for {sid}/{n} in {run_id}")
-    href = LINKS.audio(run_id, sid, n) if (folder / "audio.wav").exists() else None
+    href = LINKS.audio(run_id, sid, n) if _audio_file(folder) else None
     c = model.call_report(run_id, sid, n, audio_href=href)
     if t is None:
         r = model.run_report(run_id)
@@ -537,7 +537,6 @@ def run(run_id: str, call: str = ""):
 @app.get("/runs/{run_id}/report.pdf")
 def run_pdf(run_id: str):
     """The run's PDF report for a business reader (T6.39), regenerated when the summary is newer."""
-    from fastapi.responses import FileResponse
 
     from gf.report import pdf
 
@@ -585,16 +584,19 @@ def call_inspector(run_id: str, session_id: str, attempt: int, t: int | None = N
 @app.get("/runs/{run_id}/{session_id}/{attempt}", response_class=HTMLResponse)
 def call(run_id: str, session_id: str, attempt: int):
     folder = _require_call(run_id, session_id, attempt)
-    href = LINKS.audio(run_id, session_id, attempt) if (folder / "audio.wav").exists() else None
+    href = LINKS.audio(run_id, session_id, attempt) if _audio_file(folder) else None
     return page("call.html", c=model.call_report(run_id, session_id, attempt, audio_href=href))
 
 
 @app.get("/runs/{run_id}/{session_id}/{attempt}/audio.wav")
-def audio(run_id: str, session_id: str, attempt: int):
-    path = _require_call(run_id, session_id, attempt) / "audio.wav"
-    if not path.exists():
-        raise HTTPException(404, "no audio")
-    return FileResponse(path, media_type="audio/wav")
+def call_audio(run_id: str, session_id: str, attempt: int):
+    """The recording: the WAV from a run, or the MP3 a committed run ships with."""
+
+    path = _audio_file(_require_call(run_id, session_id, attempt))
+    if not path:
+        raise HTTPException(404, "no recording for this call")
+    media = "audio/mpeg" if path.endswith(".mp3") else "audio/wav"
+    return FileResponse(path, media_type=media)
 
 
 # ---------------------------------------------------------------- JSON API (T6.7)
@@ -657,6 +659,12 @@ def version():
 
 
 # ---------------------------------------------------------------- helpers
+
+
+def _audio_file(folder: Path) -> str | None:
+    from gf.record.model import _audio_file as _af
+
+    return _af(folder)
 
 
 def _require_run(run_id: str) -> None:

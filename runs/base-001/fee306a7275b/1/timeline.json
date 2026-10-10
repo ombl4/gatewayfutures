@@ -1,0 +1,81 @@
+{
+  "t0_ms": 1791569919675,
+  "sample_rate": 16000,
+  "events": [
+    {
+      "t_ms": 1920,
+      "end_ms": 3020,
+      "kind": "agent_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 3560,
+      "end_ms": 4440,
+      "kind": "agent_speech",
+      "n": 2
+    },
+    {
+      "t_ms": 5000,
+      "end_ms": 6000,
+      "kind": "agent_speech",
+      "n": 3
+    },
+    {
+      "t_ms": 6000,
+      "end_ms": 17560,
+      "kind": "dead_air",
+      "gap_ms": 11560
+    },
+    {
+      "t_ms": 6162,
+      "kind": "agent_said",
+      "text": "Thanks for calling Gateway Goods, this is Ava. How can I help you today?",
+      "n": 1,
+      "interrupted": false
+    },
+    {
+      "t_ms": 17560,
+      "end_ms": 19000,
+      "kind": "caller_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 19465,
+      "kind": "agent_heard",
+      "text": "Hi. I'm calling because my"
+    }
+  ],
+  "ux": {
+    "duration_ms": 19003,
+    "greeting_first": true,
+    "first_agent_audio_ms": 1920,
+    "caller_segments": 1,
+    "agent_segments": 3,
+    "responses": [
+      {
+        "caller_end_ms": 19000,
+        "agent_start_ms": null,
+        "latency_ms": null
+      }
+    ],
+    "latency_ms": {
+      "n": 0,
+      "p50": null,
+      "p95": null,
+      "max": null
+    },
+    "dead_air": [
+      {
+        "start_ms": 6000,
+        "end_ms": 17560,
+        "gap_ms": 11560,
+        "after": "agent"
+      }
+    ],
+    "dead_air_total_ms": 11560,
+    "talk_over": [],
+    "barge_in": [],
+    "caller_speech_ms": 1440,
+    "agent_speech_ms": 2980
+  }
+}

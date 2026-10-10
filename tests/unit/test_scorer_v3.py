@@ -327,3 +327,21 @@ def test_caller_tool_syntax_is_cut_before_speech_and_flagged_on_old_recordings()
     c = next(c for c in check_caller(bad, sess) if c.id == "caller.spoke_tool_syntax")
     assert not c.passed and c.severity == "soft" and c.evidence["turn_ns"] == [99]
     assert next(c for c in check_caller(rec, sess) if c.id == "caller.spoke_tool_syntax").passed
+
+
+def test_committed_run_with_mp3_plays_and_keeps_its_timeline(tmp_path):
+    """A run committed without WAV: audio.mp3 is the recording for the player and the
+    waveform; the stored timeline is kept rather than rebuilt from lossy audio."""
+    import shutil
+
+    from gf.scoring.score import score_attempt
+
+    folder = tmp_path / "rec"
+    shutil.copytree(REC / "refund-basic", folder)
+    assert CallRecord.load(folder).audio_path is None
+    (folder / "audio.mp3").write_bytes(b"ID3")  # presence is what matters here
+    rec = CallRecord.load(folder)
+    assert rec.audio_path and rec.audio_path.endswith("audio.mp3")
+    before = (folder / "timeline.json").read_text()
+    score_attempt(folder, Session.load(SESS / "refund-basic.yaml"))
+    assert (folder / "timeline.json").read_text() == before

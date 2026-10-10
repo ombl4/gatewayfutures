@@ -49,10 +49,10 @@ def score_attempt(folder: str | Path, session: Session) -> dict[str, Any]:
     record = CallRecord.load(folder)
     th = thresholds()
     tl_path = folder / "timeline.json"
-    if record.audio_path:
+    if record.audio_path and record.audio_path.endswith(".wav"):
         timeline = build_timeline(record, dead_air_ms=int(th.dead_air_gap_s * 1000))
         tl_path.write_text(json.dumps(timeline, indent=2))
-    elif tl_path.exists():
+    elif tl_path.exists():  # a committed run without WAV keeps its timeline
         timeline = json.loads(tl_path.read_text())
     else:
         timeline = {"events": [], "ux": {}}

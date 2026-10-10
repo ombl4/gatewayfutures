@@ -1,0 +1,437 @@
+{
+  "t0_ms": 1791570016855,
+  "sample_rate": 16000,
+  "events": [
+    {
+      "t_ms": 1980,
+      "end_ms": 3220,
+      "kind": "agent_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 3800,
+      "end_ms": 4440,
+      "kind": "agent_speech",
+      "n": 2
+    },
+    {
+      "t_ms": 5080,
+      "end_ms": 5940,
+      "kind": "agent_speech",
+      "n": 3
+    },
+    {
+      "t_ms": 6109,
+      "kind": "agent_said",
+      "text": "Thanks for calling Gateway Goods, this is Ava. How can I help you today?",
+      "n": 1,
+      "interrupted": false
+    },
+    {
+      "t_ms": 6864,
+      "end_ms": 10426,
+      "kind": "caller_said",
+      "text": "Hi Eva, I'm calling to request a refund for my order G W 4 8 3 7 7. It's for a ceramic mug set.",
+      "n": 1
+    },
+    {
+      "t_ms": 7300,
+      "end_ms": 7960,
+      "kind": "caller_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 8177,
+      "kind": "agent_heard",
+      "text": "Hi there."
+    },
+    {
+      "t_ms": 8420,
+      "end_ms": 12120,
+      "kind": "caller_speech",
+      "n": 2
+    },
+    {
+      "t_ms": 12575,
+      "kind": "agent_heard",
+      "text": "I'm calling to request a refund for my order GW four eight three seven seven."
+    },
+    {
+      "t_ms": 12700,
+      "end_ms": 14100,
+      "kind": "caller_speech",
+      "n": 3
+    },
+    {
+      "t_ms": 14100,
+      "end_ms": 17780,
+      "kind": "dead_air",
+      "gap_ms": 3680
+    },
+    {
+      "t_ms": 14425,
+      "kind": "agent_heard",
+      "text": "It's for a ceramic moxa."
+    },
+    {
+      "t_ms": 17780,
+      "end_ms": 19820,
+      "kind": "agent_speech",
+      "n": 4
+    },
+    {
+      "t_ms": 20360,
+      "end_ms": 21900,
+      "kind": "agent_speech",
+      "n": 5
+    },
+    {
+      "t_ms": 22131,
+      "kind": "agent_said",
+      "text": "Could you please provide the zip code on the order? I need it to look up your order details.",
+      "n": 2,
+      "interrupted": false
+    },
+    {
+      "t_ms": 22776,
+      "end_ms": 24318,
+      "kind": "caller_said",
+      "text": "Sure, the ZIP code is 6 0 6 1 4.",
+      "n": 2
+    },
+    {
+      "t_ms": 23120,
+      "end_ms": 25700,
+      "kind": "caller_speech",
+      "n": 4
+    },
+    {
+      "t_ms": 26034,
+      "kind": "agent_heard",
+      "text": "Sure. The ZIP code is six zero six one four."
+    },
+    {
+      "t_ms": 26770,
+      "end_ms": 26770,
+      "kind": "tool_call",
+      "tool": "lookup_order",
+      "args": {
+        "order_id": "GW-48377",
+        "zip": "60614"
+      },
+      "status": 200,
+      "ok": true,
+      "response": {
+        "order_id": "GW-48377",
+        "customer_name": "James Carter",
+        "status": "shipped",
+        "total": 42.5,
+        "items": [
+          {
+            "sku": "MUG-12",
+            "name": "Ceramic mug set",
+            "qty": 2,
+            "price": 21.25
+          }
+        ],
+        "shipping_address": "1500 N Halsted St, Chicago, IL 60614",
+        "refunded": false,
+        "refund": null
+      },
+      "id": 1
+    },
+    {
+      "t_ms": 28160,
+      "end_ms": 32900,
+      "kind": "agent_speech",
+      "n": 6
+    },
+    {
+      "t_ms": 33440,
+      "end_ms": 36640,
+      "kind": "agent_speech",
+      "n": 7
+    },
+    {
+      "t_ms": 37100,
+      "end_ms": 37740,
+      "kind": "agent_speech",
+      "n": 8
+    },
+    {
+      "t_ms": 38300,
+      "end_ms": 39820,
+      "kind": "agent_speech",
+      "n": 9
+    },
+    {
+      "t_ms": 39976,
+      "kind": "agent_said",
+      "text": "I found your order GW four eight three seven seven for two ceramic mug sets, total $42.50, and it has been shipped. Is that correct? Would you like a refund for the full amount?",
+      "n": 3,
+      "interrupted": false
+    },
+    {
+      "t_ms": 40994,
+      "end_ms": 47106,
+      "kind": "caller_said",
+      "text": "Yes, that's correct. I would like a refund for the full amount, please.\nI understand the order has shipped. If the refund cannot be processed until it is delivered, I understand and will wait. Thank you, goodbye.",
+      "n": 3
+    },
+    {
+      "t_ms": 41540,
+      "end_ms": 41880,
+      "kind": "caller_speech",
+      "n": 5
+    },
+    {
+      "t_ms": 42222,
+      "kind": "agent_heard",
+      "text": "Yes."
+    },
+    {
+      "t_ms": 42300,
+      "end_ms": 42660,
+      "kind": "caller_speech",
+      "n": 6
+    },
+    {
+      "t_ms": 43122,
+      "kind": "agent_heard",
+      "text": "That's correct."
+    },
+    {
+      "t_ms": 43380,
+      "end_ms": 45160,
+      "kind": "caller_speech",
+      "n": 7
+    },
+    {
+      "t_ms": 45489,
+      "kind": "agent_heard",
+      "text": "I would like a refund for the full amount, please."
+    },
+    {
+      "t_ms": 45680,
+      "end_ms": 46960,
+      "kind": "caller_speech",
+      "n": 8
+    },
+    {
+      "t_ms": 47627,
+      "kind": "agent_heard",
+      "text": "I understand the order has shipped."
+    },
+    {
+      "t_ms": 47680,
+      "end_ms": 50320,
+      "kind": "caller_speech",
+      "n": 9
+    },
+    {
+      "t_ms": 50693,
+      "kind": "agent_heard",
+      "text": "If the refund cannot be processed until it is delivered,"
+    },
+    {
+      "t_ms": 50880,
+      "end_ms": 52140,
+      "kind": "caller_speech",
+      "n": 10
+    },
+    {
+      "t_ms": 52526,
+      "kind": "agent_heard",
+      "text": "I understand and will wait."
+    },
+    {
+      "t_ms": 52760,
+      "end_ms": 53320,
+      "kind": "caller_speech",
+      "n": 11
+    },
+    {
+      "t_ms": 53672,
+      "kind": "agent_heard",
+      "text": "Thank you. Goodbye."
+    },
+    {
+      "t_ms": 54751,
+      "end_ms": 54751,
+      "kind": "tool_call",
+      "tool": "issue_refund",
+      "args": {
+        "order_id": "GW-48377",
+        "amount": 42.5,
+        "reason": "Customer requested full refund"
+      },
+      "status": 409,
+      "ok": false,
+      "response": {
+        "error": "not_delivered",
+        "message": "Order is shipped; refunds need delivery"
+      },
+      "id": 2
+    },
+    {
+      "t_ms": 55820,
+      "end_ms": 58600,
+      "kind": "agent_speech",
+      "n": 10
+    },
+    {
+      "t_ms": 59120,
+      "end_ms": 59640,
+      "kind": "agent_speech",
+      "n": 11
+    },
+    {
+      "t_ms": 60080,
+      "end_ms": 62280,
+      "kind": "agent_speech",
+      "n": 12
+    },
+    {
+      "t_ms": 62900,
+      "end_ms": 63440,
+      "kind": "agent_speech",
+      "n": 13
+    },
+    {
+      "t_ms": 63567,
+      "kind": "agent_said",
+      "text": "The refund cannot be processed until the order is delivered. If you want, I can connect you to a team member for further help. Would you like that?",
+      "n": 4,
+      "interrupted": false
+    },
+    {
+      "t_ms": 64731,
+      "end_ms": 67417,
+      "kind": "caller_said",
+      "text": "No, thank you. I understand and will wait until the order is delivered for the refund. Goodbye.",
+      "n": 4
+    },
+    {
+      "t_ms": 65240,
+      "end_ms": 65680,
+      "kind": "caller_speech",
+      "n": 12
+    },
+    {
+      "t_ms": 66021,
+      "kind": "agent_heard",
+      "text": "No. Thank you."
+    },
+    {
+      "t_ms": 66220,
+      "end_ms": 69160,
+      "kind": "caller_speech",
+      "n": 13
+    },
+    {
+      "t_ms": 69481,
+      "kind": "agent_heard",
+      "text": "I understand, and we'll wait until the order is delivered for the refund."
+    },
+    {
+      "t_ms": 71500,
+      "kind": "agent_said",
+      "text": "Thank you for",
+      "n": 5,
+      "interrupted": true
+    }
+  ],
+  "ux": {
+    "duration_ms": 69453,
+    "greeting_first": true,
+    "first_agent_audio_ms": 1980,
+    "caller_segments": 13,
+    "agent_segments": 13,
+    "responses": [
+      {
+        "caller_end_ms": 7960,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 12120,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 14100,
+        "agent_start_ms": 17780,
+        "latency_ms": 3680
+      },
+      {
+        "caller_end_ms": 25700,
+        "agent_start_ms": 28160,
+        "latency_ms": 2460
+      },
+      {
+        "caller_end_ms": 41880,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 42660,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 45160,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 46960,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 50320,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 52140,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 53320,
+        "agent_start_ms": 55820,
+        "latency_ms": 2500
+      },
+      {
+        "caller_end_ms": 65680,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 69160,
+        "agent_start_ms": null,
+        "latency_ms": null
+      }
+    ],
+    "latency_ms": {
+      "n": 3,
+      "p50": 2500,
+      "p95": 3680,
+      "max": 3680
+    },
+    "dead_air": [
+      {
+        "start_ms": 14100,
+        "end_ms": 17780,
+        "gap_ms": 3680,
+        "after": "caller"
+      }
+    ],
+    "dead_air_total_ms": 3680,
+    "talk_over": [],
+    "barge_in": [],
+    "caller_speech_ms": 19940,
+    "agent_speech_ms": 22460
+  }
+}

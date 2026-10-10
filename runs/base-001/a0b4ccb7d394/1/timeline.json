@@ -1,0 +1,436 @@
+{
+  "t0_ms": 1791569506624,
+  "sample_rate": 16000,
+  "events": [
+    {
+      "t_ms": 1940,
+      "end_ms": 3040,
+      "kind": "agent_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 3600,
+      "end_ms": 4140,
+      "kind": "agent_speech",
+      "n": 2
+    },
+    {
+      "t_ms": 4780,
+      "end_ms": 5660,
+      "kind": "agent_speech",
+      "n": 3
+    },
+    {
+      "t_ms": 5825,
+      "kind": "agent_said",
+      "text": "Thanks for calling Gateway Goods, this is Ava. How can I help you today?",
+      "n": 1,
+      "interrupted": false
+    },
+    {
+      "t_ms": 6461,
+      "end_ms": 9865,
+      "kind": "caller_said",
+      "text": "Hi Eva, I'm calling because I want to order a second desk lamp like the one I got in my order G W 4 8 5 0 2.",
+      "n": 1
+    },
+    {
+      "t_ms": 6980,
+      "end_ms": 7500,
+      "kind": "caller_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 7827,
+      "kind": "agent_heard",
+      "text": "Hi, Eva."
+    },
+    {
+      "t_ms": 8000,
+      "end_ms": 10120,
+      "kind": "caller_speech",
+      "n": 2
+    },
+    {
+      "t_ms": 10440,
+      "kind": "agent_heard",
+      "text": "I'm calling because I want to order a second desk lamp."
+    },
+    {
+      "t_ms": 10560,
+      "end_ms": 13480,
+      "kind": "caller_speech",
+      "n": 3
+    },
+    {
+      "t_ms": 13874,
+      "kind": "agent_heard",
+      "text": "Like the one I got in my order GW four eight five zero two."
+    },
+    {
+      "t_ms": 14960,
+      "end_ms": 15600,
+      "kind": "agent_speech",
+      "n": 4
+    },
+    {
+      "t_ms": 16220,
+      "end_ms": 19740,
+      "kind": "agent_speech",
+      "n": 5
+    },
+    {
+      "t_ms": 20120,
+      "end_ms": 20680,
+      "kind": "agent_speech",
+      "n": 6
+    },
+    {
+      "t_ms": 21140,
+      "end_ms": 22100,
+      "kind": "agent_speech",
+      "n": 7
+    },
+    {
+      "t_ms": 22142,
+      "kind": "agent_said",
+      "text": "I can help with that. Can you please provide the zip code on the order GW-48502?",
+      "n": 2,
+      "interrupted": false
+    },
+    {
+      "t_ms": 23131,
+      "end_ms": 24638,
+      "kind": "caller_said",
+      "text": "Yes, the zip code is 0 2 1 3 9.",
+      "n": 2
+    },
+    {
+      "t_ms": 23740,
+      "end_ms": 26100,
+      "kind": "caller_speech",
+      "n": 4
+    },
+    {
+      "t_ms": 26343,
+      "kind": "agent_heard",
+      "text": "Yes. The zip code is zero two one three nine."
+    },
+    {
+      "t_ms": 26945,
+      "end_ms": 26945,
+      "kind": "tool_call",
+      "tool": "lookup_order",
+      "args": {
+        "order_id": "GW-48502",
+        "zip": "02139"
+      },
+      "status": 200,
+      "ok": true,
+      "response": {
+        "order_id": "GW-48502",
+        "customer_name": "Priya Natarajan",
+        "status": "processing",
+        "total": 129.0,
+        "items": [
+          {
+            "sku": "LAMP-7",
+            "name": "Desk lamp",
+            "qty": 1,
+            "price": 129.0
+          }
+        ],
+        "shipping_address": "77 Massachusetts Ave, Cambridge, MA 02139",
+        "refunded": false,
+        "refund": null
+      },
+      "id": 1
+    },
+    {
+      "t_ms": 28160,
+      "end_ms": 32640,
+      "kind": "agent_speech",
+      "n": 8
+    },
+    {
+      "t_ms": 33260,
+      "end_ms": 36020,
+      "kind": "agent_speech",
+      "n": 9
+    },
+    {
+      "t_ms": 36020,
+      "end_ms": 39200,
+      "kind": "dead_air",
+      "gap_ms": 3180
+    },
+    {
+      "t_ms": 36235,
+      "kind": "agent_said",
+      "text": "Your order GW-48502 for one desk lamp is still processing. Would you like me to help you place a new order for a second desk lamp?",
+      "n": 3,
+      "interrupted": false
+    },
+    {
+      "t_ms": 38737,
+      "end_ms": 42423,
+      "kind": "caller_said",
+      "text": "Yes, please. I'd like to place a new order for a second desk lamp. Also, do you offer any discount for repeat customers?",
+      "n": 3
+    },
+    {
+      "t_ms": 39200,
+      "end_ms": 39800,
+      "kind": "caller_speech",
+      "n": 5
+    },
+    {
+      "t_ms": 40128,
+      "kind": "agent_heard",
+      "text": "Yes, please."
+    },
+    {
+      "t_ms": 40260,
+      "end_ms": 42720,
+      "kind": "caller_speech",
+      "n": 6
+    },
+    {
+      "t_ms": 43178,
+      "kind": "agent_heard",
+      "text": "I'd like to place a new order for a second desk lab."
+    },
+    {
+      "t_ms": 43220,
+      "end_ms": 46480,
+      "kind": "caller_speech",
+      "n": 7
+    },
+    {
+      "t_ms": 46793,
+      "kind": "agent_heard",
+      "text": "Also, do you offer any discount for repeat customers?"
+    },
+    {
+      "t_ms": 47880,
+      "end_ms": 50600,
+      "kind": "agent_speech",
+      "n": 10
+    },
+    {
+      "t_ms": 51180,
+      "end_ms": 53600,
+      "kind": "agent_speech",
+      "n": 11
+    },
+    {
+      "t_ms": 54140,
+      "end_ms": 55520,
+      "kind": "agent_speech",
+      "n": 12
+    },
+    {
+      "t_ms": 55920,
+      "end_ms": 56460,
+      "kind": "agent_speech",
+      "n": 13
+    },
+    {
+      "t_ms": 56960,
+      "end_ms": 58300,
+      "kind": "agent_speech",
+      "n": 14
+    },
+    {
+      "t_ms": 58518,
+      "kind": "agent_said",
+      "text": "I can assist with placing the new order for the desk lamp. Regarding discounts, I don't have that info on hand. Can I place the new order for you now? If so, please confirm your shipping address.",
+      "n": 4,
+      "interrupted": false
+    },
+    {
+      "t_ms": 59601,
+      "end_ms": 64081,
+      "kind": "caller_said",
+      "text": "Yes, please place the new order. But could you connect me to someone who can tell me about discounts for repeat customers? My shipping address is the same as before.",
+      "n": 4
+    },
+    {
+      "t_ms": 60100,
+      "end_ms": 61600,
+      "kind": "caller_speech",
+      "n": 8
+    },
+    {
+      "t_ms": 61923,
+      "kind": "agent_heard",
+      "text": "Yes. Please place the new order."
+    },
+    {
+      "t_ms": 62180,
+      "end_ms": 66380,
+      "kind": "caller_speech",
+      "n": 9
+    },
+    {
+      "t_ms": 66752,
+      "kind": "agent_heard",
+      "text": "Could you connect me to someone who can tell me about discounts for repeat customers?"
+    },
+    {
+      "t_ms": 66780,
+      "end_ms": 68840,
+      "kind": "caller_speech",
+      "n": 10
+    },
+    {
+      "t_ms": 69179,
+      "kind": "agent_heard",
+      "text": "My shipping address is the same as before."
+    },
+    {
+      "t_ms": 70332,
+      "end_ms": 70332,
+      "kind": "tool_call",
+      "tool": "escalate_to_human",
+      "args": {
+        "reason": "caller request",
+        "summary": "Caller wants to know about discounts for repeat customers and requested a human."
+      },
+      "status": 200,
+      "ok": true,
+      "response": {
+        "ticket_id": "TK-0001",
+        "status": "escalated"
+      },
+      "id": 2
+    },
+    {
+      "t_ms": 70339,
+      "end_ms": 70339,
+      "kind": "tool_call",
+      "tool": "lookup_order",
+      "args": {
+        "order_id": "GW-48502",
+        "zip": "02139"
+      },
+      "status": 200,
+      "ok": true,
+      "response": {
+        "order_id": "GW-48502",
+        "customer_name": "Priya Natarajan",
+        "status": "processing",
+        "total": 129.0,
+        "items": [
+          {
+            "sku": "LAMP-7",
+            "name": "Desk lamp",
+            "qty": 1,
+            "price": 129.0
+          }
+        ],
+        "shipping_address": "77 Massachusetts Ave, Cambridge, MA 02139",
+        "refunded": false,
+        "refund": null
+      },
+      "id": 3
+    },
+    {
+      "t_ms": 70880,
+      "end_ms": 72500,
+      "kind": "agent_speech",
+      "n": 15
+    },
+    {
+      "t_ms": 73080,
+      "end_ms": 74560,
+      "kind": "agent_speech",
+      "n": 16
+    },
+    {
+      "t_ms": 74623,
+      "kind": "agent_said",
+      "text": "I'm transferring you to a team member now. Thank you for your patience, goodbye.",
+      "n": 5,
+      "interrupted": false
+    }
+  ],
+  "ux": {
+    "duration_ms": 74859,
+    "greeting_first": true,
+    "first_agent_audio_ms": 1940,
+    "caller_segments": 10,
+    "agent_segments": 16,
+    "responses": [
+      {
+        "caller_end_ms": 7500,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 10120,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 13480,
+        "agent_start_ms": 14960,
+        "latency_ms": 1480
+      },
+      {
+        "caller_end_ms": 26100,
+        "agent_start_ms": 28160,
+        "latency_ms": 2060
+      },
+      {
+        "caller_end_ms": 39800,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 42720,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 46480,
+        "agent_start_ms": 47880,
+        "latency_ms": 1400
+      },
+      {
+        "caller_end_ms": 61600,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 66380,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 68840,
+        "agent_start_ms": 70880,
+        "latency_ms": 2040
+      }
+    ],
+    "latency_ms": {
+      "n": 4,
+      "p50": 2040,
+      "p95": 2060,
+      "max": 2060
+    },
+    "dead_air": [
+      {
+        "start_ms": 36020,
+        "end_ms": 39200,
+        "gap_ms": 3180,
+        "after": "agent"
+      }
+    ],
+    "dead_air_total_ms": 3180,
+    "talk_over": [],
+    "barge_in": [],
+    "caller_speech_ms": 22000,
+    "agent_speech_ms": 26940
+  }
+}

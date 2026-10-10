@@ -1,0 +1,98 @@
+{
+  "call_id": "a8d032bb2a4c-3-e974d8",
+  "session_id": "a8d032bb2a4c",
+  "session_title": "Refund from a fast, impatient caller walking down a busy street",
+  "attempt": 3,
+  "engine": "gf-caller",
+  "room": "gf-sim-a8d032bb2a4c-3-e974d8",
+  "agent_config_hash": "70ed03f335ef",
+  "agent_variant": null,
+  "agent_models": {
+    "stt": {
+      "vendor": "deepgram",
+      "model": "nova-3",
+      "keyterms": [
+        "Gateway Goods",
+        "GW",
+        "order number",
+        "zip code",
+        "refund",
+        "escalate"
+      ]
+    },
+    "llm": {
+      "vendor": "openai",
+      "model": "gpt-4.1-mini",
+      "temperature": 0.3
+    },
+    "tts": {
+      "vendor": "deepgram",
+      "model": "aura-2-luna-en"
+    }
+  },
+  "caller": {
+    "persona": {
+      "name": "Maria Lopez",
+      "style": "hurried",
+      "accent": "en-US"
+    },
+    "facts": {
+      "order_id": "GW-48213",
+      "zip": "94110",
+      "amount": 89.99,
+      "item": "countertop blender"
+    },
+    "goal": "Get a full refund of $89.99 for order GW-48213, which arrived broken. You are in a hurry; say so once.",
+    "stop_when": "the agent confirms the refund was issued",
+    "opening": null,
+    "voice": "aura-2-aurora-en",
+    "pace": 1.25,
+    "llm": {
+      "model": "gpt-4.1-mini",
+      "temperature": 0.0,
+      "seed": 206
+    },
+    "conditions": {
+      "noise": "street@10dB",
+      "phone_line": true,
+      "packet_loss": 0.05,
+      "low_quality_mic": false,
+      "interruptions": 0.0,
+      "patience_s": 10.0
+    },
+    "limits": {
+      "max_turns": 12,
+      "max_duration_s": 150.0,
+      "mutual_silence_reprompt_s": 3.0,
+      "mutual_silence_abort_s": 7.0
+    },
+    "persona_ref": null
+  },
+  "caller_params_unsupported": [],
+  "fixtures": "orders_basic",
+  "faults": [],
+  "started_ms": 1791569900810,
+  "ended_ms": 1791570045991,
+  "ended_by": "max_turns",
+  "end_reason": "turn limit reached",
+  "goal_met": false,
+  "agent_record_complete": true,
+  "tool_calls": [
+    [
+      "lookup_order",
+      404
+    ],
+    [
+      "lookup_order",
+      404
+    ],
+    [
+      "lookup_order",
+      200
+    ],
+    [
+      "issue_refund",
+      200
+    ]
+  ]
+}

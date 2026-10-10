@@ -1,0 +1,164 @@
+{
+  "t0_ms": 1791569931250,
+  "sample_rate": 16000,
+  "events": [
+    {
+      "t_ms": 1880,
+      "end_ms": 3100,
+      "kind": "agent_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 3700,
+      "end_ms": 4300,
+      "kind": "agent_speech",
+      "n": 2
+    },
+    {
+      "t_ms": 4880,
+      "end_ms": 5840,
+      "kind": "agent_speech",
+      "n": 3
+    },
+    {
+      "t_ms": 5936,
+      "kind": "agent_said",
+      "text": "Thanks for calling Gateway Goods, this is Ava. How can I help you today?",
+      "n": 1,
+      "interrupted": false
+    },
+    {
+      "t_ms": 6804,
+      "end_ms": 10497,
+      "kind": "caller_said",
+      "text": "Hi, I'm calling because my countertop blender from order G W 4 8 2 1 3 arrived broken and I want a full refund.",
+      "n": 1
+    },
+    {
+      "t_ms": 7200,
+      "end_ms": 11760,
+      "kind": "caller_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 9879,
+      "kind": "agent_heard",
+      "text": "Hi. I'm calling because my countertop blender"
+    },
+    {
+      "t_ms": 12100,
+      "end_ms": 14560,
+      "kind": "caller_speech",
+      "n": 2
+    },
+    {
+      "t_ms": 12269,
+      "kind": "agent_heard",
+      "text": "from order GW four eight two one three"
+    },
+    {
+      "t_ms": 14926,
+      "kind": "agent_heard",
+      "text": "arrived broken, and I want a full refund."
+    },
+    {
+      "t_ms": 16100,
+      "end_ms": 16800,
+      "kind": "agent_speech",
+      "n": 4
+    },
+    {
+      "t_ms": 17420,
+      "end_ms": 19340,
+      "kind": "agent_speech",
+      "n": 5
+    },
+    {
+      "t_ms": 19920,
+      "end_ms": 21900,
+      "kind": "agent_speech",
+      "n": 6
+    },
+    {
+      "t_ms": 21900,
+      "end_ms": 33360,
+      "kind": "dead_air",
+      "gap_ms": 11460
+    },
+    {
+      "t_ms": 22093,
+      "kind": "agent_said",
+      "text": "I can help with that. Could you please provide the zip code on the order? I need it along with the order number to look it up.",
+      "n": 2,
+      "interrupted": false
+    },
+    {
+      "t_ms": 32917,
+      "end_ms": 34346,
+      "kind": "caller_said",
+      "text": "The ZIP code is 9 4 1 1 0.",
+      "n": 2
+    },
+    {
+      "t_ms": 33360,
+      "end_ms": 35060,
+      "kind": "caller_speech",
+      "n": 3
+    },
+    {
+      "t_ms": 35466,
+      "kind": "agent_heard",
+      "text": "The ZIP code is nine four one"
+    },
+    {
+      "t_ms": 37212,
+      "kind": "agent_said",
+      "text": "I need the",
+      "n": 3,
+      "interrupted": true
+    }
+  ],
+  "ux": {
+    "duration_ms": 35079,
+    "greeting_first": true,
+    "first_agent_audio_ms": 1880,
+    "caller_segments": 3,
+    "agent_segments": 6,
+    "responses": [
+      {
+        "caller_end_ms": 11760,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 14560,
+        "agent_start_ms": 16100,
+        "latency_ms": 1540
+      },
+      {
+        "caller_end_ms": 35060,
+        "agent_start_ms": null,
+        "latency_ms": null
+      }
+    ],
+    "latency_ms": {
+      "n": 1,
+      "p50": 1540,
+      "p95": 1540,
+      "max": 1540
+    },
+    "dead_air": [
+      {
+        "start_ms": 21900,
+        "end_ms": 33360,
+        "gap_ms": 11460,
+        "after": "agent"
+      }
+    ],
+    "dead_air_total_ms": 11460,
+    "talk_over": [],
+    "barge_in": [],
+    "caller_speech_ms": 8720,
+    "agent_speech_ms": 7380
+  }
+}

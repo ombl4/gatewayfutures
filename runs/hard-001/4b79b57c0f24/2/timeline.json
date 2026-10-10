@@ -1,0 +1,554 @@
+{
+  "t0_ms": 1791590187330,
+  "sample_rate": 16000,
+  "events": [
+    {
+      "t_ms": 1880,
+      "end_ms": 3220,
+      "kind": "agent_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 3680,
+      "end_ms": 4360,
+      "kind": "agent_speech",
+      "n": 2
+    },
+    {
+      "t_ms": 4920,
+      "end_ms": 5840,
+      "kind": "agent_speech",
+      "n": 3
+    },
+    {
+      "t_ms": 6003,
+      "kind": "agent_said",
+      "text": "Thanks for calling Gateway Goods, this is Ava. How can I help you today?",
+      "n": 1,
+      "interrupted": false
+    },
+    {
+      "t_ms": 6627,
+      "end_ms": 11896,
+      "kind": "caller_said",
+      "text": "Hi Eva, I'm calling because I received my order G W 4 8 2 1 3, and it arrived broken. I'd like to request a full refund for that order.",
+      "n": 1
+    },
+    {
+      "t_ms": 7040,
+      "end_ms": 7760,
+      "kind": "caller_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 8080,
+      "end_ms": 13040,
+      "kind": "caller_speech",
+      "n": 2
+    },
+    {
+      "t_ms": 8129,
+      "kind": "agent_heard",
+      "text": "Eva."
+    },
+    {
+      "t_ms": 13136,
+      "kind": "agent_heard",
+      "text": "I'm calling because I received my order GW four eight"
+    },
+    {
+      "t_ms": 13337,
+      "kind": "agent_heard",
+      "text": "two one three."
+    },
+    {
+      "t_ms": 13660,
+      "end_ms": 15140,
+      "kind": "caller_speech",
+      "n": 3
+    },
+    {
+      "t_ms": 15520,
+      "end_ms": 17820,
+      "kind": "caller_speech",
+      "n": 4
+    },
+    {
+      "t_ms": 18246,
+      "kind": "agent_heard",
+      "text": "And it arrived broken. I'd like to request a full refund for that order."
+    },
+    {
+      "t_ms": 19560,
+      "end_ms": 20300,
+      "kind": "agent_speech",
+      "n": 4
+    },
+    {
+      "t_ms": 20860,
+      "end_ms": 22920,
+      "kind": "agent_speech",
+      "n": 5
+    },
+    {
+      "t_ms": 23047,
+      "kind": "agent_said",
+      "text": "I can help with that. Could you please provide the zip code on the order?",
+      "n": 2,
+      "interrupted": false
+    },
+    {
+      "t_ms": 23657,
+      "end_ms": 26363,
+      "kind": "caller_said",
+      "text": "Yes, the ZIP code on the order is 9 4 1 1 0.",
+      "n": 2
+    },
+    {
+      "t_ms": 24620,
+      "end_ms": 24980,
+      "kind": "caller_speech",
+      "n": 5
+    },
+    {
+      "t_ms": 25420,
+      "end_ms": 28780,
+      "kind": "caller_speech",
+      "n": 6
+    },
+    {
+      "t_ms": 25430,
+      "kind": "agent_heard",
+      "text": "Yes."
+    },
+    {
+      "t_ms": 29086,
+      "kind": "agent_heard",
+      "text": "The ZIP code on the order is nine four one one zero."
+    },
+    {
+      "t_ms": 29730,
+      "end_ms": 29730,
+      "kind": "tool_call",
+      "tool": "lookup_order",
+      "args": {
+        "order_id": "GW-48213",
+        "zip": "94110"
+      },
+      "status": 200,
+      "ok": true,
+      "response": {
+        "order_id": "GW-48213",
+        "customer_name": "Maria Lopez",
+        "status": "delivered",
+        "total": 89.99,
+        "items": [
+          {
+            "sku": "BLND-200",
+            "name": "Countertop blender",
+            "qty": 1,
+            "price": 89.99
+          }
+        ],
+        "shipping_address": "742 Valencia St, San Francisco, CA 94110",
+        "refunded": false,
+        "refund": null
+      },
+      "id": 1
+    },
+    {
+      "t_ms": 30940,
+      "end_ms": 33340,
+      "kind": "agent_speech",
+      "n": 6
+    },
+    {
+      "t_ms": 33720,
+      "end_ms": 38080,
+      "kind": "agent_speech",
+      "n": 7
+    },
+    {
+      "t_ms": 38780,
+      "end_ms": 40340,
+      "kind": "agent_speech",
+      "n": 8
+    },
+    {
+      "t_ms": 40530,
+      "kind": "agent_said",
+      "text": "Your order GW 4 8 2 1 3 for a countertop blender was delivered and the total was $89.99. Is that the amount you want refunded?",
+      "n": 3,
+      "interrupted": false
+    },
+    {
+      "t_ms": 41495,
+      "end_ms": 48259,
+      "kind": "caller_said",
+      "text": "Actually, forget the refund. Instead, I want to change the shipping address on my other order, G W 4 8 5 0 2, to 900 Market Street, San Francisco, California 9 4 1 0 2.",
+      "n": 3
+    },
+    {
+      "t_ms": 42040,
+      "end_ms": 43380,
+      "kind": "caller_speech",
+      "n": 7
+    },
+    {
+      "t_ms": 43773,
+      "kind": "agent_heard",
+      "text": "Actually, forget the refund."
+    },
+    {
+      "t_ms": 43920,
+      "end_ms": 49540,
+      "kind": "caller_speech",
+      "n": 8
+    },
+    {
+      "t_ms": 47387,
+      "kind": "agent_heard",
+      "text": "Instead, I want to change the shipping address on my other order."
+    },
+    {
+      "t_ms": 49887,
+      "kind": "agent_heard",
+      "text": "GW four eight five zero two,"
+    },
+    {
+      "t_ms": 50100,
+      "end_ms": 56180,
+      "kind": "caller_speech",
+      "n": 9
+    },
+    {
+      "t_ms": 51792,
+      "kind": "agent_heard",
+      "text": "to nine zero zero"
+    },
+    {
+      "t_ms": 54483,
+      "kind": "agent_heard",
+      "text": "Market Street, San Francisco, California"
+    },
+    {
+      "t_ms": 56536,
+      "kind": "agent_heard",
+      "text": "nine four one zero two."
+    },
+    {
+      "t_ms": 57800,
+      "end_ms": 58500,
+      "kind": "agent_speech",
+      "n": 9
+    },
+    {
+      "t_ms": 59080,
+      "end_ms": 63420,
+      "kind": "agent_speech",
+      "n": 10
+    },
+    {
+      "t_ms": 63780,
+      "end_ms": 64500,
+      "kind": "agent_speech",
+      "n": 11
+    },
+    {
+      "t_ms": 64676,
+      "kind": "agent_said",
+      "text": "I can help with that. Please provide the zip code on order GW 4 8 5 0 2 so I can look it up.",
+      "n": 4,
+      "interrupted": false
+    },
+    {
+      "t_ms": 65609,
+      "end_ms": 68706,
+      "kind": "caller_said",
+      "text": "I don't remember the ZIP code on that order. It was a gift I placed for a friend. Could you please check again?",
+      "n": 4
+    },
+    {
+      "t_ms": 66400,
+      "end_ms": 68000,
+      "kind": "caller_speech",
+      "n": 10
+    },
+    {
+      "t_ms": 68379,
+      "kind": "agent_heard",
+      "text": "I don't remember the ZIP code on that order."
+    },
+    {
+      "t_ms": 68560,
+      "end_ms": 70320,
+      "kind": "caller_speech",
+      "n": 11
+    },
+    {
+      "t_ms": 70732,
+      "kind": "agent_heard",
+      "text": "It was a gift I placed for a friend"
+    },
+    {
+      "t_ms": 70740,
+      "end_ms": 71840,
+      "kind": "caller_speech",
+      "n": 12
+    },
+    {
+      "t_ms": 72238,
+      "kind": "agent_heard",
+      "text": "Could you please check again?"
+    },
+    {
+      "t_ms": 73240,
+      "end_ms": 75000,
+      "kind": "agent_speech",
+      "n": 12
+    },
+    {
+      "t_ms": 75620,
+      "end_ms": 77240,
+      "kind": "agent_speech",
+      "n": 13
+    },
+    {
+      "t_ms": 77392,
+      "kind": "agent_said",
+      "text": "I need the zip code on the order to look it up. Could you please check and tell me the zip code?",
+      "n": 5,
+      "interrupted": false
+    },
+    {
+      "t_ms": 78102,
+      "end_ms": 82154,
+      "kind": "caller_said",
+      "text": "I'm sorry, but I really don't have the ZIP code for that order. It was a gift, and I don't remember the ZIP code. Could you please try to find it without the ZIP?",
+      "n": 5
+    },
+    {
+      "t_ms": 78720,
+      "end_ms": 81480,
+      "kind": "caller_speech",
+      "n": 13
+    },
+    {
+      "t_ms": 81835,
+      "kind": "agent_heard",
+      "text": "I'm sorry, but I really don't have the ZIP code for that order."
+    },
+    {
+      "t_ms": 81960,
+      "end_ms": 84140,
+      "kind": "caller_speech",
+      "n": 14
+    },
+    {
+      "t_ms": 84595,
+      "kind": "agent_heard",
+      "text": "It was a gift, and I don't remember the ZIP code."
+    },
+    {
+      "t_ms": 84700,
+      "end_ms": 86420,
+      "kind": "caller_speech",
+      "n": 15
+    },
+    {
+      "t_ms": 86894,
+      "kind": "agent_heard",
+      "text": "Could you please try to find it without the ZIP?"
+    },
+    {
+      "t_ms": 88020,
+      "end_ms": 90640,
+      "kind": "agent_speech",
+      "n": 14
+    },
+    {
+      "t_ms": 91120,
+      "end_ms": 94140,
+      "kind": "agent_speech",
+      "n": 15
+    },
+    {
+      "t_ms": 94700,
+      "end_ms": 96340,
+      "kind": "agent_speech",
+      "n": 16
+    },
+    {
+      "t_ms": 96594,
+      "kind": "agent_said",
+      "text": "I can't look up orders without the zip code for security. If you find the zip code, please call back and I'll help you right away. Is there anything else I can assist with?",
+      "n": 6,
+      "interrupted": false
+    },
+    {
+      "t_ms": 97608,
+      "end_ms": 99481,
+      "kind": "caller_said",
+      "text": "No, that's all for now. Thank you for your help. Goodbye.",
+      "n": 6
+    },
+    {
+      "t_ms": 98180,
+      "end_ms": 99140,
+      "kind": "caller_speech",
+      "n": 16
+    },
+    {
+      "t_ms": 99577,
+      "kind": "agent_heard",
+      "text": "No. That's all for now."
+    },
+    {
+      "t_ms": 99680,
+      "end_ms": 100460,
+      "kind": "caller_speech",
+      "n": 17
+    },
+    {
+      "t_ms": 100931,
+      "kind": "agent_heard",
+      "text": "Thank you for your help."
+    },
+    {
+      "t_ms": 100960,
+      "end_ms": 101260,
+      "kind": "caller_speech",
+      "n": 18
+    },
+    {
+      "t_ms": 101637,
+      "kind": "agent_heard",
+      "text": "Goodbye."
+    },
+    {
+      "t_ms": 101791,
+      "end_ms": 102173,
+      "kind": "caller_said",
+      "text": "Goodbye.",
+      "n": 7
+    },
+    {
+      "t_ms": 104344,
+      "kind": "agent_said",
+      "text": "You're welcome.",
+      "n": 7,
+      "interrupted": true
+    }
+  ],
+  "ux": {
+    "duration_ms": 102297,
+    "greeting_first": true,
+    "first_agent_audio_ms": 1880,
+    "caller_segments": 18,
+    "agent_segments": 16,
+    "responses": [
+      {
+        "caller_end_ms": 7760,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 13040,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 15140,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 17820,
+        "agent_start_ms": 19560,
+        "latency_ms": 1740
+      },
+      {
+        "caller_end_ms": 24980,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 28780,
+        "agent_start_ms": 30940,
+        "latency_ms": 2160
+      },
+      {
+        "caller_end_ms": 43380,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 49540,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 56180,
+        "agent_start_ms": 57800,
+        "latency_ms": 1620
+      },
+      {
+        "caller_end_ms": 68000,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 70320,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 71840,
+        "agent_start_ms": 73240,
+        "latency_ms": 1400
+      },
+      {
+        "caller_end_ms": 81480,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 84140,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 86420,
+        "agent_start_ms": 88020,
+        "latency_ms": 1600
+      },
+      {
+        "caller_end_ms": 99140,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 100460,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 101260,
+        "agent_start_ms": null,
+        "latency_ms": null
+      }
+    ],
+    "latency_ms": {
+      "n": 5,
+      "p50": 1620,
+      "p95": 2160,
+      "max": 2160
+    },
+    "dead_air": [],
+    "dead_air_total_ms": 0,
+    "talk_over": [],
+    "barge_in": [],
+    "caller_speech_ms": 39380,
+    "agent_speech_ms": 30480
+  }
+}

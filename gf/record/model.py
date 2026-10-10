@@ -39,6 +39,16 @@ class AgentTurn(BaseModel):
     metrics: dict[str, Any] = Field(default_factory=dict)
 
 
+def _audio_file(f: Path) -> str | None:
+    """The recording: audio.wav from a run, or audio.mp3 when a run is committed to the
+    repository without its WAV files (the MP3 plays and draws the waveform; the committed
+    timeline.json is kept rather than rebuilt from lossy audio)."""
+    for name in ("audio.wav", "audio.mp3"):
+        if (f / name).exists():
+            return str(f / name)
+    return None
+
+
 class CallRecord(BaseModel):
     folder: str
     call_id: str
@@ -126,7 +136,7 @@ class CallRecord(BaseModel):
             attempt=int(meta.get("attempt", 1)),
             meta=meta,
             t0_ms=t0,
-            audio_path=str(f / "audio.wav") if (f / "audio.wav").exists() else None,
+            audio_path=_audio_file(f),
             audio_duration_s=float(audio.get("duration_s") or 0.0),
             caller_turns=caller_turns,
             caller_heard=caller_heard,

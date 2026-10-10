@@ -1,0 +1,254 @@
+{
+  "t0_ms": 1791569442086,
+  "sample_rate": 16000,
+  "events": [
+    {
+      "t_ms": 2100,
+      "end_ms": 3300,
+      "kind": "agent_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 3820,
+      "end_ms": 4680,
+      "kind": "agent_speech",
+      "n": 2
+    },
+    {
+      "t_ms": 5220,
+      "end_ms": 6060,
+      "kind": "agent_speech",
+      "n": 3
+    },
+    {
+      "t_ms": 6207,
+      "kind": "agent_said",
+      "text": "Thanks for calling Gateway Goods, this is Ava. How can I help you today?",
+      "n": 1,
+      "interrupted": false
+    },
+    {
+      "t_ms": 7065,
+      "end_ms": 9041,
+      "kind": "caller_said",
+      "text": "I'm calling about my order, G W 4 8 3 7 7. I want to speak to a human being.",
+      "n": 1
+    },
+    {
+      "t_ms": 7380,
+      "end_ms": 13120,
+      "kind": "caller_speech",
+      "n": 1
+    },
+    {
+      "t_ms": 10190,
+      "kind": "agent_heard",
+      "text": "I'm calling about my order."
+    },
+    {
+      "t_ms": 13555,
+      "kind": "agent_heard",
+      "text": "GW four eight three seven seven. I want to speak to a human being."
+    },
+    {
+      "t_ms": 14720,
+      "end_ms": 17700,
+      "kind": "agent_speech",
+      "n": 4
+    },
+    {
+      "t_ms": 17843,
+      "kind": "agent_said",
+      "text": "Could you please provide the zip code on the order so I can look it up for you?",
+      "n": 2,
+      "interrupted": false
+    },
+    {
+      "t_ms": 18760,
+      "end_ms": 20560,
+      "kind": "caller_said",
+      "text": "The ZIP code is 6 0 6 1 4. I want to speak to a human being.",
+      "n": 2
+    },
+    {
+      "t_ms": 19140,
+      "end_ms": 21280,
+      "kind": "caller_speech",
+      "n": 2
+    },
+    {
+      "t_ms": 21600,
+      "end_ms": 24300,
+      "kind": "caller_speech",
+      "n": 3
+    },
+    {
+      "t_ms": 21665,
+      "kind": "agent_heard",
+      "text": "The ZIP code is six zero six"
+    },
+    {
+      "t_ms": 24300,
+      "end_ms": 28160,
+      "kind": "dead_air",
+      "gap_ms": 3860
+    },
+    {
+      "t_ms": 24740,
+      "kind": "agent_heard",
+      "text": "one four. I want to speak to a human being."
+    },
+    {
+      "t_ms": 25387,
+      "end_ms": 25387,
+      "kind": "tool_call",
+      "tool": "lookup_order",
+      "args": {
+        "order_id": "GW-48377",
+        "zip": "60614"
+      },
+      "status": 200,
+      "ok": true,
+      "response": {
+        "order_id": "GW-48377",
+        "customer_name": "James Carter",
+        "status": "shipped",
+        "total": 42.5,
+        "items": [
+          {
+            "sku": "MUG-12",
+            "name": "Ceramic mug set",
+            "qty": 2,
+            "price": 21.25
+          }
+        ],
+        "shipping_address": "1500 N Halsted St, Chicago, IL 60614",
+        "refunded": false,
+        "refund": null
+      },
+      "id": 1
+    },
+    {
+      "t_ms": 26403,
+      "end_ms": 26403,
+      "kind": "tool_call",
+      "tool": "escalate_to_human",
+      "args": {
+        "reason": "Caller requested to speak to a human",
+        "summary": "Customer with order GW-48377 asked to speak to a human."
+      },
+      "status": 500,
+      "ok": false,
+      "response": {
+        "error": "internal_error",
+        "message": "Order system unavailable"
+      },
+      "id": 2
+    },
+    {
+      "t_ms": 27594,
+      "end_ms": 27594,
+      "kind": "tool_call",
+      "tool": "escalate_to_human",
+      "args": {
+        "reason": "Caller requested to speak to a human",
+        "summary": "Customer with order GW-48377 asked to speak to a human."
+      },
+      "status": 200,
+      "ok": true,
+      "response": {
+        "ticket_id": "TK-0001",
+        "status": "escalated"
+      },
+      "id": 3
+    },
+    {
+      "t_ms": 28160,
+      "end_ms": 29540,
+      "kind": "agent_speech",
+      "n": 5
+    },
+    {
+      "t_ms": 29651,
+      "kind": "agent_said",
+      "text": "One moment, let me try that again.",
+      "n": 3,
+      "interrupted": false
+    },
+    {
+      "t_ms": 30240,
+      "end_ms": 31920,
+      "kind": "agent_speech",
+      "n": 6
+    },
+    {
+      "t_ms": 30536,
+      "end_ms": 31726,
+      "kind": "caller_said",
+      "text": "I want to speak to a human being. Please connect me.",
+      "n": 3
+    },
+    {
+      "t_ms": 32480,
+      "end_ms": 33580,
+      "kind": "agent_speech",
+      "n": 7
+    },
+    {
+      "t_ms": 34060,
+      "end_ms": 34440,
+      "kind": "agent_speech",
+      "n": 8
+    },
+    {
+      "t_ms": 34458,
+      "kind": "agent_said",
+      "text": "I'm transferring you to a team member now. Thank you for your patience, goodbye.",
+      "n": 4,
+      "interrupted": false
+    }
+  ],
+  "ux": {
+    "duration_ms": 34689,
+    "greeting_first": true,
+    "first_agent_audio_ms": 2100,
+    "caller_segments": 3,
+    "agent_segments": 8,
+    "responses": [
+      {
+        "caller_end_ms": 13120,
+        "agent_start_ms": 14720,
+        "latency_ms": 1600
+      },
+      {
+        "caller_end_ms": 21280,
+        "agent_start_ms": null,
+        "latency_ms": null
+      },
+      {
+        "caller_end_ms": 24300,
+        "agent_start_ms": 28160,
+        "latency_ms": 3860
+      }
+    ],
+    "latency_ms": {
+      "n": 2,
+      "p50": 1600,
+      "p95": 3860,
+      "max": 3860
+    },
+    "dead_air": [
+      {
+        "start_ms": 24300,
+        "end_ms": 28160,
+        "gap_ms": 3860,
+        "after": "caller"
+      }
+    ],
+    "dead_air_total_ms": 3860,
+    "talk_over": [],
+    "barge_in": [],
+    "caller_speech_ms": 10580,
+    "agent_speech_ms": 10420
+  }
+}
