@@ -102,3 +102,33 @@ def test_otlp_export_round_trips_ids_and_status(tmp_path):
     assert export(folder).name == "spans.json"
     out = export(folder, otlp=True)
     assert out.name == "spans.otlp.json" and "resourceSpans" in json.loads(out.read_text())
+
+
+def test_spans_sit_on_the_recording_clock():
+    """Event timestamps run ahead of the recording. A reply whose audio start was matched is
+    placed where the recording has the agent's voice; a caller turn where it has the caller's;
+    tool calls move with the reply they belong to."""
+    from gf.record.latency import align_to_audio
+
+    assert align_to_audio(1000, [900, 1450, 4000]) == 900  # nearest within the window
+    assert align_to_audio(1000, [600, 2600]) is None  # too early, too late
+    assert align_to_audio(1000, []) is None
+
+    rec, b = _build("refund-basic")
+    tl = json.loads((FIX / "refund-basic" / "timeline.json").read_text())
+    agent_starts = {e["t_ms"] for e in tl["events"] if e["kind"] == "agent_speech"}
+    caller_starts = {e["t_ms"] for e in tl["events"] if e["kind"] == "caller_speech"}
+    spans = b["spans"]
+    by_id = {s["id"]: s for s in spans}
+    # the playback child ends where the recording hears the reply
+    playback = [s for s in spans if s["kind"] == "playback"]
+    matched = [s for s in playback if s["t1_ms"] in agent_starts]
+    assert matched, "no reply was placed on an audio segment"
+    # a caller turn that was shifted starts on an audio caller segment
+    shifted = [s for s in spans if s["kind"] == "user_turn" and s["attrs"].get("audio_shift_ms")]
+    assert shifted and all(s["t0_ms"] in caller_starts for s in shifted)
+    # a tool call stays inside the reasoning span it belongs to
+    for s in spans:
+        if s["kind"] == "tool_call" and s["parent"] != spans[0]["id"]:
+            p = by_id[s["parent"]]
+            assert p["t0_ms"] <= s["t0_ms"] and s["t1_ms"] <= p["t1_ms"]

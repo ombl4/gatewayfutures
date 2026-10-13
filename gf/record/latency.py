@@ -76,12 +76,16 @@ def turn_latency(record: CallRecord, timeline: dict[str, Any]) -> dict[str, Any]
             int(m["started_speaking_at"] * 1000) - t0 if m.get("started_speaking_at") else at.t_ms
         )
         end = int(m["stopped_speaking_at"] * 1000) - t0 if m.get("stopped_speaking_at") else None
-        heard = _nearest_response(responses, start)
+        matched = _nearest_response(responses, start)
+        heard = matched["latency_ms"] if matched else None
         grp = _group_for(groups, start, used)
         row: dict[str, Any] = {
             "n": at.n,
             "text": at.text[:90],
             "t_ms": start,
+            # the same reply as the recording heard it: speech reaches the recorder some
+            # hundreds of ms after the agent's clock says it started (network, jitter buffer)
+            "audio_start_ms": matched["agent_start_ms"] if matched else None,
             "duration_ms": (end - start) if end is not None else None,
             "interrupted": at.interrupted,
             "heard_ms": heard,
@@ -158,7 +162,11 @@ def _group_for(groups: list[dict[str, Any]], start_ms: int, used: set[int]) -> d
     return groups[best]
 
 
-def _nearest_response(responses: list[dict[str, Any]], start_ms: int) -> int | None:
+ALIGN_BEFORE_MS = 300  # audio may lead an event clock by this much (clock skew)
+ALIGN_AFTER_MS = 1500  # and trail it by this much (transport and buffering)
+
+
+def _nearest_response(responses: list[dict[str, Any]], start_ms: int) -> dict[str, Any] | None:
     cands = [
         r
         for r in responses
@@ -166,7 +174,16 @@ def _nearest_response(responses: list[dict[str, Any]], start_ms: int) -> int | N
     ]
     if not cands:
         return None
-    return min(cands, key=lambda r: abs(r["agent_start_ms"] - start_ms))["latency_ms"]
+    return min(cands, key=lambda r: abs(r["agent_start_ms"] - start_ms))
+
+
+def align_to_audio(t_ms: int, starts: list[int]) -> int | None:
+    """The audio speech segment that is this event: the nearest segment start no more than
+    ALIGN_BEFORE_MS before and ALIGN_AFTER_MS after the event's own clock. Event timestamps
+    (the caller's TTS start, the agent's started_speaking_at) run ahead of the recording by
+    roughly half a second, so anything placed against the audio uses the segment start."""
+    cands = [s for s in starts if -ALIGN_BEFORE_MS <= s - t_ms <= ALIGN_AFTER_MS]
+    return min(cands, key=lambda s: abs(s - t_ms)) if cands else None
 
 
 def _ms(v: Any) -> int | None:

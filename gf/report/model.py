@@ -19,7 +19,7 @@ import soundfile as sf
 from gf.agent.config import agent_config
 from gf.config import ROOT, settings, thresholds
 from gf.environment import registry, tags_of
-from gf.record.latency import STAGES, turn_latency
+from gf.record.latency import STAGES, align_to_audio, turn_latency
 from gf.record.model import CallRecord
 from gf.record.spans import build_spans
 from gf.runner.batch import list_runs
@@ -2009,17 +2009,21 @@ def _merge_turns(record: CallRecord, timeline: dict[str, Any]) -> list[dict[str,
     items: list[dict[str, Any]] = []
     responses = (timeline.get("ux") or {}).get("responses", [])
     agent_speech = [e for e in timeline.get("events", []) if e["kind"] == "agent_speech"]
+    caller_starts = [e["t_ms"] for e in timeline.get("events", []) if e["kind"] == "caller_speech"]
     heard = list(record.agent_heard)
 
     for ct in record.caller_turns:
         # what the agent's STT produced while this turn was being spoken (plus a tail)
         parts = [h["text"] for h in heard if ct.t_start_ms - 500 <= h["t_ms"] <= ct.t_end_ms + 2500]
         heard_text = " ".join(parts).strip()
+        # placed where the recording has the words, not where the caller's clock started TTS
+        aligned = align_to_audio(ct.t_start_ms, caller_starts)
+        shift = (aligned - ct.t_start_ms) if aligned is not None else 0
         items.append(
             {
                 "kind": "caller",
-                "t_ms": ct.t_start_ms,
-                "end_ms": ct.t_end_ms,
+                "t_ms": ct.t_start_ms + shift,
+                "end_ms": ct.t_end_ms + shift,
                 "n": ct.n,
                 "text": ct.text,
                 "interruption": ct.interruption,
@@ -2039,6 +2043,12 @@ def _merge_turns(record: CallRecord, timeline: dict[str, Any]) -> list[dict[str,
                 default=None,
             )
             start = seg["t_ms"] if seg else at.t_ms
+        else:
+            aligned = align_to_audio(start, [s["t_ms"] for s in agent_speech])
+            if aligned is not None:
+                if end is not None:
+                    end += aligned - start
+                start = aligned
         # heard latency: the response whose agent_start is closest to this turn's audio start
         lat = None
         if start is not None:

@@ -373,7 +373,7 @@
     const tg = e.target.closest('.sp .tg:not(.none)'); if (tg) { const r = tg.closest('.sp'); st.folded.has(r.dataset.id) ? st.folded.delete(r.dataset.id) : st.folded.add(r.dataset.id); layout(); return; }
     const r = e.target.closest('#tr-rows .sp'); if (!r) return;
     select(r.dataset.id);
-    if (e.target.closest('.c-lane') && window.gfInspector) window.gfInspector.seek(+r.dataset.t0);
+    if (window.gfInspector) window.gfInspector.seek(+r.dataset.t0);
   });
   document.getElementById('tr-expand').addEventListener('click', () => { if (st.folded.size) st.folded.clear(); else rows.forEach(r => { if (r.dataset.kids) st.folded.add(r.dataset.id); }); layout(); });
   document.getElementById('tr-q').addEventListener('input', e => { st.q = e.target.value.trim().toLowerCase(); layout(); });
@@ -393,21 +393,34 @@
   });
   pane.addEventListener('mouseleave', () => { tip.hidden = true; });
   const audio = document.getElementById('insp-audio'), play = document.getElementById('tr-play'), playLbl = document.getElementById('tr-play-lbl');
+  let tick = () => {};
   if (audio) {
-    const tick = () => {
+    let lastCur = null;
+    tick = () => {
       const ms = audio.currentTime * 1000, lane = rows.find(r => !r.hidden) && rows.find(r => !r.hidden).querySelector('.c-lane');
       if (!lane || pane.hidden) { play.hidden = true; return; }
       play.hidden = false; play.style.left = (lane.offsetLeft + lane.offsetWidth * ms / dur) + 'px';
       playLbl.textContent = fmtClock(ms) + (pane.dataset.p95 ? ' · p95 ' + (pane.dataset.p95/1000).toFixed(1) + 's' : '');
+      // rows whose span holds the playhead are marked; the first visible one is kept in view
+      let first = null;
+      rows.forEach(r => { const on = r.dataset.kind !== 'call' && ms >= +r.dataset.t0 && ms < +r.dataset.t1; r.classList.toggle('current', on); if (on && !r.hidden && !first) first = r; });
+      // while playing, the page follows the span under the playhead (seeking never scrolls)
+      if (first && first !== lastCur) {
+        lastCur = first;
+        if (!audio.paused) { const b = first.getBoundingClientRect(); if (b.top < 80 || b.bottom > window.innerHeight - 20) first.scrollIntoView({block: 'center', behavior: 'smooth'}); }
+      }
     };
-    audio.addEventListener('timeupdate', tick); audio.addEventListener('seeked', tick);
+    audio.addEventListener('timeupdate', tick); audio.addEventListener('seeked', tick); audio.addEventListener('loadedmetadata', tick);
+    // the tab's click handler (base.html) runs first and unhides the pane; then the playhead is drawn
+    document.addEventListener('click', e => { if (e.target.closest('[data-tab="spans"]')) setTimeout(() => { layout(); tick(); }, 0); });
   }
   // start with the children of tool calls folded (the backend row), the rest open; select what matters
   rows.forEach(r => { if (r.dataset.kind === 'tool_call' && r.dataset.kids) st.folded.add(r.dataset.id); });
   layout();
   const first = data.find(s => s.status === 'error' && s.kind === 'tool_call') || data.find(s => s.status === 'slow' && s.kind === 'reasoning');
   if (first) select(first.id);
-  new ResizeObserver(() => layout()).observe(table);
+  tick();
+  new ResizeObserver(() => { layout(); tick(); }).observe(table);
   window.gfSpans = { layout, select };
 })();
 </script>

@@ -34,7 +34,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from gf.record.latency import turn_latency
+from gf.record.latency import align_to_audio, turn_latency
 from gf.record.model import CallRecord
 
 KINDS = [
@@ -175,30 +175,41 @@ def build_spans(
         "voice_call", "call", 0, duration, None, session=record.session_id, call=record.call_id
     )
 
+    # Every span is placed on the recording's clock, the one the audio player runs on. The
+    # caller's and the agent's own timestamps run ahead of what the recorder heard by a few
+    # hundred ms (transport, jitter buffer), so each turn is moved onto the speech segment
+    # the recording has for it, and the stages that hang off a turn move with it.
+    caller_starts = [e["t_ms"] for e in timeline.get("events", []) if e["kind"] == "caller_speech"]
+    agent_starts = [e["t_ms"] for e in timeline.get("events", []) if e["kind"] == "agent_speech"]
+
     # caller turns, paired below with the reply that followed each of them
     user_spans: dict[int, dict[str, Any]] = {}
+    user_end: dict[int, int] = {}  # caller turn end on the recording's clock
     for ct in record.caller_turns:
+        aligned = align_to_audio(ct.t_start_ms, caller_starts)
+        shift = (aligned - ct.t_start_ms) if aligned is not None else 0
+        user_end[ct.n] = ct.t_end_ms + shift
         user_spans[ct.n] = add(
             f"turn_{ct.n}_user",
             "user_turn",
-            ct.t_start_ms,
-            ct.t_end_ms,
+            ct.t_start_ms + shift,
+            ct.t_end_ms + shift,
             root["id"],
             turn=ct.n,
             text=ct.text[:160],
             interruption=ct.interruption or None,
+            audio_shift_ms=shift or None,
         )
     used_turns: set[int] = set()
 
     def caller_turn_for(caller_end: int) -> dict[str, Any] | None:
-        best = None
+        best, best_end = None, None
         for ct in record.caller_turns:
-            if ct.n in used_turns or ct.t_end_ms > caller_end + 300:
+            end = user_end[ct.n]
+            if ct.n in used_turns or end > caller_end + 300:
                 continue
-            if caller_end - ct.t_end_ms <= PAIR_WINDOW_MS and (
-                best is None or ct.t_end_ms > best.t_end_ms
-            ):
-                best = ct
+            if caller_end - end <= PAIR_WINDOW_MS and (best is None or end > best_end):
+                best, best_end = ct, end
         if best is None:
             return None
         used_turns.add(best.n)
@@ -206,7 +217,13 @@ def build_spans(
 
     windows: list[dict[str, Any]] = []  # reasoning spans with the window tool calls fall in
     for row in lat:
-        start = row["t_ms"]
+        event_start = row["t_ms"]
+        start = row.get("audio_start_ms")
+        if start is None:  # the greeting, or a reply the latency matcher did not pair
+            start = align_to_audio(event_start, agent_starts)
+        if start is None:
+            start = event_start
+        delta = start - event_start  # the agent's clock → the recording's clock, this reply
         end = start + (row["duration_ms"] or row.get("tts_audio_ms") or 1000)
         heard = row["heard_ms"]
         text = row["text"]
@@ -295,7 +312,16 @@ def build_spans(
                 input_tokens=row.get("llm_tokens_in"),
                 output_tokens=row.get("llm_tokens_out"),
             )
-        windows.append({"span": rs, "w0": caller_end, "w1": tts_start, "turn": row["n"]})
+        # the window is kept on the agent's clock, which is what the tool log is stamped in
+        windows.append(
+            {
+                "span": rs,
+                "w0": caller_end - delta,
+                "w1": tts_start - delta,
+                "delta": delta,
+                "turn": row["n"],
+            }
+        )
         rp = add(
             "agent_response",
             "response",
@@ -313,22 +339,23 @@ def build_spans(
 
     # tool calls inside the reasoning they belong to (the next reply when no window holds them)
     for tc in record.tool_calls:
-        parent, turn = root["id"], None
+        parent, turn, shift = root["id"], None, 0
         hit = next((w for w in windows if w["w0"] - 500 <= tc.t_ms <= w["w1"] + 500), None)
         if hit is None:
             nxt = next((w for w in windows if w["w1"] > tc.t_ms), None)
             if nxt is not None and nxt["w0"] - tc.t_ms <= 20_000:
                 hit = nxt
                 sp = nxt["span"]
-                sp["t0_ms"] = min(sp["t0_ms"], tc.t_ms)
+                sp["t0_ms"] = min(sp["t0_ms"], tc.t_ms + nxt["delta"])
                 sp["duration_ms"] = sp["t1_ms"] - sp["t0_ms"]
         if hit is not None:
-            parent, turn = hit["span"]["id"], hit["turn"]
+            parent, turn, shift = hit["span"]["id"], hit["turn"], hit["delta"]
+        tc_t0 = tc.t_ms + shift
         t = add(
             f"tool_call {tc.tool}",
             "tool_call",
-            tc.t_ms,
-            tc.t_ms + tc.duration_ms,
+            tc_t0,
+            tc_t0 + tc.duration_ms,
             parent,
             status="ok" if tc.ok else "error",
             turn=turn,
@@ -343,8 +370,8 @@ def build_spans(
         add(
             f"backend {tc.tool} (order system)",
             "backend",
-            tc.t_ms,
-            tc.t_ms + tc.duration_ms,
+            tc_t0,
+            tc_t0 + tc.duration_ms,
             t["id"],
             status="ok" if tc.ok else "error",
             turn=turn,
