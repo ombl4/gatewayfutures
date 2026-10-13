@@ -78,12 +78,14 @@ uv run gf targets test acme                        # dispatch it into a room and
 uv run gf run --suite core --target acme           # run the set against that agent
 uv run gf sessions                                 # validate and list sessions (incl. sessions/generated/)
 uv run gf sessions generate --count 8 --focus "refund edge cases"   # LLM-generated sessions → sessions/generated/
+uv run gf sessions generate --from-docs tickets/         # callers drawn from real tickets/transcripts; also writes traffic.suggested.yaml
 uv run gf sessions export-simulate --out scenarios.yaml             # same sessions for LiveKit's own simulator
 lk agent simulate audio --agent-name gf-support-agent --scenarios scenarios.yaml   # then: lk agent simulate export <run-id> > lk.json
 uv run gf import-simulate lk.json --run-id lk-1    # LiveKit's results as a run, with its verdict next to our checks
 uv run gf probe                                    # scripted caller, no LLM: checks the audio path
 uv run gf run --suite smoke --repeat 2 --max-cost 3   # stop scheduling calls once the priced cost passes $3 (default GF_MAX_COST_USD=10)
 uv run gf gate <run_id> --min-pass 0.7             # CI decision: exit 1 on claimed-without-acting, wrong write, >20% invalid, or an interval below the floor
+uv run gf gate <run_id> --weighted --min-pass 0.7  # the same floor on the traffic-weighted rate (needs traffic.yaml)
 uv run gf demo-run                                 # no keys: a run built from the committed real call records, so the UI has something to show
 ```
 
@@ -94,6 +96,10 @@ A full run of 11 sessions × 3 takes about 12 minutes at concurrency 4; the set 
 A session is one YAML file in `sessions/`. It is immutable: its id is a hash of the content, so editing a file creates a new session and old results stay tied to the definition that produced them.
 
 Three ways: **Sessions → Generate** in the UI (or `gf sessions generate`) proposes sessions from the agent description and the fixture data, validates them and writes them to `sessions/generated/` for review; **Sessions → New session** is a validated editor, prefilled from a template or from any existing session; or copy a file:
+
+**From real material.** `gf sessions generate --from-docs <folder>` reads the text files in a folder (tickets, call transcripts, reviews; `.txt .md .csv .json .jsonl .yaml .log`, up to 60,000 characters in total) and bases each caller on a situation found there: why they call, how they talk, what goes wrong. Facts still come only from the fixture data, and a proposal that carries an email, phone number or order id from the seed text is rejected; the seed file a session came from is kept in `expected.notes`. The seed text is sent to the LLM provider, so strip anything that must not leave the machine first. The LLM also labels every conversation it found with an area; those labels are counted into `traffic.suggested.yaml`.
+
+**Traffic-weighted pass rate.** The plain pass rate averages over whatever the suite holds. With a `traffic.yaml` (start from `traffic.example.yaml` or `traffic.suggested.yaml`) giving each primary area its share of real calls, `gf score` also reports the rate weighted by that mix, the run page shows it under Task success, and `gf gate --weighted` gates on it. Each area is a stratum; the interval is a Wilson interval with the Kish effective sample size, so an area with heavy traffic and few calls widens it. Areas with traffic but no valid calls are reported as uncovered, and the weighted rate then speaks for the covered share only.
 
 ```bash
 cp sessions/refund-basic.yaml sessions/refund-angry-caller.yaml

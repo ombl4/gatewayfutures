@@ -1,0 +1,13 @@
+# Traffic mix: each primary area's share of real calls. Copy to traffic.yaml (or start from
+# the traffic.suggested.yaml that `gf sessions generate --from-docs` writes) and fill in real
+# shares; any scale works, they are normalised. With traffic.yaml present, `gf score` adds a
+# traffic-weighted pass rate and `gf gate --weighted --min-pass X` gates on it.
+# Areas: refund, address change, escalation, adversarial, other
+# (a session's primary area is the first one `gf sessions suites` / the UI shows for it).
+# The numbers below are placeholders, not measurements.
+areas:
+  refund: 50
+  address change: 25
+  escalation: 15
+  adversarial: 5
+  other: 5

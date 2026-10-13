@@ -23,8 +23,10 @@ from gf.scoring.security import check_say, check_security
 from gf.scoring.speech import check_speech
 from gf.scoring.stats import pass_summary
 from gf.scoring.tools import check_tools
+from gf.scoring.traffic import weighted_summary
 from gf.scoring.ux import check_quality, check_ux, check_validity
 from gf.sessions.schema import Session
+from gf.sessions.taxonomy import areas_of
 
 
 def method_version() -> str:
@@ -196,6 +198,7 @@ def score_run(run_id: str) -> dict[str, Any]:
             {
                 "session_id": sid,
                 "title": session.title,
+                "area": areas_of(session)[0],
                 "conditions": session.caller.conditions.model_dump(),
                 "expected_outcome": session.expected.outcome,
                 "attempts": len(rows),
@@ -226,6 +229,7 @@ def score_run(run_id: str) -> dict[str, Any]:
         "calls": len(attempts),
         "invalid": len(attempts) - len(valid_all),
         "overall": overall,
+        "weighted": weighted_summary(per_session),
         "experience": experience,
         "latency_p95_ms": {
             "median": sorted(all_lat)[len(all_lat) // 2] if all_lat else None,

@@ -288,6 +288,14 @@ def score(run_id: str) -> None:
         f"({o['rate']:.0%}, 95% CI {o['ci_low']:.0%}–{o['ci_high']:.0%}), "
         f"{s['invalid']} invalid, flaky: {s['flaky_sessions'] or 'none'}"
     )
+    w = s.get("weighted")
+    if w and w.get("rate") is not None:
+        typer.echo(
+            f"traffic-weighted: {w['rate']:.0%} (95% CI {w['ci_low']:.0%}–{w['ci_high']:.0%}, "
+            f"effective n {w['n_eff']:g}, covers {w['covered_share']:.0%} of traffic"
+            + (f"; no calls for {', '.join(w['uncovered'])}" if w["uncovered"] else "")
+            + ")"
+        )
     for sess in s["sessions"]:
         typer.echo(
             f"  {sess['session_id']}  {sess['passed']}/{sess['n']}  "
@@ -306,13 +314,18 @@ def gate(
     max_invalid: float = typer.Option(
         0.2, help="Fail when more than this share of calls is invalid."
     ),
+    weighted: bool = typer.Option(
+        False,
+        "--weighted",
+        help="Check --min-pass against the traffic-weighted rate (traffic.yaml).",
+    ),
 ) -> None:
     """CI gate over a scored run: exit 1 on a zero-tolerance failure (claimed without acting,
     wrong write), on too many invalid simulations, or on a pass rate whose interval cannot
     reach --min-pass. Prints one line per reason."""
     from gf.scoring.gate import gate_run
 
-    verdict = gate_run(run_id, min_pass=min_pass, max_invalid=max_invalid)
+    verdict = gate_run(run_id, min_pass=min_pass, max_invalid=max_invalid, weighted=weighted)
     for line in verdict["reasons"]:
         typer.echo(f"FAIL: {line}")
     typer.echo(
@@ -320,6 +333,12 @@ def gate(
         f"{verdict['passed']}/{verdict['n']} valid passed (interval {verdict['ci_low']:.0%}–{verdict['ci_high']:.0%}) · "
         f"{verdict['invalid']} invalid · ${verdict['cost_usd']:.2f}"
     )
+    w = verdict.get("weighted")
+    if w and w.get("rate") is not None:
+        typer.echo(
+            f"traffic-weighted {w['rate']:.0%} (interval {w['ci_low']:.0%}–{w['ci_high']:.0%}, "
+            f"covers {w['covered_share']:.0%} of traffic)"
+        )
     raise typer.Exit(code=0 if verdict["ok"] else 1)
 
 
@@ -436,16 +455,38 @@ def sessions_generate(
     focus: str = "",
     seed: int = 42,
     model: str = "gpt-4.1-mini",
+    from_docs: str = typer.Option(
+        "",
+        "--from-docs",
+        help="Folder of real tickets/transcripts/reviews to base the callers on (sent to the LLM).",
+    ),
 ) -> None:
-    """Generate sessions from the agent description into sessions/generated/ (needs OPENAI_API_KEY)."""
-    from gf.sessions.generate import generate
+    """Generate sessions from the agent description into sessions/generated/ (needs OPENAI_API_KEY).
+    With --from-docs, callers are drawn from real support material and the conversations found
+    are counted into traffic.suggested.yaml."""
+    from pathlib import Path
 
-    rep = generate(count, focus, seed=seed, model=model)
+    from gf.sessions.generate import SEED_MAX_CHARS, generate
+
+    rep = generate(
+        count, focus, seed=seed, model=model, from_docs=Path(from_docs) if from_docs else None
+    )
+    if from_docs:
+        typer.echo(f"seed: {len(rep['seed_files'])} file(s) read from {from_docs}")
+        for f in rep["seed_truncated"]:
+            typer.echo(f"  cut at the {SEED_MAX_CHARS:,}-character budget: {f}")
+        if rep["seed_skipped"]:
+            typer.echo(f"  skipped (not text): {', '.join(rep['seed_skipped'][:10])}")
     for w in rep["written"]:
         typer.echo(f"written  {w['id']}  {w['file']}  {w['title'][:60]}")
     for r in rep["rejected"]:
         typer.echo(f"rejected {r['title'][:50]}: {r['reason']}")
     typer.echo(f"{len(rep['written'])} written, {len(rep['rejected'])} rejected")
+    if rep.get("mix") is not None:
+        mix = ", ".join(f"{a} {n}" for a, n in rep["mix"].items() if n) or "none labelled"
+        typer.echo(f"conversations by area: {mix}")
+        if rep["traffic_file"]:
+            typer.echo(f"wrote {rep['traffic_file']}: review it, then copy to traffic.yaml")
 
 
 @sessions_app.command("export-simulate")

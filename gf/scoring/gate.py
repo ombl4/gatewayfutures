@@ -2,7 +2,8 @@
 
 Fails on (a) a zero-tolerance check firing on any valid call, (b) too many invalid
 simulations (the harness, not the agent, is then the problem), or (c) a pass rate whose
-95% Wilson interval cannot reach `min_pass`. A drop inside the interval is never a failure
+95% Wilson interval cannot reach `min_pass`. With `weighted`, (c) uses the traffic-weighted rate
+(traffic.yaml) instead of the plain one. A drop inside the interval is never a failure
 here: that is "within noise", to be confirmed by a rerun, not blocked on.
 """
 
@@ -16,7 +17,9 @@ from gf.config import settings
 ZERO_TOLERANCE = ("claims.claimed_without_acting", "tools.wrong_write")
 
 
-def gate_run(run_id: str, *, min_pass: float = 0.0, max_invalid: float = 0.2) -> dict[str, Any]:
+def gate_run(
+    run_id: str, *, min_pass: float = 0.0, max_invalid: float = 0.2, weighted: bool = False
+) -> dict[str, Any]:
     run_dir = settings().runs_dir / run_id
     summary_path = run_dir / "summary.json"
     if not summary_path.exists():
@@ -42,7 +45,21 @@ def gate_run(run_id: str, *, min_pass: float = 0.0, max_invalid: float = 0.2) ->
         reasons.append(
             f"{invalid}/{n_all} calls invalid ({invalid / n_all:.0%} > {max_invalid:.0%}): fix the simulator before trusting the rate"
         )
-    if min_pass and o.get("n") and o.get("ci_high", 0) < min_pass:
+    w = summ.get("weighted")
+    if weighted and not w:
+        reasons.append(
+            "--weighted needs traffic.yaml and a run scored with it: add the file, then gf score"
+        )
+    elif weighted and w.get("rate") is None:
+        reasons.append(
+            "no valid calls in any area that has traffic: the weighted rate is undefined"
+        )
+    elif weighted and min_pass and w["ci_high"] < min_pass:
+        reasons.append(
+            f"traffic-weighted pass rate {w['rate']:.0%} (interval {w['ci_low']:.0%}–{w['ci_high']:.0%}, "
+            f"covers {w['covered_share']:.0%} of traffic) cannot reach {min_pass:.0%}"
+        )
+    elif not weighted and min_pass and o.get("n") and o.get("ci_high", 0) < min_pass:
         reasons.append(
             f"pass rate {o['rate']:.0%} (interval {o['ci_low']:.0%}–{o['ci_high']:.0%}) cannot reach {min_pass:.0%}"
         )
@@ -58,4 +75,5 @@ def gate_run(run_id: str, *, min_pass: float = 0.0, max_invalid: float = 0.2) ->
         "ci_high": o.get("ci_high", 0.0),
         "invalid": invalid,
         "cost_usd": float((summ.get("cost") or {}).get("usd") or 0.0),
+        "weighted": w,
     }

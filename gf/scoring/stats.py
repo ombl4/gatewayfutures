@@ -11,7 +11,13 @@ def wilson(k: int, n: int, z: float = Z95) -> tuple[float, float, float]:
     """(point, low, high) for k successes in n trials, clipped to [0, 1]."""
     if n <= 0:
         return (0.0, 0.0, 0.0)
-    p = k / n
+    return wilson_rate(k / n, n, z)
+
+
+def wilson_rate(p: float, n: float, z: float = Z95) -> tuple[float, float, float]:
+    """Wilson interval for a rate p over a (possibly fractional, effective) sample size n."""
+    if n <= 0:
+        return (0.0, 0.0, 0.0)
     denom = 1 + z * z / n
     centre = (p + z * z / (2 * n)) / denom
     half = z * sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / denom

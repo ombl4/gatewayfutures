@@ -385,6 +385,7 @@ def kpi_cards(
             "Task success",
             lambda v: _pct(v),
             f"{o.get('passed', 0)} / {n_valid} valid calls · CI {_pct(o.get('ci_low'))}–{_pct(o.get('ci_high'))}"
+            + _weighted_text(summ.get("weighted"))
             if n_valid
             else "no valid calls yet",
             cls=rate_class(cur["rate"]),
@@ -2519,3 +2520,14 @@ def envelopes(audio_path: str, step_ms: int = 50) -> dict[str, Any]:
     out["step_ms"] = step_ms
     out["duration_ms"] = int(len(data) / sr * 1000)
     return out
+
+
+def _weighted_text(w: dict[str, Any] | None) -> str:
+    """The traffic-weighted rate as a suffix for the Task success card ("" without traffic.yaml)."""
+    if not w or w.get("rate") is None:
+        return ""
+    cover = "" if w["covered_share"] >= 0.9995 else f", {_pct(w['covered_share'])} of traffic"
+    return (
+        f" · traffic-weighted {_pct(w['rate'])} "
+        f"(CI {_pct(w['ci_low'])}–{_pct(w['ci_high'])}{cover})"
+    )
